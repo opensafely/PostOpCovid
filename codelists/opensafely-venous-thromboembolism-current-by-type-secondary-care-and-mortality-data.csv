@@ -1,0 +1,27 @@
+code,term,type
+O225,Cerebral venous thrombosis in pregnancy,cvt
+O873,Cerebral venous thrombosis in the puerperium,cvt
+G08,Intracranial and intraspinal phlebitis and thrombophlebitis,cvt
+I636,"Cerebral infarction due to cerebral venous thrombosis, nonpyogenic",cvt
+I676,Nonpyogenic thrombosis of intracranial venous system,cvt
+I80,Phlebitis and thrombophlebitis,dvt
+I801,Phlebitis and thrombophlebitis of femoral vein ,dvt
+I802,Phlebitis and thrombophlebitis of other deep vessels of lower extremities ,dvt
+I803,"Phlebitis and thrombophlebitis of lower extremities, unspecific ",dvt
+O223,Deep phlebothrombosis in pregnancy ,dvt
+O871,Deep phlebothrombosis in the puerperium ,dvt
+I820,Budd-Chiari syndrome ,hepatic
+I26,Pulmonary embolism,pe
+I260,Pulmonary embolism with mention of acute cor pulmonale ,pe
+I269,Pulmonary embolism without mention of acute cor pulmonale ,pe
+O082,Embolism following abortion and ectopic and molar pregnancy ,pe
+O882,Obstetric blood-clot embolism ,pe
+I81,Portal vein thrombosis,portal
+I823,Embolism and thrombosis of renal vein ,renal
+I808,Phlebitis and thrombophlebitis of other sites ,unspecified
+I809,Phlebitis and thrombophlebitis of unspecified site ,unspecified
+I82,Other venous embolism and thrombosis,unspecified
+I821,Thrombophlebitis migrans ,unspecified
+I828,Embolism and thrombosis of other specified veins ,unspecified
+I829,Embolism and thrombosis of unspecified vein,unspecified
+I822,Embolism and thrombosis of vena cava,vc

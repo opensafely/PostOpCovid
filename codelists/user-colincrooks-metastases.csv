@@ -1,0 +1,1017 @@
+code,term
+105041000119109,Secondary squamous cell carcinoma of lung
+105051000119106,Secondary undifferentiated large cell carcinoma of lung
+107831000119101,Secondary squamous cell carcinoma of liver
+1082601000112109,Secondary malignant neoplasm of viscera
+1082901000112103,Primary malignant neoplasm of breast with axillary lymph node invasion
+1090081000000106,Secondary malignant neoplasm of paratracheal lymph nodes
+1090091000000108,Secondary malignant neoplasm of internal mammary lymph nodes
+1090101000000100,Secondary malignant neoplasm of supratrochlear lymph nodes
+1090121000000109,Secondary malignant neoplasm of deep cervical lymph nodes
+1090131000000106,Secondary malignant neoplasm of anterior cervical lymph nodes
+1090141000000102,Secondary malignant neoplasm of superficial cervical lymph nodes
+1090151000000104,Secondary malignant neoplasm of mastoid lymph nodes
+1090161000000101,Secondary malignant neoplasm of diaphragmatic lymph nodes
+1090171000000108,Secondary malignant neoplasm of sacral lymph nodes
+1090181000000105,Secondary malignant neoplasm of inferior epigastric lymph nodes
+1090191000000107,Secondary malignant neoplasm of coeliac lymph nodes
+1090201000000109,Secondary malignant neoplasm of deep inguinal lymph nodes
+1090211000000106,Secondary malignant neoplasm of circumflex iliac lymph nodes
+1090221000000100,Secondary malignant neoplasm of internal iliac lymph nodes
+116811000119106,Non-Hodgkin lymphoma of central nervous system metastatic to lymph node of lower limb
+116821000119104,Non-Hodgkin lymphoma of central nervous system metastatic to lymph node of upper limb
+12246561000119101,Secondary malignant neoplasm of bilateral adrenal glands
+128462008,Secondary malignant neoplastic disease
+128465005,Secondary malignant neoplasm of articular cartilage
+13351431000119102,Secondary malignant neoplasm of lymph nodes of neck from thyroid
+134421000,Pathological fracture due to metastatic bone disease
+154560008,Secondary nodes - axilla/arm
+154561007,Secondary nodes - inguinal/leg
+154564004,Secondary nodes NOS
+154565003,(Secondary Ca specified sites) or (metastases specified sites) or (secondary Ca known site)
+154567006,Secondary Ca GIT
+154571009,(Secondary Ca brain/spinal cord) or (bone secondary Ca) or (brain secondary Ca)
+154574001,Secondary Ca NOS
+154575000,(Ca unspecified site) or (secondary - unknown site)
+15956181000119102,Secondary adenocarcinoma of bilateral lungs
+16260631000119101,Secondary malignant neoplasm of lymph node from neoplasm of female breast
+1661000119106,Metastasis to lung from adenocarcinoma
+1671000119100,Metastasis to lymph node from squamous cell carcinoma
+1681000119102,Metastasis to lymph node from adenocarcinoma
+168516003,X-ray metastasis control
+1691000119104,Metastasis to liver from adenocarcinoma
+169342009,Thyroid tumor/metastasis irradiation
+169345006,Bone tumor/metastasis irradiation
+188379006,(Lymph node metastases) or (secondary and unspecified malignant neoplasm of lymph nodes)
+188380009,"Secondary and unspecified malignant neoplasm of lymph nodes of head, face and neck"
+188381008,Secondary and unspecified malignant neoplasm of superficial parotid lymph nodes
+188382001,Secondary and unspecified malignant neoplasm of mastoid lymph nodes
+188384000,Secondary and unspecified malignant neoplasm of superficial cervical lymph nodes
+188385004,Secondary and unspecified malignant neoplasm of occipital lymph nodes
+188386003,Secondary and unspecified malignant neoplasm of deep parotid lymph nodes
+188387007,Secondary and unspecified malignant neoplasm of submandibular lymph nodes
+188388002,Secondary and unspecified malignant neoplasm of facial lymph nodes
+188389005,Secondary and unspecified malignant neoplasm of submental lymph nodes
+188390001,Secondary and unspecified malignant neoplasm of anterior cervical lymph nodes
+188391002,Secondary and unspecified malignant neoplasm of deep cervical lymph nodes
+188392009,"Secondary and unspecified malignant neoplasm of lymph nodes of head, face and neck NOS"
+188393004,Secondary and unspecified malignant neoplasm of intrathoracic lymph nodes
+188394005,Secondary and unspecified malignant neoplasm of internal mammary lymph nodes
+188395006,Secondary and unspecified malignant neoplasm of intercostal lymph nodes
+188396007,Secondary and unspecified malignant neoplasm of diaphragmatic lymph nodes
+188397003,Secondary and unspecified malignant neoplasm of anterior mediastinal lymph nodes
+188398008,Secondary and unspecified malignant neoplasm of posterior mediastinal lymph nodes
+188399000,Secondary and unspecified malignant neoplasm of paratracheal lymph nodes
+188400007,Secondary and unspecified malignant neoplasm of superficial tracheobronchial lymph nodes
+188401006,Secondary and unspecified malignant neoplasm of inferior tracheobronchial lymph nodes
+188402004,Secondary and unspecified malignant neoplasm of bronchopulmonary lymph nodes
+188403009,Secondary and unspec malig neop pulmonary lymph nodes
+188404003,Secondary and unspecified malignant neoplasm of intrathoracic lymph nodes NOS
+188405002,Secondary and unspecified malignant neoplasm of intra-abdominal lymph nodes
+188406001,Secondary and unspecified malignant neoplasm of celiac lymph nodes
+188407005,Secondary and unspecified malignant neoplasm of superficial mesenteric lymph nodes
+188408000,Secondary and unspecified malignant neoplasm of inferior mesenteric lymph nodes
+188409008,Secondary and unspecified malignant neoplasm of common iliac lymph nodes
+188410003,Secondary and unspecified malignant neoplasm of external iliac lymph nodes
+188411004,Secondary and unspecified malignant neoplasm of intra-abdominal lymph nodes NOS
+188412006,Secondary and unspecified malignant neoplasm of axilla and upper limb lymph nodes
+188413001,Secondary and unspecified malignant neoplasm of axillary lymph nodes
+188414007,Secondary and unspecified malignant neoplasm of supratrochlear lymph nodes
+188415008,Secondary and unspecified malignant neoplasm of infraclavicular lymph nodes
+188416009,Secondary and unspecified malignant neoplasm of pectoral lymph nodes
+188417000,Secondary and unspecified malignant neoplasm of axilla and upper limb lymph nodes NOS
+188418005,Secondary and unspecified malignant neoplasm of inguinal and lower limb lymph nodes
+188419002,Secondary and unspecified malignant neoplasm of superficial inguinal lymph nodes
+188420008,Secondary and unspecified malignant neoplasm of deep inguinal lymph nodes
+188421007,Secondary and unspecified malignant neoplasm of popliteal lymph nodes
+188422000,Secondary and unspecified malignant neoplasm of inguinal and lower limb lymph nodes NOS
+188423005,Secondary and unspecified malignant neoplasm of intrapelvic lymph nodes
+188424004,Secondary and unspecified malignant neoplasm of internal iliac lymph nodes
+188425003,Secondary and unspecified malignant neoplasm of inferior epigastric lymph nodes
+188426002,Secondary and unspecified malignant neoplasm of circumflex iliac lymph nodes
+188427006,Secondary and unspecified malignant neoplasm of sacral lymph nodes
+188428001,Secondary and unspecified malignant neoplasm of obturator lymph nodes
+188429009,Secondary and unspecified malignant neoplasm of intrapelvic lymph nodes NOS
+188430004,Secondary and unspecified malignant neoplasm of lymph nodes in multiple sites
+188432007,Secondary and unspecified malignant neoplasm of lymph nodes NOS
+188433002,Secondary malignant neoplasm of respiratory and/or digestive systems (& carcinoma)
+188434008,Secondary malignant neoplasm of other respiratory organs
+188435009,Secondary malignant neoplasm of small intestine and duodenum
+188436005,Secondary malignant neoplasm of duodenum
+188437001,Secondary malignant neoplasm of jejunum
+188438006,Secondary malignant neoplasm of ileum
+188439003,Secondary malignant neoplasm of small intestine or duodenum NOS
+188440001,Secondary malignant neoplasm of large intestine and rectum
+188441002,Secondary malignant neoplasm of colon
+188442009,Secondary malignant neoplasm of rectum
+188444005,Secondary malignant neoplasm of large intestine or rectum NOS
+188445006,Secondary malignant neoplasm of retroperitoneum and peritoneum
+188447003,Secondary malignant neoplasm of retroperitoneum or peritoneum NOS
+188448008,Secondary malignant neoplasm of other digestive organ
+188449000,Secondary malignant neoplasm of respiratory or digestive system NOS
+188451001,Secondary malignant neoplasm of other urinary organs
+188452008,Secondary malignant neoplasm of other urinary organ NOS
+188454009,Secondary malignant neoplasm of skin of head
+188455005,Secondary malignant neoplasm of skin of face
+188456006,Secondary malignant neoplasm of skin of neck
+188457002,Secondary malignant neoplasm of skin of trunk
+188458007,Secondary malignant neoplasm of skin of shoulder and arm
+188459004,Secondary malignant neoplasm of skin of hip and leg
+188460009,Secondary malignant neoplasm of skin of breast
+188461008,Secondary malignant neoplasm of skin NOS
+188462001,Secondary malignant neoplasm of brain and spinal cord
+188465004,Secondary malignant neoplasm of brain or spinal cord NOS
+188466003,Secondary malignant neoplasm of other part of nervous system
+188468002,Secondary malignant neoplasm of other specified sites
+188469005,Secondary malignant neoplasm of cervix uteri
+188470006,Secondary malignant neoplasm of vulva
+188471005,Secondary malignant neoplasm of epididymis and vas deferens
+188472003,Secondary malignant neoplasm of tongue
+188473008,Secondary malignant neoplasm of other specified site NOS
+188474002,Secondary malignant neoplasm of other specified site NOS
+188481009,Secondary malignant neoplasm of unknown site
+188645002,"Leukemic reticuloendotheliosis of lymph nodes of head, face and neck"
+188648000,Leukemic reticuloendotheliosis of lymph nodes of axilla and upper limb
+188649008,Leukemic reticuloendotheliosis of lymph nodes of inguinal region and lower limb
+190144001,[X]Secondary and unspecified malignant neoplasm lymph nodes of multiple regions
+190145000,[X]Secondary malignant neoplasm of other and unspecified respiratory organs
+190146004,[X]Secondary malignant neoplasm of other and unspecified digestive organs
+190147008,[X]Secondary malignant neoplasm of bladder and other and unspecified urinary organs
+190148003,[X]Secondary malignant neoplasm of other and unspecified parts of nervous system
+190149006,[X]Secondary malignant neoplasm of other specified sites
+230156002,Malignant meningitis
+233940007,Pulmonary tumor embolism
+236512004,Leukemic infiltrate of kidney
+237761007,Adrenal insufficiency due to adrenal metastasis
+241861008,Metastatic malignant neoplasm to nasopharynx
+242862004,Secondary malignant neoplasm of nasopharyngeal wall
+255052006,Malignant neoplasm of unknown origin
+255116009,Secondary carcinoma of respiratory and/or digestive systems
+255118005,Secondary lymphangitic carcinoma
+255119002,Lymphangitis carcinomatosa
+255121007,Carcinomatosis of peritoneal cavity
+255122000,Secondary malignant neoplasm of vulva
+255123005,Metastasis to nervous system and eye
+255124004,Metastasis to peripheral nerve
+255126002,Secondary carcinoma of other specified sites
+261731003,Central nervous system metastases
+261789009,Extra central nervous system metastases
+269473008,Secondary malignant neoplasm of respiratory and digestive systems
+269616004,Secondary nodes - axilla/arm
+269617008,Secondary nodes - inguinal/leg
+269618003,Secondary nodes NOS
+269619006,(Secondary Ca specified sites) or (metastases specified sites) or (secondary Ca known site)
+269620000,Secondary Ca gastrointestinal tract
+269621001,(Secondary Ca brain/spinal cord) or (bone secondary Ca) or (brain secondary Ca)
+269622008,Secondary Ca NOS
+269623003,(Ca unspecified site) or (secondary - unknown site)
+271471008,Secondary malignant neoplasm of other specified sites
+271526003,Secondary and unspecified malignant neoplasm of lymph nodes
+274088005,Secondary malignant neoplasm of unknown site
+275266006,Metastasis to digestive organs
+278051002,Malignant lymphoma of thyroid gland
+278433008,Malignant infiltration of soft tissue
+285598005,Metastasis to trachea of unknown primary
+285603002,Metastasis to bronchus of unknown primary
+285604008,Metastasis to lung of unknown primary
+285605009,Metastasis to pleura of unknown primary
+285606005,Metastasis to heart of unknown primary
+285607001,Metastasis to mediastinum of unknown primary
+285608006,Metastasis to thymus of unknown primary
+285609003,Metastasis to small intestine of unknown primary
+285610008,Metastasis to large intestine of unknown primary
+285611007,Metastasis to colon of unknown primary
+285612000,Metastasis to rectum of unknown primary
+285613005,Metastasis to liver of unknown primary
+285614004,Metastasis to pancreas of unknown primary
+285615003,Metastasis to spleen of unknown primary
+285616002,Metastasis to peritoneum of unknown primary
+285617006,Metastasis to retroperitoneum of unknown primary
+285618001,Metastasis to bone of unknown primary
+285619009,Metastasis to vertebral column of unknown primary
+285631006,Metastasis to skin of unknown primary
+285633009,Metastasis to soft tissue of unknown primary
+285634003,Metastasis to breast of unknown primary
+285635002,Metastasis to uterus of unknown primary
+285637005,Metastasis to ovary of unknown primary
+285638000,Metastasis to vagina of unknown primary
+285639008,Metastasis to kidney of unknown primary
+285640005,Metastasis to bladder of unknown primary
+285641009,Metastasis to brain of unknown primary
+285642002,Metastasis to eye of unknown primary
+285643007,Metastasis to adrenal gland of unknown primary
+285644001,Metastasis to lymph node of unknown primary
+285645000,Disseminated malignancy of unknown primary
+286902000,Secondary carcinoma of gastrointestinal tract
+287689004,Secondary carcinoma NOS
+303194003,Metastasis to head and neck lymph node
+303201005,Metastasis to multiple lymph nodes
+307189004,Alcohol injection of liver metastases
+307226002,Metastatic adenocarcinoma of unknown origin
+307593001,Carcinomatosis
+307601000,Pseudomyxoma peritonei
+307616002,Excision of liver metastasis
+307626009,Destruction of liver metastasis
+307627000,Cryotherapy of liver metastases
+309741006,Secondary malignant neoplasm of tongue
+310504009,Primary malignant neoplasm of unknown site
+314408000,Leukemic infiltrate of choroid
+314418005,Leukemic infiltrate of retina
+314617008,Chemoembolization of liver metastases
+314987003,Metastasis from malignant melanoma of skin
+314988008,Metastasis from malignant tumor of skin
+314989000,Metastasis from malignant tumor of soft tissues
+314990009,Metastasis from malignant tumor of bone
+314991008,Metastasis from malignant tumor of adrenal gland
+314992001,Metastasis from malignant tumor of cervix
+314993006,Metastasis from malignant tumor of uterus
+314994000,Metastasis from malignant tumor of prostate
+314995004,Metastasis from malignant tumor of bladder
+314996003,Metastasis from malignant tumor of kidney
+314997007,Metastasis from malignant tumor of rectum
+314998002,Metastasis from malignant tumor of colon
+314999005,Metastasis from malignant tumor of pancreas
+315000005,Metastasis from malignant tumor of liver
+315001009,Metastasis from malignant tumor of gallbladder
+315002002,Metastasis from malignant tumor of stomach
+315003007,Metastasis from malignant tumor of esophagus
+315004001,Metastasis from malignant tumor of breast
+315005000,Metastasis from malignant tumor of bronchus
+315006004,Metastasis from malignant neoplasm of lung
+315007008,Metastasis from malignant tumor of thyroid
+315008003,Metastasis from malignant tumor of buccal cavity
+315009006,Metastasis from malignant tumor of tongue
+315241008,Pain from metastases
+353561000119103,Secondary malignant neoplasm of right lung
+353741000119106,Secondary malignant neoplasm of left lung
+359780007,Metastatic malignant neoplasm to lateral axillary lymph nodes
+359782004,Metastatic malignant neoplasm to apex of urinary bladder
+359785002,Metastatic malignant neoplasm to dome of urinary bladder
+359987004,Krukenberg tumor
+367639000,Secondary malignant neoplastic process
+369455009,Malignant tumor involving rectum by separate metastasis from endometrium
+369456005,Malignant tumor involving rectum by separate metastasis from fallopian tube
+369457001,Malignant tumor involving rectum by separate metastasis from ovary
+369458006,Malignant tumor involving rectum by separate metastasis from prostate
+369459003,Malignant tumor involving rectum by separate metastasis from uterine cervix
+369460008,Malignant tumor involving rectum by separate metastasis from uterus
+369461007,Malignant tumor involving rectum by separate metastasis from vagina
+369464004,Malignant tumor involving ureter by separate metastasis from bladder
+369467006,Malignant tumor involving urethra by separate metastasis from bladder
+369468001,Malignant tumor involving urethra by separate metastasis from prostate
+369476004,Malignant tumor involving bladder by separate metastasis from endometrium
+369477008,Malignant tumor involving bladder by separate metastasis from fallopian tube
+369478003,Malignant tumor involving bladder by separate metastasis from ovary
+369479006,Malignant tumor involving bladder by separate metastasis from prostate
+369480009,Malignant tumor involving bladder by separate metastasis from uterine cervix
+369481008,Malignant tumor involving bladder by separate metastasis from uterus
+369482001,Malignant tumor involving bladder by separate metastasis from vagina
+369484000,Malignant tumor involving vasa deferentia by separate metastasis from prostate
+369486003,Malignant tumor involving prostate by separate metastasis from bladder
+369488002,Secondary malignant neoplasm of seminal vesicle
+369491002,Malignant tumor involving seminal vesicle by separate metastasis from bladder
+369492009,Malignant tumor involving seminal vesicle by separate metastasis from prostate
+369500009,Malignant tumor involving uterine cervix by separate metastasis from fallopian tube
+369501008,Malignant tumor involving uterine cervix by separate metastasis from ovary
+369502001,Malignant tumor involving uterine corpus by separate metastasis from bladder
+369514009,Secondary malignant neoplasm of left fallopian tube
+369521009,Secondary malignant neoplasm of right fallopian tube
+369523007,Secondary malignant neoplasm of left ovary
+369530001,Secondary malignant neoplasm of right ovary
+369535006,Secondary neoplasm of left broad ligament
+369536007,Secondary neoplasm of right broad ligament
+369538008,Malignant tumor involving left broad ligament by metastasis from ovary
+369540003,Malignant tumor involving right broad ligament by metastasis from ovary
+369542006,Malignant tumor involving left fallopian tube by separate metastasis from endometrium
+369543001,Malignant tumor involving left fallopian tube by separate metastasis from ovary
+369544007,Malignant tumor involving left fallopian tube by separate metastasis from right fallopian tube
+369545008,Malignant tumor involving left fallopian tube by separate metastasis from uterus
+369546009,Malignant tumor involving left fallopian tube by separate metastasis from vagina
+369553000,Malignant tumor involving right fallopian tube by separate metastasis from endometrium
+369554006,Malignant tumor involving right fallopian tube by separate metastasis from left fallopian tube
+369555007,Malignant tumor involving right fallopian tube by separate metastasis from ovary
+369556008,Malignant tumor involving right fallopian tube by separate metastasis from uterine cervix
+369557004,Malignant tumor involving right fallopian tube by separate metastasis from uterus
+369558009,Malignant tumor involving right fallopian tube by separate metastasis from vagina
+369560006,Malignant tumor involving left ovary by separate metastasis from endometrium
+369561005,Malignant tumor involving left ovary by separate metastasis from fallopian tube
+369562003,Malignant tumor involving left ovary by separate metastasis from right ovary
+369563008,Malignant tumor involving left ovary by separate metastasis from uterine cervix
+369564002,Malignant tumor involving left ovary by separate metastasis from vagina
+369565001,Malignant tumor involving left ovary by separate metastasis uterus
+369568004,Malignant tumor involving right ovary by separate metastasis from endometrium
+369569007,Malignant tumor involving right ovary by separate metastasis from fallopian tube
+369570008,Malignant tumor involving right ovary by separate metastasis from left ovary
+369571007,Malignant tumor involving right ovary by separate metastasis from uterine cervix
+369572000,Malignant tumor involving right ovary by separate metastasis from uterus
+369573005,Malignant tumor involving right ovary by separate metastasis from vagina
+369574004,Malignant tumor involving uterine cervix by separate metastasis from vagina
+369575003,Malignant tumor involving uterine corpus by separate metastasis from fallopian tube
+369576002,Malignant tumor involving uterine corpus by separate metastasis from ovary
+369577006,Malignant tumor involving uterine corpus by separate metastasis from uterine cervix
+369578001,Malignant tumor involving uterine corpus by separate metastasis from vagina
+369581006,Malignant tumor involving vagina by separate metastasis from bladder
+369582004,Malignant tumor involving vagina by separate metastasis from endometrium
+369583009,Malignant tumor involving vagina by separate metastasis from fallopian tube
+369584003,Malignant tumor involving vagina by separate metastasis from ovary
+369585002,Malignant tumor involving vagina by separate metastasis from uterine cervix
+369586001,Malignant tumor involving vagina by separate metastasis from uterus
+369588000,Malignant tumor involving vulva by separate metastasis from endometrium
+369589008,Malignant tumor involving vulva by separate metastasis from fallopian tube
+369590004,Malignant tumor involving vulva by separate metastasis from ovary
+369591000,Malignant tumor involving vulva by separate metastasis from uterine cervix
+369592007,Malignant tumor involving vulva by separate metastasis from uterus
+369593002,Malignant tumor involving vulva by separate metastasis from vagina
+369602008,Malignant tumor involving an organ by separate metastasis from bladder
+369603003,Malignant tumor involving an organ by separate metastasis from endometrium
+369604009,Malignant tumor involving an organ by separate metastasis from fallopian tube
+369605005,Malignant tumor involving an organ by separate metastasis from ovary
+369606006,Malignant tumor involving an organ by separate metastasis from prostate
+369607002,Malignant tumor involving an organ by separate metastasis from uterine cervix
+369608007,Malignant tumor involving an organ by separate metastasis from uterus
+369609004,Malignant tumor involving an organ by separate metastasis from vagina
+369610009,Malignant tumor involving left fallopian tube by separate metastasis from uterine cervix
+369825006,T2a (IIA): Fallopian tube tumor with extension and/or metastasis to the uterus and/or ovaries
+372093008,Secondary malignant neoplasm of axillary tail of breast
+396213006,Adrenal gland involved by metastasis from renal tumor
+396535002,Stage IV: Distant metastasis or extension into other organs (adrenal cortical carcinoma)
+396787000,Tumor metastasis to non-regional lymph nodes present
+396788005,Tumor metastasis to non-regional lymph nodes absent
+396789002,Tumor metastasis to non-regional lymph nodes not applicable
+399374009,Regional lymph node metastasis present
+399409002,Distant metastasis present
+399969009,Secondary malignant neoplasm of blood vessel of upper arm
+400058002,Secondary malignant neoplasm of blood vessel of lower leg
+402563000,Metastatic malignant melanoma with diffuse hypermelanosis
+402879006,T-cell leukemic infiltration of skin
+40312006,Pericarditis co-occurrent and due to tumor metastatic to pericardium
+403906006,Metastatic squamous cell carcinoma
+404090003,Malignant infiltration of oral cavity by underlying tumor
+404091004,Malignant infiltration of skin by underlying tumor
+404092006,Carcinomatous metastasis in skin
+404093001,Sarcomatous metastasis in skin
+404094007,Metastasis involving oral cavity
+404122003,Leukemic infiltration of skin (chronic T-cell lymphocytic leukemia)
+404123008,Leukemic infiltration of skin (T-cell prolymphocytic leukemia)
+404124002,Leukemic infiltration of skin (T-cell lymphoblastic leukemia)
+404151004,Leukemic infiltration of skin in myeloid leukemia
+404152006,Leukemic infiltration of skin in acute myeloid leukemia
+404153001,Leukemic infiltration of skin in chronic myeloid leukemia
+404156009,Leukemic infiltration of skin
+405843009,Widespread metastatic malignant neoplastic disease
+405987001,Tumor metastasis to non-regional lymph nodes cannot be assessed
+406098007,Status of metastases in marker lymph node unknown
+409701000000100,[X]Secondary malignant neoplasm of bladder and other and unspecified urinary organs
+409714000,Right regional lymph node metastasis present
+409715004,Left regional lymph node metastasis present
+414676007,Metastatic neuroblastoma of orbit proper
+418529003,Secondary malignant neoplasm of lacrimal drainage structure
+422782004,"Primary malignant neoplasm of ovary, with widespread metastatic disease"
+423032007,Leukemic infiltration of orbit
+423348002,Secondary malignant neoplasm of lacrimal drainage system
+423384009,Secondary malignant neoplasm of lacrimal gland duct
+423595004,Adenocarcinoma carcinomatosis
+423987006,"Primary malignant neoplasm of vulva, with widespread metastatic disease"
+424052001,Small cell carcinoma carcinomatosis
+424190005,Malignant melanoma of unknown origin
+424887002,"Primary malignant neoplasm of thyroid gland, metastatic to bone"
+424954002,Undifferentiated large cell carcinomatosis
+425303004,Squamous cell carcinomatosis
+428411000000106,[X]Secondary malignant neoplasm of other and unspecified parts of nervous system
+439151000000109,[X]Secondary and unspecified malignant neoplasm lymph nodes of multiple regions
+439161000000107,[X]Secondary malignant neoplasm of other and unspecified respiratory organs
+443144000,Metastatic sarcoma
+443493003,Metastatic malignant melanoma
+448922007,Secondary malignant neoplasm of large intestine and rectum
+449630001,Secondary malignant neoplasm of skin of lower leg
+449631002,Secondary malignant neoplasm of skin of upper arm
+449632009,Secondary malignant neoplasm of lower leg
+449633004,Secondary malignant neoplasm of upper arm
+451141000000106,[X]Secondary malignant neoplasm of other and unspecified digestive organs
+462391000000102,[X]Secondary malignant neoplasm of other specified sites
+533471000000103,Secondary malignant neoplasm of other respiratory organs
+533491000000104,"Secondary and unspecified malignant neoplasm of lymph nodes of head, face and neck"
+533951000000104,Secondary malignant neoplasm of skin NOS
+535821000000103,Secondary and unspecified malignant neoplasm of bronchopulmonary lymph nodes
+536091000000103,Secondary and unspecified malignant neoplasm of intrathoracic lymph nodes NOS
+536201000000102,Secondary and unspecified malignant neoplasm of axillary lymph nodes
+536941000000107,Secondary and unspecified malignant neoplasm of obturator lymph nodes
+538001000000109,Secondary and unspecified malignant neoplasm of common iliac lymph nodes
+538011000000106,Secondary and unspecified malignant neoplasm of external iliac lymph nodes
+538021000000100,Secondary and unspecified malignant neoplasm of intra-abdominal lymph nodes NOS
+538031000000103,Secondary and unspecified malignant neoplasm of axilla and upper limb lymph nodes
+538041000000107,Secondary and unspecified malignant neoplasm of supratrochlear lymph nodes
+538051000000105,Secondary and unspecified malignant neoplasm of infraclavicular lymph nodes
+538061000000108,Secondary and unspecified malignant neoplasm of pectoral lymph nodes
+538081000000104,Secondary and unspecified malignant neoplasm of inguinal and lower limb lymph nodes
+538091000000102,Secondary and unspecified malignant neoplasm of superficial inguinal lymph nodes
+538111000000107,Secondary and unspecified malignant neoplasm of deep inguinal lymph nodes
+539541000000105,Secondary and unspecified malignant neoplasm of inferior tracheobronchial lymph nodes
+539571000000104,Secondary and unspecified malignant neoplasm of paratracheal lymph nodes
+541001000000104,Secondary and unspecified malignant neoplasm of intra-abdominal lymph nodes
+541111000000101,Secondary and unspecified malignant neoplasm of celiac lymph nodes
+541121000000107,Secondary and unspecified malignant neoplasm of superficial mesenteric lymph nodes
+541131000000109,Secondary and unspecified malignant neoplasm of inferior mesenteric lymph nodes
+541651000000105,Secondary and unspecified malignant neoplasm of inferior epigastric lymph nodes
+541661000000108,Secondary and unspecified malignant neoplasm of intrapelvic lymph nodes NOS
+541671000000101,Secondary and unspecified malignant neoplasm of lymph nodes in multiple sites
+541681000000104,Secondary and unspecified malignant neoplasm of lymph nodes NOS
+541701000000102,Secondary malignant neoplasm of small intestine or duodenum NOS
+541711000000100,Secondary malignant neoplasm of large intestine or rectum NOS
+541731000000108,Secondary malignant neoplasm of respiratory or digestive system NOS
+541741000000104,Secondary malignant neoplasm of other urinary organs
+542881000000106,Secondary and unspecified malignant neoplasm of superficial parotid lymph nodes
+543391000000107,Secondary and unspecified malignant neoplasm of axilla and upper limb lymph nodes NOS
+545241000000108,Secondary and unspecified malignant neoplasm of superficial cervical lymph nodes
+546691000000106,Secondary malignant neoplasm of retroperitoneum or peritoneum NOS
+546701000000106,Secondary malignant neoplasm of other digestive organ
+547121000000104,Secondary and unspecified malignant neoplasm of popliteal lymph nodes
+547131000000102,Secondary and unspecified malignant neoplasm of inguinal and lower limb lymph nodes NOS
+547141000000106,Secondary and unspecified malignant neoplasm of intrapelvic lymph nodes
+547151000000109,Secondary and unspecified malignant neoplasm of internal iliac lymph nodes
+547161000000107,Secondary and unspecified malignant neoplasm of circumflex iliac lymph nodes
+553641000000108,Secondary and unspecified malignant neoplasm of intercostal lymph nodes
+553651000000106,Secondary and unspecified malignant neoplasm of diaphragmatic lymph nodes
+555731000000108,Secondary and unspecified malignant neoplasm of sacral lymph nodes
+556161000000106,Secondary malignant neoplasm of brain or spinal cord NOS
+556171000000104,Secondary malignant neoplasm of other part of nervous system
+558011000000107,Secondary and unspecified malignant neoplasm of intrathoracic lymph nodes
+558021000000101,Secondary and unspecified malignant neoplasm of internal mammary lymph nodes
+565581000000109,Secondary and unspecified malignant neoplasm of anterior mediastinal lymph nodes
+565591000000106,Secondary and unspecified malignant neoplasm of posterior mediastinal lymph nodes
+565601000000100,Secondary and unspecified malignant neoplasm of superficial tracheobronchial lymph nodes
+569271000000107,Secondary and unspecified malignant neoplasm of occipital lymph nodes
+569281000000109,Secondary malignant neoplasm of other urinary organ NOS
+569291000000106,Secondary and unspecified malignant neoplasm of deep parotid lymph nodes
+569301000000105,Secondary and unspecified malignant neoplasm of submandibular lymph nodes
+569311000000107,Secondary and unspecified malignant neoplasm of facial lymph nodes
+569321000000101,Secondary and unspecified malignant neoplasm of anterior cervical lymph nodes
+569331000000104,Secondary and unspecified malignant neoplasm of deep cervical lymph nodes
+569351000000106,"Secondary and unspecified malignant neoplasm of lymph nodes of head, face and neck NOS"
+579231000000101,Secondary and unspecified malignant neoplasm of mastoid lymph nodes
+579301000000101,Secondary and unspecified malignant neoplasm of submental lymph nodes
+640531000000100,Secondary malignant neoplasm of other specified site NOS
+670121000000109,Secondary nodes NOS
+670131000000106,Secondary Ca NOS
+685431000000104,Secondary and unspecified malignant neoplasm of lymph nodes
+688151000000106,Secondary malignant neoplasm of other specified sites
+702392008,Metastatic renal cell carcinoma
+702741000000102,Secondary carcinoma of other specified sites
+703467000,Excision of secondary malignant neoplasm
+703541000000100,Secondary carcinoma NOS
+704152002,Metastatic neuroblastoma
+705176003,Metastatic carcinoid tumor
+709285002,Secondary malignant neoplasm of lumbosacral plexus
+712849003,Primary malignant neoplasm of prostate metastatic to bone
+713425003,Spinal cord compression due to metastasis to spine
+720587009,Donor derived melanoma
+722671009,Metastatic malignant neoplasm of meninges
+722707001,Metastatic malignant neoplasm of peripheral nervous system
+767444009,Germline BRCA-mutated human epidermal growth factor receptor 2 negative metastatic carcinoma of breast
+767511000000109,Secondary malignant neoplasm of large intestine and rectum
+781076008,Secondary malignant neoplasm of colon and/or rectum
+78461000119105,Secondary squamous cell carcinoma of skin
+813671000000107,Secondary malignant neoplasm of liver and intrahepatic bile duct
+827186009,Secondary malignant neoplasm of skin of hip and skin of lower leg
+832581000000109,Secondary malignant neoplasm of liver and intrahepatic bile duct
+836274002,Carcinomatosis of peritoneum
+836486002,Lymphomatous infiltrate of kidney
+866087009,Pathological fracture of vertebra due to metastatic bone disease
+91281000119103,Secondary adenocarcinoma of bone
+93144003,Leukemic reticuloendotheliosis of intra-abdominal lymph nodes
+93145002,Leukemic reticuloendotheliosis of intrapelvic lymph nodes
+93146001,Leukemic reticuloendotheliosis of intrathoracic lymph nodes
+93150008,Leukemic reticuloendotheliosis of lymph nodes of multiple sites
+94152006,Secondary malignant neoplasm of abdominal esophagus
+94153001,Secondary malignant neoplasm of abducens nerve
+94154007,Secondary malignant neoplasm of accessory nerve
+94155008,Secondary malignant neoplasm of accessory sinus
+94156009,Secondary malignant neoplasm of acoustic nerve
+94157000,Secondary malignant neoplasm of acromion
+94158005,Secondary malignant neoplasm of adenoid
+94159002,Secondary malignant neoplasm of adnexa of skin
+94160007,Secondary malignant neoplasm of adrenal cortex
+94161006,Secondary malignant neoplasm of adrenal gland
+94162004,Secondary malignant neoplasm of adrenal medulla
+94163009,Secondary malignant neoplasm of alveolar ridge mucosa
+94164003,Secondary malignant neoplasm of ampulla of Vater
+94165002,Secondary malignant neoplasm of anal canal
+94166001,Secondary malignant neoplasm of anterior aspect of epiglottis
+94167005,Secondary malignant neoplasm of anterior mediastinum
+94168000,Secondary malignant neoplasm of anterior portion of floor of mouth
+94169008,Secondary malignant neoplasm of anterior two-thirds of tongue
+94170009,Secondary malignant neoplasm of anterior wall of nasopharynx
+94171008,Secondary malignant neoplasm of anterior wall of urinary bladder
+94172001,Secondary malignant neoplasm of anus
+94173006,Secondary malignant neoplasm of aortic body
+94174000,Secondary malignant neoplasm of apex of urinary bladder
+94175004,Secondary malignant neoplasm of appendix
+94176003,Secondary malignant neoplasm of areola of female breast
+94177007,Secondary malignant neoplasm of areola of male breast
+94178002,Secondary malignant neoplasm of arm
+94179005,Secondary malignant neoplasm of ascending colon
+94180008,Secondary malignant neoplasm of axilla
+94181007,Secondary malignant neoplasm of axillary lymph nodes
+94182000,Secondary malignant neoplasm of axillary tail of female breast
+94183005,Secondary malignant neoplasm of back
+94184004,Secondary malignant neoplasm of base of tongue
+94185003,Secondary malignant neoplasm of biliary tract
+94186002,Secondary malignant neoplasm of bladder
+94187006,Secondary malignant neoplasm of blood vessel of abdomen
+94188001,Secondary malignant neoplasm of blood vessel of arm
+94189009,Secondary malignant neoplasm of blood vessel of axilla
+94190000,Secondary malignant neoplasm of blood vessel of buttock
+94191001,Secondary malignant neoplasm of blood vessel of face
+94192008,Secondary malignant neoplasm of blood vessel of finger
+94193003,Secondary malignant neoplasm of blood vessel of foot
+94194009,Secondary malignant neoplasm of blood vessel of forearm
+94195005,Secondary malignant neoplasm of blood vessel of hand
+94196006,Secondary malignant neoplasm of blood vessel of head
+94197002,Secondary malignant neoplasm of blood vessel of hip
+94198007,Secondary malignant neoplasm of blood vessel of inguinal region
+94199004,Secondary malignant neoplasm of blood vessel of leg
+94200001,Secondary malignant neoplasm of blood vessel of lower limb
+94201002,Secondary malignant neoplasm of blood vessel of neck
+94202009,Secondary malignant neoplasm of blood vessel of pelvis
+94203004,Secondary malignant neoplasm of blood vessel of perineum
+94204005,Secondary malignant neoplasm of blood vessel of popliteal space
+94205006,Secondary malignant neoplasm of blood vessel of shoulder
+94206007,Secondary malignant neoplasm of blood vessel of thigh
+94207003,Secondary malignant neoplasm of blood vessel of thorax
+94208008,Secondary malignant neoplasm of blood vessel of toe
+94209000,Secondary malignant neoplasm of blood vessel of trunk
+94210005,Secondary malignant neoplasm of blood vessel of upper limb
+94211009,Secondary malignant neoplasm of blood vessel
+94212002,Secondary malignant neoplasm of body of pancreas
+94213007,Secondary malignant neoplasm of body of penis
+94214001,Secondary malignant neoplasm of body of stomach
+94215000,Secondary malignant neoplasm of body of uterus
+94216004,Secondary malignant neoplasm of bone and articular cartilage
+94217008,Secondary malignant neoplasm of bone marrow
+94218003,Secondary malignant neoplasm of bone of face
+94219006,Secondary malignant neoplasm of bone of lower limb
+94220000,Secondary malignant neoplasm of bone of skull
+94221001,Secondary malignant neoplasm of bone of upper limb
+94222008,Secondary malignant neoplasm of bone
+94223003,Secondary malignant neoplasm of lateral axillary lymph nodes
+94224009,Secondary malignant neoplasm of brain stem
+94225005,Secondary malignant neoplasm of brain
+94226006,Secondary malignant neoplasm of broad ligament
+94227002,Secondary malignant neoplasm of bronchopulmonary lymph nodes
+94228007,Secondary malignant neoplasm of bronchus of left lower lobe
+94229004,Secondary malignant neoplasm of bronchus of left upper lobe
+94230009,Secondary malignant neoplasm of bronchus of right lower lobe
+94231008,Secondary malignant neoplasm of bronchus of right middle lobe
+94232001,Secondary malignant neoplasm of bronchus of right upper lobe
+94233006,Secondary malignant neoplasm of bronchus
+94234000,Secondary malignant neoplasm of buccal mucosa
+94235004,Secondary malignant neoplasm of cecum
+94236003,Secondary malignant neoplasm of calcaneus
+94237007,Secondary malignant neoplasm of cardia of stomach
+94238002,Secondary malignant neoplasm of carina
+94239005,Secondary malignant neoplasm of carotid body
+94240007,Secondary malignant neoplasm of carpal bone
+94241006,Secondary malignant neoplasm of cartilage of nose
+94242004,Secondary malignant neoplasm of cauda equina
+94243009,Secondary malignant neoplasm of central nervous system
+94244003,Secondary malignant neoplasm of central portion of female breast
+94245002,Secondary malignant neoplasm of cerebellum
+94246001,Secondary malignant neoplasm of cerebral meninges
+94247005,Secondary malignant neoplasm of cerebral ventricle
+94248000,Secondary malignant neoplasm of cerebrum
+94249008,Secondary malignant neoplasm of cervical esophagus
+94250008,Secondary malignant neoplasm of cervical vertebral column
+94251007,Secondary malignant neoplasm of uterine cervix
+94252000,Secondary malignant neoplasm of cheek
+94253005,Secondary malignant neoplasm of chest wall
+94254004,Secondary malignant neoplasm of choroid
+94255003,Secondary malignant neoplasm of ciliary body
+94256002,Secondary malignant neoplasm of clavicle
+94257006,Secondary malignant neoplasm of clitoris
+94258001,Secondary malignant neoplasm of coccygeal body
+94259009,Secondary malignant neoplasm of coccyx
+94260004,Secondary malignant neoplasm of colon
+94261000,Secondary malignant neoplasm of commissure of lip
+94262007,Secondary malignant neoplasm of common bile duct
+94263002,Secondary malignant neoplasm of conjunctiva
+94264008,Secondary malignant neoplasm of soft tissues
+94265009,Secondary malignant neoplasm of cornea
+94266005,Secondary malignant neoplasm of cranial nerve
+94267001,Secondary malignant neoplasm of craniopharyngeal duct
+94268006,Secondary malignant neoplasm of cubital lymph nodes
+94269003,Secondary malignant neoplasm of cuboid
+94270002,Secondary malignant neoplasm of cystic duct
+94271003,Secondary malignant neoplasm of descending colon
+94272005,Secondary malignant neoplasm of diaphragm
+94273000,Secondary malignant neoplasm of dorsal surface of tongue
+94274006,Secondary malignant neoplasm of thoracic vertebral column
+94275007,Secondary malignant neoplasm of duodenum
+94276008,Secondary malignant neoplasm of ectopic female breast tissue
+94277004,Secondary malignant neoplasm of ectopic male breast tissue
+94278009,Secondary malignant neoplasm of endocardium
+94279001,Secondary malignant neoplasm of endocervix
+94280003,Secondary malignant neoplasm of endocrine gland
+94281004,Secondary malignant neoplasm of endometrium
+94282006,Secondary malignant neoplasm of epicardium
+94283001,Secondary malignant neoplasm of epididymis
+94284007,Secondary malignant neoplasm of epiglottis
+94285008,Secondary malignant neoplasm of epitrochlear lymph nodes
+94286009,Secondary malignant neoplasm of esophagus
+94287000,Secondary malignant neoplasm of ethmoid bone
+94288005,Secondary malignant neoplasm of ethmoidal sinus
+94289002,Secondary malignant neoplasm of eustachian tube
+94290006,Secondary malignant neoplasm of exocervix
+94291005,Secondary malignant neoplasm of extrahepatic bile ducts
+94292003,Secondary malignant neoplasm of eye
+94293008,Secondary malignant neoplasm of face
+94294002,Secondary malignant neoplasm of facial nerve
+94295001,Secondary malignant neoplasm of fallopian tube
+94296000,Secondary malignant neoplasm of false vocal cord
+94297009,Secondary malignant neoplasm of female breast
+94298004,Secondary malignant neoplasm of female genital organ
+94299007,Secondary malignant neoplasm of femoral lymph nodes
+94300004,Secondary malignant neoplasm of femur
+94301000,Secondary malignant neoplasm of fibula
+94302007,Secondary malignant neoplasm of first cuneiform bone of foot
+94303002,Secondary malignant neoplasm of flank
+94304008,Secondary malignant neoplasm of floor of mouth
+94305009,Secondary malignant neoplasm of foot
+94306005,Secondary malignant neoplasm of forearm
+94307001,Secondary malignant neoplasm of prepuce
+94308006,Secondary malignant neoplasm of frontal bone
+94309003,Secondary malignant neoplasm of frontal lobe
+94310008,Secondary malignant neoplasm of frontal sinus
+94311007,Secondary malignant neoplasm of fundus of stomach
+94312000,Secondary malignant neoplasm of gallbladder
+94313005,Secondary malignant neoplasm of gastrointestinal tract
+94314004,Secondary malignant neoplasm of gingival mucosa
+94315003,Secondary malignant neoplasm of glans penis
+94316002,Secondary malignant neoplasm of glomus jugulare
+94317006,Secondary malignant neoplasm of glossopharyngeal nerve
+94318001,Secondary malignant neoplasm of glottis
+94319009,Secondary malignant neoplasm of great vessels
+94320003,Secondary malignant neoplasm of greater curvature of stomach
+94321004,Secondary malignant neoplasm of gum
+94322006,Secondary malignant neoplasm of hamate bone
+94323001,Secondary malignant neoplasm of hand
+94324007,Secondary malignant neoplasm of hard palate
+94325008,Secondary malignant neoplasm of head of pancreas
+94326009,Secondary malignant neoplasm of head
+94327000,Secondary malignant neoplasm of heart
+94328005,Secondary malignant neoplasm of hepatic flexure of colon
+94329002,Secondary malignant neoplasm of hilus of lung
+94330007,Secondary malignant neoplasm of hypogastric lymph nodes
+94331006,Secondary malignant neoplasm of hypoglossal nerve
+94332004,Secondary malignant neoplasm of hypopharyngeal aspect of aryepiglottic fold
+94333009,Secondary malignant neoplasm of hypopharyngeal aspect of interarytenoid fold
+94334003,Secondary malignant neoplasm of hypopharynx
+94335002,Secondary malignant neoplasm of ileum
+94336001,Secondary malignant neoplasm of iliac lymph nodes
+94337005,Secondary malignant neoplasm of ilium
+94338000,Secondary malignant neoplasm of infraclavicular lymph nodes
+94339008,Secondary malignant neoplasm of inguinal lymph nodes
+94340005,Secondary malignant neoplasm of inguinal region
+94341009,Secondary malignant neoplasm of inner aspect of lip
+94342002,Secondary malignant neoplasm of inner aspect of lower lip
+94343007,Secondary malignant neoplasm of inner aspect of upper lip
+94344001,Secondary malignant neoplasm of intercostal lymph nodes
+94345000,Secondary malignant neoplasm of intestinal lymph nodes
+94346004,Secondary malignant neoplasm of intestinal tract
+94347008,Secondary malignant neoplasm of intra-abdominal lymph nodes
+94348003,Secondary malignant neoplasm of intra-abdominal organs
+94349006,Secondary malignant neoplasm of intrahepatic bile ducts
+94350006,Secondary malignant neoplasm of intrapelvic lymph nodes
+94351005,Secondary malignant neoplasm of intrathoracic lymph nodes
+94352003,Secondary malignant neoplasm of intrathoracic organs
+94353008,Secondary malignant neoplasm of ischium
+94354002,Secondary malignant neoplasm of islets of Langerhans
+94355001,Secondary malignant neoplasm of isthmus of uterus
+94356000,Secondary malignant neoplasm of jaw
+94357009,Secondary malignant neoplasm of jejunum
+94358004,Secondary malignant neoplasm of junctional region of epiglottis
+94359007,Secondary malignant neoplasm of junctional zone of tongue
+94360002,Secondary malignant neoplasm of kidney
+94361003,Secondary malignant neoplasm of labia majora
+94362005,Secondary malignant neoplasm of labia minora
+94363000,Secondary malignant neoplasm of lacrimal duct
+94364006,Secondary malignant neoplasm of lacrimal gland
+94365007,Secondary malignant neoplasm of large intestine
+94366008,Secondary malignant neoplasm of laryngeal aspect of aryepiglottic fold
+94367004,Secondary malignant neoplasm of laryngeal aspect of interarytenoid fold
+94368009,Secondary malignant neoplasm of laryngeal commissure
+94369001,Secondary malignant neoplasm of laryngeal surface of epiglottis
+94370000,Secondary malignant neoplasm of larynx
+94371001,Secondary malignant neoplasm of lateral portion of floor of mouth
+94372008,Secondary malignant neoplasm of lateral wall of nasopharynx
+94373003,Secondary malignant neoplasm of lateral wall of oropharynx
+94374009,Secondary malignant neoplasm of lateral wall of urinary bladder
+94375005,Secondary malignant neoplasm of left lower lobe of lung
+94376006,Secondary malignant neoplasm of left upper lobe of lung
+94377002,Secondary malignant neoplasm of leg
+94378007,Secondary malignant neoplasm of lesser curvature of stomach
+94379004,Secondary malignant neoplasm of lingual tonsil
+94380001,Secondary malignant neoplasm of lip
+94381002,Secondary malignant neoplasm of liver
+94382009,Secondary malignant neoplasm of long bone of lower limb
+94383004,Secondary malignant neoplasm of long bone of upper limb
+94384005,Secondary malignant neoplasm of lower gum
+94385006,Secondary malignant neoplasm of lower inner quadrant of female breast
+94386007,Secondary malignant neoplasm of lower limb
+94387003,Secondary malignant neoplasm of lower outer quadrant of female breast
+94388008,Secondary malignant neoplasm of lower third of esophagus
+94389000,Secondary malignant neoplasm of lumbar vertebral column
+94390009,Secondary malignant neoplasm of lunate bone
+94391008,Secondary malignant neoplasm of lung
+94392001,Secondary malignant neoplasm of lymph node
+94393006,Secondary malignant neoplasm of lymph nodes of face
+94394000,Secondary malignant neoplasm of lymph nodes of head
+94395004,Secondary malignant neoplasm of lymph nodes of lower limb
+94396003,Secondary malignant neoplasm of lymph nodes of multiple sites
+94397007,Secondary malignant neoplasm of lymph nodes of neck
+94398002,Secondary malignant neoplasm of lymph nodes of upper limb
+94399005,Secondary malignant neoplasm of main bronchus
+94400003,Secondary malignant neoplasm of major salivary gland
+94401004,Secondary malignant neoplasm of male breast
+94402006,Secondary malignant neoplasm of male genital organ
+94403001,Secondary malignant neoplasm of mandible
+94404007,Secondary malignant neoplasm of mastoid air cells
+94405008,Secondary malignant neoplasm of maxilla
+94406009,Secondary malignant neoplasm of maxillary sinus
+94407000,Secondary malignant neoplasm of Meckel's diverticulum
+94408005,Secondary malignant neoplasm of mediastinal lymph nodes
+94409002,Secondary malignant neoplasm of mediastinum
+94410007,Secondary malignant neoplasm of mesenteric lymph nodes
+94411006,Secondary malignant neoplasm of metacarpal bone
+94412004,Secondary malignant neoplasm of metatarsal bone
+94413009,Secondary malignant neoplasm of middle ear
+94414003,Secondary malignant neoplasm of middle third of esophagus
+94415002,Secondary malignant neoplasm of minor salivary gland
+94416001,Secondary malignant neoplasm of mouth
+94417005,Secondary malignant neoplasm of multiple endocrine glands
+94418000,Secondary malignant neoplasm of muscle of abdomen
+94419008,Secondary malignant neoplasm of muscle of buttock
+94420002,Secondary malignant neoplasm of muscle of face
+94421003,Secondary malignant neoplasm of muscle of head
+94422005,Secondary malignant neoplasm of muscle of hip
+94423000,Secondary malignant neoplasm of muscle of inguinal region
+94424006,Secondary malignant neoplasm of muscle of lower limb
+94425007,Secondary malignant neoplasm of muscle of neck
+94426008,Secondary malignant neoplasm of muscle of pelvis
+94427004,Secondary malignant neoplasm of muscle of perineum
+94428009,Secondary malignant neoplasm of muscle of shoulder
+94429001,Secondary malignant neoplasm of muscle of thorax
+94430006,Secondary malignant neoplasm of muscle of trunk
+94431005,Secondary malignant neoplasm of muscle of upper limb
+94432003,Secondary malignant neoplasm of muscle
+94433008,Secondary malignant neoplasm of myocardium
+94434002,Secondary malignant neoplasm of myometrium
+94435001,Secondary malignant neoplasm of nasal bone
+94436000,Secondary malignant neoplasm of nasal cavity
+94437009,Secondary malignant neoplasm of nasal concha
+94438004,Secondary malignant neoplasm of nasopharynx
+94439007,Secondary malignant neoplasm of navicular bone of foot
+94440009,Secondary malignant neoplasm of scaphoid bone
+94441008,Secondary malignant neoplasm of neck
+94442001,Secondary malignant neoplasm of nervous system
+94443006,Secondary malignant neoplasm of nipple of female breast
+94444000,Secondary malignant neoplasm of nipple of male breast
+94445004,Secondary malignant neoplasm of nose
+94446003,Secondary malignant neoplasm of obturator lymph nodes
+94447007,Secondary malignant neoplasm of occipital bone
+94448002,Secondary malignant neoplasm of occipital lobe
+94449005,Secondary malignant neoplasm of occipital lymph nodes
+94450005,Secondary malignant neoplasm of oculomotor nerve
+94451009,Secondary malignant neoplasm of olfactory nerve
+94452002,Secondary malignant neoplasm of optic nerve
+94453007,Secondary malignant neoplasm of orbit proper
+94454001,Secondary malignant neoplasm of oropharynx
+94455000,Secondary malignant neoplasm of ovary
+94456004,Secondary malignant neoplasm of palate
+94457008,Secondary malignant neoplasm of palatine bone
+94458003,Secondary malignant neoplasm of tonsil
+94459006,Secondary malignant neoplasm of pancreas
+94460001,Secondary malignant neoplasm of pancreatic duct
+94461002,Secondary malignant neoplasm of para-aortic body
+94462009,Secondary malignant neoplasm of paraganglion
+94463004,Secondary malignant neoplasm of paramammary lymph nodes
+94464005,Secondary malignant neoplasm of parametrial lymph nodes
+94465006,Secondary malignant neoplasm of parametrium
+94466007,Secondary malignant neoplasm of pararectal lymph nodes
+94467003,Secondary malignant neoplasm of parathyroid gland
+94468008,Secondary malignant neoplasm of paraurethral glands
+94469000,Secondary malignant neoplasm of paravaginal lymph nodes
+94470004,Secondary malignant neoplasm of parietal bone
+94471000,Secondary malignant neoplasm of parietal lobe
+94472007,Secondary malignant neoplasm of parietal peritoneum
+94473002,Secondary malignant neoplasm of parietal pleura
+94474008,Secondary malignant neoplasm of parotid gland
+94475009,Secondary malignant neoplasm of parotid lymph nodes
+94476005,Secondary malignant neoplasm of patella
+94477001,Secondary malignant neoplasm of pectoral axillary lymph nodes
+94478006,Secondary malignant neoplasm of pelvic bone
+94479003,Secondary malignant neoplasm of pelvic peritoneum
+94480000,Secondary malignant neoplasm of pelvis
+94481001,Secondary malignant neoplasm of penis
+94482008,Secondary malignant neoplasm of periadrenal tissue
+94483003,Secondary malignant neoplasm of perianal skin
+94484009,Secondary malignant neoplasm of pericardium
+94485005,Secondary malignant neoplasm of perirenal tissue
+94486006,Secondary malignant neoplasm of phalanx of foot
+94487002,Secondary malignant neoplasm of phalanx of hand
+94488007,Secondary malignant neoplasm of pharynx
+94489004,Secondary malignant neoplasm of pineal gland
+94490008,Secondary malignant neoplasm of pisiform bone of hand
+94491007,Secondary malignant neoplasm of pituitary gland
+94492000,Secondary malignant neoplasm of placenta
+94493005,Secondary malignant neoplasm of pleura
+94494004,Secondary malignant neoplasm of popliteal lymph nodes
+94495003,Secondary malignant neoplasm of postcricoid region
+94496002,Secondary malignant neoplasm of posterior hypopharyngeal wall
+94497006,Secondary malignant neoplasm of posterior mediastinum
+94498001,Secondary malignant neoplasm of posterior wall of nasopharynx
+94499009,Secondary malignant neoplasm of posterior wall of oropharynx
+94500000,Secondary malignant neoplasm of posterior wall of urinary bladder
+94501001,Secondary malignant neoplasm of preauricular lymph nodes
+94502008,Secondary malignant neoplasm of presacral region
+94503003,Secondary malignant neoplasm of prostate
+94504009,Secondary malignant neoplasm of pubis
+94505005,Secondary malignant neoplasm of pyloric antrum
+94506006,Secondary malignant neoplasm of pylorus
+94507002,Secondary malignant neoplasm of pyriform sinus
+94508007,Secondary malignant neoplasm of radius
+94509004,Secondary malignant neoplasm of rectosigmoid junction
+94510009,Secondary malignant neoplasm of rectouterine pouch
+94511008,Secondary malignant neoplasm of rectovaginal septum
+94512001,Secondary malignant neoplasm of rectovesical septum
+94513006,Secondary malignant neoplasm of rectum
+94514000,Secondary malignant neoplasm of renal pelvis
+94515004,Secondary malignant neoplasm of respiratory tract
+94516003,Secondary malignant neoplasm of retina
+94517007,Secondary malignant neoplasm of retrocecal tissue
+94518002,Secondary malignant neoplasm of retromolar area
+94519005,Secondary malignant neoplasm of retroperitoneal lymph nodes
+94520004,Secondary malignant neoplasm of retropharyngeal lymph nodes
+94521000,Secondary malignant neoplasm of rib
+94522007,Secondary malignant neoplasm of right lower lobe of lung
+94523002,Secondary malignant neoplasm of right middle lobe of lung
+94524008,Secondary malignant neoplasm of right upper lobe of lung
+94525009,Secondary malignant neoplasm of round ligament of uterus
+94526005,Secondary malignant neoplasm of sacrococcygeal region
+94527001,Secondary malignant neoplasm of sacrum
+94528006,Secondary malignant neoplasm of scalene lymph nodes
+94529003,Secondary malignant neoplasm of scapula
+94530008,Secondary malignant neoplasm of sclera
+94531007,Secondary malignant neoplasm of scrotum
+94532000,Secondary malignant neoplasm of sebaceous gland
+94533005,Secondary malignant neoplasm of second cuneiform bone of foot
+94534004,Secondary malignant neoplasm of septum of nose
+94535003,Secondary malignant neoplasm of short bone of lower limb
+94536002,Secondary malignant neoplasm of short bone of upper limb
+94537006,Secondary malignant neoplasm of shoulder
+94538001,Secondary malignant neoplasm of sigmoid colon
+94539009,Secondary malignant neoplasm of skin of abdomen
+94540006,Secondary malignant neoplasm of skin of ankle
+94541005,Secondary malignant neoplasm of skin of arm
+94542003,Secondary malignant neoplasm of skin of axilla
+94543008,Secondary malignant neoplasm of skin of back
+94544002,Secondary malignant neoplasm of skin of breast
+94545001,Secondary malignant neoplasm of skin of buttock
+94546000,Secondary malignant neoplasm of skin of cheek
+94547009,Secondary malignant neoplasm of skin of chest
+94548004,Secondary malignant neoplasm of skin of chin
+94549007,Secondary malignant neoplasm of skin of ear
+94550007,Secondary malignant neoplasm of skin of elbow
+94551006,Secondary malignant neoplasm of skin of external auditory canal
+94552004,Secondary malignant neoplasm of skin of eyebrow
+94553009,Secondary malignant neoplasm of skin of eyelid
+94554003,Secondary malignant neoplasm of skin of face
+94555002,Secondary malignant neoplasm of skin of finger
+94556001,Secondary malignant neoplasm of skin of foot
+94557005,Secondary malignant neoplasm of skin of forearm
+94558000,Secondary malignant neoplasm of skin of forehead
+94559008,Secondary malignant neoplasm of skin of groin
+94560003,Secondary malignant neoplasm of skin of hand
+94561004,Secondary malignant neoplasm of skin of hip
+94562006,Secondary malignant neoplasm of skin of knee
+94563001,Secondary malignant neoplasm of skin of leg
+94564007,Secondary malignant neoplasm of skin of lip
+94565008,Secondary malignant neoplasm of skin of lower limb
+94566009,Secondary malignant neoplasm of skin of neck
+94567000,Secondary malignant neoplasm of skin of nose
+94568005,Secondary malignant neoplasm of skin of perineum
+94569002,Secondary malignant neoplasm of skin of popliteal area
+94570001,Secondary malignant neoplasm of skin of scalp
+94571002,Secondary malignant neoplasm of skin of shoulder
+94572009,Secondary malignant neoplasm of skin of temporal region
+94573004,Secondary malignant neoplasm of skin of thigh
+94574005,Secondary malignant neoplasm of skin of toe
+94575006,Secondary malignant neoplasm of skin of trunk
+94576007,Secondary malignant neoplasm of skin of umbilicus
+94577003,Secondary malignant neoplasm of skin of upper limb
+94578008,Secondary malignant neoplasm of skin of wrist
+94579000,Secondary malignant neoplasm of skin
+94580002,Secondary malignant neoplasm of small intestine
+94581003,Secondary malignant neoplasm of soft palate
+94582005,Secondary malignant neoplasm of soft tissues of abdomen
+94583000,Secondary malignant neoplasm of soft tissues of axilla
+94584006,Secondary malignant neoplasm of soft tissues of buttock
+94585007,Secondary malignant neoplasm of soft tissues of face
+94586008,Secondary malignant neoplasm of soft tissues of head
+94587004,Secondary malignant neoplasm of soft tissues of hip
+94588009,Secondary malignant neoplasm of soft tissues of inguinal region
+94589001,Secondary malignant neoplasm of soft tissues of lower limb
+94590005,Secondary malignant neoplasm of soft tissues of neck
+94591009,Secondary malignant neoplasm of soft tissues of pelvis
+94592002,Secondary malignant neoplasm of soft tissues of perineum
+94593007,Secondary malignant neoplasm of soft tissues of shoulder
+94594001,Secondary malignant neoplasm of soft tissues of thorax
+94595000,Secondary malignant neoplasm of soft tissues of trunk
+94596004,Secondary malignant neoplasm of soft tissues of upper limb
+94597008,Secondary malignant neoplasm of spermatic cord
+94598003,Secondary malignant neoplasm of sphenoid bone
+94599006,Secondary malignant neoplasm of sphenoidal sinus
+94600009,Secondary malignant neoplasm of spinal cord
+94601008,Secondary malignant neoplasm of spinal meninges
+94602001,Secondary malignant neoplasm of vertebral column
+94603006,Secondary malignant neoplasm of spleen
+94604000,Secondary malignant neoplasm of splenic flexure of colon
+94605004,Secondary malignant neoplasm of sternum
+94606003,Secondary malignant neoplasm of stomach
+94607007,Secondary malignant neoplasm of subglottis
+94608002,Secondary malignant neoplasm of sublingual gland
+94609005,Secondary malignant neoplasm of submandibular lymph nodes
+94610000,Secondary malignant neoplasm of submaxillary gland
+94611001,Secondary malignant neoplasm of submental lymph nodes
+94612008,Secondary malignant neoplasm of superficial inguinal lymph nodes
+94613003,Secondary malignant neoplasm of superior wall of nasopharynx
+94614009,Secondary malignant neoplasm of supraclavicular lymph nodes
+94615005,Secondary malignant neoplasm of supraclavicular region
+94616006,Secondary malignant neoplasm of supraglottis
+94617002,Secondary malignant neoplasm of sweat gland
+94618007,Secondary malignant neoplasm of tail of pancreas
+94619004,Secondary malignant neoplasm of talus
+94620005,Secondary malignant neoplasm of tarsal bone
+94621009,Secondary malignant neoplasm of temporal bone
+94622002,Secondary malignant neoplasm of temporal lobe
+94623007,Secondary malignant neoplasm of testis
+94624001,Secondary malignant neoplasm of the mesentery
+94625000,Secondary malignant neoplasm of the mesocolon
+94626004,Secondary malignant neoplasm of omentum
+94627008,Secondary malignant neoplasm of peritoneum
+94628003,Secondary malignant neoplasm of retroperitoneum
+94629006,Secondary malignant neoplasm of thigh
+94630001,Secondary malignant neoplasm of third cuneiform bone of foot
+94631002,Secondary malignant neoplasm of thoracic esophagus
+94632009,Secondary malignant neoplasm of thymus
+94633004,Secondary malignant neoplasm of thyroglossal duct
+94634005,Secondary malignant neoplasm of thyroid gland
+94635006,Secondary malignant neoplasm of tibia
+94636007,Secondary malignant neoplasm of tibial lymph nodes
+94637003,Secondary malignant neoplasm of tip and lateral border of tongue
+94638008,Secondary malignant neoplasm of tongue
+94639000,Secondary malignant neoplasm of tonsillar fossa
+94640003,Secondary malignant neoplasm of tonsillar pillar
+94641004,Secondary malignant neoplasm of trachea
+94642006,Secondary malignant neoplasm of tracheobronchial lymph nodes
+94643001,Secondary malignant neoplasm of transverse colon
+94644007,Secondary malignant neoplasm of trapezium
+94645008,Secondary malignant neoplasm of trapezoid bone
+94646009,Secondary malignant neoplasm of trigeminal nerve
+94647000,Secondary malignant neoplasm of trigone of urinary bladder
+94648005,Secondary malignant neoplasm of trochlear nerve
+94649002,Secondary malignant neoplasm of trunk
+94650002,Secondary malignant neoplasm of ulna
+94651003,Secondary malignant neoplasm of undescended testis
+94652005,Secondary malignant neoplasm of upper gum
+94653000,Secondary malignant neoplasm of upper inner quadrant of female breast
+94654006,Secondary malignant neoplasm of upper limb
+94655007,Secondary malignant neoplasm of upper outer quadrant of female breast
+94656008,Secondary malignant neoplasm of upper respiratory tract
+94657004,Secondary malignant neoplasm of upper third of esophagus
+94658009,Secondary malignant neoplasm of urachus
+94659001,Secondary malignant neoplasm of ureter
+94660006,Secondary malignant neoplasm of ureteric orifice of urinary bladder
+94661005,Secondary malignant neoplasm of urethra
+94662003,Secondary malignant neoplasm of urinary bladder neck
+94663008,Secondary malignant neoplasm of urinary system
+94664002,Secondary malignant neoplasm of uterine adnexa
+94665001,Secondary malignant neoplasm of uterus
+94666000,Secondary malignant neoplasm of uveal tract
+94667009,Secondary malignant neoplasm of uvula
+94668004,Secondary malignant neoplasm of vagina
+94669007,Secondary malignant neoplasm of vagus nerve
+94670008,Secondary malignant neoplasm of vallecula
+94671007,Secondary malignant neoplasm of vas deferens
+94672000,Secondary malignant neoplasm of ventral surface of tongue
+94673005,Secondary malignant neoplasm of vermilion border of lip
+94674004,Secondary malignant neoplasm of vermilion border of lower lip
+94675003,Secondary malignant neoplasm of vermilion border of upper lip
+94676002,Secondary malignant neoplasm of vestibule of mouth
+94677006,Secondary malignant neoplasm of vestibule of nose
+94678001,Secondary malignant neoplasm of visceral pleura
+94679009,Secondary malignant neoplasm of vocal cord
+94680007,Secondary malignant neoplasm of vomer
+94681006,Secondary malignant neoplasm of vulva
+94682004,Secondary malignant neoplasm of Waldeyer's ring
+94683009,Secondary malignant neoplasm of zygomatic bone
+96981000119102,Malignant neoplasm of rectosigmoid junction metastatic to brain

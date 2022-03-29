@@ -10,3 +10,11 @@ actions:
     outputs:
       highly_sensitive:
         cohort: output/input.csv
+
+  describe:
+    run: r:latest analysis/report.R
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        survival_figure: output/plot_*.png
+        covid_cox_model: output/post_op_covid_model.html
