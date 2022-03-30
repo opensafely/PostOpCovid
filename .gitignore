@@ -9,3 +9,10 @@ venv/
 .DS_Store
 .Rhistory
 .Rproj.user/
+*.csv
+*.csv
+*.csv
+*.csv
+.RData
+*.csv
+*.csv

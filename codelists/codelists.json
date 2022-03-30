@@ -12,10 +12,10 @@
       "downloaded_at": "2022-03-24 12:28:44.341695Z",
       "sha": "7ef5a8f45bc8fa4e92136643bccd159b3bb49ce0"
     },
-    "user-colincrooks-surgery-total-hemicolectomy-opcs-4-codes.csv": {
-      "id": "user/colincrooks/surgery-total-hemicolectomy-opcs-4-codes/6b6a409a",
-      "url": "https://codelists.opensafely.org/codelist/user/colincrooks/surgery-total-hemicolectomy-opcs-4-codes/6b6a409a/",
-      "downloaded_at": "2022-03-24 12:28:44.531745Z",
+    "user-colincrooks-surgery-total-colectomy-opcs-4-codes.csv": {
+      "id": "user/colincrooks/surgery-total-colectomy-opcs-4-codes/6b6a409a",
+      "url": "https://codelists.opensafely.org/codelist/user/colincrooks/surgery-total-colectomy-opcs-4-codes/6b6a409a/",
+      "downloaded_at": "2022-03-29 14:24:59.546271Z",
       "sha": "89add68703411893d276da3d80fdd8964e1f4fce"
     },
     "user-colincrooks-surgery-rectal-resection-opcs-4-codes.csv": {
@@ -37,10 +37,10 @@
       "sha": "5651ad4e49cfd1fa37f8e2dc53b66595281ddd7e"
     },
     "user-colincrooks-cirrhosis.csv": {
-      "id": "user/colincrooks/cirrhosis/76354072",
-      "url": "https://codelists.opensafely.org/codelist/user/colincrooks/cirrhosis/76354072/",
-      "downloaded_at": "2022-03-28 21:00:02.899531Z",
-      "sha": "e2ef333e554e4caf6b54b1a2c0c6a98b061e52d6"
+      "id": "user/colincrooks/cirrhosis/175cf38a",
+      "url": "https://codelists.opensafely.org/codelist/user/colincrooks/cirrhosis/175cf38a/",
+      "downloaded_at": "2022-03-29 14:33:31.718881Z",
+      "sha": "f3896c698d5642737cac3baeaab256db81927a9a"
     },
     "opensafely-warfarin.csv": {
       "id": "opensafely/warfarin/2020-10-05",

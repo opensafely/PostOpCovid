@@ -2,6 +2,24 @@ from cohortextractor import StudyDefinition, patients, codelist, codelist_from_c
 from codelists import *
 
 
+def with_these_vaccination_date_X(name, index_date, n, return_expectations):
+
+    def var_signature(name, on_or_after, return_expectations):
+        return {
+            name: patients.with_tpp_vaccination_record(
+                    returning="date",
+                    target_disease_matches="SARS-2 CORONAVIRUS",
+                    on_or_after=on_or_after,
+                    date_format="YYYY-MM-DD",
+                    find_first_match_in_period=True,
+                    return_expectations=return_expectations
+        ),
+        }
+    variables = var_signature(f"{name}_1", index_date, return_expectations)
+    for i in range(2, n+1):
+        variables.update(var_signature(f"{name}_{i}", f"{name}_{i-1} + 1 day", return_expectations))
+    return variables
+
 
 study = StudyDefinition(
     index_date = "2020-02-01",
@@ -161,11 +179,16 @@ study = StudyDefinition(
         },
     ),
 
-    covid_vaccine=patients.with_tpp_vaccination_record(
-        target_disease_matches="SARS-2 CORONAVIRUS",
-        between=["index_date", "index_date + 2 years"],
-        returning="date",
-        date_format="YYYY-MM-DD",
+
+    **with_these_vaccination_date_X(
+        name = "covid_vaccine_dates", 
+ #       returning="date",
+        index_date = "index_date",
+        n = 3, 
+        return_expectations = {
+            "rate": "uniform",
+            "incidence": 0.85,
+        },
     ),
 
 #     #########################################

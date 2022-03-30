@@ -35,7 +35,7 @@ dt[, Charlson := is.finite(MI_GP) +
 
 # dt[,op_type := as.factor(ifelse(right_hemicolectomy == op.date, "RightHemicolectomy",
 #                             ifelse(left_hemicolectomy == op.date, "LeftHemicolectomy",
-#                                    ifelse(total_hemicolectomy == op.date, "TotalColectomy",
+#                                    ifelse(total_colectomy == op.date, "TotalColectomy",
 #                                           ifelse(rectal_resection == op.date,"RectalResection",0)))))]
 dt[,op_type := as.factor(ifelse(is.finite(right_hemicolectomy), "RightHemicolectomy",
                                 ifelse(is.finite(left_hemicolectomy), "LeftHemicolectomy",
@@ -63,7 +63,7 @@ dt[(is.finite(VTE_GP) | is.finite(VTE_HES)) &
 
 ### Time splits
 
-dt[, op.date := min( right_hemicolectomy,left_hemicolectomy, total_hemicolectomy,rectal_resection, na.rm = T)]
+dt[, op.date := min( right_hemicolectomy,left_hemicolectomy, total_colectomy,rectal_resection, na.rm = T)]
 #dt[, end.date := data.table::as.IDate("2022-02-01")]
 dt[, end.date := surgery_discharge_date + 90]
 
@@ -73,7 +73,8 @@ event.times <- c('surgery_discharge_date',
                 'first_emergency_readmission_date','post.VTE')
 
 dt.times <- dt[,.SD, .SDcols = c('patient_id','surgery_date',event.times)]
-
+dt.times[,surgery_date := as.numeric(surgery_date)]
+dt.times[,(event.times) := lapply(.SD,as.numeric), .SDcols = event.times]
 
 
 dt.fixed <- dt[,.(patient_id,age,sex,bmi, region, imd, age.cat,
@@ -107,6 +108,7 @@ dt.tv <- survival::tmerge(dt.tv,dt.times,
 dt.tv <- survival::tmerge(dt.tv,dt.times,
                           id = patient_id, 
                           VTE90days = event(post.VTE))
+
 dt.tv <- data.table::data.table(dt.tv,key = c('patient_id','tstart'))
 dt.tv[, `:=`(tstart = as.numeric(tstart),
              tstop = as.numeric(tstop))]
@@ -147,6 +149,7 @@ ggplot2::ggsave(plot = plot_los$plot,filename = "plot_los.png", path=here::here(
 # Post operative COVID risk
 #############################
 
-post.op.covid.model <- survival::coxph(survival::Surv(tstart,tstop,COVID_positive) ~ op_type + age.cat + sex + bmi + region +  op_type + Emergency + Cancer.Surgery, id = patient_id, data = dt.tv)
+##TODO need to see model output to determine appropriate model fit.
 
+post.op.covid.model <- survival::coxph(survival::Surv(tstart,tstop,COVID_positive) ~ op_type + age.cat + sex + bmi + region +  op_type + Emergency + Cancer.Surgery, id = patient_id, data = dt.tv)
 print(xtable::xtable(post.op.covid.model), type = 'html', file = here::here("output","post_op_covid_model.html"))
