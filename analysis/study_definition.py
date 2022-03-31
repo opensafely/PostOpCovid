@@ -93,20 +93,33 @@ def post_operative_COVID(code_list_dict, returning, return_expectations):
 def with_emergency_readmissions(code_list_dict, returning, return_expectations):
 
     def with_these_procedures(key,admission_date, admission90_date,returning,return_expectations):
-        return {
-            f"{key}_emergency_readmit_{returning}": (
-                patients.admitted_to_hospital(
-                    with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
-                    find_first_match_in_period=True,
-                    returning = returning,
-                    date_format="YYYY-MM-DD",
-                    between=[admission_date, admission90_date],
-                    return_expectations = return_expectations,
+        if returning.__eq__("date_admitted"):
+            return {
+                 f"{key}_emergency_readmit_{returning}": (
+                    patients.admitted_to_hospital(
+                        with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
+                        find_first_match_in_period=True,
+                        returning = returning,
+                        date_format="YYYY-MM-DD",
+                        between=[admission_date, admission90_date],
+                        return_expectations = return_expectations,
+                        )
+                        )
+                    }
+        else:
+            return{
+                f"{key}_emergency_readmit_{returning}": (
+                    patients.admitted_to_hospital(
+                        with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
+                        find_first_match_in_period=True,
+                        returning = returning,
+                        between=[admission_date, admission90_date],
+                        return_expectations = return_expectations,
+                    )
                 )
-            )
-        }
+            }
     variables = {}
-    for key,codes in code_list_dict.items():
+    for key,codes in code_list_dict.items():            
         variables.update(with_these_procedures(key,f"{key}_date_discharged",f"{key}_date_discharged + 90 days",returning,return_expectations))
     return variables
 
@@ -203,10 +216,10 @@ study = StudyDefinition(
     #####################################
     # Population definition
     #####################################
-   population=patients.satisfying(
+    population=patients.satisfying(
        """
         (first_surgery_date)
-        AND (first_surgery_date - dob >=(18*365)  AND first_surgery_date - dob <= (110*365))
+        AND age >= 18  AND age <= 110
         AND (sex = "M" OR sex = "F")
        """,
  #      registered=patients.registered_with_one_practice_between(
@@ -216,7 +229,8 @@ study = StudyDefinition(
     #   follow_up=patients.registered_as_of(
      #  "first_surgery_date + 90 days" ## Minimum should have follow up for first surgery
      #  )
-   ),
+    ),
+
 
      #   registered
      #   AND (follow_up OR died)
@@ -229,6 +243,14 @@ study = StudyDefinition(
     **loop_over_OPCS_codelists_discharge(list_dict,returning = "date_discharged", return_expectations ={"incidence": 1,"rate" : "uniform",}),
    
     first_surgery_discharge_date=patients.minimum_of("LeftHemicolectomy_date_discharged", "RightHemicolectomy_date_discharged","TotalColectomy_date_discharged", "RectalResection_date_discharged"),
+
+    age=patients.age_as_of(
+        "first_surgery_date",
+        return_expectations={
+            "rate" : "universal",
+            "int" : {"distribution" : "population_ages"}
+        }
+    ),
 
     region=patients.registered_practice_as_of(
         "first_surgery_date",
