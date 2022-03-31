@@ -205,20 +205,22 @@ study = StudyDefinition(
     #####################################
    population=patients.satisfying(
        """
-       registered
-        AND (follow_up OR died)
-        AND (first_surgery_date)
+        (first_surgery_date)
         AND (first_surgery_date - dob >=(18*365)  AND first_surgery_date - dob <= (110*365))
         AND (sex = "M" OR sex = "F")
        """,
-       registered=patients.registered_with_one_practice_between(
-       "first_surgery_date - 365 days", "first_surgery_date"    ## Minimum should have prior registration for first surgery
-       ),
+ #      registered=patients.registered_with_one_practice_between(
+  #     "first_surgery_date - 365 days", "first_surgery_date"    ## Minimum should have prior registration for first surgery
+   #    ),
 
-       follow_up=patients.registered_as_of(
-       "first_surgery_date + 90 days" ## Minimum should have follow up for first surgery
-       )
+    #   follow_up=patients.registered_as_of(
+     #  "first_surgery_date + 90 days" ## Minimum should have follow up for first surgery
+     #  )
    ),
+
+     #   registered
+     #   AND (follow_up OR died)
+     #   AND
 
     **loop_over_OPCS_codelists(list_dict,returning = "date_admitted", return_expectations ={"incidence": 1,"rate" : "uniform",}),
    
