@@ -19,7 +19,7 @@ proc.tval.stubs <- c('_admission_method','_primary_diagnosis',
 '_case_category','_emergency_readmit_primary_diagnosis')
 
 proc.time.stubs <- c('_date_admitted','_date_discharged',
-           '_date',
+           '_date', 
            '_emergency_readmit_date_admitted',
            '_VTE_HES_date_admitted',
            '_VTE_GP_date','_anticoagulation_prescriptions_date')
@@ -33,73 +33,71 @@ dt[,(proc.time.cols) := lapply(.SD,as.numeric), .SDcols = proc.time.cols]
 dt[,(time.cols) := lapply(.SD,as.numeric), .SDcols = time.cols]
 dt[,date_death_ons := as.numeric(date_death_ons)]
 
+dt[,(paste0(procedures,"_end_fu")) := lapply(.SD, function(x) data.table::fifelse(is.finite(date_death_ons) & x+90 > date_death_ons, date_death_ons,x+90)), .SDcols = paste0(procedures, '_date_discharged')]
+
 dt[,no.op := rowSums(!is.na(.SD)),.SDcols = c(paste(procedures,"_date_admitted",sep = ""))]
 dt[,max.date := lapply(.SD,max, na.rm = T),
    by = patient_id,
    .SDcols = c('date_death_ons',paste(procedures,"_date_discharged",sep = ""))]
 
 dt[is.na(date_death_ons), max.date := max.date + 90]
-dt <- dt[no.op > 0,]
+
 
 dt.fixed <- dt[,.SD, .SDcols = c(fixed,'max.date')]
+dt.tv <- survival::tmerge(dt.fixed,dt.fixed,id = patient_id, end = event(max.date) )
 
-dt.tv <- survival::tmerge(dt.fixed,dt.fixed,id = patient_id, end.fu = event(max.date) )
+dt.times <- dt[,.SD, .SDcols = c('patient_id',time.cols, proc.time.cols,paste(procedures,"_end_fu",sep = ""))]
 
-dt.times <- dt[,.SD, .SDcols = c('patient_id',time.cols, proc.time.cols)]
-dt.tv.values <- dt[,.SD, .SDcols = c('patient_id',paste(procedures,"_date_admitted",sep = ""), proc.tval.cols)]
+dt.tv.values <- dt[,.SD, .SDcols = c('patient_id',
+                                     paste(procedures,"_date_admitted",sep = ""),
+                                     paste(procedures,"_emergency_readmit_date_admitted",sep = ""), 
+                                     proc.tval.cols)]
 
-for (i in c(time.cols,proc.time.cols)) {
+for (i in c(proc.time.cols,paste0(procedures,"_end_fu"))) {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
                            "id = patient_id,", 
-                           i," = event(",i,")))")))
+                           i," = tdc(",i,",",i,",NA)))")))
 }
+
+for (i in time.cols) {
+  eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
+                           "id = patient_id,", 
+                           i," = cumtdc(",i,")))")))
+}
+
+
+for (proc in procedures) {
+  for (val in proc.tval.stubs) {
+    time.var = '_date_admitted'
+    if (val == '_emergency_readmit_primary_diagnosis') time.var = '_emergency_readmit_date_admitted'
+       eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.tv.values,",
+                             "id = patient_id,", 
+                             paste0(proc,val)," = tdc(",paste0(proc,time.var),",",paste0(proc,val),",NA)))")))
+  }
+}
+
 
 data.table::setkey(data.table::setDT(dt.tv),patient_id, tstart, tstop)
 
-dt.tv <- dt.tv.values[is.finite(LeftHemicolectomy_date_admitted),.SD,
-                      .SDcols =  c('patient_id','LeftHemicolectomy_date_admitted',
-                                   paste0("LeftHemicolectomy",proc.tval.stubs))][dt.tv,
-                                                                                 on = c(patient_id = "patient_id",LeftHemicolectomy_date_admitted = "tstart")]
-data.table::setnames(dt.tv,"LeftHemicolectomy_date_admitted","tstart")
-dt.tv[i.LeftHemicolectomy_date_admitted == 1, LeftHemicolectomy_date_admitted := tstart]
-
-dt.tv <- dt.tv.values[is.finite(RightHemicolectomy_date_admitted),.SD,
-                      .SDcols = c('patient_id','RightHemicolectomy_date_admitted',
-                                  paste0("RightHemicolectomy",proc.tval.stubs))][dt.tv,
-                                                                                 on = c(patient_id = "patient_id",RightHemicolectomy_date_admitted = "tstart")]
-data.table::setnames(dt.tv,"RightHemicolectomy_date_admitted","tstart")
-dt.tv[i.RightHemicolectomy_date_admitted == 1, RightHemicolectomy_date_admitted :=tstart]
-
-dt.tv <- dt.tv.values[is.finite(TotalColectomy_date_admitted),.SD,
-                      .SDcols = c('patient_id','TotalColectomy_date_admitted', 
-                                  paste0("TotalColectomy",proc.tval.stubs))][dt.tv,
-                                                                             on = c(patient_id = "patient_id",TotalColectomy_date_admitted = "tstart")]
-data.table::setnames(dt.tv,"TotalColectomy_date_admitted","tstart")
-dt.tv[i.TotalColectomy_date_admitted==1,TotalColectomy_date_admitted := tstart]
-
-dt.tv <- dt.tv.values[is.finite(RectalResection_date_admitted),.SD,
-                      .SDcols = c('patient_id','RectalResection_date_admitted',
-                                  paste0("RectalResection",proc.tval.stubs))][dt.tv,
-                                                                              on = c(patient_id = "patient_id",RectalResection_date_admitted = "tstart")]
-data.table::setnames(dt.tv,"RectalResection_date_admitted","tstart")
-dt.tv[i.RectalResection_date_admitted==1, RectalResection_date_admitted:= tstart]
-
-dt.tv[,c('i.LeftHemicolectomy_date_admitted','i.RightHemicolectomy_date_admitted','i.RectalResection_date_admitted','i.TotalColectomy_date_admitted'):=NULL]
-data.table::setkey(dt.tv,"patient_id","tstart","tstop")
-
-admission.dates <- c('admit.date','discharge.date')
-dt.tv[,`:=`(admit.date = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_date_admitted")]
-
-dt.tv[LeftHemicolectomy_date_discharged==1 | RightHemicolectomy_date_discharged==1 | RectalResection_date_discharged==1 | TotalColectomy_date_discharged==1, discharge.date := tstop]
+admission.dates <- c('admit.date','discharge.date','end.fu')
+dt.tv[,admit.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
+dt.tv[,end.fu := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_end_fu")]
+dt.tv[,discharge.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_discharged")]
+dt.tv[, (c('discharge.date','end.fu')) := lapply(.SD, data.table::nafill, type = "nocb"), by = patient_id, .SDcols = c('discharge.date','end.fu')]
+dt.tv[,study.start := min(admit.date, na.rm = T), keyby = .(patient_id,end.fu)]
 dt.tv[, (admission.dates) := lapply(.SD, data.table::nafill, type = "locf"), by = patient_id, .SDcols = admission.dates]
-dt.tv[admit.date > discharge.date, (admission.dates) := NA]
+dt.tv[admit.date > discharge.date,  c('_admission_method','_primary_diagnosis',
+                                      '_days_in_critical_care',
+                                      '_case_category') := NA]
+dt.tv[admit.date > discharge.date | is.na(admit.date), c('admit.date','discharge.date') := NA]
+
 
 
 dt.tv[,op.type := max(data.table::fifelse(admit.date == LeftHemicolectomy_date_admitted, 'LeftHemicolectomy',
                                       data.table::fifelse(admit.date == RightHemicolectomy_date_admitted, 'RightHemicolectomy',  
                                                           data.table::fifelse(admit.date == TotalColectomy_date_admitted, 'TotalColectomy',
                                                                               data.table::fifelse(admit.date == RectalResection_date_admitted, 'RectalResection','')
-                                                          ))),na.rm = T), by = .(patient_id, admit.date)]
+                                                          ))),na.rm = T), by = .(patient_id, end.fu)]
 
 
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
@@ -110,16 +108,14 @@ dt.tv[,`:=`(primary_diagnosis = data.table::fcoalesce(.SD)), .SDcols = paste0(pr
 dt.tv[,`:=`(days_in_critical_care = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_days_in_critical_care")]
 dt.tv[,`:=`(case_category = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_case_category")]
 dt.tv[,`:=`(emergency_readmit_primary_diagnosis = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_emergency_readmit_primary_diagnosis")]
-
+dt.tv[,Current.Cancer := substr(primary_diagnosis,1,1) =='C']
 dt.tv[,(proc.tval.cols) := NULL]
 
-#These flags from tmerge mark event at end of episode
-dt.tv[,`:=`(discharged = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_date_discharged")]
-dt.tv[,`:=`(COVIDpositive = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_date")]
-dt.tv[,`:=`(emergency_readmit = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_emergency_readmit_date_admitted")]
-dt.tv[,`:=`(VTE_HES = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_VTE_HES_date_admitted")]
-dt.tv[,`:=`(VTE_GP = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_VTE_GP_date")]
-dt.tv[,`:=`(anticoagulation_prescriptions = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_anticoagulation_prescriptions_date")]
+dt.tv[,COVIDpositivedate  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_date"), by = .(patient_id, end.fu)]
+dt.tv[,emergency_readmitdate  :=  min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_emergency_readmit_date_admitted"), by = .(patient_id, end.fu)]
+dt.tv[,VTE_HES  :=  min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_VTE_HES_date_admitted"), by = .(patient_id, end.fu)]
+dt.tv[,VTE_GP  :=  min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_VTE_GP_date"), by = .(patient_id, end.fu)]
+dt.tv[,anticoagulation_prescriptions  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_anticoagulation_prescriptions_date"), by = .(patient_id, end.fu)]
 
 dt.tv[,(proc.time.cols) := NULL]
 
@@ -137,7 +133,7 @@ comorb.cols <- c(names(dt)[grep("^pre",names(dt))])
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
 ## tmerge flags end of episode prior to diagnosis, so need to count from subsequent episodes
-dt.tv[,(comorb.cols) := lapply(.SD, function(x) cumsum(x) - x), by = patient_id, .SDcols = comorb.cols] 
+dt.tv[,(comorb.cols) := lapply(.SD, function(x) data.table::fifelse(x > 1, 1, x)),  .SDcols = comorb.cols] 
 
 dt.tv[, Charlson := (pre_MI_GP) +
      (pre_CCF_GP) +
@@ -170,7 +166,7 @@ dt.tv[,Emergency := substr(as.character(admission_method),1,1)=="2"]
 dt.tv[is.na(Emergency), Emergency := F]
 
 ## Define vaccination status - 14 days post date as effective
-
+dt.tv[, vaccination.status := covid_vaccine_dates_1 + covid_vaccine_dates_2 + covid_vaccine_dates_3]
 
 
 ##############################
@@ -178,30 +174,37 @@ dt.tv[is.na(Emergency), Emergency := F]
 ##############################
 
 ### Length of stay----
-
+dt.tv[,discharged := is.finite(data.table::shift(discharge.date, n = 1L, type = 'lead')) & data.table::shift(discharge.date, n = 1L, type = 'lead') == tstop]
 
 ### Post operative VTE----
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
-VTE.cols <- c('VTE_GP', 'VTE_HES', 'anticoagulation_prescriptions')
-dt.tv[,(VTE.cols) := lapply(.SD, function(x) cumsum(ifelse(is.na(x),0,x))), by = patient_id, .SDcols = VTE.cols] 
+dt.tv[, anticoagulation_prescriptions := lapply(.SD, data.table::nafill, type = "nocb"), by = patient_id, .SDcols = 'anticoagulation_prescriptions']
 
-dt.tv[, post.VTE := (VTE_GP==1 | VTE_HES==1) & 
-        anticoagulation_prescriptions == 1 & tstop <= end.fu]  # events flagged at end of episode
+dt.tv[, post.VTE := ((is.finite(data.table::shift(VTE_GP, n = 1L, type = 'lead')) &  
+                        data.table::shift(VTE_GP, n = 1L, type = 'lead') == tstop) | 
+                       (is.finite(data.table::shift(VTE_HES, n = 1L, type = 'lead')) & 
+                          data.table::shift(VTE_HES, n = 1L, type = 'lead') == tstop)) & 
+        is.finite(data.table::shift(anticoagulation_prescriptions, n = 1L, type = 'lead')) & 
+        is.finite(anticoagulation_prescriptions) & 
+        tstop <= end.fu]  # events flagged at end of episode
 dt.tv[post.VTE == T, post.VTE.date := tstop]
-dt.tv[,post.VTE.date := min(post.VTE.date), by = patient_id]
+dt.tv[,post.VTE.date := min(post.VTE.date, na.rm = T), by = patient_id]
 
 
 ### Post operative Covid-19----
+dt.tv[,COVIDpositive := is.finite(data.table::shift(COVIDpositivedate, n = 1L, type = 'lead')) & data.table::shift(COVIDpositivedate, n = 1L, type = 'lead') == tstop]
+
 
 ### Readmissions----
+dt.tv[,emergency_readmit  := is.finite(data.table::shift(emergency_readmitdate, n = 1L, type = 'lead')) & data.table::shift(emergency_readmitdate, n = 1L, type = 'lead') == tstop]
 
 ## Define types of emergency readmissions
 
 
 ### Mortality----
 dt.tv[,died := tstop == date_death_ons]
-## Cause pf death
+## Cause of death
 
 
 #######################
@@ -209,29 +212,46 @@ dt.tv[,died := tstop == date_death_ons]
 ######################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
-dt.tv[end.fu ==1, end90 := tstop]
-dt.tv[, end90 := lapply(.SD, data.table::nafill, type = "nocb"), by = patient_id, .SDcols = 'end90']
-dt.tv[, start.spell := min(admit.date), by = .(patient_id, end90) ]
 
-dt.tv[, `:=`(start = tstart - start.spell,
-             end = tstop - start.spell)]
+dt.tv[, `:=`(start = tstart - study.start,
+             end = tstop - study.start)]
 
-crude.surv <- survival::survfit(survival::Surv(start,end,died) ~ op.type, data = dt.tv, id = patient_id)
+crude.surv <- survival::survfit(survival::Surv(start,end,died) ~ op.type, data = dt.tv[start>=0], id = patient_id)
 plot_surv <- survminer::ggsurvplot(crude.surv, data = dt.tv, risk.table = T)
 ggplot2::ggsave(plot = plot_surv$plot,filename = "plot_surv.png", path=here::here("output"))
 
+crude.covid <- survival::survfit(survival::Surv(start,end,COVIDpositive) ~ op.type, data = dt.tv[start>=0], id = patient_id)
+plot_covid <- survminer::ggsurvplot(crude.covid, data = dt.tv, risk.table = T)
+ggplot2::ggsave(plot = plot_covid$plot,filename = "plot_covid.png", path=here::here("output"))
 
-crude.los <- survival::survfit(survival::Surv(tstart,tstop,discharged) ~ op.type, data = dt.tv[is.finite(admit.date)], id = patient_id)
+crude.los <- survival::survfit(survival::Surv(start,end,discharged) ~ op.type, data = dt.tv[is.finite(admit.date) & start>=0], id = patient_id)
 plot_los <-survminer::ggsurvplot(crude.los, data = dt.tv, risk.table = T)
 ggplot2::ggsave(plot = plot_los$plot,filename = "plot_los.png", path=here::here("output"))
 
 
+dt.tv[start >= 0,discharge.start := min(discharge.date, na.rm = T), by = .(patient_id, end.fu)]
+
+crude.readmit <- survival::survfit(survival::Surv(tstart - discharge.start,tstop - discharge.start ,emergency_readmit) ~ op.type, data = dt.tv[tstart - discharge.start >=0], id = patient_id)
+plot_readmit <-survminer::ggsurvplot(crude.readmit, data = dt.tv, risk.table = T)
+ggplot2::ggsave(plot = plot_readmit$plot,filename = "plot_readmit.png", path=here::here("output"))
 
 ##############################
 # Post operative COVID risk
 #############################
+data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
 ##TODO need to see model output to determine appropriate model fit.
 
-post.op.covid.model <- survival::coxph(survival::Surv(tstart,tstop,COVID_positive) ~ op_type + age.cat + sex + bmi + region +  op_type + Emergency + Cancer.Surgery, id = patient_id, data = dt.tv)
-print(xtable::xtable(post.op.covid.model), type = 'html', file = here::here("output","post_op_covid_model.html"))
+post.op.covid.model <- survival::coxph(survival::Surv(start,end,COVIDpositive) ~ op.type + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer  + Emergency , id = patient_id, data = dt.tv[start>=0])
+data.table::fwrite(broom::tidy(post.op.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
+
+
+
+################################
+# COVID impact on post operative outcome
+##################################
+data.table::setkey(dt.tv,"patient_id","tstart","tstop")
+
+dt.tv[,postcovid := cumsum(COVIDpositive), by = .(patient_id, end.fu)]
+post.op.post.covid.covid.model <- survival::coxph(survival::Surv(start,end,died) ~ op.type + postcovid + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency , id = patient_id, data = dt.tv[start>=0])
+data.table::fwrite(broom::tidy(post.op.post.covid.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_post_covid_model.csv"))
