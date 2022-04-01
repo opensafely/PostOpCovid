@@ -109,6 +109,7 @@ dt.tv[,`:=`(days_in_critical_care = data.table::fcoalesce(.SD)), .SDcols = paste
 dt.tv[,`:=`(case_category = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_case_category")]
 dt.tv[,`:=`(emergency_readmit_primary_diagnosis = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_emergency_readmit_primary_diagnosis")]
 dt.tv[,Current.Cancer := substr(primary_diagnosis,1,1) =='C']
+dt.tv[is.na(Current.Cancer), Current.Cancer := F]
 dt.tv[,(proc.tval.cols) := NULL]
 
 dt.tv[,COVIDpositivedate  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_date"), by = .(patient_id, end.fu)]
@@ -194,7 +195,7 @@ dt.tv[,post.VTE.date := min(post.VTE.date, na.rm = T), by = patient_id]
 
 ### Post operative Covid-19----
 dt.tv[,COVIDpositive := is.finite(data.table::shift(COVIDpositivedate, n = 1L, type = 'lead')) & data.table::shift(COVIDpositivedate, n = 1L, type = 'lead') == tstop]
-
+dt.tv[,postcovid := cumsum(COVIDpositive), by = .(patient_id, end.fu)]
 
 ### Readmissions----
 dt.tv[,emergency_readmit  := is.finite(data.table::shift(emergency_readmitdate, n = 1L, type = 'lead')) & data.table::shift(emergency_readmitdate, n = 1L, type = 'lead') == tstop]
@@ -212,6 +213,10 @@ dt.tv[,died := tstop == date_death_ons]
 ######################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
+dt.tv[, year := data.table::year(data.table::as.IDate(admit.date))]
+dt.tv[, wave := factor(data.table::fifelse(admit.date <= as.numeric(data.table::as.IDate("2020-09-01")),"Wave_1",
+                                    data.table::fifelse(admit.date <= as.numeric(data.table::as.IDate("2021-05-01")),"Wave_2",
+                                                        data.table::fifelse(admit.date <= as.numeric(data.table::as.IDate("2021-12-31")),"Wave_3","Wave_4"))), ordered = F)]
 
 dt.tv[, `:=`(start = tstart - study.start,
              end = tstop - study.start)]
@@ -248,10 +253,19 @@ data.table::fwrite(broom::tidy(post.op.covid.model, exponentiate= T, conf.int = 
 
 
 ################################
-# COVID impact on post operative outcome
+# COVID impact on post operative Mortality
 ##################################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
-dt.tv[,postcovid := cumsum(COVIDpositive), by = .(patient_id, end.fu)]
-post.op.post.covid.covid.model <- survival::coxph(survival::Surv(start,end,died) ~ op.type + postcovid + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency , id = patient_id, data = dt.tv[start>=0])
+post.op.post.covid.covid.model <- survival::coxph(survival::Surv(start,end,died) ~ op.type + postcovid*wave + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency , id = patient_id, data = dt.tv[start>=0])
 data.table::fwrite(broom::tidy(post.op.post.covid.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_post_covid_model.csv"))
+
+
+################################
+# COVID impact on LOS
+#################################
+data.table::setkey(dt.tv,"patient_id","tstart","tstop")
+
+post.op.los.post.covid.model <- survival::coxph(survival::Surv(start,end,discharged) ~ op.type + postcovid*wave + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency , id = patient_id, data = dt.tv[start>=0 & !is.na(admit.date)])
+data.table::fwrite(broom::tidy(post.op.los.post.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post.op.los.post.covid.model.csv"))
+

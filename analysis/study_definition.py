@@ -329,7 +329,7 @@ study = StudyDefinition(
 
     **loop_over_OPCS_codelists(list_dict,returning = "admission_method", return_expectations ={"category": {"ratios": {"11": 0.1, "21": 0.2, "22": 0.7}}, "incidence" : 1}),
 
-    **loop_over_OPCS_codelists(list_dict,returning = "primary_diagnosis", return_expectations ={ "category": {"ratios": {"C180": 0.5, "C190": 0.5}}, "incidence" : 1,}),
+    **loop_over_OPCS_codelists(list_dict,returning = "primary_diagnosis", return_expectations ={ "category": {"ratios": {"C180": 0.3, "C190": 0.3, "K570": 0.2, "K512": 0.2}}, "incidence" : 1,}),
 
     **loop_over_OPCS_codelists(list_dict,returning = "days_in_critical_care", return_expectations ={"category": {"ratios": {"5": 0.1, "6": 0.2, "7": 0.7}}, "incidence" : 0.1}),
    
