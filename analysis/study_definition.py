@@ -218,15 +218,16 @@ study = StudyDefinition(
     #####################################
     population=patients.satisfying(
         """
-        registered
+        has_surgery
+        AND registered
         AND (follow_up OR died)
-        AND(first_surgery_date >= index_date)
-        AND age >= 18  AND age <= 110
+        AND age >= 18  
+        AND age <= 110
         AND (sex = "M" OR sex = "F")
         """,
        
-        registered=patients.registered_with_one_practice_between(
-        "first_surgery_date - 365 days", "first_surgery_date"    ## Minimum should have prior registration for first surgery
+        registered=patients.registered_as_of(
+        "first_surgery_date"    ## Minimum should have prior registration for first surgery
         ),
 
         follow_up=patients.registered_as_of(
@@ -235,7 +236,9 @@ study = StudyDefinition(
     ),
 
 
-
+    has_surgery=patients.admitted_to_hospital(
+            with_these_procedures=any_colorectal_resection, on_or_after = "index_date"
+        ),
 
     **loop_over_OPCS_codelists(list_dict,returning = "date_admitted", return_expectations ={"incidence": 1,"rate" : "uniform",}),
    
