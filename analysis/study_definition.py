@@ -213,41 +213,42 @@ study = StudyDefinition(
         "incidence": 1,
     },
 
+#        
+#        AND registered
+#        AND (follow_up OR died)
     #####################################
     # Population definition
     #####################################
     population=patients.satisfying(
         """
         has_surgery
-        AND registered
-        AND (follow_up OR died)
         AND age >= 18  
         AND age <= 110
         AND (sex = "M" OR sex = "F")
         """,
        
-        registered=patients.registered_as_of(
-        "first_surgery_date"    ## Minimum should have prior registration for first surgery
+        has_surgery=patients.admitted_to_hospital(
+            with_these_procedures=any_colorectal_resection, on_or_after = "index_date"
         ),
-
-        follow_up=patients.registered_as_of(
-        "first_surgery_date + 90 days" ## Minimum should have follow up for first surgery
-        )
     ),
 
+    registered=patients.registered_as_of(
+    "first_surgery_date"    ## Minimum should have prior registration for first surgery
+    ),
+
+    follow_up=patients.registered_as_of(
+    "first_surgery_date + 90 days" ## Minimum should have follow up for first surgery
+    ),
 
     dereg_date=patients.date_deregistered_from_all_supported_practices(
-        on_or_after=index_date,
+        on_or_after="index_date",
         date_format="YYYY-MM",
         return_expectations={
             {"date": {"earliest": "index_date"},
             "incidence": 0.05
         }
-    )
+    ),
 
-    has_surgery=patients.admitted_to_hospital(
-            with_these_procedures=any_colorectal_resection, on_or_after = "index_date"
-        ),
 
     **loop_over_OPCS_codelists(list_dict,returning = "date_admitted", return_expectations ={"incidence": 1,"rate" : "uniform",}),
    
