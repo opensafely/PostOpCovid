@@ -8,6 +8,7 @@ dt <- data.table::fread( here::here("output", "input.csv"))
 #############################
 
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
+dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
 
 summary(dt)
 

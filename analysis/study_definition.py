@@ -232,6 +232,14 @@ study = StudyDefinition(
         ),
     ),
 
+        **loop_over_OPCS_codelists(list_dict,returning = "date_admitted", return_expectations ={"incidence": 1,"rate" : "uniform",}),
+   
+    first_surgery_date=patients.minimum_of("LeftHemicolectomy_date_admitted", "RightHemicolectomy_date_admitted","TotalColectomy_date_admitted", "RectalResection_date_admitted"),
+
+    **loop_over_OPCS_codelists_discharge(list_dict,returning = "date_discharged", return_expectations ={"incidence": 1,"rate" : "uniform",}),
+   
+    first_surgery_discharge_date=patients.minimum_of("LeftHemicolectomy_date_discharged", "RightHemicolectomy_date_discharged","TotalColectomy_date_discharged", "RectalResection_date_discharged"),
+
     registered=patients.registered_as_of(
     "first_surgery_date"    ## Minimum should have prior registration for first surgery
     ),
@@ -244,20 +252,9 @@ study = StudyDefinition(
         on_or_after="index_date",
         date_format="YYYY-MM",
         return_expectations={
-            {"date": {"earliest": "index_date"},
             "incidence": 0.05
         }
     ),
-
-
-    **loop_over_OPCS_codelists(list_dict,returning = "date_admitted", return_expectations ={"incidence": 1,"rate" : "uniform",}),
-   
-    first_surgery_date=patients.minimum_of("LeftHemicolectomy_date_admitted", "RightHemicolectomy_date_admitted","TotalColectomy_date_admitted", "RectalResection_date_admitted"),
-
-    **loop_over_OPCS_codelists_discharge(list_dict,returning = "date_discharged", return_expectations ={"incidence": 1,"rate" : "uniform",}),
-   
-    first_surgery_discharge_date=patients.minimum_of("LeftHemicolectomy_date_discharged", "RightHemicolectomy_date_discharged","TotalColectomy_date_discharged", "RectalResection_date_discharged"),
-
     age=patients.age_as_of(
         "first_surgery_date",
         return_expectations={
