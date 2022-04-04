@@ -236,6 +236,15 @@ study = StudyDefinition(
     ),
 
 
+    dereg_date=patients.date_deregistered_from_all_supported_practices(
+        on_or_after=index_date,
+        date_format="YYYY-MM",
+        return_expectations={
+            {"date": {"earliest": "index_date"},
+            "incidence": 0.05
+        }
+    )
+
     has_surgery=patients.admitted_to_hospital(
             with_these_procedures=any_colorectal_resection, on_or_after = "index_date"
         ),

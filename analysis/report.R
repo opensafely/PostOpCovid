@@ -9,6 +9,12 @@ dt <- data.table::fread( here::here("output", "input.csv"))
 
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
 
+summary(dt)
+
+dt[is.finite(LeftHemicolectomy_date_admitted),.N]
+dt[is.finite(RightHemicolectomy_date_admitted),.N]
+dt[is.finite(TotalColectomy_date_admitted),.N]
+dt[is.finite(RectalResection_date_admitted),.N]
 
 procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','RectalResection')
 
@@ -85,13 +91,13 @@ print(xtable::xtable(rbind(t(rbind(dt[is.finite(LeftHemicolectomy_date_admitted)
                                                    "90 day COVID-19" = mean(is.finite(RectalResection_date) & RectalResection_date - RectalResection_date_admitted <= 90  & RectalResection_date - RectalResection_date_admitted >=0),
                                                    "90 day VTE" = mean(RectalResectionpost.VTE, na.rm = T))])),
       cbind(dt[is.finite(LeftHemicolectomy_date_admitted) & admit.wave.LeftHemicolectomy == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))],
-            dt[is.finite(RightHemicolectomy_date_admitted) & admit.wave.LeftHemicolectomy == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))],
-            dt[is.finite(TotalColectomy_date_admitted) & admit.wave.LeftHemicolectomy == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))],
-            dt[is.finite(RectalResection_date_admitted) & admit.wave.LeftHemicolectomy == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))]),
-cbind(dt[admit.wave.LeftHemicolectomy == x,.N, keyby = LeftHemicolectomy_primary_diagnosis][, do.call(paste,c(.SD, sep = ": "))][1:10],
-      dt[admit.wave.LeftHemicolectomy == x,.N, keyby = RightHemicolectomy_primary_diagnosis][, do.call(paste,c(.SD, sep = ": "))][1:10],
-      dt[admit.wave.LeftHemicolectomy == x,.N, keyby = TotalColectomy_primary_diagnosis][, do.call(paste,c(.SD, sep = ": "))][1:10],
-      dt[admit.wave.LeftHemicolectomy == x,.N, keyby = RectalResection_primary_diagnosis][, do.call(paste,c(.SD, sep = ": "))][1:10])), digits = 2), type = 'html', here::here("output",paste0("table1",x,".html"))))
+            dt[is.finite(RightHemicolectomy_date_admitted) & admit.wave.RightHemicolectomy == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))],
+            dt[is.finite(TotalColectomy_date_admitted) & admit.wave.TotalColectomy == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))],
+            dt[is.finite(RectalResection_date_admitted) & admit.wave.RectalResection == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))]),
+cbind(dt[admit.wave.LeftHemicolectomy == x,.N, by = LeftHemicolectomy_primary_diagnosis][order(N), do.call(paste,c(.SD, sep = ": "))][1:10],
+      dt[admit.wave.RightHemicolectomy == x,.N, by = RightHemicolectomy_primary_diagnosis][order(N), do.call(paste,c(.SD, sep = ": "))][1:10],
+      dt[admit.wave.TotalColectomy == x,.N, by = TotalColectomy_primary_diagnosis][order(N), do.call(paste,c(.SD, sep = ": "))][1:10],
+      dt[admit.wave.RectalResection == x,.N, by = RectalResection_primary_diagnosis][order(N), do.call(paste,c(.SD, sep = ": "))][1:10])), digits = 2), type = 'html', here::here("output",paste0("table1",x,".html"))))
   
 
 ##########################################################
