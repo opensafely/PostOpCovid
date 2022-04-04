@@ -18,4 +18,5 @@ actions:
       moderately_sensitive:
         survival_figures: output/plot_*.png
         covid_cox_models: output/*_model.csv
+        tables: output/*.html
 
