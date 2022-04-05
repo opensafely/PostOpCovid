@@ -7,10 +7,10 @@
       "sha": "0f64b0b59d70fdedba2aaff4e477fc9ec56a0e12"
     },
     "user-colincrooks-surgery-left-hemicolectomy-opcs-4-codes.csv": {
-      "id": "user/colincrooks/surgery-left-hemicolectomy-opcs-4-codes/0479b3d0",
-      "url": "https://codelists.opensafely.org/codelist/user/colincrooks/surgery-left-hemicolectomy-opcs-4-codes/0479b3d0/",
-      "downloaded_at": "2022-03-24 12:28:44.341695Z",
-      "sha": "7ef5a8f45bc8fa4e92136643bccd159b3bb49ce0"
+      "id": "user/colincrooks/surgery-left-hemicolectomy-opcs-4-codes/13e38005",
+      "url": "https://codelists.opensafely.org/codelist/user/colincrooks/surgery-left-hemicolectomy-opcs-4-codes/13e38005/",
+      "downloaded_at": "2022-04-05 09:45:50.704045Z",
+      "sha": "5e8a980c9ae77a4948871857130301c2947a864d"
     },
     "user-colincrooks-surgery-total-colectomy-opcs-4-codes.csv": {
       "id": "user/colincrooks/surgery-total-colectomy-opcs-4-codes/6b6a409a",

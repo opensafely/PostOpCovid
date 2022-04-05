@@ -1,5 +1,5 @@
 user/colincrooks/surgery-right-hemicolectomy-opcs-4-codes/5a730d47
-user/colincrooks/surgery-left-hemicolectomy-opcs-4-codes/0479b3d0
+user/colincrooks/surgery-left-hemicolectomy-opcs-4-codes/13e38005
 user/colincrooks/surgery-total-colectomy-opcs-4-codes/6b6a409a
 user/colincrooks/surgery-rectal-resection-opcs-4-codes/41639a12
 user/colincrooks/diabetic-complications/285426dd
