@@ -8,7 +8,7 @@ dt <- data.table::fread( here::here("output", "input.csv"))
 #############################
 
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
-#dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
+dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
 
 summary(dt)
 
@@ -176,7 +176,7 @@ cbind(dt[admit.wave.LeftHemicolectomy == x,.N, by = LeftHemicolectomy_primary_di
 ### Time splits
 fixed <- c('patient_id','dob','sex','bmi', 'region', 'imd','date_death_ons')
 
-time.cols <- c(paste0("covid_vaccine_dates_",1:3),c(names(dt)[grep("^pre",names(dt))])) # gp.end
+time.cols <- c(paste0("covid_vaccine_dates_",1:3),c(names(dt)[grep("^pre",names(dt))]),"gp.end") # gp.end
 
 proc.tval.stubs <- c('_admission_method','_primary_diagnosis',
 '_days_in_critical_care',
@@ -206,7 +206,7 @@ dt[,max.date := lapply(.SD,max, na.rm = T),
    by = patient_id,
    .SDcols = c(paste0(procedures,"_end_fu"))]
 
-#dt[max.date > gp.end, max.date := gp.end]
+dt[max.date > gp.end, max.date := gp.end]
 dt[!is.finite(max.date), max.date := data.table::as.IDate('2022-02-01')]
 
 
@@ -249,7 +249,7 @@ data.table::setkey(data.table::setDT(dt.tv),patient_id, tstart, tstop)
 admission.dates <- c('admit.date','discharge.date','end.fu')
 dt.tv[,admit.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
 dt.tv[!is.finite(admit.date), admit.date := NA]
-dt.tv[,end.fu := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_end_fu")] ## gp.end
+dt.tv[,end.fu := do.call(pmax, c(.SD, na.rm = T)), .SDcols = c(paste0(procedures,"_end_fu"),"gp.end")] ## gp.end
 dt.tv[!is.finite(end.fu), end.fu := NA]
 dt.tv[,discharge.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_discharged")]
 dt.tv[!is.finite(discharge.date), discharge.date := NA]
@@ -270,11 +270,12 @@ dt.tv[!is.finite(study.start), study.start := NA]
 
 
 
-dt.tv[,op.type := max(data.table::fifelse(admit.date == LeftHemicolectomy_date_admitted, 'LeftHemicolectomy',
+dt.tv[,op.type := data.table::fifelse(admit.date == LeftHemicolectomy_date_admitted, 'LeftHemicolectomy',
                                       data.table::fifelse(admit.date == RightHemicolectomy_date_admitted, 'RightHemicolectomy',  
                                                           data.table::fifelse(admit.date == TotalColectomy_date_admitted, 'TotalColectomy',
                                                                               data.table::fifelse(admit.date == RectalResection_date_admitted, 'RectalResection','')
-                                                          ))),na.rm = T), by = .(patient_id, end.fu)]
+                                                          )))]
+dt.tv[, op.type := data.table::nafill(op.type, type = "locf"),  by = .(patient_id, end.fu)]
 
 #dt.tv[!is.finite(op.type), op.type := NA]
 
