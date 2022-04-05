@@ -275,7 +275,9 @@ dt.tv[,op.type := data.table::fifelse(admit.date == LeftHemicolectomy_date_admit
                                                           data.table::fifelse(admit.date == TotalColectomy_date_admitted, 'TotalColectomy',
                                                                               data.table::fifelse(admit.date == RectalResection_date_admitted, 'RectalResection','')
                                                           )))]
-dt.tv[, op.type := data.table::nafill(op.type, type = "locf"),  by = .(patient_id, end.fu)]
+
+id_change = dt.tv[, c(TRUE, patient_id[-1] != patient_id[-.N] | end.fu[-1] != end.fu[-.N])]
+dt.tv[, op.type := lapply(.SD, function(x) x[cummax(((!is.na(x)) | id_change) * .I)]), .SDcols = "op.type"]
 
 #dt.tv[!is.finite(op.type), op.type := NA]
 
