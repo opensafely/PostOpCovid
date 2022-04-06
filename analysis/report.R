@@ -246,6 +246,11 @@ for (proc in procedures) {
 
 data.table::setkey(data.table::setDT(dt.tv),patient_id, tstart, tstop)
 
+for (proc in procedures) {
+  cols <-paste0(proc, proc.time.stubs)
+  eval(parse(text = paste0("dt.tv[",proc,"_date_admitted>",proc,"_date_discharged,(cols) := NA]")))
+}
+
 admission.dates <- c('admit.date','discharge.date','end.fu')
 dt.tv[,admit.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
 dt.tv[!is.finite(admit.date), admit.date := NA]
