@@ -258,13 +258,16 @@ dt.tv[,end.fu := do.call(pmax, c(.SD, na.rm = T)), .SDcols = c(paste0(procedures
 dt.tv[!is.finite(end.fu), end.fu := NA]
 dt.tv[,discharge.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_discharged")]
 dt.tv[!is.finite(discharge.date), discharge.date := NA]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, (c('discharge.date','end.fu')) := lapply(.SD, data.table::nafill, type = "nocb"), by = patient_id, .SDcols = c('discharge.date','end.fu')]
+dt.tv[discharge.date > end.fu, discharge.date := NA]
 dt.tv[,study.start := min(admit.date, na.rm = T), keyby = .(patient_id,end.fu)]
 dt.tv[!is.finite(study.start), study.start := NA]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, (admission.dates) := lapply(.SD, data.table::nafill, type = "locf"), by = patient_id, .SDcols = admission.dates]
-dt.tv[admit.date > discharge.date,  c('_admission_method','_primary_diagnosis',
-                                      '_days_in_critical_care',
-                                      '_case_category') := NA]
+dt.tv[admit.date > discharge.date, (paste0(procedures,c('_admission_method','_primary_diagnosis',
+                                                        '_days_in_critical_care',
+                                                        '_case_category')))  := NA]
 
 dt.tv[admit.date > discharge.date | is.na(admit.date), c('admit.date','discharge.date') := NA]
 
@@ -280,14 +283,14 @@ dt.tv[,op.type := data.table::fifelse(admit.date == LeftHemicolectomy_date_admit
                                                           data.table::fifelse(admit.date == TotalColectomy_date_admitted, 'TotalColectomy',
                                                                               data.table::fifelse(admit.date == RectalResection_date_admitted, 'RectalResection','')
                                                           )))]
-
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 id_change = dt.tv[, c(TRUE, patient_id[-1] != patient_id[-.N] | end.fu[-1] != end.fu[-.N])]
 dt.tv[, op.type := lapply(.SD, function(x) x[cummax(((!is.na(x)) | id_change) * .I)]), .SDcols = "op.type"]
 
 #dt.tv[!is.finite(op.type), op.type := NA]
 
 
-data.table::setkey(dt.tv,"patient_id","tstart","tstop")
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 
 dt.tv[,`:=`(admission_method = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_admission_method")]
