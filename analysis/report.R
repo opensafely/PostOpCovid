@@ -6,6 +6,16 @@ dt <- data.table::fread( here::here("output", "input.csv"))
 #########################
 # Basic counts and descriptions
 #############################
+dt[LeftHemicolectomy_date_discharged := LeftHemicolectomy_date_admitted + 90]
+dt[RightHemicolectomy_date_admitted <LeftHemicolectomy_date_admitted + 90, RightHemicolectomy_date_admitted := LeftHemicolectomy_date_admitted + 100]
+dt[TotalColectomy_date_admitted <RightHemicolectomy_date_admitted + 90, TotalColectomy_date_admitted := RightHemicolectomy_date_admitted + 100]
+dt[RectalResection_date_admitted <TotalColectomy_date_admitted + 90, RectalResection_date_admitted := TotalColectomy_date_admitted + 100]
+
+dt[date_death_ons < RectalResection_date_admitted , date_death_ons := RectalResection_date_admitted + runif(1,1,90)]
+
+dt[RightHemicolectomy_date_admitted >RightHemicolectomy_date_discharged,  min(RightHemicolectomy_date_discharged := RightHemicolectomy_date_admitted + 90, date_death_ons)]
+dt[TotalColectomy_date_admitted >TotalColectomy_date_discharged,  min(TotalColectomy_date_discharged := TotalColectomy_date_admitted + 90, date_death_ons)]
+dt[RectalResection_date_admitted >RectalResection_date_discharged,  min(RectalResection_date_discharged := RectalResection_date_admitted + 90, date_death_ons)]
 
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
 dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
@@ -220,16 +230,28 @@ dt.tv.values <- dt[,.SD, .SDcols = c('patient_id',
                                      paste(procedures,"_emergency_readmit_date_admitted",sep = ""), 
                                      proc.tval.cols)]
 
-for (i in c(proc.time.cols,paste0(procedures,"_end_fu"))) {
+for (i in c(proc.time.cols,paste0(procedures,"_end_fu")))  {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
-                           "id = patient_id,", 
-                           i," = tdc(",i,",",i,",NA)))")))
+                           "id = patient_id,",
+                           i," = event(",i,",",i,")))")))
 }
 
+# for (i in c(proc.time.cols,paste0(procedures,"_end_fu"))) {
+#   eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
+#                            "id = patient_id,", 
+#                            i," = tdc(",i,",",i,",NA)))")))
+# }
+
+# for (i in c(proc.time.cols,paste0(procedures,"_end_fu"))) {
+#   eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
+#                            "id = patient_id,", 
+#                            i," = tdc(",i,",",i,",NA)))")))
+# }
+# 
 for (i in time.cols) {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
-                           "id = patient_id,", 
-                           i," = cumtdc(",i,")))")))
+                           "id = patient_id,",
+                           i," = tdc(",i,",",i,",NA)))")))
 }
 
 
@@ -243,13 +265,14 @@ for (proc in procedures) {
   }
 }
 
-
-data.table::setkey(data.table::setDT(dt.tv),patient_id, tstart, tstop)
-
-for (proc in procedures) {
-  cols <-paste0(proc, proc.time.stubs)
-  eval(parse(text = paste0("dt.tv[",proc,"_date_admitted>",proc,"_date_discharged,(cols) := NA]")))
+data.table::setDT(dt.tv)
+for (i in c(proc.time.cols,paste0(procedures,"_end_fu")))  {
+  eval(parse(text = paste0("assign(x = 'dt.tv', value = dt.tv[",i,"==0, ",i,":=NA])")))
 }
+dt.tv[, gp.end := max(gp.end, na.rm = T), by = patient_id]
+data.table::setkey(dt.tv,patient_id, tstart, tstop)
+
+
 
 admission.dates <- c('admit.date','discharge.date','end.fu')
 dt.tv[,admit.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
@@ -265,11 +288,17 @@ dt.tv[,study.start := min(admit.date, na.rm = T), keyby = .(patient_id,end.fu)]
 dt.tv[!is.finite(study.start), study.start := NA]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, (admission.dates) := lapply(.SD, data.table::nafill, type = "locf"), by = patient_id, .SDcols = admission.dates]
+
 dt.tv[admit.date > discharge.date, (paste0(procedures,c('_admission_method','_primary_diagnosis',
                                                         '_days_in_critical_care',
                                                         '_case_category')))  := NA]
 
 dt.tv[admit.date > discharge.date | is.na(admit.date), c('admit.date','discharge.date') := NA]
+
+for (proc in procedures) {
+  cols <-paste0(proc, proc.time.stubs)
+  eval(parse(text = paste0("dt.tv[",proc,"_date_admitted>",proc,"_date_discharged,(cols) := NA]")))
+}
 
 dt.tv[!is.finite(admit.date), admit.date := NA]
 dt.tv[!is.finite(end.fu), end.fu := NA]
