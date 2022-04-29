@@ -1,24 +1,52 @@
 #detach("package:here", unload = TRUE)
 #setwd("C:\\Users\\mczcjc\\Documents\\GitHub\\PostOpCovid")
 #library(here)
+#detach("package:here", unload = TRUE)
+#setwd("P:\\GitHub\\PostOpCovid")
+#library(here)
+library(data.table)
 index_date <- data.table::as.IDate("2020-02-01")
 dt <- data.table::fread( here::here("output", "input.csv"))
 #########################
 # Basic counts and descriptions
 #############################
-dt[LeftHemicolectomy_date_discharged := LeftHemicolectomy_date_admitted + 90]
-dt[RightHemicolectomy_date_admitted <LeftHemicolectomy_date_admitted + 90, RightHemicolectomy_date_admitted := LeftHemicolectomy_date_admitted + 100]
-dt[TotalColectomy_date_admitted <RightHemicolectomy_date_admitted + 90, TotalColectomy_date_admitted := RightHemicolectomy_date_admitted + 100]
-dt[RectalResection_date_admitted <TotalColectomy_date_admitted + 90, RectalResection_date_admitted := TotalColectomy_date_admitted + 100]
-
-dt[date_death_ons < RectalResection_date_admitted , date_death_ons := RectalResection_date_admitted + runif(1,1,90)]
-
-dt[RightHemicolectomy_date_admitted >RightHemicolectomy_date_discharged,  min(RightHemicolectomy_date_discharged := RightHemicolectomy_date_admitted + 90, date_death_ons)]
-dt[TotalColectomy_date_admitted >TotalColectomy_date_discharged,  min(TotalColectomy_date_discharged := TotalColectomy_date_admitted + 90, date_death_ons)]
-dt[RectalResection_date_admitted >RectalResection_date_discharged,  min(RectalResection_date_discharged := RectalResection_date_admitted + 90, date_death_ons)]
 
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
 dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
+
+###Create logical pseudo dates
+# dt[LeftHemicolectomy_date_discharged < LeftHemicolectomy_date_admitted,LeftHemicolectomy_date_discharged := LeftHemicolectomy_date_admitted + sample.int(90,1)]
+# dt[RightHemicolectomy_date_admitted>= LeftHemicolectomy_date_admitted &  RightHemicolectomy_date_admitted <LeftHemicolectomy_date_admitted + 90 , `:=`(RightHemicolectomy_date_admitted = NA, RightHemicolectomy_date_discharged = NA)]
+# dt[TotalColectomy_VTE_HES_date_admitted>= RightHemicolectomy_date_admitted & TotalColectomy_date_admitted <RightHemicolectomy_date_admitted + 90, `:=`(TotalColectomy_date_admitted = NA, TotalColectomy_date_discharged = NA)]
+# dt[RectalResection_date_admitted>= TotalColectomy_date_admitted & RectalResection_date_admitted <TotalColectomy_date_admitted + 90, `:=`(RectalResection_date_admitted = NA, RectalResection_date_discharged = NA)]
+# 
+# procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','RectalResection')
+# 
+# cols <- paste0(procedures,c("_date_discharged"))
+# dt[, (cols) := lapply(.SD, function(x) fifelse(x > date_death_ons,date_death_ons, x)), .SDcols = cols]
+# dt[, (cols) := lapply(.SD, function(x) fifelse(x > gp.end,gp.end, x)), .SDcols = cols]
+# 
+# 
+# dt[,last.proc := pmax(TotalColectomy_date_admitted,LeftHemicolectomy_date_admitted,RightHemicolectomy_date_admitted,RectalResection_date_admitted, na.rm = T)]
+# dt[date_death_ons < last.proc , date_death_ons := last.proc + sample.int(90,1), ]
+# 
+# 
+# cols <- paste0(procedures,c("_date_discharged"))
+# dt[, (cols) := lapply(.SD, function(x) fifelse(x > date_death_ons,date_death_ons, x)), .SDcols = cols]
+# 
+# cols <- paste0(procedures,c("_date_admitted"))
+# dt[, (cols) := lapply(.SD, function(x) ifelse(x > date_death_ons,NA, x)), .SDcols = cols]
+# dt[, (cols) := lapply(.SD, function(x) ifelse(x > gp.end,NA, x)), .SDcols = cols]
+# 
+# 
+# dt[LeftHemicolectomy_date_admitted >LeftHemicolectomy_date_discharged,  LeftHemicolectomy_date_discharged := pmin(LeftHemicolectomy_date_admitted + sample.int(90,1), date_death_ons)]
+# dt[RightHemicolectomy_date_admitted >RightHemicolectomy_date_discharged,  RightHemicolectomy_date_discharged := pmin(RightHemicolectomy_date_admitted + sample.int(90,1), date_death_ons)]
+# dt[TotalColectomy_date_admitted >TotalColectomy_date_discharged,  TotalColectomy_date_discharged := pmin(TotalColectomy_date_admitted + sample.int(90,1), date_death_ons)]
+# dt[RectalResection_date_admitted >RectalResection_date_discharged,  RectalResection_date_discharged := pmin(RectalResection_date_admitted + sample.int(90,1), date_death_ons)]
+
+
+####################################################################
+
 
 summary(dt)
 
@@ -270,6 +298,7 @@ for (i in c(proc.time.cols,paste0(procedures,"_end_fu")))  {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = dt.tv[",i,"==0, ",i,":=NA])")))
 }
 dt.tv[, gp.end := max(gp.end, na.rm = T), by = patient_id]
+dt.tv[!is.finite(gp.end), gp.end := Inf]
 data.table::setkey(dt.tv,patient_id, tstart, tstop)
 
 
@@ -277,7 +306,7 @@ data.table::setkey(dt.tv,patient_id, tstart, tstop)
 admission.dates <- c('admit.date','discharge.date','end.fu')
 dt.tv[,admit.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
 dt.tv[!is.finite(admit.date), admit.date := NA]
-dt.tv[,end.fu := do.call(pmax, c(.SD, na.rm = T)), .SDcols = c(paste0(procedures,"_end_fu"),"gp.end")] ## gp.end
+dt.tv[,end.fu := do.call(pmin, c(.SD, na.rm = T)), .SDcols = c(paste0(procedures,"_end_fu"),"gp.end")] ## gp.end
 dt.tv[!is.finite(end.fu), end.fu := NA]
 dt.tv[,discharge.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_discharged")]
 dt.tv[!is.finite(discharge.date), discharge.date := NA]
@@ -305,13 +334,13 @@ dt.tv[!is.finite(end.fu), end.fu := NA]
 dt.tv[!is.finite(discharge.date), discharge.date := end.fu]
 dt.tv[!is.finite(study.start), study.start := NA]
 
+## Assumption can't have two colonic resections on same day
+dt.tv[admit.date == LeftHemicolectomy_date_admitted,op.type := 'LeftHemicolectomy']
+dt.tv[admit.date == RightHemicolectomy_date_admitted,op.type := 'RightHemicolectomy']
+dt.tv[admit.date == TotalColectomy_date_admitted,op.type := 'TotalColectomy']
+dt.tv[admit.date == RectalResection_date_admitted,op.type := 'RectalResection']
 
 
-dt.tv[,op.type := data.table::fifelse(admit.date == LeftHemicolectomy_date_admitted, 'LeftHemicolectomy',
-                                      data.table::fifelse(admit.date == RightHemicolectomy_date_admitted, 'RightHemicolectomy',  
-                                                          data.table::fifelse(admit.date == TotalColectomy_date_admitted, 'TotalColectomy',
-                                                                              data.table::fifelse(admit.date == RectalResection_date_admitted, 'RectalResection','')
-                                                          )))]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 id_change = dt.tv[, c(TRUE, patient_id[-1] != patient_id[-.N] | end.fu[-1] != end.fu[-.N])]
 dt.tv[, op.type := lapply(.SD, function(x) x[cummax(((!is.na(x)) | id_change) * .I)]), .SDcols = "op.type"]
