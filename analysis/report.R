@@ -214,7 +214,7 @@ cbind(dt[admit.wave.LeftHemicolectomy == x,.N, by = LeftHemicolectomy_primary_di
 ### Time splits
 fixed <- c('patient_id','dob','sex','bmi', 'region', 'imd','date_death_ons')
 
-time.cols <- c(paste0("covid_vaccine_dates_",1:3),c(names(dt)[grep("^pre",names(dt))]),"gp.end") # gp.end
+time.cols <- c(paste0("covid_vaccine_dates_",1:3),c(names(dt)[grep("^pre",names(dt))])) 
 
 proc.tval.stubs <- c('_admission_method','_primary_diagnosis',
 '_days_in_critical_care',
@@ -244,38 +244,27 @@ dt[,max.date := lapply(.SD,max, na.rm = T),
    by = patient_id,
    .SDcols = c(paste0(procedures,"_end_fu"))]
 
-dt[max.date > gp.end, max.date := gp.end]
+dt[is.finite(gp.end) & max.date > gp.end, max.date := gp.end]
 dt[!is.finite(max.date), max.date := data.table::as.IDate('2022-02-01')]
 
 
 dt.fixed <- dt[,.SD, .SDcols = c(fixed,'max.date')]
 dt.tv <- survival::tmerge(dt.fixed,dt.fixed,id = patient_id, end = event(max.date) )
 
-dt.times <- dt[,.SD, .SDcols = c('patient_id',time.cols, proc.time.cols,paste(procedures,"_end_fu",sep = ""))]
-
+dt.times <- dt[,.SD, .SDcols = c('patient_id',time.cols,"gp.end", proc.time.cols,paste(procedures,"_end_fu",sep = ""))]
+dt.times[, gp.end := as.numeric(gp.end)]
 dt.tv.values <- dt[,.SD, .SDcols = c('patient_id',
                                      paste(procedures,"_date_admitted",sep = ""),
                                      paste(procedures,"_emergency_readmit_date_admitted",sep = ""), 
                                      proc.tval.cols)]
 
-for (i in c(proc.time.cols,paste0(procedures,"_end_fu")))  {
+for (i in c(proc.time.cols,paste0(procedures,"_end_fu"),"gp.end"))  {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
                            "id = patient_id,",
                            i," = event(",i,",",i,")))")))
 }
 
-# for (i in c(proc.time.cols,paste0(procedures,"_end_fu"))) {
-#   eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
-#                            "id = patient_id,", 
-#                            i," = tdc(",i,",",i,",NA)))")))
-# }
 
-# for (i in c(proc.time.cols,paste0(procedures,"_end_fu"))) {
-#   eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
-#                            "id = patient_id,", 
-#                            i," = tdc(",i,",",i,",NA)))")))
-# }
-# 
 for (i in time.cols) {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
                            "id = patient_id,",
@@ -297,8 +286,9 @@ data.table::setDT(dt.tv)
 for (i in c(proc.time.cols,paste0(procedures,"_end_fu")))  {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = dt.tv[",i,"==0, ",i,":=NA])")))
 }
+
 dt.tv[, gp.end := max(gp.end, na.rm = T), by = patient_id]
-dt.tv[!is.finite(gp.end), gp.end := Inf]
+dt.tv[gp.end == 0, gp.end := Inf]
 data.table::setkey(dt.tv,patient_id, tstart, tstop)
 
 
@@ -381,32 +371,31 @@ dt.tv[,age := floor((tstart - as.numeric(as.Date(paste0(dob,'-15'))))/365.25)]
 dt.tv[,age.cat := cut(age, breaks = c(18,50,70,80,90),ordered_result = T , right = T, include.lowest = T)]
 
 
-### Calculate Charlson index at time of operation
+### Calculate Charlson index at time of operation - tdc so date present from first recording
 comorb.cols <- c(names(dt)[grep("^pre",names(dt))])
 
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
-## tmerge flags end of episode prior to diagnosis, so need to count from subsequent episodes
-dt.tv[,(comorb.cols) := lapply(.SD, function(x) data.table::fifelse(x > 1, 1, x)),  .SDcols = comorb.cols] 
+dt.tv[, Charlson := is.finite(pre_MI_GP) +
+        is.finite(pre_CCF_GP) +
+        is.finite(pre_PVD_GP) +
+        is.finite(pre_Stroke_GP) +
+        is.finite(pre_Dementia_GP) +
+        is.finite(pre_Respiratory_GP) +
+        is.finite(pre_RA_SLE_Psoriasis_GP) +
+        is.finite(pre_Ulcer_or_bleed_GP) +
+        is.finite(pre_all_liver_GP) + 
+        is.finite(pre_Cirrhosis_GP)*2 + # counted in all_liver_GP too
+        is.finite(pre_all_diabetes_GP) +
+        is.finite(pre_Diabetic_Complications_GP) + # counted in diabetes too
+        is.finite(pre_Other_Neurology_GP)*2 +
+        (is.finite(pre_CKD_3_5_GP) | is.finite(pre_Renal_GP))*2 +
+        is.finite(pre_Non_Haematology_malignancy_GP)*2 +
+        is.finite(pre_Haematology_malignancy_GP)*2 +
+        is.finite(pre_Metastases_GP)*6 +
+        is.finite(pre_HIV_GP)*6]  
 
-dt.tv[, Charlson := (pre_MI_GP) +
-     (pre_CCF_GP) +
-     (pre_PVD_GP) +
-     (pre_Stroke_GP) +
-     (pre_Dementia_GP) +
-     (pre_Respiratory_GP) +
-     (pre_RA_SLE_Psoriasis_GP) +
-     (pre_Ulcer_or_bleed_GP) +
-     (pre_all_liver_GP) + 
-     (pre_Cirrhosis_GP)*2 + # counted in all_liver_GP too
-     (pre_all_diabetes_GP) +
-     (pre_Diabetic_Complications_GP) + # counted in diabetes too
-     (pre_Other_Neurology_GP)*2 +
-     ((pre_CKD_3_5_GP) | (pre_Renal_GP))*2 +
-     (pre_Non_Haematology_malignancy_GP)*2 +
-     (pre_Haematology_malignancy_GP)*2 +
-     (pre_Metastases_GP)*6 +
-     (pre_HIV_GP)*6]  
+dt.tv[,Charl12 := cut(Charlson, breaks = c(0,1,2,100), labels = c("None","Single","Multiple or Severe"), ordered = T)]
 
 ## Operation type
 
@@ -420,7 +409,7 @@ dt.tv[,Emergency := substr(as.character(admission_method),1,1)=="2"]
 dt.tv[is.na(Emergency), Emergency := F]
 
 ## Define vaccination status - 14 days post date as effective
-dt.tv[, vaccination.status := covid_vaccine_dates_1 + covid_vaccine_dates_2 + covid_vaccine_dates_3]
+dt.tv[, vaccination.status := is.finite(covid_vaccine_dates_1) + is.finite(covid_vaccine_dates_2) + is.finite(covid_vaccine_dates_3)]
 
 
 ##############################
@@ -512,7 +501,7 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
 ##TODO need to see model output to determine appropriate model fit.
 
-post.op.covid.model <- survival::coxph(survival::Surv(start,end,COVIDpositive) ~ op.type + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer  + Emergency , id = patient_id, data = dt.tv[start>=0 & year < 2022])
+post.op.covid.model <- survival::coxph(survival::Surv(start,end,COVIDpositive) ~ op.type + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer  + Emergency + Charl12, id = patient_id, data = dt.tv[start>=0 & year < 2022])
 data.table::fwrite(broom::tidy(post.op.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
 
 
@@ -522,7 +511,7 @@ data.table::fwrite(broom::tidy(post.op.covid.model, exponentiate= T, conf.int = 
 ##################################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
-post.op.post.covid.covid.model <- survival::coxph(survival::Surv(start,end,died) ~ op.type + postcovid + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency , id = patient_id, data = dt.tv[start>=0 & wave != 'Wave_4'])
+post.op.post.covid.covid.model <- survival::coxph(survival::Surv(start,end,died) ~ op.type + postcovid + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id, data = dt.tv[start>=0 & wave != 'Wave_4'])
 data.table::fwrite(broom::tidy(post.op.post.covid.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_post_covid_model.csv"))
 
 
@@ -531,6 +520,6 @@ data.table::fwrite(broom::tidy(post.op.post.covid.covid.model, exponentiate= T, 
 #################################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
-post.op.los.post.covid.model <- survival::coxph(survival::Surv(start,end,discharged) ~ op.type + postcovid*wave + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency , id = patient_id, data = dt.tv[start>=0 & !is.na(admit.date) & wave != 'Wave_4'])
+post.op.los.post.covid.model <- survival::coxph(survival::Surv(start,end,discharged) ~ op.type + postcovid*wave + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id, data = dt.tv[start>=0 & !is.na(admit.date) & wave != 'Wave_4'])
 data.table::fwrite(broom::tidy(post.op.los.post.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post.op.los.post.covid.model.csv"))
 
