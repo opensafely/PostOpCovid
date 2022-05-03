@@ -222,11 +222,15 @@ fixed <- c('patient_id','dob','sex','bmi', 'region', 'imd','date_death_ons')
 time.cols <- c(paste0("covid_vaccine_dates_",1:3),c(names(dt)[grep("^pre",names(dt))])) 
 
 ##Admission exposure information needs to start from beginning of row time period
+
+procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','RectalResection')
+
 proc.tval.stubs <- c('_admission_method',
                      '_primary_diagnosis',
                      '_days_in_critical_care',
                      '_case_category',
                      '_emergency_readmit_primary_diagnosis')
+proc.tval.cols <- paste(rep(procedures,each = length(proc.tval.stubs)),proc.tval.stubs, sep ="")
 
 ##Outcomes so need to be flagged at end of row time period
 proc.time.stubs.start <- c('_date_admitted')
@@ -239,10 +243,10 @@ proc.time.stubs.end <- c('_date_discharged',
                          '_anticoagulation_prescriptions_date')
 
 
-procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','RectalResection')
 
 proc.time.cols.start <- paste(rep(procedures,each = length(proc.time.stubs.start)),proc.time.stubs.start, sep ="")
 proc.time.cols.end <- paste(rep(procedures,each = length(proc.time.stubs.end)),proc.time.stubs.end, sep ="")
+
 dt[,(c(proc.time.cols.start,proc.time.cols.end)) := lapply(.SD,as.numeric), .SDcols = c(proc.time.cols.start,proc.time.cols.end)]
 dt[,(time.cols) := lapply(.SD,as.numeric), .SDcols = time.cols]
 dt[,date_death_ons := as.numeric(date_death_ons)]
@@ -295,7 +299,7 @@ for (proc in procedures) {
 }
 
 data.table::setDT(dt.tv)
-for (i in c(proc.time.cols,paste0(procedures,"_end_fu")))  {
+for (i in c(proc.time.cols.start,proc.time.cols.end,paste0(procedures,"_end_fu")))  {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = dt.tv[",i,"==0, ",i,":=NA])")))
 }
 
@@ -333,7 +337,7 @@ dt.tv[is.na(admit.date) , (paste0(procedures,c('_admission_method','_primary_dia
 
 
 for (proc in procedures) {
-  cols <-paste0(proc, proc.time.stubs)
+  cols <-paste0(proc, proc.time.stubs.start,proc.time.stubs.end)
   eval(parse(text = paste0("dt.tv[",proc,"_date_admitted>",proc,"_date_discharged,(cols) := NA]")))
 }
 
@@ -379,7 +383,7 @@ dt.tv[!is.finite(VTE_GP), VTE_GP := NA]
 dt.tv[,anticoagulation_prescriptions  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_anticoagulation_prescriptions_date"), by = .(patient_id, end.fu)]
 dt.tv[!is.finite(anticoagulation_prescriptions), anticoagulation_prescriptions := NA]
 
-dt.tv[,(proc.time.cols) := NULL]
+dt.tv[,(c(proc.time.cols.start,proc.time.cols.end)) := NULL]
 
 
 ###############################
