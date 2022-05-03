@@ -16,7 +16,7 @@ actions:
     needs: [generate_study_population]
     outputs:
       moderately_sensitive:
-        survival_figures: output/plot_*.png
+        survival_figures: output/plot_*.tiff
         covid_cox_models: output/*_model.csv
         tables: output/*.html
 
