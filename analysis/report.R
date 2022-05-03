@@ -496,32 +496,42 @@ dt.tv[, vaccination.status := is.finite(covid_vaccine_dates_1) + is.finite(covid
 ##############################
 
 ### Length of stay----
-dt.tv[,discharged := is.finite(data.table::shift(discharge.date, n = 1L, type = 'lead')) & data.table::shift(discharge.date, n = 1L, type = 'lead') == tstop]
+dt.tv[,discharged := is.finite(discharge.date) & discharge.date == tstop]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,los.end := min(as.numeric(discharge.date), na.rm = T), by = .(patient_id, end.fu) ]
 
 ### Post operative VTE----
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, anticoagulation_prescriptions := lapply(.SD, data.table::nafill, type = "nocb"), by = patient_id, .SDcols = 'anticoagulation_prescriptions']
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[, post.VTE := ((is.finite(data.table::shift(VTE_GP, n = 1L, type = 'lead')) &  
-                        data.table::shift(VTE_GP, n = 1L, type = 'lead') == tstop) | 
-                       (is.finite(data.table::shift(VTE_HES, n = 1L, type = 'lead')) & 
-                          data.table::shift(VTE_HES, n = 1L, type = 'lead') == tstop)) & 
-        is.finite(data.table::shift(anticoagulation_prescriptions, n = 1L, type = 'lead')) & 
-        is.finite(anticoagulation_prescriptions) & 
+dt.tv[, post.VTE := ((is.finite(VTE_GP) &  
+                        VTE_GP == tstop) | 
+                       (is.finite(VTE_HES) & 
+                         VTE_HES == tstop)) & 
+        is.finite(anticoagulation_prescriptions) &
         tstop <= end.fu]  # events flagged at end of episode
 dt.tv[post.VTE == T, post.VTE.date := tstop]
-dt.tv[,post.VTE.date := min(post.VTE.date, na.rm = T), by = patient_id]
+dt.tv[,post.VTE.date := min(as.numeric(post.VTE.date), na.rm = T), by = patient_id]
+dt.tv[,postVTEany := cumsum(post.VTE), by = .(patient_id, end.fu)]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,VTE.end := min(as.numeric(post.VTE.date), na.rm = T), by = .(patient_id, end.fu) ]
 
 
 ### Post operative Covid-19----
-dt.tv[,COVIDpositive := is.finite(data.table::shift(COVIDpositivedate, n = 1L, type = 'lead')) & data.table::shift(COVIDpositivedate, n = 1L, type = 'lead') == tstop]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,COVIDpositive := is.finite(COVIDpositivedate) & COVIDpositivedate == tstop]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,postcovid := cumsum(COVIDpositive), by = .(patient_id, end.fu)]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,covid.end := min(as.numeric(COVIDpositivedate), na.rm = T), by = .(patient_id, end.fu) ]
 
 ### Readmissions----
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[,emergency_readmit  := is.finite(data.table::shift(emergency_readmitdate, n = 1L, type = 'lead')) & data.table::shift(emergency_readmitdate, n = 1L, type = 'lead') == tstop]
+dt.tv[,emergency_readmit  := is.finite(emergency_readmitdate) & emergency_readmitdate == tstop]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,readmit.end := min(as.numeric(emergency_readmitdate), na.rm = T), by = .(patient_id, end.fu) ]
 
 ## Define types of emergency readmissions
 
@@ -555,11 +565,13 @@ dt.tv[,wave := cut(admit.date, breaks = c(as.numeric(data.table::as.IDate("2020-
 dt.tv[, `:=`(start = tstart - study.start,
              end = tstop - study.start)]
 
-###Counts for sense check
+###Counts for sense check----
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+
 dt.tv[,tail(.SD,1), by = .(patient_id,op.type)][,.N,by = op.type]
-dt.tv[died == 1,tail(.SD,1), by = .(patient_id,op.type)][,.N,by = op.type]
-dt.tv[COVIDpositive == 1,tail(.SD,1), by = .(patient_id,op.type)][,.N,by = op.type]
-dt.tv[post.VTE == 1,tail(.SD,1), by = .(patient_id,op.type)][,.N,by = op.type]
+data.table::dcast(dt.tv[,tail(.SD,1), by = .(patient_id, op.type)], op.type ~ died, length)
+data.table::dcast(dt.tv[,tail(.SD,1), by = .(patient_id, op.type)], op.type ~ postcovid, length)
+data.table::dcast(dt.tv[,tail(.SD,1), by = .(patient_id, op.type)], op.type ~ postVTEany, length)
 dt.tv[,tail(.SD,1), by = .(patient_id,op.type)][,mean(discharge.date - admit.date, na.rm = T),by = op.type]
 dt.tv[,tail(.SD,1), by = .(patient_id,op.type)][,mean(Charlson, na.rm = T),by = op.type]
 
@@ -567,32 +579,27 @@ dt.tv[,tail(.SD,1), by = .(patient_id,op.type)][,mean(Charlson, na.rm = T),by = 
 
 crude.surv <- survival::survfit(survival::Surv(start,end,died) ~ op.type, data = dt.tv[start>=0], id = patient_id)
 plot_surv <- survminer::ggsurvplot(crude.surv, data = dt.tv, risk.table = T)
-ggplot2::ggsave(plot = plot_surv$plot,filename = "plot_surv.png", path=here::here("output"))
+ggplot2::ggsave(plot = survminer:::.build_ggsurvplot(plot_surv),
+                filename = "plot_surv.tiff", path=here::here("output"),
+                dpi = 'retina', width = 7, height = 7, units = 'in')
 
-crude.covid <- survival::survfit(survival::Surv(start,end,COVIDpositive) ~ op.type, data = dt.tv[start>=0], id = patient_id)
+crude.covid <- survival::survfit(survival::Surv(start,end,COVIDpositive) ~ op.type, data = dt.tv[start>=0 & tstop <= covid.end], id = patient_id)
 plot_covid <- survminer::ggsurvplot(crude.covid, data = dt.tv, risk.table = T)
-ggplot2::ggsave(plot = plot_covid$plot,filename = "plot_covid.png", path=here::here("output"))
+ggplot2::ggsave(plot = survminer:::.build_ggsurvplot(plot_covid),filename = "plot_covid.tiff", path=here::here("output"),
+                dpi = 'retina', width = 7, height = 7, units = 'in')
 
-crude.los <- survival::survfit(survival::Surv(start,end,discharged) ~ op.type, data = dt.tv[is.finite(admit.date) & start>=0], id = patient_id)
+crude.los <- survival::survfit(survival::Surv(start,end,discharged) ~ op.type, data = dt.tv[is.finite(admit.date) & start>=0 & tstop <= los.end], id = patient_id)
 plot_los <-survminer::ggsurvplot(crude.los, data = dt.tv, risk.table = T)
-ggplot2::ggsave(plot = plot_los$plot,filename = "plot_los.png", path=here::here("output"))
+ggplot2::ggsave(plot = survminer:::.build_ggsurvplot(plot_los), filename = "plot_los.tiff", path=here::here("output"),
+                dpi = 'retina', width = 7, height = 7, units = 'in')
 
 
 dt.tv[start >= 0,discharge.start := min(discharge.date, na.rm = T), by = .(patient_id, end.fu)]
 
-crude.readmit <- survival::survfit(survival::Surv(tstart - discharge.start,tstop - discharge.start ,emergency_readmit) ~ op.type, data = dt.tv[tstart - discharge.start >=0], id = patient_id)
+crude.readmit <- survival::survfit(survival::Surv(tstart - discharge.start,tstop - discharge.start ,emergency_readmit) ~ op.type, data = dt.tv[tstart - discharge.start >=0 & tstop <=readmit.end], id = patient_id)
 plot_readmit <-survminer::ggsurvplot(crude.readmit, data = dt.tv, risk.table = T)
-ggplot2::ggsave(plot = plot_readmit$plot,filename = "plot_readmit.png", path=here::here("output"))
-
-##############################
-# Post operative COVID risk
-#############################
-data.table::setkey(dt.tv,"patient_id","tstart","tstop")
-
-##TODO need to see model output to determine appropriate model fit.
-
-post.op.covid.model <- survival::coxph(survival::Surv(start,end,COVIDpositive) ~ op.type + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer  + Emergency + Charl12, id = patient_id, data = dt.tv[start>=0 & year < 2022])
-data.table::fwrite(broom::tidy(post.op.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
+ggplot2::ggsave(plot = plot_readmit$plot,filename = "plot_readmit.tiff", path=here::here("output"),
+                dpi = 'retina', width = 7, height = 7, units = 'in')
 
 
 
@@ -601,7 +608,9 @@ data.table::fwrite(broom::tidy(post.op.covid.model, exponentiate= T, conf.int = 
 ##################################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
-post.op.post.covid.covid.model <- survival::coxph(survival::Surv(start,end,died) ~ op.type + postcovid + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id, data = dt.tv[start>=0 & wave != 'Wave_4'])
+post.op.post.covid.covid.model <- 
+  survival::coxph(survival::Surv(start,end,died) ~ op.type + postcovid + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id,
+                  data = dt.tv[start>=0 & wave != 'Wave_4'])
 data.table::fwrite(broom::tidy(post.op.post.covid.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_post_covid_model.csv"))
 
 
@@ -610,6 +619,7 @@ data.table::fwrite(broom::tidy(post.op.post.covid.covid.model, exponentiate= T, 
 #################################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
-post.op.los.post.covid.model <- survival::coxph(survival::Surv(start,end,discharged) ~ op.type + postcovid*wave + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id, data = dt.tv[start>=0 & !is.na(admit.date) & wave != 'Wave_4'])
+post.op.los.post.covid.model <- survival::coxph(survival::Surv(start,end,discharged) ~ op.type + postcovid*wave + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, 
+                                                id = patient_id, data = dt.tv[start>=0 & tstop <= los.end & !is.na(admit.date) & wave != 'Wave_4'])
 data.table::fwrite(broom::tidy(post.op.los.post.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post.op.los.post.covid.model.csv"))
 
