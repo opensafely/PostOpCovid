@@ -58,9 +58,14 @@ dt[is.finite(RectalResection_date_admitted),.N]
 procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','RectalResection')
 
 
-dt[,(paste("admit.wave.",procedures, sep ="")) := lapply(.SD, function(x) factor(data.table::fifelse(x <= as.numeric(data.table::as.IDate("2020-09-01")),"Wave_1",
-                                           data.table::fifelse(x <= as.numeric(data.table::as.IDate("2021-05-01")),"Wave_2",
-                                                               data.table::fifelse(x <= as.numeric(data.table::as.IDate("2021-12-31")),"Wave_3","Wave_4"))), ordered = F)), .SDcols = c(paste(procedures,"_date_admitted", sep =""))]
+dt[,(paste("admit.wave.",procedures, sep ="")) := lapply(.SD, function(x) cut(as.numeric(x), breaks = c(as.numeric(data.table::as.IDate("2020-01-01", format = "%Y-%m-%d")),
+                                                                                                        as.numeric(data.table::as.IDate("2020-09-01", format = "%Y-%m-%d")),
+                                                                                                        as.numeric(data.table::as.IDate("2021-05-01", format = "%Y-%m-%d")),
+                                                                                                        as.numeric(data.table::as.IDate("2021-12-31", format = "%Y-%m-%d")),
+                                                                                                        as.numeric(data.table::as.IDate("2022-05-01", format = "%Y-%m-%d"))),
+                                                                              labels = c("Wave_1","Wave_2","Wave_3","Wave_4"),
+                                                                              ordered = T)), 
+                                                         .SDcols = c(paste(procedures,"_date_admitted", sep =""))]
 for(x in procedures) {
 dt[, (paste0(x,"post.VTE")) := ((!is.na(.SD[,3]) &  
                         .SD[,3] <= .SD[,1] + 90 & .SD[,3] >= .SD[,1]) | 
@@ -216,22 +221,29 @@ fixed <- c('patient_id','dob','sex','bmi', 'region', 'imd','date_death_ons')
 
 time.cols <- c(paste0("covid_vaccine_dates_",1:3),c(names(dt)[grep("^pre",names(dt))])) 
 
-proc.tval.stubs <- c('_admission_method','_primary_diagnosis',
-'_days_in_critical_care',
-'_case_category','_emergency_readmit_primary_diagnosis')
+##Admission exposure information needs to start from beginning of row time period
+proc.tval.stubs <- c('_admission_method',
+                     '_primary_diagnosis',
+                     '_days_in_critical_care',
+                     '_case_category',
+                     '_emergency_readmit_primary_diagnosis')
 
-proc.time.stubs <- c('_date_admitted','_date_discharged',
-           '_date', 
-           '_emergency_readmit_date_admitted',
-           '_VTE_HES_date_admitted',
-           '_VTE_GP_date','_anticoagulation_prescriptions_date')
+##Outcomes so need to be flagged at end of row time period
+proc.time.stubs.start <- c('_date_admitted')
+
+proc.time.stubs.end <- c('_date_discharged',
+                         '_emergency_readmit_date_admitted',
+                           '_date', 
+                           '_VTE_HES_date_admitted',
+                           '_VTE_GP_date',
+                         '_anticoagulation_prescriptions_date')
+
 
 procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','RectalResection')
 
-proc.time.cols <- paste(rep(procedures,each = length(proc.time.stubs)),proc.time.stubs, sep ="")
-proc.tval.cols <- paste(rep(procedures,each = length(proc.tval.stubs)),proc.tval.stubs, sep ="")
-
-dt[,(proc.time.cols) := lapply(.SD,as.numeric), .SDcols = proc.time.cols]
+proc.time.cols.start <- paste(rep(procedures,each = length(proc.time.stubs.start)),proc.time.stubs.start, sep ="")
+proc.time.cols.end <- paste(rep(procedures,each = length(proc.time.stubs.end)),proc.time.stubs.end, sep ="")
+dt[,(c(proc.time.cols.start,proc.time.cols.end)) := lapply(.SD,as.numeric), .SDcols = c(proc.time.cols.start,proc.time.cols.end)]
 dt[,(time.cols) := lapply(.SD,as.numeric), .SDcols = time.cols]
 dt[,date_death_ons := as.numeric(date_death_ons)]
 
@@ -251,21 +263,21 @@ dt[!is.finite(max.date), max.date := data.table::as.IDate('2022-02-01')]
 dt.fixed <- dt[,.SD, .SDcols = c(fixed,'max.date')]
 dt.tv <- survival::tmerge(dt.fixed,dt.fixed,id = patient_id, end = event(max.date) )
 
-dt.times <- dt[,.SD, .SDcols = c('patient_id',time.cols,"gp.end", proc.time.cols,paste(procedures,"_end_fu",sep = ""))]
+dt.times <- dt[,.SD, .SDcols = c('patient_id',time.cols,"gp.end",proc.time.cols.start, proc.time.cols.end,paste(procedures,"_end_fu",sep = ""))]
 dt.times[, gp.end := as.numeric(gp.end)]
 dt.tv.values <- dt[,.SD, .SDcols = c('patient_id',
                                      paste(procedures,"_date_admitted",sep = ""),
                                      paste(procedures,"_emergency_readmit_date_admitted",sep = ""), 
                                      proc.tval.cols)]
 
-for (i in c(proc.time.cols,paste0(procedures,"_end_fu"),"gp.end"))  {
+for (i in c(proc.time.cols.end,paste0(procedures,"_end_fu"),"gp.end"))  {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
                            "id = patient_id,",
                            i," = event(",i,",",i,")))")))
 }
 
 
-for (i in time.cols) {
+for (i in c(proc.time.cols.start,time.cols)) {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
                            "id = patient_id,",
                            i," = tdc(",i,",",i,",NA)))")))
@@ -296,23 +308,29 @@ data.table::setkey(dt.tv,patient_id, tstart, tstop)
 admission.dates <- c('admit.date','discharge.date','end.fu')
 dt.tv[,admit.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
 dt.tv[!is.finite(admit.date), admit.date := NA]
+dt.tv[admit.date > tstart, admit.date := NA]
 dt.tv[,end.fu := do.call(pmin, c(.SD, na.rm = T)), .SDcols = c(paste0(procedures,"_end_fu"),"gp.end")] ## gp.end
 dt.tv[!is.finite(end.fu), end.fu := NA]
+dt.tv[end.fu <= tstart, end.fu := NA]
 dt.tv[,discharge.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_discharged")]
 dt.tv[!is.finite(discharge.date), discharge.date := NA]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, (c('discharge.date','end.fu')) := lapply(.SD, data.table::nafill, type = "nocb"), by = patient_id, .SDcols = c('discharge.date','end.fu')]
 dt.tv[discharge.date > end.fu, discharge.date := NA]
+dt.tv[discharge.date <= tstart, discharge.date := NA]
+dt.tv[,study.start := min(admit.date, na.rm = T), keyby = .(patient_id,end.fu)]
 dt.tv[,study.start := min(admit.date, na.rm = T), keyby = .(patient_id,end.fu)]
 dt.tv[!is.finite(study.start), study.start := NA]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, (admission.dates) := lapply(.SD, data.table::nafill, type = "locf"), by = patient_id, .SDcols = admission.dates]
 
-dt.tv[admit.date > discharge.date, (paste0(procedures,c('_admission_method','_primary_diagnosis',
+
+dt.tv[admit.date > discharge.date | is.na(admit.date), c('admit.date','discharge.date') := NA]
+dt.tv[is.na(admit.date) , (paste0(procedures,c('_admission_method','_primary_diagnosis',
                                                         '_days_in_critical_care',
                                                         '_case_category')))  := NA]
 
-dt.tv[admit.date > discharge.date | is.na(admit.date), c('admit.date','discharge.date') := NA]
+
 
 for (proc in procedures) {
   cols <-paste0(proc, proc.time.stubs)
@@ -395,7 +413,7 @@ dt.tv[, Charlson := is.finite(pre_MI_GP) +
         is.finite(pre_Metastases_GP)*6 +
         is.finite(pre_HIV_GP)*6]  
 
-dt.tv[,Charl12 := cut(Charlson, breaks = c(0,1,2,100), labels = c("None","Single","Multiple or Severe"), ordered = T)]
+dt.tv[,Charl12 := cut(Charlson, breaks = c(0,1,2,100), labels = c("None","Single","Multiple or Severe"), ordered = F)]
 
 ## Operation type
 
@@ -458,9 +476,14 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 dt.cohort <- dt.tv[admit.date > end.fu | tstop > end.fu | tstart <admit.date | tstart < study.start]
 
 dt.tv[, year := data.table::year(data.table::as.IDate(admit.date))]
-dt.tv[, wave := factor(data.table::fifelse(admit.date <= as.numeric(data.table::as.IDate("2020-09-01")),"Wave_1",
-                                    data.table::fifelse(admit.date <= as.numeric(data.table::as.IDate("2021-05-01")),"Wave_2",
-                                                        data.table::fifelse(admit.date <= as.numeric(data.table::as.IDate("2021-12-31")),"Wave_3","Wave_4"))), ordered = F)]
+
+dt.tv[,wave := cut(admit.date, breaks = c(as.numeric(data.table::as.IDate("2020-01-01")),
+                                          as.numeric(data.table::as.IDate("2020-09-01")),
+                                          as.numeric(data.table::as.IDate("2021-05-01")),
+                                          as.numeric(data.table::as.IDate("2021-12-31")),
+                                          as.numeric(data.table::as.IDate("2022-05-01"))),
+                            labels = c("Wave_1","Wave_2","Wave_3","Wave_4"),
+                            ordered = T)]
 
 dt.tv[, `:=`(start = tstart - study.start,
              end = tstop - study.start)]
