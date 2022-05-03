@@ -538,8 +538,8 @@ dt.tv[,readmit.end := min(as.numeric(emergency_readmitdate), na.rm = T), by = .(
 
 ### Mortality----
 ## date_death_ons part of definition of end_fu so will be end of final row when in follow up period
-dt.tv[,died := tstop == date_death_ons]
-
+dt.tv[,died := is.finite(date_death_ons) & tstop == date_death_ons]
+dt.tv[is.na(died), died := 0]
 ## Cause of death TODO
 
 
