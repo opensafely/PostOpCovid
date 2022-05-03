@@ -8,7 +8,7 @@ library(data.table)
 index_date <- data.table::as.IDate("2020-02-01")
 dt <- data.table::fread( here::here("output", "input.csv"))
 #########################
-# Basic counts and descriptions
+# Basic counts and descriptions----
 #############################
 
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
@@ -213,7 +213,7 @@ cbind(dt[admit.wave.LeftHemicolectomy == x,.N, by = LeftHemicolectomy_primary_di
   
 
 ##########################################################
-# Reshape data to long time varying cohort per procedure
+# Reshape data to long time varying cohort per procedure ----
 #########################################################
 
 ### Time splits
@@ -232,62 +232,80 @@ proc.tval.stubs <- c('_admission_method',
                      '_emergency_readmit_primary_diagnosis')
 proc.tval.cols <- paste(rep(procedures,each = length(proc.tval.stubs)),proc.tval.stubs, sep ="")
 
-##Outcomes so need to be flagged at end of row time period
+##Exposure so need to be flagged at start of row time period
 proc.time.stubs.start <- c('_date_admitted')
+proc.time.cols.start <- paste(rep(procedures,each = length(proc.time.stubs.start)),proc.time.stubs.start, sep ="")
 
+##Outcomes so need to be flagged at end of row time period
 proc.time.stubs.end <- c('_date_discharged',
                          '_emergency_readmit_date_admitted',
                            '_date', 
                            '_VTE_HES_date_admitted',
                            '_VTE_GP_date',
                          '_anticoagulation_prescriptions_date')
-
-
-
-proc.time.cols.start <- paste(rep(procedures,each = length(proc.time.stubs.start)),proc.time.stubs.start, sep ="")
 proc.time.cols.end <- paste(rep(procedures,each = length(proc.time.stubs.end)),proc.time.stubs.end, sep ="")
 
+# Dates as numeric for the tmerge
 dt[,(c(proc.time.cols.start,proc.time.cols.end)) := lapply(.SD,as.numeric), .SDcols = c(proc.time.cols.start,proc.time.cols.end)]
 dt[,(time.cols) := lapply(.SD,as.numeric), .SDcols = time.cols]
 dt[,date_death_ons := as.numeric(date_death_ons)]
+dt[,gp.end := as.numeric(gp.end)]
 
+# Variable for earliest of 90 days post procedure or death for end of follow up time
 dt[,(paste0(procedures,"_end_fu")) := lapply(.SD, function(x) data.table::fifelse(is.finite(date_death_ons) & x+90 > date_death_ons, date_death_ons,x+90)),
    .SDcols = paste0(procedures, '_date_discharged')]
+dt[,(paste0(procedures,"_end_fu")) := lapply(.SD, function(x) data.table::fifelse(is.finite(gp.end) & x > gp.end, gp.end,x)),
+   .SDcols = paste0(procedures, '_end_fu')]
 
+# Check of how many operations per patients
 dt[,no.op := rowSums(!is.na(.SD)),.SDcols = c(paste(procedures,"_date_admitted",sep = ""))]
+dt[,summary(no.op)]
 
+# For tmerge define final date for per patient taking into account final patient in GP database and currrent study end date
 dt[,max.date := lapply(.SD,max, na.rm = T),
    by = patient_id,
    .SDcols = c(paste0(procedures,"_end_fu"))]
 
 dt[is.finite(gp.end) & max.date > gp.end, max.date := gp.end]
-dt[!is.finite(max.date), max.date := data.table::as.IDate('2022-02-01')]
+dt[!is.finite(max.date), max.date := as.numeric(data.table::as.IDate('2022-02-01'))]
 
+# Data for long cohort table with variables that are fixed at baseline
+dt.fixed <- dt[,.SD, .SDcols = c(fixed,'max.date')] # 
+dt.tv <- survival::tmerge(dt.fixed,dt.fixed,id = patient_id, end = event(max.date) ) # set survival dataset with final follow up date per patient
 
-dt.fixed <- dt[,.SD, .SDcols = c(fixed,'max.date')]
-dt.tv <- survival::tmerge(dt.fixed,dt.fixed,id = patient_id, end = event(max.date) )
-
-dt.times <- dt[,.SD, .SDcols = c('patient_id',time.cols,"gp.end",proc.time.cols.start, proc.time.cols.end,paste(procedures,"_end_fu",sep = ""))]
+# Data for long cohort table with variables defining events
+dt.times <- dt[,.SD, .SDcols = c('patient_id',
+                                 time.cols,
+                                 "gp.end",
+                                 proc.time.cols.start, 
+                                 proc.time.cols.end,
+                                 paste(procedures,"_end_fu",sep = ""))]
 dt.times[, gp.end := as.numeric(gp.end)]
+
+# Data for long cohort table with variables that are time varying
 dt.tv.values <- dt[,.SD, .SDcols = c('patient_id',
-                                     paste(procedures,"_date_admitted",sep = ""),
+                                     paste(procedures,"_date_admitted",sep = ""), ## Still needed here to define admission date for the values in merging data
                                      paste(procedures,"_emergency_readmit_date_admitted",sep = ""), 
                                      proc.tval.cols)]
 
-for (i in c(proc.time.cols.end,paste0(procedures,"_end_fu"),"gp.end"))  {
+# tmerge events defining end of row outcome events
+for (i in c(proc.time.cols.end,
+            paste0(procedures,"_end_fu"),
+            "gp.end"))  {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
                            "id = patient_id,",
                            i," = event(",i,",",i,")))")))
 }
 
-
-for (i in c(proc.time.cols.start,time.cols)) {
+# tmerge events defining start of row exposure events
+for (i in c(proc.time.cols.start,
+            time.cols)) {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = survival::tmerge(dt.tv,dt.times,",
                            "id = patient_id,",
                            i," = tdc(",i,",",i,",NA)))")))
 }
 
-
+# tmerge values defining start of row exposure values
 for (proc in procedures) {
   for (val in proc.tval.stubs) {
     time.var = '_date_admitted'
@@ -298,70 +316,99 @@ for (proc in procedures) {
   }
 }
 
+# Set non event times to missing rather than zero (really only maters for tmerge event)
 data.table::setDT(dt.tv)
-for (i in c(proc.time.cols.start,proc.time.cols.end,paste0(procedures,"_end_fu")))  {
+for (i in c(proc.time.cols.start,
+            proc.time.cols.end,
+            time.cols,
+            proc.tval.cols,
+            paste0(procedures,"_end_fu")))  {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = dt.tv[",i,"==0, ",i,":=NA])")))
 }
 
-dt.tv[, gp.end := max(gp.end, na.rm = T), by = patient_id]
-dt.tv[gp.end == 0, gp.end := Inf]
+#######
+# Copy times across all records within patient and procedure----
+#######
+
+# Keep resorting to avoid incorrect copying
 data.table::setkey(dt.tv,patient_id, tstart, tstop)
 
 
+# Copy gp end of follow up across all patient time
+dt.tv[, gp.end := max(gp.end, na.rm = T), keyby = patient_id]
+dt.tv[gp.end == 0, gp.end := Inf]
 
-admission.dates <- c('admit.date','discharge.date','end.fu')
+data.table::setkey(dt.tv,patient_id, tstart, tstop)
+
+admission.dates <- c('admit.date','discharge.date','end.fu') # key dates to define
+
+## Coalesce admission from different procedures to create continuous record, only present when valid
 dt.tv[,admit.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
 dt.tv[!is.finite(admit.date), admit.date := NA]
 dt.tv[admit.date > tstart, admit.date := NA]
-dt.tv[,end.fu := do.call(pmin, c(.SD, na.rm = T)), .SDcols = c(paste0(procedures,"_end_fu"),"gp.end")] ## gp.end
+
+## Coalesce end of follow up from different procedures to create continuous record, only present when valid
+dt.tv[,end.fu := do.call(pmin, c(.SD, na.rm = T)), .SDcols = c(paste0(procedures,"_end_fu"))] ## gp.end in end_fu already
 dt.tv[!is.finite(end.fu), end.fu := NA]
 dt.tv[end.fu <= tstart, end.fu := NA]
+
+## Coalesce discharged date from different procedures to create continuous record, only present when valid
 dt.tv[,discharge.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_discharged")]
 dt.tv[!is.finite(discharge.date), discharge.date := NA]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
+
+## Roll end of period dates backwards to end of previous episodes to define each post procedure period
+data.table::setkey(dt.tv,patient_id, tstart, tstop)
 dt.tv[, (c('discharge.date','end.fu')) := lapply(.SD, data.table::nafill, type = "nocb"), by = patient_id, .SDcols = c('discharge.date','end.fu')]
 dt.tv[discharge.date > end.fu, discharge.date := NA]
-dt.tv[discharge.date <= tstart, discharge.date := NA]
-dt.tv[,study.start := min(admit.date, na.rm = T), keyby = .(patient_id,end.fu)]
-dt.tv[,study.start := min(admit.date, na.rm = T), keyby = .(patient_id,end.fu)]
+dt.tv[tstart >= discharge.date, discharge.date := NA]
+
+## Start of follow up (each enter study) per patient and procedure
+data.table::setkey(dt.tv,patient_id, tstart, tstop)
+dt.tv[,study.start := min(admit.date, na.rm = T), by = .(patient_id,end.fu)]
+dt.tv[,study.start := min(admit.date, na.rm = T), by = .(patient_id,end.fu)]
 dt.tv[!is.finite(study.start), study.start := NA]
+
+## Roll start of procedure periods forward to define beginning of each post procedure period. Include discharge dates and end of fu dates to work out data to drop later
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, (admission.dates) := lapply(.SD, data.table::nafill, type = "locf"), by = patient_id, .SDcols = admission.dates]
 
-
-dt.tv[admit.date > discharge.date | is.na(admit.date), c('admit.date','discharge.date') := NA]
+## Remove admit & discharge dates from outside admission period. Study start and endfu define total exposure for each observation period.
+dt.tv[admit.date > discharge.date | is.na(admit.date) | admit.date > tstart | discharge.date < tstop, c('admit.date','discharge.date') := NA]
 dt.tv[is.na(admit.date) , (paste0(procedures,c('_admission_method','_primary_diagnosis',
                                                         '_days_in_critical_care',
                                                         '_case_category')))  := NA]
+dt.tv <- dt.tv[tstop <= end.fu,]
 
+# Pre study start not dropped yet as contains pre operative exposure information
 
-
-for (proc in procedures) {
-  cols <-paste0(proc, proc.time.stubs.start,proc.time.stubs.end)
-  eval(parse(text = paste0("dt.tv[",proc,"_date_admitted>",proc,"_date_discharged,(cols) := NA]")))
-}
+#for (proc in procedures) {
+#  cols <-paste0(proc, proc.time.stubs.start,proc.time.stubs.end)
+#  eval(parse(text = paste0("dt.tv[",proc,"_date_admitted>",proc,"_date_discharged,(cols) := NA]")))
+#}
 
 dt.tv[!is.finite(admit.date), admit.date := NA]
 dt.tv[!is.finite(end.fu), end.fu := NA]
 dt.tv[!is.finite(discharge.date), discharge.date := end.fu]
 dt.tv[!is.finite(study.start), study.start := NA]
 
+##########
+## Defining operation for each post op period--------------
+######
 ## Assumption can't have two colonic resections on same day
-dt.tv[admit.date == LeftHemicolectomy_date_admitted,op.type := 'LeftHemicolectomy']
-dt.tv[admit.date == RightHemicolectomy_date_admitted,op.type := 'RightHemicolectomy']
-dt.tv[admit.date == TotalColectomy_date_admitted,op.type := 'TotalColectomy']
-dt.tv[admit.date == RectalResection_date_admitted,op.type := 'RectalResection']
-
+dt.tv[study.start == LeftHemicolectomy_date_admitted,op.type := 'LeftHemicolectomy']
+dt.tv[study.start == RightHemicolectomy_date_admitted,op.type := 'RightHemicolectomy']
+dt.tv[study.start == TotalColectomy_date_admitted,op.type := 'TotalColectomy']
+dt.tv[study.start == RectalResection_date_admitted,op.type := 'RectalResection']
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 id_change = dt.tv[, c(TRUE, patient_id[-1] != patient_id[-.N] | end.fu[-1] != end.fu[-.N])]
-dt.tv[, op.type := lapply(.SD, function(x) x[cummax(((!is.na(x)) | id_change) * .I)]), .SDcols = "op.type"]
+dt.tv[, op.type := op.type[cummax(((!is.na(x)) | id_change) * .I)]]
 
-#dt.tv[!is.finite(op.type), op.type := NA]
+dt.tv[is.infinite(op.type), op.type := NA]
 
-
+## Coalesce across values for each post op exposure period. Already carried forward in time by tmerge
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-
 
 dt.tv[,`:=`(admission_method = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_admission_method")]
 dt.tv[,`:=`(primary_diagnosis = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_primary_diagnosis")]
@@ -372,14 +419,24 @@ dt.tv[,Current.Cancer := substr(primary_diagnosis,1,1) =='C']
 dt.tv[is.na(Current.Cancer), Current.Cancer := F]
 dt.tv[,(proc.tval.cols) := NULL]
 
+## Coalescing outcome event variables into continuous record
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,COVIDpositivedate  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_date"), by = .(patient_id, end.fu)]
 dt.tv[!is.finite(COVIDpositivedate), COVIDpositivedate := NA]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,emergency_readmitdate  :=  min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_emergency_readmit_date_admitted"), by = .(patient_id, end.fu)]
 dt.tv[!is.finite(emergency_readmitdate), emergency_readmitdate := NA]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,VTE_HES  :=  min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_VTE_HES_date_admitted"), by = .(patient_id, end.fu)]
 dt.tv[!is.finite(VTE_HES), VTE_HES := NA]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,VTE_GP  :=  min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_VTE_GP_date"), by = .(patient_id, end.fu)]
 dt.tv[!is.finite(VTE_GP), VTE_GP := NA]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,anticoagulation_prescriptions  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_anticoagulation_prescriptions_date"), by = .(patient_id, end.fu)]
 dt.tv[!is.finite(anticoagulation_prescriptions), anticoagulation_prescriptions := NA]
 
@@ -396,7 +453,7 @@ dt.tv[,age.cat := cut(age, breaks = c(18,50,70,80,90),ordered_result = T , right
 ### Calculate Charlson index at time of operation - tdc so date present from first recording
 comorb.cols <- c(names(dt)[grep("^pre",names(dt))])
 
-data.table::setkey(dt.tv,"patient_id","tstart","tstop")
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 dt.tv[, Charlson := is.finite(pre_MI_GP) +
         is.finite(pre_CCF_GP) +
@@ -442,10 +499,10 @@ dt.tv[, vaccination.status := is.finite(covid_vaccine_dates_1) + is.finite(covid
 dt.tv[,discharged := is.finite(data.table::shift(discharge.date, n = 1L, type = 'lead')) & data.table::shift(discharge.date, n = 1L, type = 'lead') == tstop]
 
 ### Post operative VTE----
-data.table::setkey(dt.tv,"patient_id","tstart","tstop")
-
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, anticoagulation_prescriptions := lapply(.SD, data.table::nafill, type = "nocb"), by = patient_id, .SDcols = 'anticoagulation_prescriptions']
 
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, post.VTE := ((is.finite(data.table::shift(VTE_GP, n = 1L, type = 'lead')) &  
                         data.table::shift(VTE_GP, n = 1L, type = 'lead') == tstop) | 
                        (is.finite(data.table::shift(VTE_HES, n = 1L, type = 'lead')) & 
@@ -459,28 +516,33 @@ dt.tv[,post.VTE.date := min(post.VTE.date, na.rm = T), by = patient_id]
 
 ### Post operative Covid-19----
 dt.tv[,COVIDpositive := is.finite(data.table::shift(COVIDpositivedate, n = 1L, type = 'lead')) & data.table::shift(COVIDpositivedate, n = 1L, type = 'lead') == tstop]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,postcovid := cumsum(COVIDpositive), by = .(patient_id, end.fu)]
 
 ### Readmissions----
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,emergency_readmit  := is.finite(data.table::shift(emergency_readmitdate, n = 1L, type = 'lead')) & data.table::shift(emergency_readmitdate, n = 1L, type = 'lead') == tstop]
 
 ## Define types of emergency readmissions
 
 
 ### Mortality----
+## date_death_ons part of definition of end_fu so will be end of final row when in follow up period
 dt.tv[,died := tstop == date_death_ons]
-## Cause of death
+
+## Cause of death TODO
 
 
 #######################
 #Crude survival plots----
 ######################
-data.table::setkey(dt.tv,"patient_id","tstart","tstop")
-
-dt.cohort <- dt.tv[admit.date > end.fu | tstop > end.fu | tstart <admit.date | tstart < study.start]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+## Pre operation exposures now defined so can drop prior to analysis
+dt.tv <- dt.tv[!(tstart < study.start | tstop > end.fu),]
 
 dt.tv[, year := data.table::year(data.table::as.IDate(admit.date))]
 
+# Redefine wave in long table
 dt.tv[,wave := cut(admit.date, breaks = c(as.numeric(data.table::as.IDate("2020-01-01")),
                                           as.numeric(data.table::as.IDate("2020-09-01")),
                                           as.numeric(data.table::as.IDate("2021-05-01")),
@@ -489,10 +551,11 @@ dt.tv[,wave := cut(admit.date, breaks = c(as.numeric(data.table::as.IDate("2020-
                             labels = c("Wave_1","Wave_2","Wave_3","Wave_4"),
                             ordered = T)]
 
+# Restart clock with each procedure
 dt.tv[, `:=`(start = tstart - study.start,
              end = tstop - study.start)]
 
-###Counts
+###Counts for sense check
 dt.tv[,tail(.SD,1), by = .(patient_id,op.type)][,.N,by = op.type]
 dt.tv[died == 1,tail(.SD,1), by = .(patient_id,op.type)][,.N,by = op.type]
 dt.tv[COVIDpositive == 1,tail(.SD,1), by = .(patient_id,op.type)][,.N,by = op.type]
