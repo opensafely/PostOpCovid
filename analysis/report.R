@@ -10,53 +10,17 @@ dt <- data.table::fread( here::here("output", "input.csv"))
 #########################
 # Basic counts and descriptions----
 #############################
+procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','RectalResection')
 
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
 dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
 
-###Create logical pseudo dates
-# dt[LeftHemicolectomy_date_discharged < LeftHemicolectomy_date_admitted,LeftHemicolectomy_date_discharged := LeftHemicolectomy_date_admitted + sample.int(90,1)]
-# dt[RightHemicolectomy_date_admitted>= LeftHemicolectomy_date_admitted &  RightHemicolectomy_date_admitted <LeftHemicolectomy_date_admitted + 90 , `:=`(RightHemicolectomy_date_admitted = NA, RightHemicolectomy_date_discharged = NA)]
-# dt[TotalColectomy_VTE_HES_date_admitted>= RightHemicolectomy_date_admitted & TotalColectomy_date_admitted <RightHemicolectomy_date_admitted + 90, `:=`(TotalColectomy_date_admitted = NA, TotalColectomy_date_discharged = NA)]
-# dt[RectalResection_date_admitted>= TotalColectomy_date_admitted & RectalResection_date_admitted <TotalColectomy_date_admitted + 90, `:=`(RectalResection_date_admitted = NA, RectalResection_date_discharged = NA)]
-# 
-# procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','RectalResection')
-# 
-# cols <- paste0(procedures,c("_date_discharged"))
-# dt[, (cols) := lapply(.SD, function(x) fifelse(x > date_death_ons,date_death_ons, x)), .SDcols = cols]
-# dt[, (cols) := lapply(.SD, function(x) fifelse(x > gp.end,gp.end, x)), .SDcols = cols]
-# 
-# 
-# dt[,last.proc := pmax(TotalColectomy_date_admitted,LeftHemicolectomy_date_admitted,RightHemicolectomy_date_admitted,RectalResection_date_admitted, na.rm = T)]
-# dt[date_death_ons < last.proc , date_death_ons := last.proc + sample.int(90,1), ]
-# 
-# 
-# cols <- paste0(procedures,c("_date_discharged"))
-# dt[, (cols) := lapply(.SD, function(x) fifelse(x > date_death_ons,date_death_ons, x)), .SDcols = cols]
-# 
-# cols <- paste0(procedures,c("_date_admitted"))
-# dt[, (cols) := lapply(.SD, function(x) ifelse(x > date_death_ons,NA, x)), .SDcols = cols]
-# dt[, (cols) := lapply(.SD, function(x) ifelse(x > gp.end,NA, x)), .SDcols = cols]
-# 
-# 
-# dt[LeftHemicolectomy_date_admitted >LeftHemicolectomy_date_discharged,  LeftHemicolectomy_date_discharged := pmin(LeftHemicolectomy_date_admitted + sample.int(90,1), date_death_ons)]
-# dt[RightHemicolectomy_date_admitted >RightHemicolectomy_date_discharged,  RightHemicolectomy_date_discharged := pmin(RightHemicolectomy_date_admitted + sample.int(90,1), date_death_ons)]
-# dt[TotalColectomy_date_admitted >TotalColectomy_date_discharged,  TotalColectomy_date_discharged := pmin(TotalColectomy_date_admitted + sample.int(90,1), date_death_ons)]
-# dt[RectalResection_date_admitted >RectalResection_date_discharged,  RectalResection_date_discharged := pmin(RectalResection_date_admitted + sample.int(90,1), date_death_ons)]
-
 
 ####################################################################
 
-
 summary(dt)
 
-dt[is.finite(LeftHemicolectomy_date_admitted),.N]
-dt[is.finite(RightHemicolectomy_date_admitted),.N]
-dt[is.finite(TotalColectomy_date_admitted),.N]
-dt[is.finite(RectalResection_date_admitted),.N]
-
-procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','RectalResection')
-
+lapply(paste0(procedures,"_date_admitted"), function(x) dt[is.finite(get(x)),.N])
 
 dt[,(paste("admit.wave.",procedures, sep ="")) := lapply(.SD, function(x) cut(as.numeric(x), breaks = c(as.numeric(data.table::as.IDate("2020-01-01", format = "%Y-%m-%d")),
                                                                                                         as.numeric(data.table::as.IDate("2020-09-01", format = "%Y-%m-%d")),
@@ -76,141 +40,31 @@ dt[, (paste0(x,"post.VTE")) := ((!is.na(.SD[,3]) &
    .SDcols = paste0(x,c("_date_admitted","_date_discharged","_VTE_GP_date","_VTE_HES_date_admitted","_anticoagulation_prescriptions_date"))]  # events flagged at end of episode
 }
 
-t(data.table::rbindlist((lapply(paste0("Wave_",1:4), function(x)  
-data.table::rbindlist(list(dt[is.finite(LeftHemicolectomy_date_admitted) & admit.wave.LeftHemicolectomy == x,.("Procedures" = .N,
-                                                                                    "Patients" = length(unique(patient_id)),
-                                                                                    "Male" = round(mean(sex=='M'),digits = 2),
-                                                                                    "Age (IQR)" = paste(round(quantile((LeftHemicolectomy_date_admitted - dateofbirth)/365.25,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                    "BMI (IQR)" = paste(round(quantile(bmi,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                    "IMD (IQR)" = paste(round(quantile(imd,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                    "1st Vaccination" = round(mean(is.finite(covid_vaccine_dates_1) & LeftHemicolectomy_date_admitted  - covid_vaccine_dates_1 >= 14),digits = 2),
-                                                                                    "2nd Vaccination" = round(mean(is.finite(covid_vaccine_dates_2) & LeftHemicolectomy_date_admitted  - covid_vaccine_dates_2 >= 14),digits = 2),
-                                                                                    "3rd Vaccination" = round(mean(is.finite(covid_vaccine_dates_3) & LeftHemicolectomy_date_admitted  - covid_vaccine_dates_3 >= 14),digits = 2),
-                                                                                    "Current Cancer"  = round(mean(substr(LeftHemicolectomy_primary_diagnosis,1,1) =='C'), digits = 2),
-                                                                                    "Emergency" = round(mean(substr(LeftHemicolectomy_admission_method,1,1) == "2"),digits = 2),
-                                                                                    "Length of stay (IQR)" =  paste(round(quantile((LeftHemicolectomy_date_discharged - LeftHemicolectomy_date_admitted),c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                    "90 day mortality" = round(mean(is.finite(date_death_ons) & date_death_ons - LeftHemicolectomy_date_admitted <= 90),digits = 2),
-                                                                                    "90 day COVID-19" = round(mean(is.finite(LeftHemicolectomy_date) & LeftHemicolectomy_date - LeftHemicolectomy_date_admitted <= 90  & LeftHemicolectomy_date - LeftHemicolectomy_date_admitted >=0),digits = 2),
-                                                                                    "90 day VTE" = round(mean(LeftHemicolectomypost.VTE, na.rm = T),digits = 2))]))))))
 
-t(data.table::rbindlist((lapply(paste0("Wave_",1:4), function(x)  
-  data.table::rbindlist(list(dt[is.finite(RightHemicolectomy_date_admitted) & admit.wave.RightHemicolectomy == x,.("Procedures" = .N,
-                                                                                                                 "Patients" = length(unique(patient_id)),
-                                                                                                                 "Male" = round(mean(sex=='M'),digits = 2),
-                                                                                                                 "Age (IQR)" = paste(round(quantile((RightHemicolectomy_date_admitted - dateofbirth)/365.25,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                 "BMI (IQR)" = paste(round(quantile(bmi,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                 "IMD (IQR)" = paste(round(quantile(imd,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                 "1st Vaccination" = round(mean(is.finite(covid_vaccine_dates_1) & RightHemicolectomy_date_admitted  - covid_vaccine_dates_1 >= 14),digits = 2),
-                                                                                                                 "2nd Vaccination" = round(mean(is.finite(covid_vaccine_dates_2) & RightHemicolectomy_date_admitted  - covid_vaccine_dates_2 >= 14),digits = 2),
-                                                                                                                 "3rd Vaccination" = round(mean(is.finite(covid_vaccine_dates_3) & RightHemicolectomy_date_admitted  - covid_vaccine_dates_3 >= 14),digits = 2),
-                                                                                                                 "Current Cancer"  = round(mean(substr(RightHemicolectomy_primary_diagnosis,1,1) =='C'), digits = 2),
-                                                                                                                 "Emergency" = round(mean(substr(RightHemicolectomy_admission_method,1,1) == "2"),digits = 2),
-                                                                                                                 "Length of stay (IQR)" =  paste(round(quantile((RightHemicolectomy_date_discharged - RightHemicolectomy_date_admitted),c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                 "90 day mortality" = round(mean(is.finite(date_death_ons) & date_death_ons - RightHemicolectomy_date_admitted <= 90),digits = 2),
-                                                                                                                 "90 day COVID-19" = round(mean(is.finite(RightHemicolectomy_date) & RightHemicolectomy_date - RightHemicolectomy_date_admitted <= 90  & RightHemicolectomy_date - RightHemicolectomy_date_admitted >=0),digits = 2),
-                                                                                                                 "90 day VTE" = round(mean(RightHemicolectomypost.VTE, na.rm = T),digits = 2))]))))))
+demo.waves.tab <- lapply(procedures, function(proc) { 
+  t(data.table::rbindlist((lapply(paste0("Wave_",1:4), function(x)  {
+    cbind(dt[is.finite(get(paste0(proc,'_date_admitted'))) & get(paste0('admit.wave.',proc)) == x,.("Procedures" = .N,
+                                                                                                                         "Patients" = length(unique(patient_id)),
+                                                                                                                         "Male" = round(mean(sex=='M'),digits = 2),
+                                                                                                                         "Age (IQR)" = paste(round(quantile((get(paste0(proc,'_date_admitted')) - as.numeric(dateofbirth))/365.25,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
+                                                                                                                         "BMI (IQR)" = paste(round(quantile(bmi,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
+                                                                                                                         "IMD (IQR)" = paste(round(quantile(imd,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
+                                                                                                                         "1st Vaccination" = round(mean(is.finite(covid_vaccine_dates_1) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_1 >= 14),digits = 2),
+                                                                                                                         "2nd Vaccination" = round(mean(is.finite(covid_vaccine_dates_2) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_2 >= 14),digits = 2),
+                                                                                                                         "3rd Vaccination" = round(mean(is.finite(covid_vaccine_dates_3) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_3 >= 14),digits = 2),
+                                                                                                                         "Current Cancer"  = round(mean(substr(get(paste0(proc,'_primary_diagnosis')),1,1) =='C'), digits = 2),
+                                                                                                                         "Emergency" = round(mean(substr(get(paste0(proc,'_admission_method')),1,1) == "2"),digits = 2),
+                                                                                                                         "Length of stay (IQR)" =  paste(round(quantile((get(paste0(proc,'_date_discharged')) - get(paste0(proc,'_date_admitted'))),c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
+                                                                                                                         "90 day mortality" = round(mean(is.finite(date_death_ons) & date_death_ons - get(paste0(proc,'_date_admitted')) <= 90),digits = 2),
+                                                                                                                         "90 day COVID-19" = round(mean(is.finite(get(paste0(proc,'_date'))) & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) <= 90  & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) >=0),digits = 2),
+                                                                                                                         "90 day VTE" = round(mean(get(paste0(proc,'post.VTE')), na.rm = T),digits = 2))],
+                               t(dt[is.finite(get(paste0(proc,'_date_admitted'))) & get(paste0('admit.wave.',proc)) == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))]),
+                               t(dt[get(paste0('admit.wave.',proc)) == x,.N, by = .(.grp = eval(parse(text = paste0(proc,'_primary_diagnosis'))))][order(-N), do.call(paste,c(.SD, sep = ": "))][1:10])                              
+                               )}))))})
 
-t(data.table::rbindlist((lapply(paste0("Wave_",1:4), function(x)  
-  data.table::rbindlist(list(dt[is.finite(TotalColectomy_date_admitted) & admit.wave.TotalColectomy == x,.("Procedures" = .N,
-                                                                                                                 "Patients" = length(unique(patient_id)),
-                                                                                                                 "Male" = round(mean(sex=='M'),digits = 2),
-                                                                                                                 "Age (IQR)" = paste(round(quantile((TotalColectomy_date_admitted - dateofbirth)/365.25,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                 "BMI (IQR)" = paste(round(quantile(bmi,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                 "IMD (IQR)" = paste(round(quantile(imd,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                 "1st Vaccination" = round(mean(is.finite(covid_vaccine_dates_1) & TotalColectomy_date_admitted  - covid_vaccine_dates_1 >= 14),digits = 2),
-                                                                                                                 "2nd Vaccination" = round(mean(is.finite(covid_vaccine_dates_2) & TotalColectomy_date_admitted  - covid_vaccine_dates_2 >= 14),digits = 2),
-                                                                                                                 "3rd Vaccination" = round(mean(is.finite(covid_vaccine_dates_3) & TotalColectomy_date_admitted  - covid_vaccine_dates_3 >= 14),digits = 2),
-                                                                                                           "Current Cancer"  = round(mean(substr(TotalColectomy_primary_diagnosis,1,1) =='C'), digits = 2),
-                                                                                                           "Emergency" = round(mean(substr(TotalColectomy_admission_method,1,1) == "2"),digits = 2),
-                                                                                                                 "Length of stay (IQR)" =  paste(round(quantile((TotalColectomy_date_discharged - TotalColectomy_date_admitted),c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                 "90 day mortality" = round(mean(is.finite(date_death_ons) & date_death_ons - TotalColectomy_date_admitted <= 90),digits = 2),
-                                                                                                                 "90 day COVID-19" = round(mean(is.finite(TotalColectomy_date) & TotalColectomy_date - TotalColectomy_date_admitted <= 90  & TotalColectomy_date - TotalColectomy_date_admitted >=0),digits = 2),
-                                                                                                                 "90 day VTE" = round(mean(TotalColectomypost.VTE, na.rm = T),digits = 2))]))))))
+demo.waves.tab
 
-t(data.table::rbindlist((lapply(paste0("Wave_",1:4), function(x)  
-  data.table::rbindlist(list(dt[is.finite(RectalResection_date_admitted) & admit.wave.RectalResection == x,.("Procedures" = .N,
-                                                                                                                 "Patients" = length(unique(patient_id)),
-                                                                                                                 "Male" = round(mean(sex=='M'),digits = 2),
-                                                                                                                 "Age (IQR)" = paste(round(quantile((RectalResection_date_admitted - dateofbirth)/365.25,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                 "BMI (IQR)" = paste(round(quantile(bmi,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                 "IMD (IQR)" = paste(round(quantile(imd,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                 "1st Vaccination" = round(mean(is.finite(covid_vaccine_dates_1) & RectalResection_date_admitted  - covid_vaccine_dates_1 >= 14),digits = 2),
-                                                                                                                 "2nd Vaccination" = round(mean(is.finite(covid_vaccine_dates_2) & RectalResection_date_admitted  - covid_vaccine_dates_2 >= 14),digits = 2),
-                                                                                                                 "3rd Vaccination" = round(mean(is.finite(covid_vaccine_dates_3) & RectalResection_date_admitted  - covid_vaccine_dates_3 >= 14),digits = 2),
-                                                                                                             "Current Cancer"  = round(mean(substr(RectalResection_primary_diagnosis,1,1) =='C'), digits = 2),
-                                                                                                             "Emergency" = round(mean(substr(RectalResection_admission_method,1,1) == "2"),digits = 2),
-                                                                                                                 "Length of stay (IQR)" =  paste(round(quantile((RectalResection_date_discharged - RectalResection_date_admitted),c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                 "90 day mortality" = round(mean(is.finite(date_death_ons) & date_death_ons - RectalResection_date_admitted <= 90),digits = 2),
-                                                                                                                 "90 day COVID-19" = round(mean(is.finite(RectalResection_date) & RectalResection_date - RectalResection_date_admitted <= 90  & RectalResection_date - RectalResection_date_admitted >=0),digits = 2),
-                                                                                                                 "90 day VTE" = round(mean(RectalResectionpost.VTE, na.rm = T),digits = 2))]))))))
-
-
-lapply(paste0("Wave_",1:4), function(x)  
-print(xtable::xtable(rbind(t(rbind(dt[is.finite(LeftHemicolectomy_date_admitted) & admit.wave.LeftHemicolectomy == x,.("Procedures" = .N,
-                                                  "Patients" = length(unique(patient_id)),
-                                                  "Male" = mean(sex=='M'),
-                                                  "Age (IQR)" = paste(quantile((LeftHemicolectomy_date_admitted - dateofbirth)/365.25,c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                 "BMI (IQR)" = paste(quantile(bmi,c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                 "IMD (IQR)" = paste(quantile(imd,c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                 "1st Vaccination" = mean(is.finite(covid_vaccine_dates_1) & LeftHemicolectomy_date_admitted  - covid_vaccine_dates_1 >= 14),
-                                                 "2nd Vaccination" = mean(is.finite(covid_vaccine_dates_2) & LeftHemicolectomy_date_admitted  - covid_vaccine_dates_2 >= 14),
-                                                 "3rd Vaccination" = mean(is.finite(covid_vaccine_dates_3) & LeftHemicolectomy_date_admitted  - covid_vaccine_dates_3 >= 14),
-                                                  "Emergency" = mean(substr(LeftHemicolectomy_admission_method,1,1) == "2"),
-                                                  "Length of stay (IQR)" =  paste(quantile((LeftHemicolectomy_date_discharged - LeftHemicolectomy_date_admitted),c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                  "90 day mortality" = mean(is.finite(date_death_ons) & date_death_ons - LeftHemicolectomy_date_admitted <= 90),
-                                                  "90 day COVID-19" = mean(is.finite(LeftHemicolectomy_date) & LeftHemicolectomy_date - LeftHemicolectomy_date_admitted <= 90  & LeftHemicolectomy_date - LeftHemicolectomy_date_admitted >=0),
-                                                 "90 day VTE" = mean(LeftHemicolectomypost.VTE, na.rm = T))],
-      dt[is.finite(RightHemicolectomy_date_admitted)  & admit.wave.RightHemicolectomy == x,.("Procedures" = .N,
-                                                       "Patients" = length(unique(patient_id)),
-                                                       "Male" =  mean(sex=='M'),
-                                                       "Age (IQR)" =  paste(quantile((RightHemicolectomy_date_admitted - dateofbirth)/365.25,c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                       "BMI (IQR)" =  paste(quantile(bmi,c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                       "IMD (IQR)" =  paste(quantile(imd,c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                       "1st Vaccination" = mean(is.finite(covid_vaccine_dates_1) & RightHemicolectomy_date_admitted  - covid_vaccine_dates_1 >= 14),
-                                                       "2nd Vaccination" = mean(is.finite(covid_vaccine_dates_2) & RightHemicolectomy_date_admitted  - covid_vaccine_dates_2 >= 14),
-                                                       "3rd Vaccination" = mean(is.finite(covid_vaccine_dates_3) & RightHemicolectomy_date_admitted  - covid_vaccine_dates_3 >= 14),
-                                                       "Emergency" =  mean(substr(RightHemicolectomy_admission_method,1,1) == "2"),
-                                                       "Length of stay (IQR)" =  paste(quantile((RightHemicolectomy_date_discharged - RightHemicolectomy_date_admitted),c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                       "90 day mortality" = mean(is.finite(date_death_ons) & date_death_ons - RightHemicolectomy_date_discharged <= 90),
-                                                       "90 day COVID-19" = mean(is.finite(RightHemicolectomy_date) & RightHemicolectomy_date - RightHemicolectomy_date_admitted <= 90 & RightHemicolectomy_date - RightHemicolectomy_date_admitted >= 0),
-                                                       "90 day VTE" = mean(RightHemicolectomypost.VTE, na.rm = T))],
-      dt[is.finite(TotalColectomy_date_admitted)  & admit.wave.TotalColectomy == x,.("Procedures" = .N,
-                                                   "Patients" =   length(unique(patient_id)),
-                                                   "Male" =   mean(sex=='M'),
-                                                   "Age (IQR)" =    paste(quantile((TotalColectomy_date_admitted - dateofbirth)/365.25,c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                   "BMI (IQR)" =    paste(quantile(bmi,c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                   "IMD (IQR)" =    paste(quantile(imd,c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                   "1st Vaccination" = mean(is.finite(covid_vaccine_dates_1) & TotalColectomy_date_admitted  - covid_vaccine_dates_1 >= 14),
-                                                   "2nd Vaccination" = mean(is.finite(covid_vaccine_dates_2) & TotalColectomy_date_admitted  - covid_vaccine_dates_2 >= 14),
-                                                   "3rd Vaccination" = mean(is.finite(covid_vaccine_dates_3) & TotalColectomy_date_admitted  - covid_vaccine_dates_3 >= 14),
-                                                   "Emergency" =    mean(substr(TotalColectomy_admission_method,1,1) == "2"),
-                                                   "Length of stay (IQR)" =  paste(quantile((TotalColectomy_date_discharged - TotalColectomy_date_admitted),c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                   "90 day mortality" = mean(is.finite(date_death_ons) & date_death_ons - TotalColectomy_date_admitted <= 90),
-                                                  "90 day COVID-19" = mean(is.finite(TotalColectomy_date) & TotalColectomy_date - TotalColectomy_date_admitted <= 90  & TotalColectomy_date - TotalColectomy_date_admitted >=0),
-                                                  "90 day VTE" = mean(TotalColectomypost.VTE, na.rm = T))],
-      dt[is.finite(RectalResection_date_admitted)  & admit.wave.RectalResection == x,.("Procedures" = .N,
-                                                    "Patients" =   length(unique(patient_id)),
-                                                    "Male" =   mean(sex=='M'),                                                      
-                                                    "Age (IQR)" =   paste(quantile((RectalResection_date_admitted - dateofbirth)/365.25,c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                    "BMI (IQR)" =   paste(quantile(bmi,c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                    "IMD (IQR)" =   paste(quantile(imd,c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                    "1st Vaccination" = mean(is.finite(covid_vaccine_dates_1) & RectalResection_date_admitted  - covid_vaccine_dates_1 >= 14),
-                                                    "2nd Vaccination" = mean(is.finite(covid_vaccine_dates_2) & RectalResection_date_admitted  - covid_vaccine_dates_2 >= 14),
-                                                    "3rd Vaccination" = mean(is.finite(covid_vaccine_dates_3) & RectalResection_date_admitted  - covid_vaccine_dates_3 >= 14),
-                                                    "Emergency" =   mean(substr(RectalResection_admission_method,1,1) == "2"),
-                                                    "Length of stay (IQR)" =  paste(quantile((RectalResection_date_discharged - RectalResection_date_admitted),c(0.25,0.5,0.75),na.rm = T),collapse = ","),
-                                                   "90 day mortality" = mean(is.finite(date_death_ons) & date_death_ons - RectalResection_date_admitted <= 90),
-                                                   "90 day COVID-19" = mean(is.finite(RectalResection_date) & RectalResection_date - RectalResection_date_admitted <= 90  & RectalResection_date - RectalResection_date_admitted >=0),
-                                                   "90 day VTE" = mean(RectalResectionpost.VTE, na.rm = T))])),
-      cbind(dt[is.finite(LeftHemicolectomy_date_admitted) & admit.wave.LeftHemicolectomy == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))],
-            dt[is.finite(RightHemicolectomy_date_admitted) & admit.wave.RightHemicolectomy == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))],
-            dt[is.finite(TotalColectomy_date_admitted) & admit.wave.TotalColectomy == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))],
-            dt[is.finite(RectalResection_date_admitted) & admit.wave.RectalResection == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))]),
-cbind(dt[admit.wave.LeftHemicolectomy == x,.N, by = LeftHemicolectomy_primary_diagnosis][order(-N), do.call(paste,c(.SD, sep = ": "))][1:10],
-      dt[admit.wave.RightHemicolectomy == x,.N, by = RightHemicolectomy_primary_diagnosis][order(-N), do.call(paste,c(.SD, sep = ": "))][1:10],
-      dt[admit.wave.TotalColectomy == x,.N, by = TotalColectomy_primary_diagnosis][order(-N), do.call(paste,c(.SD, sep = ": "))][1:10],
-      dt[admit.wave.RectalResection == x,.N, by = RectalResection_primary_diagnosis][order(-N), do.call(paste,c(.SD, sep = ": "))][1:10])), digits = 2), type = 'html', here::here("output",paste0("table1",x,".html"))))
-  
+lapply(1:length(procedures), function(i) print(xtable::xtable(demo.waves.tab[[i]]), type = 'html', here::here("output",paste0("table1",procedures[i],".html"))))
 
 ##########################################################
 # Reshape data to long time varying cohort per procedure ----
@@ -223,7 +77,6 @@ time.cols <- c(paste0("covid_vaccine_dates_",1:3),c(names(dt)[grep("^pre",names(
 
 ##Admission exposure information needs to start from beginning of row time period
 
-procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','RectalResection')
 
 proc.tval.stubs <- c('_admission_method',
                      '_primary_diagnosis',
@@ -396,10 +249,7 @@ dt.tv[!is.finite(study.start), study.start := NA]
 ## Defining operation for each post op period--------------
 ######
 ## Assumption can't have two colonic resections on same day
-dt.tv[study.start == LeftHemicolectomy_date_admitted,op.type := 'LeftHemicolectomy']
-dt.tv[study.start == RightHemicolectomy_date_admitted,op.type := 'RightHemicolectomy']
-dt.tv[study.start == TotalColectomy_date_admitted,op.type := 'TotalColectomy']
-dt.tv[study.start == RectalResection_date_admitted,op.type := 'RectalResection']
+for (i in 1:length(procedures)) dt.tv[study.start == get(paste0(procedures[i],"_date_admitted")),op.type := procedures[i]]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 id_change = dt.tv[, c(TRUE, patient_id[-1] != patient_id[-.N] | end.fu[-1] != end.fu[-.N])]
@@ -612,6 +462,14 @@ post.op.post.covid.covid.model <-
   survival::coxph(survival::Surv(start,end,died) ~ op.type + postcovid + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id,
                   data = dt.tv[start>=0 & wave != 'Wave_4'])
 data.table::fwrite(broom::tidy(post.op.post.covid.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_post_covid_model.csv"))
+
+
+
+post.op.post.covid.covid.waves.model <- 
+  survival::coxph(survival::Surv(start,end,died) ~ op.type + postcovid*wave + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id,
+                  data = dt.tv[start>=0 & wave != 'Wave_4'])
+data.table::fwrite(broom::tidy(post.op.post.covid.covid.waves.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_post_covid_waves_model.csv"))
+
 
 
 ################################
