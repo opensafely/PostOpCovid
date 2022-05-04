@@ -458,7 +458,7 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
 post.op.covid.model <- 
   survival::coxph(survival::Surv(start,end,COVIDpositive) ~ op.type + wave + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id,
-                  data = dt.tv[start>=0 & tstop <= covid.end  & wave != 'Wave_4'])
+                  data = dt.tv[start>=0 & tstop <= covid.end  ])
 data.table::fwrite(broom::tidy(post.op.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
 
 ################################
@@ -467,8 +467,8 @@ data.table::fwrite(broom::tidy(post.op.covid.model, exponentiate= T, conf.int = 
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
 post.op.VTE.model <- 
-  survival::coxph(survival::Surv(start,end,post.VTE) ~ op.type + wave*postcovid + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id,
-                  data = dt.tv[start>=0 & tstop <= VTE.end  & wave != 'Wave_4'])
+  survival::coxph(survival::Surv(start,end,post.VTE) ~ op.type + wave + postcovid + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id,
+                  data = dt.tv[start>=0 & tstop <= VTE.end  ])
 data.table::fwrite(broom::tidy(post.op.VTE.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_VTE_model.csv"))
 
 
@@ -479,7 +479,7 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
 post.op.post.covid.covid.model <- 
   survival::coxph(survival::Surv(start,end,died) ~ op.type + postcovid + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id,
-                  data = dt.tv[start>=0 & wave != 'Wave_4'])
+                  data = dt.tv[start>=0 ])
 data.table::fwrite(broom::tidy(post.op.post.covid.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_post_covid_model.csv"))
 
 
@@ -497,6 +497,6 @@ data.table::fwrite(broom::tidy(post.op.post.covid.covid.waves.model, exponentiat
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
 post.op.los.post.covid.model <- survival::coxph(survival::Surv(start,end,discharged) ~ op.type + postcovid*wave + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, 
-                                                id = patient_id, data = dt.tv[start>=0 & tstop <= los.end & !is.na(admit.date) & wave != 'Wave_4'])
+                                                id = patient_id, data = dt.tv[start>=0 & tstop <= los.end & !is.na(admit.date) ])
 data.table::fwrite(broom::tidy(post.op.los.post.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_los_post_covid_model.csv"))
 
