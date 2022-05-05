@@ -339,7 +339,7 @@ dt.tv[is.na(Emergency), Emergency := F]
 
 ## Define vaccination status - 14 days post date as effective
 dt.tv[, vaccination.status := is.finite(covid_vaccine_dates_1) + is.finite(covid_vaccine_dates_2) + is.finite(covid_vaccine_dates_3)]
-
+dt.tv[,vaccination.status.factor := factor(vaccination.status, ordered = F)]
 
 ##############################
 #Post operative outcomes----
@@ -403,12 +403,14 @@ dt.tv <- dt.tv[!(tstart < study.start | tstop > end.fu),]
 dt.tv[, year := data.table::year(data.table::as.IDate(admit.date))]
 
 # Redefine wave in long table
-dt.tv[,wave := cut(admit.date, breaks = c(as.numeric(data.table::as.IDate("2020-01-01")),
+dt.tv[,wave := cut(study.start, breaks = c(as.numeric(data.table::as.IDate("2020-01-01")),
                                           as.numeric(data.table::as.IDate("2020-09-01")),
                                           as.numeric(data.table::as.IDate("2021-05-01")),
                                           as.numeric(data.table::as.IDate("2021-12-31")),
                                           as.numeric(data.table::as.IDate("2022-05-01"))),
                             labels = c("Wave_1","Wave_2","Wave_3","Wave_4"),
+                   include.lowest = T,
+                   right = T,
                             ordered = F)]
 
 # Restart clock with each procedure
@@ -482,9 +484,39 @@ ggplot2::ggsave(plot = survminer:::.build_ggsurvplot(plot_readmit.wave),filename
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
 post.op.covid.model <- 
-  survival::coxph(survival::Surv(start,end,COVIDpositive) ~ op.type + wave + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id,
-                  data = dt.tv[start>=0 & tstop <= covid.end  ])
+  survival::coxph(survival::Surv(start,end,COVIDpositive) ~ op.type + wave + age + sex + bmi + vaccination.status.factor + Current.Cancer + Emergency + Charlson, id = patient_id,
+                  data = dt.tv[start>=0 & tstop <= covid.end  ], model = T)
 data.table::fwrite(broom::tidy(post.op.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
+
+dt.tv[,.(op.type,wave,age,sex,bmi,vaccination.status.factor,Current.Cancer,Emergency,Charl12)]
+
+covid.risk.30day <- matrix(predict(object = post.op.covid.model, 
+  newdata = data.table::data.table('start' = rep(0,8),
+                                  'end' = rep(30,8*length(procedures)),
+                                  'COVIDpositive' = rep(F,8*length(procedures)),
+                                  'op.type' = rep(procedures,each = 8),
+                                  'wave' = rep(paste0('Wave_',1:4),times = 2*length(procedures)),
+                                  'age' = rep(60,8*length(procedures)),
+                                  'sex' = rep('M',8*length(procedures)),
+                                  'bmi' = rep(25,8*length(procedures)),
+                                  'vaccination.status.factor' = rep('3',8*length(procedures)),
+                                  'Current.Cancer' = rep(T,8*length(procedures)),
+                                  'Emergency' =  rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
+                                  'Charlson' =  rep(1,8*length(procedures)),
+                                  'patient_id' = 1:8*length(procedures)), type = 'expected'), nrow = 4)
+
+rownames(covid.risk.30day) <- paste0('Wave_',1:4)
+colnames(covid.risk.30day) <- paste0(c('Elective_','Emergency_'),rep(procedures, each = 2))
+
+data.table::fwrite(round(covid.risk.30day*100,1),file = here::here("output, post_op_covid_cuminc.csv"))
+
+#flexmodelcovid <- flexsurv::flexsurvreg(survival::Surv(start,end,COVIDpositive) ~ op.type + wave + age + sex + bmi + vaccination.status.factor + Current.Cancer + Emergency + Charlson,
+#                     data = dt.tv[start>=0 & tstop <= covid.end  ], model = T, dist = 'gengamma')
+
+
+#plot(flexmodelcovid)
+
+
 
 ################################
 # Post operative VTE risk

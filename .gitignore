@@ -11,3 +11,4 @@ venv/
 .Rproj.user/
 .RData
 
+output, post_op_covid_cuminc.csv
