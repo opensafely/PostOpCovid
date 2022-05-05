@@ -508,7 +508,7 @@ covid.risk.30day <- matrix(predict(object = post.op.covid.model,
 rownames(covid.risk.30day) <- paste0('Wave_',1:4)
 colnames(covid.risk.30day) <- paste0(c('Elective_','Emergency_'),rep(procedures, each = 2))
 
-data.table::fwrite(round(covid.risk.30day*100,1),file = here::here("output, post_op_covid_cuminc.csv"))
+data.table::fwrite(round(covid.risk.30day*100,1),file = here::here("output", "post_op_covid_cuminc.csv"))
 
 #flexmodelcovid <- flexsurv::flexsurvreg(survival::Surv(start,end,COVIDpositive) ~ op.type + wave + age + sex + bmi + vaccination.status.factor + Current.Cancer + Emergency + Charlson,
 #                     data = dt.tv[start>=0 & tstop <= covid.end  ], model = T, dist = 'gengamma')
