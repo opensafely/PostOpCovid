@@ -5,12 +5,16 @@ procedures <- unique(dt.tv$op.type)
 ##################################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
+post.op.covid.overall.model <- 
+  survival::coxph(survival::Surv(start,end,COVIDpositive) ~ wave + age + sex + bmi.cat + imd5 + region + vaccination.status.factor + Current.Cancer + Emergency + Charlson, id = patient_id,
+                  data = dt.tv[start>=0 & tstop <= covid.end  ], model = T)
+data.table::fwrite(broom::tidy(post.op.covid.overall.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_overall_model.csv"))
+
+
 post.op.covid.model <- 
-  survival::coxph(survival::Surv(start,end,COVIDpositive) ~ op.type + wave + age + sex + bmi + vaccination.status.factor + Current.Cancer + Emergency + Charlson, id = patient_id,
+  survival::coxph(survival::Surv(start,end,COVIDpositive) ~ op.type + wave + age + sex + bmi.cat + imd5 + region + vaccination.status.factor + Current.Cancer + Emergency + Charlson, id = patient_id,
                   data = dt.tv[start>=0 & tstop <= covid.end  ], model = T)
 data.table::fwrite(broom::tidy(post.op.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
-
-dt.tv[,.(op.type,wave,age,sex,bmi,vaccination.status.factor,Current.Cancer,Emergency,Charl12)]
 
 covid.risk.30day <- matrix(predict(object = post.op.covid.model, 
                                    newdata = data.table::data.table('start' = rep(0,8),
@@ -20,7 +24,9 @@ covid.risk.30day <- matrix(predict(object = post.op.covid.model,
                                                                     'wave' = rep(paste0('Wave_',1:4),times = 2*length(procedures)),
                                                                     'age' = rep(60,8*length(procedures)),
                                                                     'sex' = rep('M',8*length(procedures)),
-                                                                    'bmi' = rep(25,8*length(procedures)),
+                                                                    'region' = rep("East Midlands",8*length(procedures)),
+                                                                    'imd5' = rep('[13200,19800)', 8*length(procedures)),
+                                                                    'bmi.cat' = rep('[19,24)',8*length(procedures)),
                                                                     'vaccination.status.factor' = rep('3',8*length(procedures)),
                                                                     'Current.Cancer' = rep(T,8*length(procedures)),
                                                                     'Emergency' =  rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
@@ -46,10 +52,31 @@ data.table::fwrite(round(covid.risk.30day*100,1),file = here::here("output", "po
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
 post.op.VTE.model <- 
-  survival::coxph(survival::Surv(start,end,post.VTE) ~ op.type + wave + postcovid + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id,
+  survival::coxph(survival::Surv(start,end,post.VTE) ~ op.type * wave + postcovid + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id,
                   data = dt.tv[start>=0 & tstop <= VTE.end  ])
 data.table::fwrite(broom::tidy(post.op.VTE.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_VTE_model.csv"))
 
+VTE.risk.30day <- matrix(predict(object = post.op.VTE.model, 
+                                   newdata = data.table::data.table('start' = rep(0,8),
+                                                                    'end' = rep(30,8*length(procedures)),
+                                                                    'COVIDpositive' = rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
+                                                                    'op.type' = rep(procedures,each = 8),
+                                                                    'wave' = rep(paste0('Wave_',1:4),times = 2*length(procedures)),
+                                                                    'age' = rep(60,8*length(procedures)),
+                                                                    'sex' = rep('M',8*length(procedures)),
+                                                                    'region' = rep("East Midlands",8*length(procedures)),
+                                                                    'imd5' = rep('[13200,19800)', 8*length(procedures)),
+                                                                    'bmi.cat' = rep('[19,24)',8*length(procedures)),
+                                                                    'vaccination.status.factor' = rep('3',8*length(procedures)),
+                                                                    'Current.Cancer' = rep(T,8*length(procedures)),
+                                                                    'Emergency' =   rep(F,8*length(procedures)), 
+                                                                    'Charlson' =  rep(1,8*length(procedures)),
+                                                                    'patient_id' = 1:8*length(procedures)), type = 'expected'), nrow = 4)
+
+rownames(VTE.risk.30day) <- paste0('Wave_',1:4)
+colnames(VTE.risk.30day) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
+
+data.table::fwrite(round(VTE.risk.30day*100,1),file = here::here("output", "post_op_VTE_cuminc_model.csv"))
 
 ################################
 # COVID impact on post operative Mortality

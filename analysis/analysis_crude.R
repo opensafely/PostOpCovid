@@ -19,16 +19,16 @@ dt.tv[,tail(.SD,1), by = .(patient_id,op.type)][,mean(Charlson, na.rm = T),by = 
 
 ### 90 day table km estimates ----
 
-covariates <- c('age.cat','sex','op.type','vaccination.status.factor','Charl12','vaccination.status.factor','Emergency','Current.Cancer','wave')
+covariates <- c('age.cat','sex','op.type','Charl12','bmi.cat','imd5','region','vaccination.status.factor','Emergency','Current.Cancer','wave')
 
 # Overall survival----
 crude.surv.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[start>=0 ,as.factor(get(covariates[i]))]))),
                                                                            levels(dt.tv[start>=0 ,as.factor(get(covariates[i]))]),
-                                                                           as.data.frame(summary(survival::survfit(survival::Surv(start,end,died) ~ get(covariates[i]),
+                                                                           round(as.data.frame(summary(survival::survfit(survival::Surv(start,end,died) ~ get(covariates[i]),
                                                                                                                    data = dt.tv[start>=0], 
                                                                                                                    id = patient_id), 
                                                                                                  times = 90,
-                                                                                                 extend = T)[c('n.risk','n.event','surv','lower','upper')]))))
+                                                                                                 extend = T)[c('n.risk','n.event','surv','lower','upper')]), digits = 3))))
 crude.surv.cov <- crude.surv.cov[,`:=`(cuminc = 1 - surv,
                                          lower95 = 1 - upper,
                                          upper95 = 1 - lower)]
@@ -37,11 +37,11 @@ data.table::fwrite(crude.surv.cov,file = here::here("output", "surv_90day_counts
 # Covid risk----
 crude.covid.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[start>=0 & tstop <= covid.end,as.factor(get(covariates[i]))]))),
                                                                            levels(dt.tv[start>=0 & tstop <= covid.end,as.factor(get(covariates[i]))]),
-                                                                           as.data.frame(summary(survival::survfit(survival::Surv(start,end,COVIDpositive) ~ get(covariates[i]),
+                                                                           round(as.data.frame(summary(survival::survfit(survival::Surv(start,end,COVIDpositive) ~ get(covariates[i]),
                                                                                                                    data = dt.tv[start>=0 & tstop <= covid.end], 
                                                                                                                    id = patient_id), 
                                                                                                  times = 90,
-                                                                                                 extend = T)[c('n.risk','n.event','surv','lower','upper')]))))
+                                                                                                 extend = T)[c('n.risk','n.event','surv','lower','upper')]), digits = 3))))
 crude.covid.cov <- crude.covid.cov[,`:=`(cuminc = 1 - surv,
                                          lower95 = 1 - upper,
                                          upper95 = 1 - lower)]
@@ -50,11 +50,11 @@ data.table::fwrite(crude.covid.cov,file = here::here("output", "covid_90day_coun
 # Readmit risk----
 crude.readmit.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[tstart - discharge.start >=0 & tstop <=readmit.end,as.factor(get(covariates[i]))]))),
                                                                             levels(dt.tv[tstart - discharge.start >=0 & tstop <=readmit.end,as.factor(get(covariates[i]))]),
-                                                                            as.data.frame(summary(survival::survfit(survival::Surv(tstart - discharge.start,tstop - discharge.start ,emergency_readmit) ~ get(covariates[i]),
+                                                                            round(as.data.frame(summary(survival::survfit(survival::Surv(tstart - discharge.start,tstop - discharge.start ,emergency_readmit) ~ get(covariates[i]),
                                                                                                                     data = dt.tv[tstart - discharge.start >=0 & tstop <=readmit.end], 
                                                                                                                     id = patient_id), 
                                                                                                   times = 90,
-                                                                                                  extend = T)[c('n.risk','n.event','surv','lower','upper')]))))
+                                                                                                  extend = T)[c('n.risk','n.event','surv','lower','upper')]), digits = 3))))
 crude.readmit.cov <- crude.readmit.cov[,`:=`(cuminc = 1 - surv,
                                          lower95 = 1 - upper,
                                          upper95 = 1 - lower)]
@@ -63,11 +63,11 @@ data.table::fwrite(crude.readmit.cov,file = here::here("output", "readmit_90day_
 # VTE risk----
 crude.VTE.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[start >=0 & tstop <= VTE.end,as.factor(get(covariates[i]))]))),
                                                                               levels(dt.tv[start >=0 & tstop <= VTE.end,as.factor(get(covariates[i]))]),
-                                                                              as.data.frame(summary(survival::survfit(survival::Surv(start, end ,post.VTE) ~ get(covariates[i]),
+                                                                              round(as.data.frame(summary(survival::survfit(survival::Surv(start, end ,post.VTE) ~ get(covariates[i]),
                                                                                                                       data = dt.tv[start >=0 & tstop <= VTE.end], 
                                                                                                                       id = patient_id), 
                                                                                                     times = 90,
-                                                                                                    extend = T)[c('n.risk','n.event','surv','lower','upper')]))))
+                                                                                                    extend = T)[c('n.risk','n.event','surv','lower','upper')]), digits = 3))))
 crude.VTE.cov <- crude.VTE.cov[,`:=`(cuminc = 1 - surv,
                                              lower95 = 1 - upper,
                                              upper95 = 1 - lower)]

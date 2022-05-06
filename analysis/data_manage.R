@@ -14,7 +14,8 @@ procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','Recta
 
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
 dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
-
+dt[, imd := as.numeric(imd)]
+dt[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordered_result = F)]
 
 ####################################################################
 
@@ -71,7 +72,7 @@ lapply(1:length(procedures), function(i) print(xtable::xtable(demo.waves.tab[[i]
 #########################################################
 
 ### Time splits
-fixed <- c('patient_id','dob','sex','bmi', 'region', 'imd','date_death_ons')
+fixed <- c('patient_id','dob','sex','bmi' ,'region', 'imd','date_death_ons')
 
 time.cols <- c(paste0("covid_vaccine_dates_",1:3),c(names(dt)[grep("^pre",names(dt))])) 
 
@@ -297,7 +298,9 @@ dt.tv[,(c(proc.time.cols.start,proc.time.cols.end)) := NULL]
 # Pre operative risk factors----
 ##############################
 dt.tv[,age := floor((tstart - as.numeric(as.Date(paste0(dob,'-15'))))/365.25)]
-dt.tv[,age.cat := cut(age, breaks = c(18,50,70,80,90),ordered_result = T , right = T, include.lowest = T)]
+dt.tv[,age.cat := cut(age, breaks = c(1,50,70,80,90),ordered_result = T , right = T, include.lowest = T)]
+dt.tv[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordered_result = F)]
+dt.tv[, bmi.cat := cut(bmi, breaks = c(0,19,24,29,100),  include.lowest = T, ordered_result = F)]
 
 
 ### Calculate Charlson index at time of operation - tdc so date present from first recording
