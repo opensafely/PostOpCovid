@@ -300,7 +300,7 @@ dt.tv[,(c(proc.time.cols.start,proc.time.cols.end)) := NULL]
 dt.tv[,age := floor((tstart - as.numeric(as.Date(paste0(dob,'-15'))))/365.25)]
 dt.tv[,age.cat := cut(age, breaks = c(1,50,70,80,90),ordered_result = T , right = T, include.lowest = T)]
 dt.tv[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordered_result = F)]
-dt.tv[, bmi.cat := cut(bmi, breaks = c(0,19,24,29,100),  include.lowest = T, ordered_result = F)]
+dt.tv[, bmi.cat := cut(bmi, breaks = c(0,18,24,29,100),  include.lowest = T, ordered_result = F)]
 
 
 ### Calculate Charlson index at time of operation - tdc so date present from first recording
