@@ -37,7 +37,7 @@ def loop_over_OPCS_codelists(code_list_dict, returning, return_expectations):
             f"{key}_{returning}": (
                 patients.admitted_to_hospital(
                     with_these_procedures=codes,
-                    between=["index_date","index_date + 2 years"],
+                    between=["index_date","index_date + 3 years"],
                     find_first_match_in_period=True,
                     returning=returning,
                     date_format="YYYY-MM-DD",
@@ -57,7 +57,7 @@ def loop_over_OPCS_codelists_discharge(code_list_dict, returning, return_expecta
             f"{key}_{returning}": (
                 patients.admitted_to_hospital(
                     with_these_procedures=codes,
-                    between=[admission_date,"index_date + 2 years"],
+                    between=[admission_date,"index_date + 3 years"],
                     find_first_match_in_period=True,
                     returning=returning,
                     date_format="YYYY-MM-DD",
@@ -194,8 +194,8 @@ def with_pre_op_GP_events(comorb_code_list_dict):
                     find_first_match_in_period=True,
                     returning = "date",
                     date_format="YYYY-MM-DD",
-                    between=["1950-01-01", "index_date + 2 years"],
-                    return_expectations = {"date": {"earliest": "1950-01-01", "latest": "today"},"rate": "uniform",}
+                    between=["1950-01-01", "index_date + 3 years"],
+                    return_expectations = {"date": {"earliest": "1950-01-01", "latest": "today"},"rate": "uniform","incidence": 0.1}
                 )
             )
         }
@@ -208,7 +208,7 @@ study = StudyDefinition(
     index_date = "2020-02-01",
 
     default_expectations={
-        "date": {"earliest": "index_date" , "latest": "index_date + 2 years"},
+        "date": {"earliest": "index_date" , "latest": "index_date + 3 years"},
         "rate": "uniform",
         "incidence": 1,
     },
@@ -232,7 +232,7 @@ study = StudyDefinition(
         ),
     ),
 
-        **loop_over_OPCS_codelists(list_dict,returning = "date_admitted", return_expectations ={"incidence": 1,"rate" : "uniform",}),
+    **loop_over_OPCS_codelists(list_dict,returning = "date_admitted", return_expectations ={"incidence": 1,"rate" : "uniform",}),
    
     first_surgery_date=patients.minimum_of("LeftHemicolectomy_date_admitted", "RightHemicolectomy_date_admitted","TotalColectomy_date_admitted", "RectalResection_date_admitted"),
 
@@ -286,7 +286,7 @@ study = StudyDefinition(
     dob=patients.date_of_birth(  
         "YYYY-MM",
         return_expectations={
-            "date": {"earliest": "1950-01-01", "latest": "today"},
+            "date": {"earliest": "1920-01-01", "latest": "today"},
             "rate": "uniform",
         }
     ),
@@ -346,7 +346,7 @@ study = StudyDefinition(
 
  
      MI_HES=patients.admitted_to_hospital(
-        between=["index_date","index_date + 2 years"],
+        between=["index_date","index_date + 3 years"],
         returning="date_admitted",
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
@@ -358,7 +358,7 @@ study = StudyDefinition(
     ),
 
     CCF_HES=patients.admitted_to_hospital(
-        between=["index_date","index_date + 2 years"],
+        between=["index_date","index_date + 3 years"],
         returning="date_admitted",
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,

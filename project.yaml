@@ -10,13 +10,27 @@ actions:
     outputs:
       highly_sensitive:
         cohort: output/input.csv
-
-  describe:
-    run: r:latest analysis/report.R
+        
+  data_manage:
+    run: r:latest analysis/data_manage.R
     needs: [generate_study_population]
     outputs:
+      highly_sensitive:
+        cohort: output/cohort_long.RData
       moderately_sensitive:
-        survival_figures: output/*.tiff
-        covid_cox_models: output/*.csv
-        tables: output/*.html
+        initial_tables: output/table1*.html
+        
+  analysis_crude:
+    run: r:latest analysis/analysis_crude.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        km_figures: output/*_km.png
+        crude_tables: output/*_counts.csv
 
+  analysis_adjusted:
+    run: r:latest analysis/analysis_adjusted.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        covid_cox_models: output/*_model.csv
