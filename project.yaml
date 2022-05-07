@@ -34,3 +34,4 @@ actions:
     outputs:
       moderately_sensitive:
         covid_cox_models: output/*_model.csv
+        finalfit_tables: output/*_model.html

@@ -1,9 +1,10 @@
 load(file = here::here("output","cohort_long.RData"))
 procedures <- unique(dt.tv$op.type)
 ################################
-# Post operative COVID risk
+# Post operative COVID risk ----
 ##################################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
+covariates <- c('age.cat','sex','op.type','postcovid','Charl12','bmi.cat','imd5','region','vaccination.status.factor','Emergency','Current.Cancer','wave')
 
 post.op.covid.overall.model <- 
   survival::coxph(survival::Surv(start,end,COVIDpositive) ~ wave + age + sex + bmi.cat + imd5 + region + vaccination.status.factor + Current.Cancer + Emergency + Charlson, id = patient_id,
@@ -50,9 +51,15 @@ data.table::fwrite(covid.risk.ci.30day,file = here::here("output", "post_op_covi
 #plot(flexmodelcovid)
 
 
+print(xtable::xtable(finalfit::finalfit.coxph(dt.tv[start>=0 & tstop <= covid.end  ],
+  'survival::Surv(start,end,COVIDpositive)',
+   covariates
+)),type = 'html',here::here("output","post_op_covid_ff_model.html"))
+
+
 
 ################################
-# Post operative VTE risk
+# Post operative VTE risk----
 ##################################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
@@ -90,8 +97,14 @@ VTE.risk.ci.30day
 
 data.table::fwrite(VTE.risk.ci.30day,file = here::here("output", "post_op_VTE_cuminc_model.csv"))
 
+
+print(xtable::xtable(finalfit::finalfit.coxph(dt.tv[start>=0 & tstop <= VTE.end],
+                                                        'survival::Surv(start,end,post.VTE)',
+                                                        covariates
+)),type = 'html',here::here("output","post_op_VTE_ff_model.html"))
+
 ################################
-# COVID impact on post operative Mortality
+# COVID impact on post operative Mortality ----
 ##################################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
@@ -108,9 +121,13 @@ post.op.post.covid.covid.waves.model <-
 data.table::fwrite(broom::tidy(post.op.post.covid.covid.waves.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_post_covid_waves_model.csv"))
 
 
+print(xtable::xtable(finalfit::finalfit.coxph(dt.tv[start>=0 ],
+                                                        'survival::Surv(start,end,died)',
+                                                        covariates
+)), type = 'html',here::here("output","post_op_mort_ff_model.html"))
 
 ################################
-# COVID impact on LOS
+# COVID impact on LOS ----
 #################################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
@@ -118,3 +135,22 @@ post.op.los.post.covid.model <- survival::coxph(survival::Surv(start,end,dischar
                                                 id = patient_id, data = dt.tv[start>=0 & tstop <= los.end & !is.na(admit.date) ])
 data.table::fwrite(broom::tidy(post.op.los.post.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_los_post_covid_model.csv"))
 
+print(xtable::xtable(finalfit::finalfit.coxph(dt.tv[start>=0 & tstop <= los.end & !is.na(admit.date) ],
+                                                        'survival::Surv(start,end,discharged)',
+                                                        covariates
+)), type = 'html', file = here::here("output","post_op_los_ff_model.html"))
+
+
+################################
+# COVID impact on Emergency Readmission ----
+#################################
+data.table::setkey(dt.tv,"patient_id","tstart","tstop")
+
+post.op.los.post.covid.model <- survival::coxph(survival::Surv(start,end,emergency_readmit) ~ op.type + postcovid*wave + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, 
+                                                id = patient_id, data = dt.tv[start>=0 & tstop <= readmit.end])
+data.table::fwrite(broom::tidy(post.op.los.post.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_readmit_post_covid_model.csv"))
+
+print(xtable::xtable(finalfit::finalfit.coxph(dt.tv[start>=0 & tstop <=  readmit.end ],
+                                                        'survival::Surv(start,end,emergency_readmit)',
+                                                        covariates
+)), type = 'html', file = here::here("output","post_op_readmit_ff_model.html"))
