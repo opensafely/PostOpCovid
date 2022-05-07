@@ -19,7 +19,7 @@ dt.tv[,tail(.SD,1), by = .(patient_id,op.type)][,mean(Charlson, na.rm = T),by = 
 
 ### 90 day table km estimates ----
 
-covariates <- c('age.cat','sex','op.type','Charl12','bmi.cat','imd5','region','vaccination.status.factor','Emergency','Current.Cancer','wave')
+covariates <- c('age.cat','sex','op.type','postcovid','Charl12','bmi.cat','imd5','region','vaccination.status.factor','Emergency','Current.Cancer','wave')
 
 # Overall survival----
 crude.surv.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[start>=0 ,as.factor(get(covariates[i]))]))),

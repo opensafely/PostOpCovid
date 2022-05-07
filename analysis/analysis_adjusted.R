@@ -16,7 +16,7 @@ post.op.covid.model <-
                   data = dt.tv[start>=0 & tstop <= covid.end  ], model = T)
 data.table::fwrite(broom::tidy(post.op.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
 
-covid.risk.30day <- matrix(predict(object = post.op.covid.model, 
+covid.risk.30day <- predict(object = post.op.covid.model, 
                                    newdata = data.table::data.table('start' = rep(0,8),
                                                                     'end' = rep(30,8*length(procedures)),
                                                                     'COVIDpositive' = rep(F,8*length(procedures)),
@@ -31,12 +31,17 @@ covid.risk.30day <- matrix(predict(object = post.op.covid.model,
                                                                     'Current.Cancer' = rep(T,8*length(procedures)),
                                                                     'Emergency' =  rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
                                                                     'Charlson' =  rep(1,8*length(procedures)),
-                                                                    'patient_id' = 1:8*length(procedures)), type = 'expected'), nrow = 4)
+                                                                    'patient_id' = 1:8*length(procedures)), type = 'expected',se.fit = T)
+covid.risk.ci.30day <- matrix(paste0(round(1- exp(-covid.risk.30day$fit)*100,3),
+                                   ' (', round(1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit))*100,3),',',
+                                   round(1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit))*100,3),')'),nrow = 4)
 
-rownames(covid.risk.30day) <- paste0('Wave_',1:4)
-colnames(covid.risk.30day) <- paste0(c('Elective_','Emergency_'),rep(procedures, each = 2))
+rownames(covid.risk.ci.30day) <- paste0('Wave_',1:4)
+colnames(covid.risk.ci.30day) <- paste0(c('Elective_','Emergency_'),rep(procedures, each = 2))
 
-data.table::fwrite(round(covid.risk.30day*100,1),file = here::here("output", "post_op_covid_cuminc_model.csv"))
+covid.risk.ci.30day
+
+data.table::fwrite(covid.risk.ci.30day,file = here::here("output", "post_op_covid_cuminc_model.csv"))
 
 #flexmodelcovid <- flexsurv::flexsurvreg(survival::Surv(start,end,COVIDpositive) ~ op.type + wave + age + sex + bmi + vaccination.status.factor + Current.Cancer + Emergency + Charlson,
 #                     data = dt.tv[start>=0 & tstop <= covid.end  ], model = T, dist = 'gengamma')
@@ -56,7 +61,7 @@ post.op.VTE.model <-
                   data = dt.tv[start>=0 & tstop <= VTE.end  ])
 data.table::fwrite(broom::tidy(post.op.VTE.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_VTE_model.csv"))
 
-VTE.risk.30day <- matrix(predict(object = post.op.VTE.model, 
+VTE.risk.30day <- predict(object = post.op.VTE.model, 
                                    newdata = data.table::data.table('start' = rep(0,8),
                                                                     'end' = rep(30,8*length(procedures)),
                                                                     'post.VTE' = rep(F,8*length(procedures)),
@@ -73,12 +78,17 @@ VTE.risk.30day <- matrix(predict(object = post.op.VTE.model,
                                                                     'Current.Cancer' = rep(T,8*length(procedures)),
                                                                     'Emergency' =   rep(F,8*length(procedures)), 
                                                                     'Charl12' =  rep('Single',8*length(procedures)),
-                                                                    'patient_id' = 1:8*length(procedures)), type = 'expected'), nrow = 4)
+                                                                    'patient_id' = 1:8*length(procedures)), type = 'expected', se.fit = T)
+VTE.risk.ci.30day <- matrix(paste0(round(1- exp(-VTE.risk.30day$fit)*100,3),
+                                   ' (', round(1- exp(-(VTE.risk.30day$fit - 1.96*VTE.risk.30day$se.fit))*100,3),',',
+                                               round(1- exp(-(VTE.risk.30day$fit + 1.96*VTE.risk.30day$se.fit))*100,3),')'),nrow = 4)
+  
+rownames(VTE.risk.ci.30day) <- paste0('Wave_',1:4)
+colnames(VTE.risk.ci.30day) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
 
-rownames(VTE.risk.30day) <- paste0('Wave_',1:4)
-colnames(VTE.risk.30day) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
+VTE.risk.ci.30day
 
-data.table::fwrite(round(VTE.risk.30day*100,1),file = here::here("output", "post_op_VTE_cuminc_model.csv"))
+data.table::fwrite(VTE.risk.ci.30day,file = here::here("output", "post_op_VTE_cuminc_model.csv"))
 
 ################################
 # COVID impact on post operative Mortality
