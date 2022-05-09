@@ -1,0 +1,913 @@
+Code,Description
+A442,Extirpation of lesion of spinal cord NEC
+A443,Excision of lesion of intradural intramedullary spinal cord
+A444,Excision of lesion of extradural spinal cord
+A445,Excision of lesion of intradural extramedullary spinal cord
+A448,Other specified partial extirpation of spinal cord
+A449,Unspecified partial extirpation of spinal cord
+A451,Stereotactic chordotomy of spinal cord
+A452,Open chordotomy of spinal cord NEC
+A454,Open biopsy of lesion of spinal cord
+A455,Removal of foreign body from spinal cord
+A456,Open aspiration of lesion of spinal cord
+A458,Other specified other open operations on spinal cord
+A459,Unspecified other open operations on spinal cord
+A481,Biopsy of lesion of spinal cord NEC
+A482,Aspiration of lesion of spinal cord
+A491,Freeing of spinal tether NEC
+A492,Closure of spinal myelomeningocele
+A493,Closure of spinal meningocele
+A494,Complex freeing of spinal tether
+A498,Other specified repair of spina bifida
+A499,Unspecified repair of spina bifida
+A511,Extirpation of lesion of meninges of spinal cord
+A512,Freeing of adhesions of meninges of spinal cord
+A513,Biopsy of lesion of meninges of spinal cord
+A521,Therapeutic lumbar epidural injection
+A522,Therapeutic sacral epidural injection
+A514,Endoscopic division of epidural adhesions
+A578,Other specified operations on spinal nerve root
+A621,Primary microsurgical graft to peripheral nerve
+A622,Secondary microsurgical graft to peripheral nerve
+A623,Microsurgical graft to peripheral nerve NEC
+A624,Primary microsurgical repair of peripheral nerve NEC
+A625,Secondary microsurgical repair of peripheral nerve NEC
+A626,Microsurgical graft to multiple peripheral nerves NEC
+A627,Microsurgical repair of multiple peripheral nerves NEC
+A628,Other specified microsurgical repair of peripheral nerve
+A629,Unspecified microsurgical repair of peripheral nerve
+A631,Primary graft to peripheral nerve NEC
+A632,Secondary graft to peripheral nerve NEC
+A641,Primary approximation of peripheral nerve
+A642,Primary repair of peripheral nerve NEC
+A644,Secondary repair of peripheral nerve NEC
+A648,Other specified other repair of peripheral nerve
+A649,Unspecified other repair of peripheral nerve
+A651,Carpal tunnel release
+A652,Canal of Guyon release
+A658,Other specified release of entrapment of peripheral nerve at wrist
+A659,Unspecified release of entrapment of peripheral nerve at wrist
+A661,Tarsal tunnel release
+A668,Other specified release of entrapment of peripheral nerve at ankle
+A669,Unspecified release of entrapment of peripheral nerve at ankle
+A671,Cubital tunnel release
+A672,Release of entrapment of lateral cutaneous nerve of thigh
+A673,Release of entrapment of plantar digital nerve
+A678,Other specified release of entrapment of peripheral nerve at other site
+A679,Unspecified release of entrapment of peripheral nerve at other site
+A681,Primary neurolysis of peripheral nerve and transposition of peripheral nerve
+A682,Secondary neurolysis of peripheral nerve and transposition of peripheral nerve
+A683,Neurolysis of peripheral nerve and transposition of peripheral nerve NEC
+A684,Primary neurolysis of peripheral nerve NEC
+A685,Secondary neurolysis of peripheral nerve NEC
+A688,Other specified other release of peripheral nerve
+A689,Unspecified other release of peripheral nerve
+A691,Revision of neurolysis of peripheral nerve and transposition of peripheral nerve
+A692,Revision of carpal tunnel release
+A693,Revision of tarsal tunnel release
+A698,Other specified revision of release of peripheral nerve
+A699,Unspecified revision of release of peripheral nerve
+A731,Biopsy of lesion of peripheral nerve
+A732,Freeing of adhesions of peripheral nerve NEC
+A733,Decompression of peripheral nerve NEC
+A734,Exploration of peripheral nerve
+A735,Injection of therapeutic substance around peripheral nerve
+A736,Transfer and reimplantation of peripheral nerve NEC
+A738,Other specified other operations on peripheral nerve
+O061,Primary hybrid prosthetic replacement of shoulder joint using cemented humeral component
+O062,Conversion to hybrid prosthetic replacement of shoulder joint using cemented humeral component
+O063,Revision of hybrid prosthetic replacement of shoulder joint using cemented humeral component
+O068,Other specified hybrid prosthetic replacement of shoulder joint using cemented humeral component
+O071,Primary hybrid prosthetic replacement of shoulder joint using cemented glenoid component
+O072,Conversion to hybrid prosthetic replacement of shoulder joint using cemented glenoid component
+O073,Revision of hybrid prosthetic replacement of shoulder joint using cemented glenoid component
+O081,Primary hybrid prosthetic replacement of shoulder joint using cement NEC
+O083,Revision of hybrid prosthetic replacement of shoulder joint using cement NEC
+O084,Attention to hybrid prosthetic replacement of shoulder joint using cement NEC
+O088,Other specified hybrid prosthetic replacement of shoulder joint using cement
+O101,Extra-articular scapular resection with reconstruction of shoulder
+O108,Other specified complex reconstruction of shoulder
+O181,Primary hybrid prosthetic replacement of knee joint using cement
+O182,Conversion to hybrid prosthetic replacement of knee joint using cement
+O183,Revision of hybrid prosthetic replacement of knee joint using cement
+O184,Attention to hybrid prosthetic replacement of knee joint using cement
+O191,Endoscopic autologous matrix induced chondrogenesis of joint
+O192,Endoscopic excision of infrapatellar fat pad
+O211,Primary total prosthetic replacement of elbow joint using cement
+O212,Conversion to total prosthetic replacement of elbow joint using cement
+O213,Revision of total prosthetic replacement of elbow joint using cement
+O214,Revision of one component of total prosthetic replacement of elbow joint using cement
+O219,Unspecified total prosthetic replacement of elbow joint using cement
+O221,Primary total prosthetic replacement of elbow joint not using cement
+O222,Conversion to total prosthetic replacement of elbow joint not using cement
+O223,Revision of total prosthetic replacement of elbow joint not using cement
+O224,Revision of one component of total prosthetic replacement of elbow joint not using cement
+O231,Primary total prosthetic replacement of elbow joint NEC
+O232,Conversion to total prosthetic replacement of elbow joint NEC
+O233,Revision of total prosthetic replacement of elbow joint NEC
+O234,Attention to total prosthetic replacement of elbow joint NEC
+O235,Revision of one component of total prosthetic replacement of elbow joint NEC
+O238,Other specified total prosthetic replacement of elbow joint
+O241,Primary prosthetic replacement of head of radius using cement
+O242,Conversion to prosthetic replacement of head of radius using cement
+O243,Revision of prosthetic replacement of head of radius using cement
+O249,Unspecified prosthetic replacement of head of radius using cement
+O251,Primary prosthetic replacement of head of radius not using cement
+O253,Revision of prosthetic replacement of head of radius not using cement
+O258,Other specified prosthetic replacement of head of radius not using cement
+O259,Unspecified prosthetic replacement of head of radius not using cement
+O261,Primary prosthetic replacement of head of radius NEC
+O263,Revision of prosthetic replacement of head of radius NEC
+O264,Attention to prosthetic replacement of head of radius NEC
+O271,Extra-articular ligament reconstruction for stabilisation of joint
+O272,Repair of capsule and anterior and posterior labrum for stabilisation of glenohumeral joint
+O273,Repair of capsule and anterior labrum for stabilisation of glenohumeral joint
+O274,Repair of capsule and posterior labrum for stabilisation of glenohumeral joint
+O278,Other specified other stabilising operations on joint
+O291,Subacromial decompression
+O321,Primary total prosthetic replacement of ankle joint NEC
+O322,Conversion to total prosthetic replacement of ankle joint NEC
+O323,Revision of total prosthetic replacement of ankle joint NEC
+O324,Attention to total prosthetic replacement of ankle joint NEC
+O325,Revision of one component of total prosthetic replacement of ankle joint NEC
+T521,Palmar fasciectomy
+T522,Revision of palmar fasciectomy
+T523,Plantar fasciectomy
+T524,Revision of plantar fasciectomy
+T525,Digital fasciectomy
+T526,Revision of digital fasciectomy
+T528,Other specified excision of other fascia
+T529,Unspecified excision of other fascia
+T531,Excision of lesion of fascia
+T532,Destruction of lesion of fascia
+T538,Other specified extirpation of lesion of fascia
+T539,Unspecified extirpation of lesion of fascia
+T541,Division of palmar fascia
+T542,Division of plantar fascia
+T548,Other specified division of fascia
+T549,Unspecified division of fascia
+T561,Dermofasciectomy
+T568,Other specified other excision of other fascia
+T562,Revision of dermofasciectomy
+T571,Freeing of adhesions of fascia
+T572,Biopsy of lesion of fascia
+T573,Repair of fascia
+T574,Stripping of fascia
+T578,Other specified other operations on fascia
+T591,Excision of ganglion of wrist
+T592,Excision of ganglion of hand NEC
+T593,Excision of ganglion of knee
+T594,Excision of ganglion of foot
+T598,Other specified excision of ganglion
+T599,Unspecified excision of ganglion
+T601,Re-excision of ganglion of wrist
+T602,Re-excision of ganglion of hand NEC
+T603,Re-excision of ganglion of knee
+T604,Re-excision of ganglion of foot
+T608,Other specified re-excision of ganglion
+T611,Aspiration of ganglion
+T618,Other specified other operations on ganglion
+T619,Unspecified other operations on ganglion
+T621,Total excision of bursa
+T622,Excision of bursa NEC
+T624,Aspiration of bursa
+T625,Injection into bursa
+T626,Exploration of bursa
+T628,Other specified operations on bursa
+T641,Multiple transfer of tendon to tendon
+T642,Transfer of tendon to tendon NEC
+T643,Multiple insertion of tendons into bone
+T644,Insertion of tendon into bone NEC
+T645,Tenodesis
+T648,Other specified transposition of tendon
+T649,Unspecified transposition of tendon
+T651,Sacrifice of tendon
+T652,Excision of lesion of tendon
+T658,Other specified excision of tendon
+T659,Unspecified excision of tendon
+T671,Primary repair of tendon using tendon transfer procedure
+T672,Primary repair of tendon using lengthening procedure
+T673,Primary repair of tendon using permanent prosthesis
+T674,Primary repair of tendon using temporary prosthesis
+T675,Primary repair of tendon using graft
+T676,Primary simple repair of tendon
+T678,Other specified primary repair of tendon
+T679,Unspecified primary repair of tendon
+T681,Secondary repair of tendon using tendon transfer procedure
+T682,Secondary repair of tendon using lengthening procedure
+T683,Secondary repair of tendon using permanent prosthesis
+T684,Secondary repair of tendon using temporary prosthesis
+T685,Secondary repair of tendon using graft
+T686,Secondary simple repair of tendon
+T688,Other specified secondary repair of tendon
+T689,Unspecified secondary repair of tendon
+T691,Primary tenolysis
+T692,Revision of tenolysis
+T698,Other specified freeing of tendon
+T699,Unspecified freeing of tendon
+T701,Subcutaneous tenotomy
+T702,Tenotomy NEC
+T703,Adjustment to muscle origin of tendon
+T704,Shortening of tendon NEC
+T705,Lengthening of tendon
+T708,Other specified adjustment to length of tendon
+T709,Unspecified adjustment to length of tendon
+T711,Tenosynovectomy
+T718,Other specified excision of sheath of tendon
+T719,Unspecified excision of sheath of tendon
+T721,Reconstruction of sheath of tendon
+T723,Release of constriction of sheath of tendon
+T724,Exploration of sheath of tendon
+T728,Other specified other operations on sheath of tendon
+T742,Removal of prosthesis from tendon
+T746,Autologous blood injection into tendon
+T748,Other specified other operations on tendon
+T749,Unspecified other operations on tendon
+T791,Plastic repair of rotator cuff of shoulder NEC
+T792,Quadricepsplasty
+T793,Revisional repair of rotator cuff NEC
+T794,Plastic repair of multiple tears of rotator cuff of shoulder
+T795,Revisional repair of multiple tears of rotator cuff of shoulder
+T798,Other specified repair of muscle
+T799,Unspecified repair of muscle
+T612,Biopsy of ganglion
+T623,Biopsy of lesion of bursa
+T722,Biopsy of lesion of sheath of tendon
+T741,Biopsy of lesion of tendon NEC
+T743,Exploration of tendon NEC
+T811,Percutaneous biopsy of muscle
+T813,Biopsy of lesion of muscle NEC
+T818,Other specified biopsy of muscle
+T819,Unspecified biopsy of muscle
+T831,Destruction of lesion of muscle
+T832,Division of muscle
+T833,Stretching of muscle
+T834,Exploration of muscle
+T838,Other specified other operations on muscle
+V231,Revisional anterior decompression of cervical spinal cord and fusion of joint of cervical spine
+V232,Revisional anterior decompression of cervical spinal cord NEC
+V233,Revisional foraminotomy of cervical spine
+V234,Revisional anterior corpectomy of cervical spine with reconstruction HFQ
+V235,Revisional decompression of posterior fossa and upper cervical spinal cord and instrumentation
+V236,Revisional decompression of posterior fossa and upper cervical spinal cord NEC
+V237,Revisional laminoplasty of cervical spine
+V238,Other specified revisional decompression operations on cervical spine
+V239,Unspecified revisional decompression operations on cervical spine
+V243,Revisional decompression of thoracic spinal cord NEC
+V244,Primary anterior corpectomy of thoracic spine and reconstruction HFQ
+V245,Revisional anterior corpectomy of thoracic spine and reconstruction HFQ
+V261,Revisional extended decompression of lumbar spine and intertransverse fusion of joint of lumbar spine
+V262,Revisional extended decompression of lumbar spine NEC
+V263,Revisional posterior decompression of lumbar spine and intertransverse fusion of joint of lumbar spine
+V264,Revisional posterior laminectomy decompression of lumbar spine
+V265,Revisional posterior decompression of lumbar spine NEC
+V266,Revisional lateral foraminotomy of lumbar spine
+V267,Revisional anterior corpectomy of lumbar spine and reconstruction HFQ
+V268,Other specified revisional decompression operations on lumbar spine
+V269,Unspecified revisional decompression operations on lumbar spine
+V273,Revisional decompression of spinal cord NEC
+V281,Primary insertion of lumbar interspinous process spacer
+V288,Other specified insertion of lumbar interspinous process spacer
+V291,Primary laminectomy excision of cervical intervertebral disc
+V292,Primary hemilaminectomy excision of cervical intervertebral disc
+V293,Primary fenestration excision of cervical intervertebral disc
+V294,Primary anterior excision of cervical intervertebral disc and interbody fusion of joint of cervical spine
+V295,Primary anterior excision of cervical intervertebral disc NEC
+V296,Primary microdiscectomy of cervical intervertebral disc
+V298,Other specified primary excision of cervical intervertebral disc
+V299,Unspecified primary excision of cervical intervertebral disc
+V301,Revisional laminectomy excision of cervical intervertebral disc
+V304,Revisional anterior excision of cervical intervertebral disc and interbody fusion of joint of cervical spine
+V305,Revisional anterior excision of cervical intervertebral disc NEC
+V309,Unspecified revisional excision of cervical intervertebral disc
+V311,Primary anterolateral excision of thoracic intervertebral disc and graft HFQ
+V312,Primary anterolateral excision of thoracic intervertebral disc NEC
+V313,Primary costotransversectomy of thoracic intervertebral disc
+V314,Primary percutaneous endoscopic excision of thoracic intervertebral disc
+V318,Other specified primary excision of thoracic intervertebral disc
+V319,Unspecified primary excision of thoracic intervertebral disc
+V322,Revisional anterolateral excision of thoracic intervertebral disc NEC
+V328,Other specified revisional excision of thoracic intervertebral disc
+V331,Primary laminectomy excision of lumbar intervertebral disc
+V332,Primary fenestration excision of lumbar intervertebral disc
+V333,Primary anterior excision of lumbar intervertebral disc and interbody fusion of joint of lumbar spine
+V334,Primary anterior excision of lumbar intervertebral disc NEC
+V335,Primary anterior excision of lumbar intervertebral disc and posterior graft fusion of joint of lumbar spine
+V336,Primary anterior excision of lumbar intervertebral disc and posterior instrumentation of lumbar spine
+V337,Primary microdiscectomy of lumbar intervertebral disc
+V338,Other specified primary excision of lumbar intervertebral disc
+V339,Unspecified primary excision of lumbar intervertebral disc
+V341,Revisional laminectomy excision of lumbar intervertebral disc
+V342,Revisional fenestration excision of lumbar intervertebral disc
+V343,Revisional anterior excision of lumbar intervertebral disc and interbody fusion of joint of lumbar spine
+V344,Revisional anterior excision of lumbar intervertebral disc NEC
+V345,Revisional anterior excision of lumbar intervertebral disc and posterior graft fusion of joint of lumbar spine
+V346,Revisional anterior excision of lumbar intervertebral disc and posterior instrumentation of lumbar spine
+V347,Revisional microdiscectomy of lumbar intervertebral disc
+V348,Other specified revisional excision of lumbar intervertebral disc
+V349,Unspecified revisional excision of lumbar intervertebral disc
+V351,Primary excision of intervertebral disc NEC
+V352,Revisional excision of intervertebral disc NEC
+V358,Other specified excision of unspecified intervertebral disc
+V361,Prosthetic replacement of cervical intervertebral disc
+V363,Prosthetic replacement of lumbar intervertebral disc
+V368,Other specified prosthetic replacement of intervertebral disc
+V371,Posterior fusion of atlantoaxial joint NEC
+V372,Posterior fusion of joint of cervical spine NEC
+V374,Fusion of atlanto-occipital joint
+V376,Posterior fusion of atlantoaxial joint using pedicle screw
+V377,Fusion of occipitocervical junction NEC
+V378,Other specified primary fusion of joint of cervical spine
+V379,Unspecified primary fusion of joint of cervical spine
+V381,Primary fusion of joint of thoracic spine
+V382,Primary posterior interlaminar fusion of joint of lumbar spine
+V383,Primary posterior fusion of joint of lumbar spine NEC
+V384,Primary intertransverse fusion of joint of lumbar spine NEC
+V385,Primary posterior interbody fusion of joint of lumbar spine
+V386,Primary transforaminal interbody fusion of joint of lumbar spine
+V388,Other specified primary fusion of other joint of spine
+V389,Unspecified primary fusion of other joint of spine
+V391,Revisional fusion of joint of cervical spine NEC
+V392,Revisional fusion of joint of thoracic spine
+V393,Revisional posterior interlaminar fusion of joint of lumbar spine
+V394,Revisional posterior fusion of joint of lumbar spine NEC
+V395,Revisional intertransverse fusion of joint of lumbar spine NEC
+V396,Revisional posterior interbody fusion of joint of lumbar spine
+V397,Revisional transforaminal interbody fusion of joint of lumbar spine
+V398,Other specified revisional fusion of joint of spine
+V401,Non-rigid stabilisation of spine
+V402,Posterior instrumented fusion of cervical spine NEC
+V403,Posterior instrumented fusion of thoracic spine NEC
+V404,Posterior instrumented fusion of lumbar spine NEC
+V405,Removal of instrumentation from spine
+V411,Posterior attachment of correctional instrument to spine
+V412,Anterior attachment of correctional instrument to spine
+V413,Removal of correctional instrument from spine
+V414,Anterior and posterior attachment of correctional instrument to spine
+V415,Posterior attachment of spinal growing system
+V416,Attention to spinal growing system
+V417,Surgical distraction of spinal growing system
+V418,Other specified instrumental correction of deformity of spine
+V419,Unspecified instrumental correction of deformity of spine
+V422,Epiphysiodesis of spinal apophyseal joint for correction of deformity
+V423,Anterolateral release of spine for correction of deformity and graft HFQ
+V425,Anterior epiphysiodesis of spine for correction of deformity NEC
+V426,Posterior epiphysiodesis of spine for correction of deformity NEC
+V428,Other specified other correction of deformity of spine
+V431,Excision of lesion of cervical vertebra
+V432,Excision of lesion of thoracic vertebra
+V433,Excision of lesion of lumbar vertebra
+V438,Other specified extirpation of lesion of spine
+V471,Biopsy of cervical vertebra
+V472,Biopsy of thoracic vertebra
+V473,Biopsy of lumbar vertebra
+V478,Other specified biopsy of spine
+V479,Unspecified biopsy of spine
+V491,Exploratory cervical laminectomy
+V492,Exploratory thoracic laminectomy
+V493,Exploratory lumbar laminectomy
+V494,Exploratory laminectomy NEC
+V498,Other specified exploration of spine
+V499,Unspecified exploration of spine
+V511,Primary direct lateral excision of lumbar intervertebral disc and interbody fusion of joint of lumbar spine
+V521,Enzyme destruction of intervertebral disc
+V522,Destruction of intervertebral disc NEC
+V523,Discography of intervertebral disc
+V524,Biopsy of lesion of intervertebral disc NEC
+V528,Other specified other operations on intervertebral disc
+V541,Transoral excision of odontoid process of axis
+V542,Graft of bone to spine NEC
+V543,Osteotomy of spine NEC
+V544,Injection around spinal facet of spine
+V548,Other specified other operations on spine
+V551,One level of spine
+V552,Two levels of spine
+V553,Greater than two levels of spine
+V568,Other specified primary foraminoplasty of spine
+V581,Primary automated percutaneous mechanical excision of cervical intervertebral disc
+V601,Primary percutaneous decompression using coblation to cervical intervertebral disc
+V603,Primary percutaneous decompression using coblation to lumbar intervertebral disc
+V618,Other specified revisional percutaneous decompression using coblation to intervertebral disc
+V621,Primary percutaneous intradiscal radiofrequency thermocoagulation to cervical intervertebral disc
+V622,Primary percutaneous intradiscal radiofrequency thermocoagulation to thoracic intervertebral disc
+V623,Primary percutaneous intradiscal radiofrequency thermocoagulation to lumbar intervertebral disc
+V661,Revisional fusion of occipitocervical junction
+V664,Revisional posterior fusion of atlantoaxial joint NEC
+V671,Primary posterior lumbar medial facetectomy
+V672,Primary hemilaminectomy decompression of lumbar spine
+V681,Revisional posterior lumbar medial facetectomy
+V682,Revisional hemilaminectomy decompression of lumbar spine
+W012,Pollicisation of finger
+W013,Reconstruction of thumb using bone graft and skin flap
+W014,Reconstruction of thumb using bone lengthening procedure
+W015,Opposition transfer to thumb
+W018,Other specified complex reconstruction of thumb
+W021,Proximal row carpectomy
+W022,Metacarpal support operations on carpus
+W023,Multiple joint reconstruction of hand NEC
+W024,Complex reconstruction of soft tissue of hand NEC
+W028,Other specified other complex reconstruction of hand
+W031,Excision of heads of multiple lesser metatarsals
+W032,Osteotomy of multiple metatarsals
+W033,Total correction of claw toe
+W034,Transfer of extensor hallucis longus tendon to head of first metatarsal and fusion of interphalangeal joints
+W035,Localised fusion of joints of midfoot and forefoot
+W036,Osteotomy of multiple metatarsals and fixation HFQ
+W038,Other specified complex reconstruction of forefoot
+W039,Unspecified complex reconstruction of forefoot
+W041,Localised fusion of joints of hindfoot
+W042,Triple fusion of joints of hindfoot
+W043,Subtalar fusion of joints of hindfoot
+W044,Stripping of muscle from os calcis
+W045,Release of medial soft tissue of hindfoot and excision of lateral wedge of os calcis and fusion of os calcis
+W048,Other specified complex reconstruction of hindfoot
+W049,Unspecified complex reconstruction of hindfoot
+W051,Articulated prosthetic replacement of bone
+W052,Implantation massive endoprosthetic replacement of bone
+W053,Implantation endoprosthetic replacement of bone NEC
+W054,Attention to massive endoprosthesis of bone
+W055,Attention to endoprosthesis of bone NEC
+W058,Other specified prosthetic replacement of bone
+W059,Unspecified prosthetic replacement of bone
+W063,Total excision of patella
+W064,Total excision of sesamoid bone NEC
+W065,Total excision of bone of foot NEC
+W066,Total excision of coccyx
+W067,Total excision of pelvic bones
+W068,Other specified total excision of bone
+W069,Unspecified total excision of bone
+W071,Excision of cross union of bone
+W072,Excision of periarticular ectopic bone
+W073,Excision of intramuscular ectopic bone
+W078,Other specified excision of ectopic bone
+W079,Unspecified excision of ectopic bone
+W081,Excision of natural protuberance of bone
+W082,Excision of overgrowth of bone
+W083,Excision of excrescence of bone
+W084,Excision of fragment of bone
+W085,Partial excision of bone NEC
+W086,Disarticulation of bone
+W087,Excision of accessory ossicle
+W088,Other specified other excision of bone
+W089,Unspecified other excision of bone
+W091,Excision of lesion of bone NEC
+W092,Curettage of lesion of bone and graft HFQ
+W093,Curettage of lesion of bone NEC
+W094,Destruction of lesion of bone NEC
+W095,Curettage of tumour of bone and graft HFQ
+W096,Curettage of tumour of bone NEC
+W097,Excision of tumour of bone
+W098,Other specified extirpation of lesion of bone
+W099,Unspecified extirpation of lesion of bone
+W101,Open osteoclasis and angular correction and internal fixation HFQ
+W102,Open osteoclasis and angular correction and external fixation HFQ
+W104,Open osteoclasis and internal fixation NEC
+W105,Open osteoclasis and external fixation NEC
+W108,Other specified open surgical fracture of bone
+W109,Unspecified open surgical fracture of bone
+W111,Closed osteoclasis
+W119,Unspecified other surgical fracture of bone
+W121,Biosseus angulation periarticular osteotomy and internal fixation HFQ
+W122,Angulation periarticular osteotomy and internal fixation NEC
+W123,Biosseus angulation periarticular osteotomy and external fixation HFQ
+W124,Angulation periarticular osteotomy and external fixation NEC
+W125,Biosseus angulation periarticular osteotomy NEC
+W128,Other specified angulation periarticular division of bone
+W129,Unspecified angulation periarticular division of bone
+W131,Rotation periarticular osteotomy
+W132,Displacement osteotomy
+W133,Cuneiform osteotomy NEC
+W134,Relocation and derotation osteotomy
+W138,Other specified other periarticular division of bone
+W139,Unspecified other periarticular division of bone
+W141,Angulation diaphyseal osteotomy and internal fixation HFQ
+W142,Angulation diaphyseal osteotomy and external fixation HFQ
+W143,Angulation diaphyseal osteotomy NEC
+W144,Rotation diaphyseal osteotomy and internal fixation HFQ
+W145,Rotation diaphyseal osteotomy and external fixation HFQ
+W146,Rotation diaphyseal osteotomy NEC
+W148,Other specified diaphyseal division of bone
+W149,Unspecified diaphyseal division of bone
+W151,Osteotomy of neck of first metatarsal bone
+W152,Osteotomy of base of first metatarsal bone
+W153,Osteotomy of first metatarsal bone NEC
+W154,Osteotomy of head of metatarsal bone
+W155,Osteotomy of midfoot tarsal bone
+W156,Cuneiform osteotomy of proximal phalanx with resection of head of first metatarsal
+W157,Osteotomy of bone of foot and fixation HFQ
+W158,Other specified division of bone of foot
+W159,Unspecified division of bone of foot
+W161,Multiple osteotomy and internal fixation HFQ
+W162,Multiple osteotomy and external fixation HFQ
+W163,Multiple osteotomy NEC
+W164,Osteotomy and internal fixation NEC
+W165,Osteotomy and external fixation NEC
+W168,Other specified other division of bone
+W169,Unspecified other division of bone
+W171,Step cut lengthening of bone
+W172,Traction lengthening of diaphysis of bone
+W173,Traction lengthening of epiphyseal plate of bone
+W174,Shortening of bone
+W175,Revision of reconstruction of bone
+W178,Other specified other reconstruction of bone
+W179,Unspecified other reconstruction of bone
+W196,Primary open reduction of fragment of bone and fixation using wire system
+W205,Primary open reduction of fracture of ankle and extramedullary fixation NEC
+W271,Permanent cross union epiphysiodesis
+W272,Epiphysioplasty
+W273,Insertion of staple into epiphysis
+W274,Removal of staple from epiphysis
+W275,Temporary fixation of epiphysis
+W278,Other specified fixation of epiphysis
+W279,Unspecified fixation of epiphysis
+W311,Inlay autograft to cortex of bone
+W312,Onlay autograft to cortex of bone
+W313,Cancellous strip autograft of bone
+W314,Cancellous chip autograft of bone
+W315,Vascularised pedicle autograft of bone
+W316,Muscle pedicle autograft of bone
+W317,Bone tendon autograft of bone
+W318,Other specified other autograft of bone
+W319,Unspecified other autograft of bone
+W321,Prepared graft of bone
+W322,Allograft of bone NEC
+W323,Xenograft of bone
+W324,Synthetic graft of bone
+W325,Cancellous chip allograft of bone
+W328,Other specified other graft of bone
+W329,Unspecified other graft of bone
+W331,Open biopsy of lesion of bone
+W333,Suture of periosteum
+W338,Other specified other open operations on bone
+W338,Other specified other open operations on bone
+W351,Introduction of therapeutic substance into bone
+W352,Introduction of destructive substance into bone
+W353,Removal of implanted substance from bone
+W354,Therapeutic drilling of bone NEC
+W355,Therapeutic percutaneous puncture of bone
+W356,Percutaneous radiofrequency ablation of lesion of bone
+W358,Other specified therapeutic puncture of bone
+W359,Unspecified therapeutic puncture of bone
+W361,Percutaneous needle biopsy of lesion of bone
+W362,Needle biopsy of lesion of bone NEC
+W363,Diagnostic drilling of bone
+W370,Conversion from previous cemented total prosthetic replacement of hip joint
+W371,Primary total prosthetic replacement of hip joint using cement
+W372,Conversion to total prosthetic replacement of hip joint using cement
+W373,Revision of total prosthetic replacement of hip joint using cement
+W374,Revision of one component of total prosthetic replacement of hip joint using cement
+W378,Other specified total prosthetic replacement of hip joint using cement
+W379,Unspecified total prosthetic replacement of hip joint using cement
+W380,Conversion from previous uncemented total prosthetic replacement of hip joint
+W381,Primary total prosthetic replacement of hip joint not using cement
+W382,Conversion to total prosthetic replacement of hip joint not using cement
+W383,Revision of total prosthetic replacement of hip joint not using cement
+W384,Revision of one component of total prosthetic replacement of hip joint not using cement
+W388,Other specified total prosthetic replacement of hip joint not using cement
+W389,Unspecified total prosthetic replacement of hip joint not using cement
+W390,Conversion from previous total prosthetic replacement of hip joint NEC
+W391,Primary total prosthetic replacement of hip joint NEC
+W392,Conversion to total prosthetic replacement of hip joint NEC
+W393,Revision of total prosthetic replacement of hip joint NEC
+W394,Attention to total prosthetic replacement of hip joint NEC
+W395,Revision of one component of total prosthetic replacement of hip joint NEC
+W396,Closed reduction of dislocated total prosthetic replacement of hip joint
+W398,Other specified other total prosthetic replacement of hip joint
+W399,Unspecified other total prosthetic replacement of hip joint
+W400,Conversion from previous cemented total prosthetic replacement of knee joint
+W401,Primary total prosthetic replacement of knee joint using cement
+W402,Conversion to total prosthetic replacement of knee joint using cement
+W403,Revision of total prosthetic replacement of knee joint using cement
+W404,Revision of one component of total prosthetic replacement of knee joint using cement
+W408,Other specified total prosthetic replacement of knee joint using cement
+W409,Unspecified total prosthetic replacement of knee joint using cement
+W410,Conversion from previous uncemented total prosthetic replacement of knee joint
+W411,Primary total prosthetic replacement of knee joint not using cement
+W412,Conversion to total prosthetic replacement of knee joint not using cement
+W413,Revision of total prosthetic replacement of knee joint not using cement
+W414,Revision of one component of total prosthetic replacement of knee joint not using cement
+W418,Other specified total prosthetic replacement of knee joint not using cement
+W419,Unspecified total prosthetic replacement of knee joint not using cement
+W420,Conversion from previous total prosthetic replacement of knee joint NEC
+W421,Primary total prosthetic replacement of knee joint NEC
+W422,Conversion to total prosthetic replacement of knee joint NEC
+W423,Revision of total prosthetic replacement of knee joint NEC
+W424,Attention to total prosthetic replacement of knee joint NEC
+W425,Revision of one component of total prosthetic replacement of knee joint NEC
+W426,Arthrolysis of total prosthetic replacement of knee joint
+W428,Other specified other total prosthetic replacement of knee joint
+W429,Unspecified other total prosthetic replacement of knee joint
+W431,Primary total prosthetic replacement of joint using cement NEC
+W432,Conversion to total prosthetic replacement of joint using cement NEC
+W433,Revision of total prosthetic replacement of joint using cement NEC
+W434,Revision of one component of total prosthetic replacement of joint using cement NEC
+W441,Primary total prosthetic replacement of joint not using cement NEC
+W442,Conversion to total prosthetic replacement of joint not using cement NEC
+W443,Revision of total prosthetic replacement of joint not using cement NEC
+W444,Revision of one component of total prosthetic replacement of joint not using cement NEC
+W448,Other specified total prosthetic replacement of other joint not using cement
+W449,Unspecified total prosthetic replacement of other joint not using cement
+W451,Primary total prosthetic replacement of joint NEC
+W452,Conversion to total prosthetic replacement of joint NEC
+W453,Revision of total prosthetic replacement of joint NEC
+W454,Attention to total prosthetic replacement of joint NEC
+W455,Revision of one component of total prosthetic replacement of joint NEC
+W458,Other specified other total prosthetic replacement of other joint
+W459,Unspecified other total prosthetic replacement of other joint
+W460,Conversion from previous cemented prosthetic replacement of head of femur
+W461,Primary prosthetic replacement of head of femur using cement
+W462,Conversion to prosthetic replacement of head of femur using cement
+W463,Revision of prosthetic replacement of head of femur using cement
+W468,Other specified prosthetic replacement of head of femur using cement
+W469,Unspecified prosthetic replacement of head of femur using cement
+W471,Primary prosthetic replacement of head of femur not using cement
+W472,Conversion to prosthetic replacement of head of femur not using cement
+W473,Revision of prosthetic replacement of head of femur not using cement
+W478,Other specified prosthetic replacement of head of femur not using cement
+W479,Unspecified prosthetic replacement of head of femur not using cement
+W481,Primary prosthetic replacement of head of femur NEC
+W483,Revision of prosthetic replacement of head of femur NEC
+W484,Attention to prosthetic replacement of head of femur NEC
+W485,Closed reduction of dislocated prosthetic replacement of head of femur
+W488,Other specified other prosthetic replacement of head of femur
+W489,Unspecified other prosthetic replacement of head of femur
+W490,Conversion from previous cemented prosthetic replacement of head of humerus
+W491,Primary prosthetic replacement of head of humerus using cement
+W492,Conversion to prosthetic replacement of head of humerus using cement
+W493,Revision of prosthetic replacement of head of humerus using cement
+W494,Resurfacing hemiarthroplasty of head of humerus using cement
+W498,Other specified prosthetic replacement of head of humerus using cement
+W499,Unspecified prosthetic replacement of head of humerus using cement
+W501,Primary prosthetic replacement of head of humerus not using cement
+W502,Conversion to prosthetic replacement of head of humerus not using cement
+W503,Revision of prosthetic replacement of head of humerus not using cement
+W504,Resurfacing hemiarthroplasty of head of humerus not using cement
+W508,Other specified prosthetic replacement of head of humerus not using cement
+W511,Primary prosthetic replacement of head of humerus NEC
+W512,Conversion to prosthetic replacement of head of humerus NEC
+W513,Revision of prosthetic replacement of head of humerus NEC
+W514,Attention to prosthetic replacement of head of humerus NEC
+W515,Resurfacing hemiarthroplasty of head of humerus NEC
+W518,Other specified other prosthetic replacement of head of humerus
+W519,Unspecified other prosthetic replacement of head of humerus
+W521,Primary prosthetic replacement of articulation of bone using cement NEC
+W522,Conversion to prosthetic replacement of articulation of bone using cement NEC
+W523,Revision of prosthetic replacement of articulation of bone using cement NEC
+W531,Primary prosthetic replacement of articulation of bone not using cement NEC
+W532,Conversion to prosthetic replacement of articulation of bone not using cement NEC
+W533,Revision of prosthetic replacement of articulation of bone not using cement NEC
+W538,Other specified prosthetic replacement of articulation of other bone not using cement
+W541,Primary prosthetic replacement of articulation of bone NEC
+W542,Conversion to prosthetic replacement of articulation of bone NEC
+W543,Revision of prosthetic replacement of articulation of bone NEC
+W544,Attention to prosthetic replacement of articulation of bone NEC
+W548,Other specified other prosthetic replacement of articulation of other bone
+W549,Unspecified other prosthetic replacement of articulation of other bone
+W551,Primary prosthetic interposition arthroplasty of joint
+W558,Other specified prosthetic interposition reconstruction of joint
+W561,Primary interposition arthroplasty of metatarsophalangeal joint NEC
+W562,Primary interposition arthroplasty of joint NEC
+W568,Other specified other interposition reconstruction of joint
+W569,Unspecified other interposition reconstruction of joint
+W571,Primary excision arthroplasty of first metatarsophalangeal joint
+W572,Primary excision arthroplasty of joint NEC
+W578,Other specified excision reconstruction of joint
+W579,Unspecified excision reconstruction of joint
+W581,Primary resurfacing arthroplasty of joint
+W588,Other specified other reconstruction of joint
+W589,Unspecified other reconstruction of joint
+W591,Fusion of first metatarsophalangeal joint and replacement of lesser metatarsophalangeal joint
+W592,Fusion of first metatarsophalangeal joint and excision of lesser metatarsophalangeal joint
+W593,Fusion of first metatarsophalangeal joint NEC
+W594,Fusion of interphalangeal joint of great toe
+W595,Fusion of interphalangeal joint of toe NEC
+W598,Other specified fusion of joint of toe
+W599,Unspecified fusion of joint of toe
+W601,Primary arthrodesis and extra-articular bone graft NEC
+W608,Other specified fusion of other joint and extra-articular bone graft
+W609,Unspecified fusion of other joint and extra-articular bone graft
+W611,Primary arthrodesis and articular bone graft NEC
+W618,Other specified fusion of other joint and other articular bone graft
+W619,Unspecified fusion of other joint and other articular bone graft
+W621,Primary arthrodesis and internal fixation of joint NEC
+W622,Primary arthrodesis and external fixation of joint NEC
+W628,Other specified other primary fusion of other joint
+W629,Unspecified other primary fusion of other joint
+W691,Total synovectomy
+W692,Subtotal synovectomy
+W693,Partial synovectomy
+W694,Open biopsy of synovial membrane of joint
+W695,Open division of synovial plica
+W698,Other specified open operations on synovial membrane of joint
+W699,Unspecified open operations on synovial membrane of joint
+W701,Open total excision of semilunar cartilage
+W702,Open excision of semilunar cartilage NEC
+W703,Open repair of semilunar cartilage
+W708,Other specified open operations on semilunar cartilage
+W711,Open drilling of articular cartilage
+W712,Open excision of intra-articular osteophyte
+W713,Forage of joint
+W714,Open autologous chondrocyte implantation into articular structure
+W718,Other specified other open operations on intra-articular structure
+W719,Unspecified other open operations on intra-articular structure
+W721,Primary prosthetic replacement of multiple ligaments
+W722,Prosthetic replacement of multiple ligaments NEC
+W723,Primary prosthetic replacement of intra-articular ligament
+W724,Prosthetic replacement of intra-articular ligament NEC
+W725,Primary prosthetic replacement of extra-articular ligament
+W726,Prosthetic replacement of extra-articular ligament NEC
+W728,Other specified prosthetic replacement of ligament
+W729,Unspecified prosthetic replacement of ligament
+W731,Primary extra-articular prosthetic augmentation of intra-articular ligament NEC
+W732,Extra-articular prosthetic augmentation of intra-articular ligament NEC
+W733,Primary prosthetic reinforcement of intra-articular ligament NEC
+W734,Prosthetic reinforcement of intra-articular ligament NEC
+W738,Other specified prosthetic reinforcement of ligament
+W739,Unspecified prosthetic reinforcement of ligament
+W741,Reconstruction of multiple ligaments NEC
+W742,Reconstruction of intra-articular ligament NEC
+W743,Reconstruction of extra-articular ligament NEC
+W748,Other specified other reconstruction of ligament
+W749,Unspecified other reconstruction of ligament
+W751,Open repair of multiple ligaments NEC
+W752,Open repair of intra-articular ligament NEC
+W753,Open repair of extra-articular ligament NEC
+W758,Other specified other open repair of ligament
+W759,Unspecified other open repair of ligament
+W761,Excision of ligament
+W762,Excision of lesion of ligament
+W763,Biopsy of lesion of ligament
+W768,Other specified other operations on ligament
+W769,Unspecified other operations on ligament
+W771,Repair of capsule of joint for stabilisation of joint NEC
+W772,Transposition of muscle for stabilisation of joint
+W773,Blocking operations on joint using prosthesis for stabilisation of joint
+W774,Blocking operations on joint using bone for stabilisation of joint
+W775,Periarticular osteotomy for stabilisation of joint
+W776,Annular ligament reconstruction for stabilisation of joint
+W777,Transposition of ligament for stabilisation of joint
+W778,Other specified stabilising operations on joint
+W779,Unspecified stabilising operations on joint
+W781,Release of contracture of shoulder joint
+W782,Release of contracture of hip joint
+W783,Release of contracture of knee joint
+W784,Limited release of contracture of capsule of joint
+W785,Release of contracture of elbow joint
+W788,Other specified release of contracture of joint
+W789,Unspecified release of contracture of joint
+W791,Soft tissue correction of hallux valgus
+W792,Excision of bunion NEC
+W793,Syndactylisation of lesser toes
+W798,Other specified soft tissue operations on joint of toe
+W799,Unspecified soft tissue operations on joint of toe
+W811,Excision of lesion of joint NEC
+W812,Open removal of loose body from joint
+W814,Incision of joint NEC
+W815,Exploration of joint NEC
+W816,Capsulorrhaphy of joint
+W817,Insertion of therapeutic spacer into joint
+W818,Other specified other open operations on joint
+W819,Unspecified other open operations on joint
+W821,Endoscopic total excision of semilunar cartilage
+W822,Endoscopic resection of semilunar cartilage NEC
+W823,Endoscopic repair of semilunar cartilage
+W828,Other specified therapeutic endoscopic operations on semilunar cartilage
+W829,Unspecified therapeutic endoscopic operations on semilunar cartilage
+W831,Endoscopic drilling of lesion of articular cartilage
+W832,Endoscopic fixation of lesion of articular cartilage
+W833,Endoscopic shaving of articular cartilage
+W834,Endoscopic articular abrasion chondroplasty
+W835,Endoscopic articular thermal chondroplasty
+W836,Endoscopic excision of articular cartilage NEC
+W837,Endoscopic osteochondral autograft
+W838,Other specified therapeutic endoscopic operations on other articular cartilage
+W839,Unspecified therapeutic endoscopic operations on other articular cartilage
+W841,Endoscopic repair of intra-articular ligament
+W842,Endoscopic reattachment of intra-articular ligament
+W843,Endoscopic division of synovial plica
+W844,Endoscopic decompression of joint
+W845,Endoscopic drilling of epiphysis for repair of articular cartilage
+W846,Endoscopic excision of synovial plica
+W847,Endoscopic repair of superior labrum anterior to posterior tear
+W848,Other specified therapeutic endoscopic operations on other joint structure
+W849,Unspecified therapeutic endoscopic operations on other joint structure
+W851,Endoscopic removal of loose body from knee joint
+W853,Endoscopic autologous chondrocyte implantation of knee joint
+W858,Other specified therapeutic endoscopic operations on cavity of knee joint
+W859,Unspecified therapeutic endoscopic operations on cavity of knee joint
+W861,Endoscopic removal of loose body from joint NEC
+W868,Other specified therapeutic endoscopic operations on cavity of other joint
+W869,Unspecified therapeutic endoscopic operations on cavity of other joint
+W871,Diagnostic endoscopic examination of knee joint and biopsy of lesion of knee joint
+W878,Other specified diagnostic endoscopic examination of knee joint
+W879,Unspecified diagnostic endoscopic examination of knee joint
+W881,Diagnostic endoscopic examination of joint and biopsy of lesion of joint NEC
+W888,Other specified diagnostic endoscopic examination of other joint
+W889,Unspecified diagnostic endoscopic examination of other joint
+W891,Endoscopic chondroplasty NEC
+W892,Endoscopic harvest of autologous chondrocytes
+W898,Other specified other therapeutic endoscopic operations on other articular cartilage
+W902,Arthrography
+W903,Injection of therapeutic substance into joint
+W904,Injection into joint NEC
+W908,Other specified puncture of joint
+W909,Unspecified puncture of joint
+W911,Manipulation of joint using traction NEC
+W912,Ponsetti manipulation
+W913,Manipulation of prosthetic joint NEC
+W918,Other specified other manipulation of joint
+W919,Unspecified other manipulation of joint
+W921,Biopsy of lesion of joint NEC
+W922,Distension of joint
+W923,Examination of joint under image intensifier
+W924,Examination of joint under anaesthetic
+W925,Examination of joint NEC
+W926,Chemical synovectomy
+W927,Radiation synovectomy
+W928,Other specified other operations on joint
+W931,Primary hybrid prosthetic replacement of hip joint using cemented acetabular component
+W932,Conversion to hybrid prosthetic replacement of hip joint using cemented acetabular component
+W933,Revision of hybrid prosthetic replacement of hip joint using cemented acetabular component
+W941,Primary hybrid prosthetic replacement of hip joint using cemented femoral component
+W942,Conversion to hybrid prosthetic replacement of hip joint using cemented femoral component
+W943,Revision of hybrid prosthetic replacement of hip joint using cemented femoral component
+W949,Unspecified hybrid prosthetic replacement of hip joint using cemented femoral component
+W951,Primary hybrid prosthetic replacement of hip joint using cement NEC
+W952,Conversion to hybrid prosthetic replacement of hip joint using cement NEC
+W953,Revision of hybrid prosthetic replacement of hip joint using cement NEC
+W954,Attention to hybrid prosthetic replacement of hip joint using cement NEC
+W959,Unspecified hybrid prosthetic replacement of hip joint using cement
+W961,Primary total prosthetic replacement of shoulder joint using cement
+W962,Conversion to total prosthetic replacement of shoulder joint using cement
+W963,Revision of total prosthetic replacement of shoulder joint using cement
+W964,Revision of one component of total prosthetic replacement of shoulder joint using cement
+W965,Primary reverse polarity total prosthetic replacement of shoulder joint using cement
+W966,Revision of reverse polarity total prosthetic replacement of shoulder joint using cement
+W968,Other specified total prosthetic replacement of shoulder joint using cement
+W969,Unspecified total prosthetic replacement of shoulder joint using cement
+W971,Primary total prosthetic replacement of shoulder joint not using cement
+W972,Conversion to total prosthetic replacement of shoulder joint not using cement
+W973,Revision of total prosthetic replacement of shoulder joint not using cement
+W974,Revision of one component of total prosthetic replacement of shoulder joint not using cement
+W975,Primary reverse polarity total prosthetic replacement of shoulder joint not using cement
+W976,Revision of reverse polarity total prosthetic replacement of shoulder joint not using cement
+W978,Other specified total prosthetic replacement of shoulder joint not using cement
+W980,Conversion from total prosthetic replacement of shoulder joint NEC
+W981,Primary total prosthetic replacement of shoulder joint NEC
+W982,Conversion to total prosthetic replacement of shoulder joint NEC
+W983,Revision of total prosthetic replacement of shoulder joint NEC
+W984,Attention to total prosthetic replacement of shoulder joint NEC
+W985,Revision of one component of total prosthetic replacement of shoulder joint NEC
+W986,Primary reverse polarity total prosthetic replacement of shoulder joint NEC
+W987,Revision of reverse polarity total prosthetic replacement of shoulder joint NEC
+W988,Other specified total prosthetic replacement of shoulder joint
+X058,Other specified implantation of prosthesis for limb
+X058,Other specified implantation of prosthesis for limb
+X191,Reduction of Sprengel deformity
+X192,Correction of obstetric palsy
+X198,Other specified correction of congenital deformity of shoulder or upper arm
+X202,Excision of anlage of ulna
+X203,Centralisation of carpus for correction of congenital deformity of forearm
+X204,Revision of release of radius for correction of congenital deformity of forearm
+X208,Other specified correction of congenital deformity of forearm
+X209,Unspecified correction of congenital deformity of forearm
+X211,Reduction of gigantism of hand
+X213,Correction of syndactyly of fingers using skin graft
+X214,Correction of syndactyly of fingers using skin expander
+X215,Amputation of duplicate thumb
+X216,Amputation of supernumerary finger NEC
+X217,Reconstruction of radial club hand
+X218,Other specified correction of congenital deformity of hand
+X219,Unspecified correction of congenital deformity of hand
+X221,Open reduction of congenital deformity of hip
+X222,Primary osteotomy of pelvis for correction of congenital deformity of hip
+X223,Secondary arthroplasty of hip for correction of congenital deformity of hip
+X224,Intra-articular soft tissue procedures for correction of congenital deformity of hip
+X225,Extra-articular procedures for correction of congenital deformity of hip
+X228,Other specified correction of congenital deformity of hip
+X229,Unspecified correction of congenital deformity of hip
+X231,Operative reduction of congenital dislocation of knee
+X232,Correction of pseudoarthrosis of tibia
+X233,Excision of anlage of fibula
+X234,Excision of anlage of tibia
+X238,Other specified correction of congenital deformity of leg
+X239,Unspecified correction of congenital deformity of leg
+X241,Release of pantalar joints for correction of congenital deformity of foot
+X242,Posterior release of joints of foot for correction of congenital deformity of foot
+X243,Medial release of joints of foot for correction of congenital deformity of foot
+X244,Anterior release of joints of foot for correction of congenital deformity of foot
+X248,Other specified primary correction of congenital deformity of foot
+X249,Unspecified primary correction of congenital deformity of foot
+X251,Osteotomy of body of os calcis
+X252,Wedge tarsectomy for correction of congenital deformity of foot
+X253,Reduction of gigantism of foot
+X254,Separation of tarsal coalition
+X258,Other specified other correction of congenital deformity of foot
+X259,Unspecified other correction of congenital deformity of foot
+X271,Release of Streeter band
+X272,Release of syndactyly of toes
+X273,Amputation of supernumerary toe
+X274,Correction of curly fifth toe
+X275,Correction of congenital crossed toes
+X278,Other specified correction of minor congenital deformity of foot
+X279,Unspecified correction of minor congenital deformity of foot

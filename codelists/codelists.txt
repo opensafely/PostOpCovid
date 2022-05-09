@@ -29,3 +29,14 @@ opensafely/hiv/2020-07-13
 opensafely/cancer-excluding-lung-and-haematological/2020-04-15
 opensafely/lung-cancer/2020-04-15
 opensafely/haematological-cancer/2020-04-15
+opensafely/final-orthopaedic-surgery-elective-procedure-opcs-codes-sc/3639698a
+opensafely/final-orthopaedic-surgery-emergency-procedure-opcs-codes-sc/03bbddd7
+opensafely/fracture-potential-emergency-opcs-codes/6aac6aa1
+opensafely/surgery-emergency-opcs-4-codes-without-complication-codes/066e9dcd
+user/salmachaudhury/surgery-trauma-icd-10-diagnosis-codes-dislocations-sc/75df78bf
+user/salmachaudhury/surgery-trauma-icd-10-diagnosis-codes-spines-sc/5ebc11f1
+user/salmachaudhury/surgery-trauma-icd-10-diagnosis-codes-lower-limb-sc/5c0951fb
+user/salmachaudhury/surgery-trauma-diagnosis-icd-10-codes-pathological-fracture-sc/10daf85c
+user/salmachaudhury/surgery-trauma-icd-10-diagnosis-codes-peri-prosthetic-fracture-sc/40af2d16
+user/salmachaudhury/surgery-trauma-diagnosis-icd-10-neurovascular-injuries/7518c530
+user/salmachaudhury/surgery-trauma-diagnosis-icd-10-codes-open-fractures/0e283866

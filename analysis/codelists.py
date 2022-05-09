@@ -36,6 +36,83 @@ any_colorectal_resection = combine_codelists(
     rectal_resection_codes
 )
 
+############################################################################################
+# Fracture codelists reused from https://github.com/opensafely/surgery-research/ 
+
+
+#### Surgical procedures #####
+
+elective_codes = codelist_from_csv(
+    "codelists/opensafely-final-orthopaedic-surgery-elective-procedure-opcs-codes-sc.csv", 
+    system="opcs4",
+    column="Code")
+
+nonelective_codes = codelist_from_csv(
+    "codelists/opensafely-final-orthopaedic-surgery-emergency-procedure-opcs-codes-sc.csv", 
+    system="opcs4",
+    column="Code")
+
+fracture_codes = codelist_from_csv(
+    "codelists/opensafely-fracture-potential-emergency-opcs-codes.csv", 
+    system="opcs4",
+    column="Code")
+
+nonelective_notcomplication_codes = codelist_from_csv(
+    "codelists/opensafely-surgery-emergency-opcs-4-codes-without-complication-codes.csv",
+    system="opcs4",
+    column="Code")
+
+#### Trauma diagnosis codes #####
+
+trauma_dislocation_codes = codelist_from_csv(
+    "codelists/user-salmachaudhury-surgery-trauma-icd-10-diagnosis-codes-dislocations-sc.csv", 
+    system="icd10",
+    column="code")
+
+trauma_spine_codes = codelist_from_csv(
+    "codelists/user-salmachaudhury-surgery-trauma-icd-10-diagnosis-codes-spines-sc.csv", 
+    system="icd10",
+    column="code")
+
+trauma_lower_limb_codes = codelist_from_csv(
+    "codelists/user-salmachaudhury-surgery-trauma-icd-10-diagnosis-codes-lower-limb-sc.csv", 
+    system="icd10",
+    column="code")
+
+trauma_pathological_fracture_codes = codelist_from_csv(
+    "codelists/user-salmachaudhury-surgery-trauma-diagnosis-icd-10-codes-pathological-fracture-sc.csv", 
+    system="icd10",
+    column="code")
+
+trauma_periprosthetic_fracture_codes = codelist_from_csv(
+    "codelists/user-salmachaudhury-surgery-trauma-icd-10-diagnosis-codes-peri-prosthetic-fracture-sc.csv", 
+    system="icd10",
+    column="code")
+
+trauma_neurovascular_injury_codes = codelist_from_csv(
+    "codelists/user-salmachaudhury-surgery-trauma-diagnosis-icd-10-neurovascular-injuries.csv", 
+    system="icd10",
+    column="code")
+
+trauma_open_fracture_codes = codelist_from_csv(
+    "codelists/user-salmachaudhury-surgery-trauma-diagnosis-icd-10-codes-open-fractures.csv", 
+    system="icd10",
+    column="code")
+
+all_trauma_codes = combine_codelists(
+        trauma_dislocation_codes,
+        trauma_spine_codes,
+        trauma_lower_limb_codes,
+        trauma_pathological_fracture_codes,
+        trauma_periprosthetic_fracture_codes,
+        trauma_neurovascular_injury_codes,
+        trauma_open_fracture_codes
+        )
+
+
+
+
+######################################################################################
 VTE_HES_codes = codelist_from_csv(
   "codelists/opensafely-venous-thromboembolism-current-by-type-secondary-care-and-mortality-data.csv", system='icd10', column="code"
 )

@@ -10,7 +10,7 @@ dt <- data.table::fread(here::here("output", "input.csv"))
 #########################
 # Basic counts and descriptions----
 #############################
-procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','RectalResection')
+procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','RectalResection','ElectiveOrthopaedic', 'EmergencyOrthopaedic', 'FractureProcedure')
 
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
 dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
@@ -87,7 +87,7 @@ proc.tval.stubs <- c('_admission_method',
 proc.tval.cols <- paste(rep(procedures,each = length(proc.tval.stubs)),proc.tval.stubs, sep ="")
 
 ##Exposure so need to be flagged at start of row time period
-proc.time.stubs.start <- c('_date_admitted')
+proc.time.stubs.start <- c('_date_admitted','_Trauma_HES_date_admitted')
 proc.time.cols.start <- paste(rep(procedures,each = length(proc.time.stubs.start)),proc.time.stubs.start, sep ="")
 
 ##Outcomes so need to be flagged at end of row time period
@@ -220,7 +220,6 @@ dt.tv[tstart >= discharge.date, discharge.date := NA]
 ## Start of follow up (each enter study) per patient and procedure
 data.table::setkey(dt.tv,patient_id, tstart, tstop)
 dt.tv[,study.start := min(admit.date, na.rm = T), by = .(patient_id,end.fu)]
-dt.tv[,study.start := min(admit.date, na.rm = T), by = .(patient_id,end.fu)]
 dt.tv[!is.finite(study.start), study.start := NA]
 
 ## Roll start of procedure periods forward to define beginning of each post procedure period. Include discharge dates and end of fu dates to work out data to drop later
@@ -291,6 +290,10 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,anticoagulation_prescriptions  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_anticoagulation_prescriptions_date"), by = .(patient_id, end.fu)]
 dt.tv[!is.finite(anticoagulation_prescriptions), anticoagulation_prescriptions := NA]
 
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,Trauma  :=  min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_Trauma_HES_date_admitted"), by = .(patient_id, end.fu)]
+dt.tv[!is.finite(Trauma), Trauma := NA]
+
 dt.tv[,(c(proc.time.cols.start,proc.time.cols.end)) := NULL]
 
 
@@ -331,6 +334,7 @@ dt.tv[,Charl12 := cut(Charlson, breaks = c(0,1,2,100), labels = c("None","Single
 
 ## Operation type
 
+#dt.tv[Trauma == F & op.type == 'FractureProcedure',op.type := NA]
 
 ## Define cancer operations
 #dt[,Cancer.Surgery := !is.na(surgery_cancer)] ## TODO  make this more specific to cancer related to operation type
@@ -399,7 +403,6 @@ dt.tv[is.na(died), died := 0]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 ## Pre operation exposures now defined so can drop prior to analysis
 dt.tv <- dt.tv[!(tstart < study.start | tstop > end.fu) & !is.na(age.cat),]
-
 dt.tv[, year := data.table::year(data.table::as.IDate(admit.date))]
 
 # Redefine wave in long table

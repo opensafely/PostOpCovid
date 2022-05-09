@@ -2,7 +2,9 @@ from cohortextractor import StudyDefinition, patients, codelist, codelist_from_c
 from codelists import *
 
 list_dict = {"LeftHemicolectomy":left_hemicolectomy_codes, "RightHemicolectomy":right_hemicolectomy_codes,
-"TotalColectomy":total_colectomy_codes,"RectalResection":rectal_resection_codes}
+"TotalColectomy":total_colectomy_codes,"RectalResection":rectal_resection_codes,
+"ElectiveOrthopaedic":elective_codes, "EmergencyOrthopaedic":nonelective_codes, 
+"FractureProcedure":fracture_codes}
 
 comorb_code_list_dict = {"MI":MI_Read_codes,"CCF":CCF_Read_codes,"Stroke":Stroke_Read_codes,"PVD":PVD_Read_codes,"Dementia":Dementia_Read_codes,
 "Respiratory":Chronic_Respiratory_Read_codes,"RA_SLE_Psoriasis":RA_SLE_Psoriasis_Read_codes,"Ulcer_or_bleed":Ulcer_or_bleed_Read_codes,
@@ -228,18 +230,19 @@ study = StudyDefinition(
         """,
        
         has_surgery=patients.admitted_to_hospital(
-            with_these_procedures=any_colorectal_resection, on_or_after = "index_date"
-        ),
-    ),
+            with_these_procedures=combine_codelists(elective_codes, nonelective_codes, fracture_codes,any_colorectal_resection), 
+            on_or_after = "index_date"),
+    ),#
 
     **loop_over_OPCS_codelists(list_dict,returning = "date_admitted", return_expectations ={"incidence": 1,"rate" : "uniform",}),
    
-    first_surgery_date=patients.minimum_of("LeftHemicolectomy_date_admitted", "RightHemicolectomy_date_admitted","TotalColectomy_date_admitted", "RectalResection_date_admitted"),
-
+    first_surgery_date=patients.minimum_of(*[s + "_date_admitted" for s in list_dict.keys()]),
+#"LeftHemicolectomy_date_admitted", "RightHemicolectomy_date_admitted","TotalColectomy_date_admitted", "RectalResection_date_admitted"
     **loop_over_OPCS_codelists_discharge(list_dict,returning = "date_discharged", return_expectations ={"incidence": 1,"rate" : "uniform",}),
    
-    first_surgery_discharge_date=patients.minimum_of("LeftHemicolectomy_date_discharged", "RightHemicolectomy_date_discharged","TotalColectomy_date_discharged", "RectalResection_date_discharged"),
-
+    first_surgery_discharge_date=patients.minimum_of(*[s + "_date_discharged" for s in list_dict.keys()]),
+# "LeftHemicolectomy_date_discharged", "RightHemicolectomy_date_discharged","TotalColectomy_date_discharged", "RectalResection_date_discharged"
+  
     registered=patients.registered_as_of(
     "first_surgery_date"    ## Minimum should have prior registration for first surgery
     ),
@@ -387,6 +390,8 @@ study = StudyDefinition(
     **with_post_op_GP_events(name= "VTE",event_list=VTE_Read_codes,code_list_dict=list_dict, returning="date", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
 
     **with_post_op_GP_medications(name= "anticoagulation",event_list=any_anticoagulation,code_list_dict=list_dict, returning="date", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
+
+    **with_post_op_hospital_events(name = "Trauma", event_list = all_trauma_codes,code_list_dict=list_dict, returning="date_admitted", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
 
    # **with_post_op_GP_events(name= "CurrentCancer", event_list = non_haem_cancer,code_list_dict=list_dict, returning="date", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
 

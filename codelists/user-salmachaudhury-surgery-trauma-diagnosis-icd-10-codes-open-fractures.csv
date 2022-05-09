@@ -1,0 +1,24 @@
+code,term
+S41,Open wound of shoulder and upper arm
+S410,Open wound of shoulder
+S411,Open wound of upper arm
+S417,Multiple open wounds of shoulder and upper arm
+S418,Open wound of other and unspecified parts of shoulder girdle
+S47,Crushing injury of shoulder and upper arm
+S48,Traumatic amputation of shoulder and upper arm
+S480,Traumatic amputation at shoulder joint
+S481,Traumatic amputation at level between shoulder and elbow
+S489,"Traumatic amputation of shoulder and upper arm, level unspecified"
+S71,Open wound of hip and thigh
+S710,Open wound of hip
+S711,Open wound of thigh
+S717,Multiple open wounds of hip and thigh
+S718,Open wound of other and unspecified parts of pelvic girdle
+S77,Crushing injury of hip and thigh
+S770,Crushing injury of hip
+S771,Crushing injury of thigh
+S772,Crushing injury of hip with thigh
+S78,Traumatic amputation of hip and thigh
+S780,Traumatic amputation at hip joint
+S781,Traumatic amputation at level between hip and knee
+S789,"Traumatic amputation of hip and thigh, level unspecified"

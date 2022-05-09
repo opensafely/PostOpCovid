@@ -1,0 +1,96 @@
+Code,Description
+V221,Primary anterior decompression of cervical spinal cord and fusion of joint of cervical spine
+V222,Primary anterior decompression of cervical spinal cord NEC
+V225,Primary decompression of posterior fossa and upper cervical spinal cord and instrumentation
+V226,Primary decompression of posterior fossa and upper cervical spinal cord NEC
+V227,Primary laminoplasty of cervical spine
+V228,Other specified primary decompression operations on cervical spine
+V229,Unspecified primary decompression operations on cervical spine
+V241,Primary decompression of thoracic spinal cord and fusion of joint of thoracic spine
+V242,Primary decompression of thoracic spinal cord NEC
+V248,Other specified decompression operations on thoracic spine
+V249,Unspecified decompression operations on thoracic spine
+V251,Primary extended decompression of lumbar spine and intertransverse fusion of joint of lumbar spine
+V252,Primary extended decompression of lumbar spine NEC
+V253,Primary posterior decompression of lumbar spine and intertransverse fusion of joint of lumbar spine
+V254,Primary posterior laminectomy decompression of lumbar spine
+V255,Primary posterior decompression of lumbar spine NEC
+V256,Primary lateral foraminotomy of lumbar spine
+V257,Primary anterior corpectomy of lumbar spine and reconstruction HFQ
+V258,Other specified primary decompression operations on lumbar spine
+V259,Unspecified primary decompression operations on lumbar spine
+V271,Primary decompression of spinal cord and fusion of joint of spine NEC
+V272,Primary decompression of spinal cord NEC
+V408,Other specified stabilisation of spine
+V409,Unspecified stabilisation of spine
+V441,Complex decompression of fracture of spine
+V442,Anterior decompression of fracture of spine
+V443,Posterior decompression of fracture of spine NEC
+V444,Vertebroplasty of fracture of spine
+V445,Balloon kyphoplasty of fracture of spine
+V448,Other specified decompression of fracture of spine
+V451,Open reduction of fracture of spine and excision of facet of spine
+V452,Open reduction of fracture of spine NEC
+V453,Manipulative reduction of fracture of spine
+V458,Other specified other reduction of fracture of spine
+V461,Fixation of fracture of spine using plate
+V462,Fixation of fracture of spine using Harrington rod
+V463,Fixation of fracture of spine using wire
+V464,Fixation of fracture of spine and skull traction HFQ
+V465,Removal of fixation device from spine
+V468,Other specified fixation of fracture of spine
+V469,Unspecified fixation of fracture of spine
+V501,Manipulation of spine using traction
+V508,Other specified manipulation of spine
+V509,Unspecified manipulation of spine
+V525,Aspiration of intervertebral disc NEC
+W181,Fenestration of cortex of bone
+W182,Saucerisation of bone
+W183,Sequestrectomy of bone
+W184,Decompression of fourage of bone
+W185,Insertion of drainage system into bone
+W188,Other specified drainage of bone
+W189,Unspecified drainage of bone
+W191,Primary open reduction of fracture of neck of femur and open fixation using pin and plate
+W192,Primary open reduction of fracture of long bone and fixation using rigid nail NEC
+W193,Primary open reduction of fracture of long bone and fixation using flexible nail
+W201,Primary open reduction of fracture of long bone and extramedullary fixation using plate NEC
+W202,Primary open reduction of fracture of long bone and extramedullary fixation using cerclage
+W203,Primary open reduction of fracture of long bone and extramedullary fixation using suture
+W204,Primary open reduction of fracture of long bone and complex extramedullary fixation NEC
+W211,Primary reduction of intra-articular fracture of bone using arthrotomy as approach
+W212,Primary excision of intra-articular fragment of intra-articular fracture of bone
+W213,Primary fixation of fragment of chondral cartilage of intra-articular fracture of bone
+W214,Primary intra-articular fixation of intra-articular fracture of bone NEC
+W215,Primary extra-articular reduction of intra-articular fracture of bone
+W218,Other specified primary open reduction of intra-articular fracture of bone
+W219,Unspecified primary open reduction of intra-articular fracture of bone
+W241,Closed reduction of intracapsular fracture of neck of femur and fixation using nail or screw
+W242,Closed reduction of fracture of long bone and rigid internal fixation NEC
+W243,Closed reduction of fracture of long bone and flexible internal fixation HFQ
+W301,Application of external fixation to bone NEC
+W304,Application of external ring fixation to bone NEC
+W308,Other specified other external fixation of bone
+W309,Unspecified other external fixation of bone
+W336,Debridement of bone NEC
+W337,Lavage of bone
+W651,Primary open reduction of fracture dislocation of joint and skeletal traction HFQ
+W652,Primary open reduction of traumatic dislocation of joint and skeletal traction NEC
+W653,Primary open reduction of fracture dislocation of joint NEC
+W654,Primary open reduction of fracture dislocation of joint and internal fixation NEC
+W655,Primary open reduction of fracture dislocation of joint and combined internal and external fixation
+W658,Other specified primary open reduction of traumatic dislocation of joint
+W659,Unspecified primary open reduction of traumatic dislocation of joint
+W661,Primary closed reduction of fracture dislocation of joint and skeletal traction HFQ
+W662,Primary closed reduction of traumatic dislocation of joint and skeletal traction NEC
+W663,Primary manipulative closed reduction of fracture dislocation of joint NEC
+W664,Primary closed reduction of fracture dislocation of joint and internal fixation
+W668,Other specified primary closed reduction of traumatic dislocation of joint
+W669,Unspecified primary closed reduction of traumatic dislocation of joint
+W681,Open reduction of injury to growth plate and internal fixation HFQ
+W682,Open reduction of injury to growth plate and traction HFQ
+W683,Open reduction of injury to growth plate NEC
+W684,Closed reduction of injury to growth plate and internal fixation HFQ
+W685,Closed reduction of injury to growth plate and traction HFQ
+W686,Closed reduction of injury to growth plate NEC
+W901,Aspiration of joint
