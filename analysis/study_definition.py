@@ -443,11 +443,11 @@ study = StudyDefinition(
 
     **recent_COVID(list_dict, returning= "case_category", return_expectations = {"incidence" : 1,"category": {"ratios": {"": 0.3, "LFT_Only": 0.4, "PCR_Only": 0.2, "LFT_WithPCR": 0.1}},}),
 
-    **recent_COVID(list_dict, returning= "date", return_expectations = {"incidence" : 1,"rate" : "uniform"}),
+    **recent_COVID(list_dict, returning= "date", return_expectations = {"incidence" : 0.1,"rate" : "uniform"}),
 
-    **previous_COVID(list_dict, returning= "case_category", return_expectations = {"incidence" : 1,"category": {"ratios": {"": 0.3, "LFT_Only": 0.4, "PCR_Only": 0.2, "LFT_WithPCR": 0.1}},}),
+    **previous_COVID(list_dict, returning= "case_category", return_expectations = {"incidence" : 0.1,"category": {"ratios": {"": 0.3, "LFT_Only": 0.4, "PCR_Only": 0.2, "LFT_WithPCR": 0.1}},}),
 
-    **previous_COVID(list_dict, returning= "date", return_expectations = {"incidence" : 1,"rate" : "uniform"}),
+    **previous_COVID(list_dict, returning= "date", return_expectations = {"incidence" : 0.1,"rate" : "uniform"}),
 
 
     **with_emergency_readmissions(list_dict, returning = "primary_diagnosis",  return_expectations={"rate": "uniform","category": {"ratios": {"K920": 0.5, "K921": 0.5}}}),

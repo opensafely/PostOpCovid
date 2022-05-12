@@ -100,6 +100,8 @@ proc.time.cols.start <- paste(rep(procedures,each = length(proc.time.stubs.start
 proc.time.stubs.end <- c('_date_discharged',
                          '_emergency_readmit_date_admitted',
                            '_date', 
+                           '_recent_date',
+                           '_previous_date',
                            '_VTE_HES_date_admitted',
                            '_VTE_GP_date',
                          '_anticoagulation_prescriptions_date')
@@ -288,11 +290,11 @@ dt.tv[!is.finite(COVIDpositivedate), COVIDpositivedate := NA]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,recentCOVIDpositivedate  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_recent_date"), by = .(patient_id, end.fu)]
-dt.tv[!is.finite(recentCOVIDpositivedate), recentCOVIDpositivedate := NA]
+dt.tv[!is.finite(recentCOVIDpositivedate), recentCOVIDpositivedate := 0]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,previousCOVIDpositivedate  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_previous_date"), by = .(patient_id, end.fu)]
-dt.tv[!is.finite(COVIDpositivedate), COVIDpositivedate := NA]
+dt.tv[!is.finite(previousCOVIDpositivedate), previousCOVIDpositivedate := 0]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,emergency_readmitdate  :=  min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_emergency_readmit_date_admitted"), by = .(patient_id, end.fu)]
