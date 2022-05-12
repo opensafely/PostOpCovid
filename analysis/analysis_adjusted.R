@@ -33,9 +33,9 @@ covid.risk.30day <- predict(object = post.op.covid.model,
                                                                     'Emergency' =  rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
                                                                     'Charlson' =  rep(1,8*length(procedures)),
                                                                     'patient_id' = 1:8*length(procedures)), type = 'expected',se.fit = T)
-covid.risk.ci.30day <- matrix(paste0(round(1- exp(-covid.risk.30day$fit)*100,3),
-                                   ' (', round(1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit))*100,3),',',
-                                   round(1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit))*100,3),')'),nrow = 4)
+covid.risk.ci.30day <- matrix(paste0(round((1- exp(-covid.risk.30day$fit))*100,3),
+                                   ' (', round((1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit)))*100,3),',',
+                                   round((1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit)))*100,3),')'),nrow = 4)
 
 rownames(covid.risk.ci.30day) <- paste0('Wave_',1:4)
 colnames(covid.risk.ci.30day) <- paste0(c('Elective_','Emergency_'),rep(procedures, each = 2))
@@ -86,9 +86,9 @@ VTE.risk.30day <- predict(object = post.op.VTE.model,
                                                                     'Emergency' =   rep(F,8*length(procedures)), 
                                                                     'Charl12' =  rep('Single',8*length(procedures)),
                                                                     'patient_id' = 1:8*length(procedures)), type = 'expected', se.fit = T)
-VTE.risk.ci.30day <- matrix(paste0(round(1- exp(-VTE.risk.30day$fit)*100,3),
-                                   ' (', round(1- exp(-(VTE.risk.30day$fit - 1.96*VTE.risk.30day$se.fit))*100,3),',',
-                                               round(1- exp(-(VTE.risk.30day$fit + 1.96*VTE.risk.30day$se.fit))*100,3),')'),nrow = 4)
+VTE.risk.ci.30day <- matrix(paste0(round((1- exp(-VTE.risk.30day$fit))*100,3),
+                                   ' (', round((1- exp(-(VTE.risk.30day$fit - 1.96*VTE.risk.30day$se.fit)))*100,3),',',
+                                               round((1- exp(-(VTE.risk.30day$fit + 1.96*VTE.risk.30day$se.fit)))*100,3),')'),nrow = 4)
   
 rownames(VTE.risk.ci.30day) <- paste0('Wave_',1:4)
 colnames(VTE.risk.ci.30day) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
@@ -108,17 +108,17 @@ print(xtable::xtable(finalfit::finalfit.coxph(dt.tv[start>=0 & tstop <= VTE.end]
 ##################################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
-post.op.post.covid.covid.model <- 
+post.op.post.covid.surv.model <- 
   survival::coxph(survival::Surv(start,end,died) ~ op.type + postcovid + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id,
                   data = dt.tv[start>=0 ])
-data.table::fwrite(broom::tidy(post.op.post.covid.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_post_covid_model.csv"))
+data.table::fwrite(broom::tidy(post.op.post.covid.surv.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_post_covid_surv_model.csv"))
 
 
 
-post.op.post.covid.covid.waves.model <- 
+post.op.post.covid.surv.waves.model <- 
   survival::coxph(survival::Surv(start,end,died) ~ op.type + postcovid*wave + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12, id = patient_id,
                   data = dt.tv[start>=0 ])
-data.table::fwrite(broom::tidy(post.op.post.covid.covid.waves.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_post_covid_waves_model.csv"))
+data.table::fwrite(broom::tidy(post.op.post.covid.surv.waves.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_post_covid_surv_waves_model.csv"))
 
 
 print(xtable::xtable(finalfit::finalfit.coxph(dt.tv[start>=0 ],

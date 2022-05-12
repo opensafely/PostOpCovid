@@ -1,9 +1,9 @@
 from cohortextractor import StudyDefinition, patients, codelist, codelist_from_csv  
 from codelists import *
 
-list_dict = {"LeftHemicolectomy":left_hemicolectomy_codes, "RightHemicolectomy":right_hemicolectomy_codes,
-"TotalColectomy":total_colectomy_codes,"RectalResection":rectal_resection_codes,
-"ElectiveOrthopaedic":elective_codes, "EmergencyOrthopaedic":nonelective_codes, 
+list_dict = {"Colectomy":any_colorectal_resection, 
+"ElectiveOrthopaedic":elective_codes, 
+"EmergencyOrthopaedic":nonelective_codes,
 "FractureProcedure":fracture_codes}
 
 comorb_code_list_dict = {"MI":MI_Read_codes,"CCF":CCF_Read_codes,"Stroke":Stroke_Read_codes,"PVD":PVD_Read_codes,"Dementia":Dementia_Read_codes,
@@ -230,9 +230,9 @@ study = StudyDefinition(
         """,
        
         has_surgery=patients.admitted_to_hospital(
-            with_these_procedures=combine_codelists(elective_codes, nonelective_codes, fracture_codes,any_colorectal_resection), 
+            with_these_procedures=combine_codelists(*list_dict.values()), 
             on_or_after = "index_date"),
-    ),#
+    ),#elective_codes, nonelective_codes, fracture_codes,any_colorectal_resection
 
     **loop_over_OPCS_codelists(list_dict,returning = "date_admitted", return_expectations ={"incidence": 1,"rate" : "uniform",}),
    
