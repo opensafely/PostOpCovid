@@ -117,13 +117,13 @@ def recent_COVID(code_list_dict, returning, return_expectations):
         }
     variables = {}
     for key,codes in code_list_dict.items():
-        variables.update(with_these_procedures(key,f"{key}_date_admitted - 42",f"{key}_date_admitted - 8",returning,return_expectations))
+        variables.update(with_these_procedures(key,f"{key}_date_admitted - 42 days",f"{key}_date_admitted - 8 days",returning,return_expectations))
     return variables
 
 
 def previous_COVID(code_list_dict, returning, return_expectations):
 
-    def with_these_procedures(key,admission_date, admission90_date,returning,return_expectations):
+    def with_these_procedures(key,admission_date,returning,return_expectations):
         return {
             f"{key}_previous_{returning}": (
                 patients.with_test_result_in_sgss(
@@ -138,7 +138,7 @@ def previous_COVID(code_list_dict, returning, return_expectations):
         }
     variables = {}
     for key,codes in code_list_dict.items():
-        variables.update(with_these_procedures(key,f"{key}_date_admitted - 43",returning,return_expectations))
+        variables.update(with_these_procedures(key,f"{key}_date_admitted - 43 days",returning,return_expectations))
     return variables
 
 
