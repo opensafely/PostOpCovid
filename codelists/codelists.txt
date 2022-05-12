@@ -5,6 +5,10 @@ user/colincrooks/surgery-rectal-resection-opcs-4-codes/41639a12
 user/colincrooks/diabetic-complications/285426dd
 user/colincrooks/metastases/0f44b3a8
 user/colincrooks/cirrhosis/175cf38a
+user/colincrooks/procedurecategory/1f6bca6f
+user/colincrooks/cholecystectomy/065c573a
+user/colincrooks/hipreplacement/6d4ce404
+user/colincrooks/kneereplacement/543d70cf
 opensafely/warfarin/2020-10-05
 opensafely/low-molecular-weight-heparins/3088164f
 opensafely/direct-acting-oral-anticoagulants-doac/2020-10-05

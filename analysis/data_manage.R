@@ -10,7 +10,7 @@ dt <- data.table::fread(here::here("output", "input.csv"))
 #########################
 # Basic counts and descriptions----
 #############################
-procedures <- c('LeftHemicolectomy','RightHemicolectomy','TotalColectomy','RectalResection','ElectiveOrthopaedic', 'EmergencyOrthopaedic', 'FractureProcedure')
+procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
 
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
 dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
@@ -83,7 +83,13 @@ proc.tval.stubs <- c('_admission_method',
                      '_primary_diagnosis',
                      '_days_in_critical_care',
                      '_case_category',
-                     '_emergency_readmit_primary_diagnosis')
+                     '_recent_case_category',
+                     '_previous_case_category',
+                     '_emergency_readmit_primary_diagnosis',
+                     '_HipReplacement_HES_binary_flag',
+                     '_KneeReplacement_HES_binary_flag',
+                     '_Cholecystectomy_HES_binary_flag',
+                     '_Colectomy_HES_binary_flag')
 proc.tval.cols <- paste(rep(procedures,each = length(proc.tval.stubs)),proc.tval.stubs, sep ="")
 
 ##Exposure so need to be flagged at start of row time period
@@ -229,8 +235,7 @@ dt.tv[, (admission.dates) := lapply(.SD, data.table::nafill, type = "locf"), by 
 ## Remove admit & discharge dates from outside admission period. Study start and endfu define total exposure for each observation period.
 dt.tv[admit.date > discharge.date | is.na(admit.date) | admit.date > tstart | discharge.date < tstop, c('admit.date','discharge.date') := NA]
 dt.tv[is.na(admit.date) , (paste0(procedures,c('_admission_method','_primary_diagnosis',
-                                                        '_days_in_critical_care',
-                                                        '_case_category')))  := NA]
+                                                        '_days_in_critical_care')))  := NA]
 dt.tv <- dt.tv[tstop <= end.fu,]
 
 # Pre study start not dropped yet as contains pre operative exposure information
@@ -260,11 +265,18 @@ dt.tv[is.infinite(op.type), op.type := NA]
 ## Coalesce across values for each post op exposure period. Already carried forward in time by tmerge
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-dt.tv[,`:=`(admission_method = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_admission_method")]
-dt.tv[,`:=`(primary_diagnosis = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_primary_diagnosis")]
-dt.tv[,`:=`(days_in_critical_care = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_days_in_critical_care")]
-dt.tv[,`:=`(case_category = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_case_category")]
-dt.tv[,`:=`(emergency_readmit_primary_diagnosis = data.table::fcoalesce(.SD)), .SDcols = paste0(procedures,"_emergency_readmit_primary_diagnosis")]
+
+proc.tval.stubs <- c('_admission_method',
+                     '_primary_diagnosis',
+                     '_days_in_critical_care',
+                     '_case_category',
+                     '_emergency_readmit_primary_diagnosis',
+                     '_HipReplacement_HES_binary_flag',
+                     '_KneeReplacement_HES_binary_flag',
+                     '_Cholecystectomy_HES_binary_flag',
+                     '_Colectomy_HES_binary_flag')
+for(stub in proc.tval.stubs) {dt.tv[,(gsub("*_HES_binary_flag$","",gsub("^_*","",proc.tval.stubs))) :=
+                                      data.table::fcoalesce(.SD), .SDcols = paste0(procedures,stub)]}
 dt.tv[,Current.Cancer := substr(primary_diagnosis,1,1) =='C']
 dt.tv[is.na(Current.Cancer), Current.Cancer := F]
 dt.tv[,(proc.tval.cols) := NULL]
@@ -272,6 +284,14 @@ dt.tv[,(proc.tval.cols) := NULL]
 ## Coalescing outcome event variables into continuous record
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,COVIDpositivedate  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_date"), by = .(patient_id, end.fu)]
+dt.tv[!is.finite(COVIDpositivedate), COVIDpositivedate := NA]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,recentCOVIDpositivedate  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_recent_date"), by = .(patient_id, end.fu)]
+dt.tv[!is.finite(recentCOVIDpositivedate), recentCOVIDpositivedate := NA]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,previousCOVIDpositivedate  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_previous_date"), by = .(patient_id, end.fu)]
 dt.tv[!is.finite(COVIDpositivedate), COVIDpositivedate := NA]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -290,9 +310,9 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,anticoagulation_prescriptions  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_anticoagulation_prescriptions_date"), by = .(patient_id, end.fu)]
 dt.tv[!is.finite(anticoagulation_prescriptions), anticoagulation_prescriptions := NA]
 
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[,Trauma  :=  min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_Trauma_HES_date_admitted"), by = .(patient_id, end.fu)]
-dt.tv[!is.finite(Trauma), Trauma := NA]
+#data.table::setkey(dt.tv,patient_id,tstart,tstop)
+#dt.tv[,Trauma  :=  min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_Trauma_HES_date_admitted"), by = .(patient_id, end.fu)]
+#dt.tv[!is.finite(Trauma), Trauma := NA]
 
 dt.tv[,(c(proc.time.cols.start,proc.time.cols.end)) := NULL]
 
@@ -383,6 +403,14 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,postcovid := cumsum(COVIDpositive), by = .(patient_id, end.fu)]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,covid.end := min(as.numeric(COVIDpositivedate), na.rm = T), by = .(patient_id, end.fu) ]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,recentCOVID := is.finite(recentCOVIDpositivedate) ]
+dt.tv[,recentCOVID := max(as.numeric(recentCOVID), na.rm = T), keyby = .(patient_id, end.fu) ]
+dt.tv[!is.finite(recentCOVID), recentCOVID := 0]
+dt.tv[,previousCOVID := is.finite(previousCOVIDpositivedate) ]
+dt.tv[,previousCOVID := max(as.numeric(previousCOVID), na.rm = T), keyby = .(patient_id, end.fu) ]
+dt.tv[!is.finite(previousCOVID), previousCOVID := 0]
 
 ### Readmissions----
 data.table::setkey(dt.tv,patient_id,tstart,tstop)

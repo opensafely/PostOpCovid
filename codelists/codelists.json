@@ -42,6 +42,30 @@
       "downloaded_at": "2022-03-29 14:33:31.718881Z",
       "sha": "f3896c698d5642737cac3baeaab256db81927a9a"
     },
+    "user-colincrooks-procedurecategory.csv": {
+      "id": "user/colincrooks/procedurecategory/1f6bca6f",
+      "url": "https://codelists.opensafely.org/codelist/user/colincrooks/procedurecategory/1f6bca6f/",
+      "downloaded_at": "2022-05-12 11:58:32.886814Z",
+      "sha": "fad5433ec5ec8445603d17289331e6ad2684146f"
+    },
+    "user-colincrooks-cholecystectomy.csv": {
+      "id": "user/colincrooks/cholecystectomy/065c573a",
+      "url": "https://codelists.opensafely.org/codelist/user/colincrooks/cholecystectomy/065c573a/",
+      "downloaded_at": "2022-05-12 11:58:33.032539Z",
+      "sha": "80242030fbdcf7e3459785b154eb38b07d8256c9"
+    },
+    "user-colincrooks-hipreplacement.csv": {
+      "id": "user/colincrooks/hipreplacement/6d4ce404",
+      "url": "https://codelists.opensafely.org/codelist/user/colincrooks/hipreplacement/6d4ce404/",
+      "downloaded_at": "2022-05-12 11:58:33.204777Z",
+      "sha": "5cb2d4bf9ac7f3016411952b9301d3d4fded4e29"
+    },
+    "user-colincrooks-kneereplacement.csv": {
+      "id": "user/colincrooks/kneereplacement/543d70cf",
+      "url": "https://codelists.opensafely.org/codelist/user/colincrooks/kneereplacement/543d70cf/",
+      "downloaded_at": "2022-05-12 11:58:33.376393Z",
+      "sha": "4664a28f01c53939fb100f9fb83d849418a0b7c3"
+    },
     "opensafely-warfarin.csv": {
       "id": "opensafely/warfarin/2020-10-05",
       "url": "https://codelists.opensafely.org/codelist/opensafely/warfarin/2020-10-05/",

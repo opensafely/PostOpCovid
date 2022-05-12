@@ -5,6 +5,59 @@ from cohortextractor import (
 )
 
 
+############# Broad major surgical categories
+
+any_proc = codelist_from_csv(
+    "codelists/user-colincrooks-procedurecategory.csv",
+    system="opcs4",
+    column="Code",
+    )        
+
+abdominal_codes = codelist_from_csv(
+    "codelists/user-colincrooks-procedurecategory.csv",
+    system="opcs4",
+    column="Code",
+    category_column="Abdominal"
+    )
+
+cardiac_codes = codelist_from_csv(
+    "codelists/user-colincrooks-procedurecategory.csv",
+    system="opcs4",
+    column="Code",
+    category_column="Cardiac"
+    )
+    
+obstetrics_codes = codelist_from_csv(
+    "codelists/user-colincrooks-procedurecategory.csv",
+    system="opcs4",
+    column="Code",
+    category_column="Obstetrics"
+    )
+    
+orthopaedic_codes = codelist_from_csv(
+    "codelists/user-colincrooks-procedurecategory.csv",
+    system="opcs4",
+    column="Code",
+    category_column="Orthopaedic"
+    )    
+    
+thoracic_codes = codelist_from_csv(
+    "codelists/user-colincrooks-procedurecategory.csv",
+    system="opcs4",
+    column="Code",
+    category_column="Thoracic"
+    )    
+    
+vascular_codes = codelist_from_csv(
+    "codelists/user-colincrooks-procedurecategory.csv",
+    system="opcs4",
+    column="Code",
+    category_column="Vascular"
+    )        
+
+############## Colectomy codes
+
+
 right_hemicolectomy_codes = codelist_from_csv(
   "codelists/user-colincrooks-surgery-right-hemicolectomy-opcs-4-codes.csv",
     column="Code",
@@ -34,6 +87,25 @@ any_colorectal_resection = combine_codelists(
     right_hemicolectomy_codes,
     total_colectomy_codes,
     rectal_resection_codes
+)
+
+
+cholecystectomy_codes = codelist_from_csv(
+  "codelists/user-colincrooks-cholecystectomy.csv",
+    column="Code",
+    system="opcs4"
+)
+
+hipreplacement_codes = codelist_from_csv(
+  "codelists/user-colincrooks-hipreplacement.csv",
+    column="Code",
+    system="opcs4"
+)
+
+kneereplacement_codes = codelist_from_csv(
+  "codelists/user-colincrooks-kneereplacement.csv",
+    column="Code",
+    system="opcs4"
 )
 
 ############################################################################################
