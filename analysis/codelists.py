@@ -1,6 +1,7 @@
 from cohortextractor import (
     codelist_from_csv,
     codelist,
+    filter_codes_by_category,
     combine_codelists
 )
 
@@ -11,49 +12,20 @@ any_proc = codelist_from_csv(
     "codelists/user-colincrooks-procedurecategory.csv",
     system="opcs4",
     column="Code",
+    category_column="Category"
     )        
 
-abdominal_codes = codelist_from_csv(
-    "codelists/user-colincrooks-procedurecategory.csv",
-    system="opcs4",
-    column="Code",
-    category_column="Abdominal"
-    )
+abdominal_codes = filter_codes_by_category(any_proc,"Abdominal")
 
-cardiac_codes = codelist_from_csv(
-    "codelists/user-colincrooks-procedurecategory.csv",
-    system="opcs4",
-    column="Code",
-    category_column="Cardiac"
-    )
+cardiac_codes = filter_codes_by_category(any_proc,"Cardiac" )
     
-obstetrics_codes = codelist_from_csv(
-    "codelists/user-colincrooks-procedurecategory.csv",
-    system="opcs4",
-    column="Code",
-    category_column="Obstetrics"
-    )
+obstetrics_codes = filter_codes_by_category(any_proc,"Obstetrics"    )
     
-orthopaedic_codes = codelist_from_csv(
-    "codelists/user-colincrooks-procedurecategory.csv",
-    system="opcs4",
-    column="Code",
-    category_column="Orthopaedic"
-    )    
+orthopaedic_codes = filter_codes_by_category(any_proc,"Orthopaedic"  )    
     
-thoracic_codes = codelist_from_csv(
-    "codelists/user-colincrooks-procedurecategory.csv",
-    system="opcs4",
-    column="Code",
-    category_column="Thoracic"
-    )    
+thoracic_codes = filter_codes_by_category(any_proc,"Thoracic"  )    
     
-vascular_codes = codelist_from_csv(
-    "codelists/user-colincrooks-procedurecategory.csv",
-    system="opcs4",
-    column="Code",
-    category_column="Vascular"
-    )        
+vascular_codes = filter_codes_by_category(any_proc,"Vascular")
 
 ############## Colectomy codes
 
