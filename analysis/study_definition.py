@@ -20,7 +20,7 @@ comorb_code_list_dict = {"MI":MI_Read_codes,"CCF":CCF_Read_codes,"Stroke":Stroke
 "Non_Haematology_malignancy":non_haem_cancer,"Haematology_malignancy":haem_cancer_Read_codes,"Metastases":metastatic_cancer_snomed_codes,
 "HIV":HIV_Read_codes}
 
-n_op <- 5
+n_op = 5
 
 def with_these_vaccination_date_X(name, index_date, n, return_expectations):
     def var_signature(name, on_or_after, return_expectations):
