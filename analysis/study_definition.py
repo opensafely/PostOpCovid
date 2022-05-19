@@ -20,8 +20,9 @@ comorb_code_list_dict = {"MI":MI_Read_codes,"CCF":CCF_Read_codes,"Stroke":Stroke
 "Non_Haematology_malignancy":non_haem_cancer,"Haematology_malignancy":haem_cancer_Read_codes,"Metastases":metastatic_cancer_snomed_codes,
 "HIV":HIV_Read_codes}
 
-def with_these_vaccination_date_X(name, index_date, n, return_expectations):
+n_op <- 5
 
+def with_these_vaccination_date_X(name, index_date, n, return_expectations):
     def var_signature(name, on_or_after, return_expectations):
         return {
             name: patients.with_tpp_vaccination_record(
@@ -58,13 +59,12 @@ def loop_over_OPCS_codelists(code_list_dict, return_expectations):
     for key,codes in code_list_dict.items():
         variables.update(with_these_procedures(key,"index_date",codes,"date_admitted",return_expectations,1))
         variables.update(with_these_procedures(key,f"{key}_1_date_admitted",codes,"date_discharged",return_expectations,1))
-        for i in range(2,11):
+        for i in range(2,n_op + 1):
           variables.update(with_these_procedures(key,f"{key}_{i-1}_date_discharged",codes,"date_admitted",return_expectations,i))
           variables.update(with_these_procedures(key,f"{key}_{i}_date_admitted",codes,"date_discharged",return_expectations,i))
     return variables
 
 def loop_over_OPCS_codelists_admission_info(code_list_dict, returning, return_expectations):
-
     def with_these_procedures(admission_date,discharge_date,key,codes,returning,return_expectations,i):
         return {
             f"{key}_{i}_{returning}": (
@@ -80,7 +80,7 @@ def loop_over_OPCS_codelists_admission_info(code_list_dict, returning, return_ex
         }
     variables = {}
     for key,codes in code_list_dict.items():
-      for i in range(1,11):
+      for i in range(1,n_op + 1):
         variables.update(with_these_procedures(f"{key}_{i}_date_admitted",f"{key}_{i}_date_discharged",key,codes,returning,return_expectations,i))
     return variables
 
@@ -100,13 +100,12 @@ def post_operative_COVID(code_list_dict, returning, return_expectations):
         }
     variables = {}
     for key,codes in code_list_dict.items():
-      for i in range(1,11):
+      for i in range(1,n_op + 1):
         variables.update(with_these_procedures(key,f"{key}_{i}_date_admitted - 7 days",f"{key}_{i}_date_discharged + 90 days",returning,return_expectations,i))
     return variables
 
 
 def recent_COVID(code_list_dict, returning, return_expectations):
-
     def with_these_procedures(key,admission_date, admission90_date,returning,return_expectations,i):
         return {
             f"{key}_{i}_recent_{returning}": (
@@ -122,7 +121,7 @@ def recent_COVID(code_list_dict, returning, return_expectations):
         }
     variables = {}
     for key,codes in code_list_dict.items():
-      for i in range(1,11):
+      for i in range(1,n_op + 1):
         variables.update(with_these_procedures(key,f"{key}_{i}_date_admitted - 42 days",f"{key}_{i}_date_admitted - 8 days",returning,return_expectations,i))
     return variables
 
@@ -143,7 +142,7 @@ def previous_COVID(code_list_dict, returning, return_expectations):
         }
     variables = {}
     for key,codes in code_list_dict.items():
-      for i in range(1,11):
+      for i in range(1,n_op + 1):
         variables.update(with_these_procedures(key,f"{key}_{i}_date_admitted - 43 days",returning,return_expectations,i))
     return variables
 
@@ -177,7 +176,7 @@ def with_emergency_readmissions(code_list_dict, returning, return_expectations):
             }
     variables = {}
     for key,codes in code_list_dict.items():            
-      for i in range(1,11):
+      for i in range(1,n_op + 1):
         variables.update(with_these_procedures(key,f"{key}_{i}_date_discharged",f"{key}_{i}_date_discharged + 90 days",returning,return_expectations,i))
     return variables
 
@@ -197,7 +196,7 @@ def with_post_op_hospital_events(name,event_list,code_list_dict, returning, retu
         }
     variables = {}
     for key,codes in code_list_dict.items():
-      for i in range(1,11):
+      for i in range(1,n_op + 1):
         variables.update(with_these_procedures(name,event_list,key,f"{key}_{i}_date_admitted",f"{key}_{i}_date_discharged + 90 days",returning,return_expectations,i))
     return variables
 
@@ -217,7 +216,7 @@ def with_sub_procedures(subproc_list,code_list_dict, returning, return_expectati
         }
     variables = {}
     for key,codes in code_list_dict.items():
-      for i in range(1,11):
+      for i in range(1,n_op + 1):
         for subkey,subcodes in subproc_list.items():
           variables.update(with_these_procedures(subkey,subcodes,key,f"{key}_{i}_date_admitted",f"{key}_{i}_date_admitted",returning,return_expectations,i))
     return variables
@@ -238,7 +237,7 @@ def with_post_op_GP_events(name,event_list,code_list_dict, returning, return_exp
         }
     variables = {}
     for key,codes in code_list_dict.items():
-      for i in range(1,11):
+      for i in range(1,n_op + 1):
         variables.update(with_these_procedures(name,event_list,key,f"{key}_{i}_date_admitted",f"{key}_{i}_date_discharged + 90 days",returning,return_expectations,i))
     return variables
 
@@ -258,7 +257,7 @@ def with_post_op_GP_medications(name,event_list,code_list_dict, returning, retur
         }
     variables = {}
     for key,codes in code_list_dict.items():
-      for i in range(1,11):
+      for i in range(1,n_op + 1):
         variables.update(with_these_procedures(name,event_list,key,f"{key}_{i}_date_admitted",f"{key}_{i}_date_discharged + 90 days",returning,return_expectations,i))
     return variables
 
@@ -465,7 +464,7 @@ study = StudyDefinition(
 
     **with_post_op_GP_medications(name= "anticoagulation",event_list=any_anticoagulation,code_list_dict=list_dict, returning="date", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
 
-    **with_post_op_hospital_events(name = "Trauma", event_list = all_trauma_codes,code_list_dict=list_dict, returning="date_admitted", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
+ #   **with_post_op_hospital_events(name = "Trauma", event_list = all_trauma_codes,code_list_dict=list_dict, returning="date_admitted", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
 
    # **with_post_op_GP_events(name= "CurrentCancer", event_list = non_haem_cancer,code_list_dict=list_dict, returning="date", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
 
