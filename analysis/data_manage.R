@@ -11,6 +11,7 @@ dt <- data.table::fread(here::here("output", "input.csv"))
 # Basic counts and descriptions----
 #############################
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
+procs <- paste0(rep(procedures,each = 5),"_",1:5)
 
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
 dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
@@ -18,10 +19,23 @@ dt[, imd := as.numeric(imd)]
 dt[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordered_result = F)]
 
 ####################################################################
+# Multiple operations per row. Reshape to long format
+####################################################################
 
-summary(dt)
+repeated.vars <- names(dt)[grepl(pattern = paste(procedures,collapse = '|'),x = names(dt))]
+non.op.vars <- names(dt)[!grepl(pattern = paste(procedures,collapse = '|'),x = names(dt))]
+
+aggregate_operations <- data.table::melt(dt, id.var = 'patient_id',
+                 measure = patterns(as.vector(outer(paste0(procedures,'_[0-9]'),
+                                                    unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = repeated.vars)),
+                                                    paste0))),
+                  value.name = as.vector(outer(procedures,unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = repeated.vars)),paste0)))
+dt <- dt[,non.op.vars, with = F][aggregate_operations, on = "patient_id"]
+rm(aggregate_operations)
+#summary(dt)
 
 lapply(paste0(procedures,"_date_admitted"), function(x) dt[is.finite(get(x)),.N])
+# ? reshape each procedure long to get counts, but not unique per patient then
 
 dt[,(paste("admit.wave.",procedures, sep ="")) := lapply(.SD, function(x) cut(as.numeric(x), breaks = c(as.numeric(data.table::as.IDate("2020-01-01", format = "%Y-%m-%d")),
                                                                                                         as.numeric(data.table::as.IDate("2020-09-01", format = "%Y-%m-%d")),
@@ -30,7 +44,7 @@ dt[,(paste("admit.wave.",procedures, sep ="")) := lapply(.SD, function(x) cut(as
                                                                                                         as.numeric(data.table::as.IDate("2022-05-01", format = "%Y-%m-%d"))),
                                                                               labels = c("Wave_1","Wave_2","Wave_3","Wave_4"),
                                                                               ordered = T)), 
-                                                         .SDcols = c(paste(procedures,"_date_admitted", sep =""))]
+                                                         .SDcols = c(paste0(procedures,"_date_admitted"))]
 for(x in procedures) {
 dt[, (paste0(x,"post.VTE")) := ((!is.na(.SD[,3]) &  
                         .SD[,3] <= .SD[,1] + 90 & .SD[,3] >= .SD[,1]) | 
@@ -38,35 +52,34 @@ dt[, (paste0(x,"post.VTE")) := ((!is.na(.SD[,3]) &
                            .SD[,4] <= .SD[,1] + 90 & .SD[,4] >= .SD[,1]))) & 
         (!is.na(.SD[,5]) &  
            .SD[,5] <= .SD[,1] + 90 & .SD[,5] >= .SD[,1]), 
-   .SDcols = paste0(x,c("_date_admitted","_date_discharged","_VTE_GP_date","_VTE_HES_date_admitted","_anticoagulation_prescriptions_date"))]  # events flagged at end of episode
+   .SDcols = paste0(procedures,c("_date_admitted","_date_discharged","_VTE_GP_date","_VTE_HES_date_admitted","_anticoagulation_prescriptions_date"))]  # events flagged at end of episode
 }
-
 
 demo.waves.tab <- lapply(procedures, function(proc) { 
   t(data.table::rbindlist((lapply(paste0("Wave_",1:4), function(x)  {
     cbind(dt[is.finite(get(paste0(proc,'_date_admitted'))) & get(paste0('admit.wave.',proc)) == x,.("Procedures" = .N,
-                                                                                                                         "Patients" = length(unique(patient_id)),
-                                                                                                                         "Male" = round(mean(sex=='M'),digits = 2),
-                                                                                                                         "Age (IQR)" = paste(round(quantile(as.numeric(get(paste0(proc,'_date_admitted')) - as.numeric(dateofbirth))/365.25,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                         "BMI (IQR)" = paste(round(quantile(bmi,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                         "IMD (IQR)" = paste(round(quantile(imd,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                         "1st Vaccination" = round(mean(is.finite(covid_vaccine_dates_1) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_1 >= 14),digits = 2),
-                                                                                                                         "2nd Vaccination" = round(mean(is.finite(covid_vaccine_dates_2) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_2 >= 14),digits = 2),
-                                                                                                                         "3rd Vaccination" = round(mean(is.finite(covid_vaccine_dates_3) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_3 >= 14),digits = 2),
-                                                                                                                         "Current Cancer"  = round(mean(substr(get(paste0(proc,'_primary_diagnosis')),1,1) =='C'), digits = 2),
-                                                                                                                         "Emergency" = round(mean(substr(get(paste0(proc,'_admission_method')),1,1) == "2"),digits = 2),
-                                                                                                                         "Length of stay (IQR)" =  paste(round(quantile((get(paste0(proc,'_date_discharged')) - get(paste0(proc,'_date_admitted'))),c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-                                                                                                                         "90 day mortality" = round(mean(is.finite(date_death_ons) & date_death_ons - get(paste0(proc,'_date_admitted')) <= 90),digits = 2),
-                                                                                                                         "90 day COVID-19" = round(mean(is.finite(get(paste0(proc,'_date'))) & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) <= 90  & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) >=0),digits = 2),
-                                                                                                                         "90 day VTE" = round(mean(get(paste0(proc,'post.VTE')), na.rm = T),digits = 2))],
+                                 "Patients" = length(unique(patient_id)),
+                                 "Male" = round(mean(sex=='M'),digits = 2),
+                                 "Age (IQR)" = paste(round(quantile(as.numeric(get(paste0(proc,'_date_admitted')) - as.numeric(dateofbirth))/365.25,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
+                                 "BMI (IQR)" = paste(round(quantile(bmi,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
+                                 "IMD (IQR)" = paste(round(quantile(imd,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
+                                 "1st Vaccination" = round(mean(is.finite(covid_vaccine_dates_1) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_1 >= 14),digits = 2),
+                                 "2nd Vaccination" = round(mean(is.finite(covid_vaccine_dates_2) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_2 >= 14),digits = 2),
+                                 "3rd Vaccination" = round(mean(is.finite(covid_vaccine_dates_3) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_3 >= 14),digits = 2),
+                                 "Current Cancer"  = round(mean(substr(get(paste0(proc,'_primary_diagnosis')),1,1) =='C'), digits = 2),
+                                 "Emergency" = round(mean(substr(get(paste0(proc,'_admission_method')),1,1) == "2"),digits = 2),
+                                 "Length of stay (IQR)" =  paste(round(quantile((get(paste0(proc,'_date_discharged')) - get(paste0(proc,'_date_admitted'))),c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
+                                 "90 day mortality" = round(mean(is.finite(date_death_ons) & date_death_ons - get(paste0(proc,'_date_admitted')) <= 90),digits = 2),
+                                 "90 day COVID-19" = round(mean(is.finite(get(paste0(proc,'_date'))) & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) <= 90  & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) >=0),digits = 2),
+                                 "90 day VTE" = round(mean(get(paste0(proc,'post.VTE')), na.rm = T),digits = 2))],
                                t(dt[is.finite(get(paste0(proc,'_date_admitted'))) & get(paste0('admit.wave.',proc)) == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))]),
-                               t(dt[get(paste0('admit.wave.',proc)) == x,.N, by = .(.grp = eval(parse(text = paste0(proc,'_primary_diagnosis'))))][order(-N), do.call(paste,c(.SD, sep = ": "))][1:10])                              
+                               t(dt[get(paste0('admit.wave.',proc)) == x,.N, by = .(.grp = eval(parse(text = paste0(proc,'_primary_diagnosis'))))][order(-N), do.call(paste,c(.SD, sep = ": "))][1:5])                              
                                )})), fill = T))})
 
 demo.waves.tab
 
-lapply(1:length(procedures), function(i) print(xtable::xtable(demo.waves.tab[[i]]), type = 'html', here::here("output",paste0("table1",procedures[i],".html"))))
-
+for(i in 1:length(procedures)) print(xtable::xtable(demo.waves.tab[[i]]), type = 'html', here::here("output",paste0("table1",procedures[i],".html")))
+rm(demo.waves.tab)
 ##########################################################
 # Reshape data to long time varying cohort per procedure ----
 #########################################################
@@ -93,7 +106,7 @@ proc.tval.stubs <- c('_admission_method',
 proc.tval.cols <- paste(rep(procedures,each = length(proc.tval.stubs)),proc.tval.stubs, sep ="")
 
 ##Exposure so need to be flagged at start of row time period
-proc.time.stubs.start <- c('_date_admitted','_Trauma_HES_date_admitted', 
+proc.time.stubs.start <- c('_date_admitted', 
                            '_recent_date',
                            '_previous_date')
 proc.time.cols.start <- paste(rep(procedures,each = length(proc.time.stubs.start)),proc.time.stubs.start, sep ="")
@@ -131,14 +144,15 @@ dt[,max.date := lapply(.SD,max, na.rm = T),
 dt[is.finite(gp.end) & max.date > gp.end, max.date := gp.end]
 dt[!is.finite(max.date), max.date := as.numeric(data.table::as.IDate('2022-02-01'))]
 
-# Data for long cohort table with variables that are fixed at baseline
-dt.fixed <- dt[,.SD, .SDcols = c(fixed,'max.date')] # 
-dt.tv <- survival::tmerge(dt.fixed,dt.fixed,id = patient_id, end = event(max.date) ) # set survival dataset with final follow up date per patient
 
+# Data for long cohort table with variables that are fixed at baseline
+dt.fixed <- unique(dt[,.SD, .SDcols = c(fixed,'max.date')]) # 
+dt.tv <- survival::tmerge(dt.fixed,dt.fixed,id = patient_id, end = event(max.date) ) # set survival dataset with final follow up date per patient
+rm(dt.fixed)
 # Data for long cohort table with variables defining events
 dt.times <- dt[,.SD, .SDcols = c('patient_id',
                                  time.cols,
-                                 "gp.end",
+                                 'gp.end',
                                  proc.time.cols.start, 
                                  proc.time.cols.end,
                                  paste(procedures,"_end_fu",sep = ""))]
@@ -149,7 +163,7 @@ dt.tv.values <- dt[,.SD, .SDcols = c('patient_id',
                                      paste(procedures,"_date_admitted",sep = ""), ## Still needed here to define admission date for the values in merging data
                                      paste(procedures,"_emergency_readmit_date_admitted",sep = ""), 
                                      proc.tval.cols)]
-
+rm(dt)
 # tmerge events defining end of row outcome events
 for (i in c(proc.time.cols.end,
             paste0(procedures,"_end_fu"),
@@ -177,14 +191,13 @@ for (proc in procedures) {
                              paste0(proc,val)," = tdc(",paste0(proc,time.var),",",paste0(proc,val),",NA)))")))
   }
 }
+rm(dt.times)
 
-# Set non event times to missing rather than zero (really only maters for tmerge event)
+# Set non event times to missing rather than zero (really only matters for tmerge event)
 data.table::setDT(dt.tv)
-for (i in c(proc.time.cols.start,
-            proc.time.cols.end,
-            time.cols,
-            proc.tval.cols,
-            paste0(procedures,"_end_fu")))  {
+for (i in c(proc.time.cols.end,
+            paste0(procedures,"_end_fu"),
+            "gp.end"))  {
   eval(parse(text = paste0("assign(x = 'dt.tv', value = dt.tv[",i,"==0, ",i,":=NA])")))
 }
 
@@ -277,7 +290,7 @@ proc.tval.stubs <- c('_admission_method',
                      '_KneeReplacement_HES_binary_flag',
                      '_Cholecystectomy_HES_binary_flag',
                      '_Colectomy_HES_binary_flag')
-for(stub in proc.tval.stubs) {dt.tv[,(gsub("*_HES_binary_flag$","",gsub("^_*","",proc.tval.stubs))) :=
+for(stub in proc.tval.stubs) {dt.tv[,(gsub("*_HES_binary_flag$","",gsub("^_*","",stub))) :=
                                       data.table::fcoalesce(.SD), .SDcols = paste0(procedures,stub)]}
 dt.tv[,Current.Cancer := substr(primary_diagnosis,1,1) =='C']
 dt.tv[is.na(Current.Cancer), Current.Cancer := F]
