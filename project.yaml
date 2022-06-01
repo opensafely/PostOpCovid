@@ -37,8 +37,10 @@ actions:
         finalfit_tables: output/*_model.html
         
   report:
-    run: r:latest analysis/Results.rmd
+    run: r:latest -e 'rmarkdown::render("analysis/Results.rmd", output_dir = "/workspace/output/",knit_root_dir = "/workspace",)'    
     needs: [generate_study_population, data_manage]
     outputs:
       moderately_sensitive:
         results_report: output/Results.html
+
+
