@@ -33,7 +33,10 @@ aggregate_operations <- data.table::melt(dt, id.var = 'patient_id',
 dt <- dt[,non.op.vars, with = F][aggregate_operations, on = "patient_id"]
 rm(aggregate_operations)
 #summary(dt)
-
+dt[, keep := F]
+dt[!is.na(dereg_date), dereg_date := data.table::as.IDate(paste0(dereg_date,"-30"), format = "%Y-%m-%d")]
+for (x in paste0(procedures,"_date_admitted")) { dt[is.na(dereg_date) | x <= dereg_date, keep := T] }
+dt <- dt[keep == T,]
 lapply(paste0(procedures,"_date_admitted"), function(x) dt[is.finite(get(x)),.N])
 # ? reshape each procedure long to get counts, but not unique per patient then
 
