@@ -35,3 +35,10 @@ actions:
       moderately_sensitive:
         covid_cox_models: output/*_model.csv
         finalfit_tables: output/*_model.html
+        
+  report:
+    run: r:latest analysis/Results.rmd
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        results_report: output/Results.html
