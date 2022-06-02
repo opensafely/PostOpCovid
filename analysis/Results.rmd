@@ -163,7 +163,7 @@ demo.tab <- xtable::xtable(
                                  "90 day COVID-19" = round(mean(is.finite(get(paste0(proc,'_date'))) & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) <= 90  & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) >=0),digits = 3)*100,
                                  "90 day VTE" = round(mean(get(paste0(proc,'post.VTE')), na.rm = T),digits = 4)*100)],
                                t(dt[is.finite(get(paste0(proc,'_date_admitted'))) ,rnd(.N), keyby = region][,V1]),
-                               t(dt[is.finite(get(paste0(proc,'_date_admitted'))),rnd(.N), by = .(.grp = eval(parse(text = paste0(proc,'_primary_diagnosis'))))][order(-N), do.call(paste,c(.SD, sep = ": "))][1:5]))
+                               t(dt[is.finite(get(paste0(proc,'_date_admitted'))),rnd(.N), by = .(.grp = eval(parse(text = paste0(proc,'_primary_diagnosis'))))][order(-V1), do.call(paste,c(.SD, sep = ": "))][1:5]))
     )
       }
   )
