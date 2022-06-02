@@ -144,7 +144,7 @@ for(x in procedures) {
 
 median.iqr <- function(x, dig=0) paste0(round(median(x, na.rm = T))," (",paste(round(quantile(x,c(0.25,0.75),na.rm = T),digits = dig),collapse = ","),")")
 
-n.perc <- function(x, dig=0) paste0(rnd(sum(x == T, na.rm = T))," (",round(mean(x,na.rm = T),digits = dig)*100,,"%)")
+n.perc <- function(x, dig=0) paste0(rnd(sum(x == T, na.rm = T))," (",round(mean(x,na.rm = T),digits = dig)*100,"%)")
 
 date.90.days <- function(x,ref.dat) is.finite(get(x)) & as.numeric(get(x)) - as.numeric(get(ref.dat)) <= 90  & as.numeric(get(x)) - as.numeric(get(ref.dat)) >=0
 
@@ -177,7 +177,7 @@ demo.tab <- xtable::xtable(
   ),include.rownames = T)
 
 
-rownames(demo.tab) <- c("Procedures (N)","Patients (N)","Female (%)","Median Age, years (IQR)","Median BMI (IQR)","IMD quintile (IQR)","1st Vaccination (%)","2nd Vaccination (%)","3rd Vaccination (%)","Cancer diagnosis (%)", "Emergency (%)","Median length of stay (IQR)","90 day mortality (%)","90 day COVID-19 (%)","90 day VTE","Region: Other","East of England","East Midlands","London","North East","North West","South East","South West","West Midlands","Yorkshire and the Humber", "Top 5 primary diagnoses: 1", "2","3","4","5")
+rownames(demo.tab) <- c("Procedures (N)","Patients (N)","Female (%)","Median Age, years (IQR)","Median BMI (IQR)","IMD quintile (IQR)","1st Vaccination (%)","2nd Vaccination (%)","3rd Vaccination (%)","Cancer diagnosis (%)", "Emergency (%)","Median length of stay (IQR)","90 day mortality (%)","90 day COVID-19 (%)","90 day VTE","Region: Other","East of England","East Midlands","London","North East","North West","South East","South West","West Midlands","Yorkshire and the Humber", "Top 5 primary diagnoses: 1", "2","3","4","5")[1:nrow(demo.tab)]
 colnames(demo.tab) <- procedures
                         
 knitr::kable(demo.tab, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
