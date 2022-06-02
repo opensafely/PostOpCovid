@@ -146,7 +146,7 @@ median.iqr <- function(x, dig=0) paste0(round(median(x, na.rm = T))," (",paste(r
 
 n.perc <- function(x, dig=0) paste0(rnd(sum(x == T, na.rm = T))," (",round(mean(x,na.rm = T),digits = dig)*100,"%)")
 
-date.90.days <- function(x,ref.dat) is.finite(get(x)) & as.numeric(get(x)) - as.numeric(get(ref.dat)) <= 90  & as.numeric(get(x)) - as.numeric(get(ref.dat)) >=0
+date.90.day <- function(x,ref.dat) is.finite(get(x)) & as.numeric(get(x)) - as.numeric(get(ref.dat)) <= 90  & as.numeric(get(x)) - as.numeric(get(ref.dat)) >=0
 
 demo.tab <- xtable::xtable(
   data.table::rbindlist(
