@@ -171,7 +171,7 @@ demo.tab <- xtable::xtable(
   ),include.rownames = T)
 
 
-rownames(demo.tab) <- c("Procedures (N)","Patients (N)","Male (%)","Median Age, years (IQR)","Median BMI (IQR)","IMD quintile (IQR)","1st Vaccination (%)","2nd Vaccination (%)","3rd Vaccination (%)","Cancer diagnosis (%)", "Emergency (%)","Median length of stay (IQR)","90 day mortality (%)","90 day COVID-19 (%)","90 day VTE","Region: Other","East of England","East Midlands","London","North East","North West","South East","West Midlands","Yorkshire and the Humber", "Top 5 primary diagnoses: 1", "2","3","4","5")[1:nrow(demo.tab)]
+#rownames(demo.tab) <- c("Procedures (N)","Patients (N)","Male (%)","Median Age, years (IQR)","Median BMI (IQR)","IMD quintile (IQR)","1st Vaccination (%)","2nd Vaccination (%)","3rd Vaccination (%)","Cancer diagnosis (%)", "Emergency (%)","Median length of stay (IQR)","90 day mortality (%)","90 day COVID-19 (%)","90 day VTE","Region: Other","East of England","East Midlands","London","North East","North West","South East","South West","West Midlands","Yorkshire and the Humber", "Top 5 primary diagnoses: 1", "2","3","4","5")
 colnames(demo.tab) <- procedures
                         
 knitr::kable(demo.tab, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
