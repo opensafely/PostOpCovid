@@ -142,28 +142,28 @@ for(x in procedures) {
 
 ```{r demo, results='asis', echo = T}
 
-median.iqr <- function(x, dig=0) paste0(round(median(x))," (",paste(round(quantile(x,c(0.25,0.75),na.rm = T),digits = dig),collapse = ","),")")
+median.iqr <- function(x, dig=0) paste0(round(median(x, na.rm = T))," (",paste(round(quantile(x,c(0.25,0.75),na.rm = T),digits = dig),collapse = ","),")")
 
 demo.tab <- xtable::xtable(
   data.table::rbindlist(
     list(lapply(procedures, function(proc) { 
   t(cbind(dt[is.finite(get(paste0(proc,'_date_admitted'))) ,.("Procedures" = rnd(.N),
                                  "Patients" = rnd(length(unique(patient_id))),
-                                 "Male" = round(mean(sex=='M'),digits = 2),
+                                 "Female" = round(mean(sex=='F'),digits = 3)*100,
                                  "Age (IQR)" = median.iqr(as.numeric(get(paste0(proc,'_date_admitted')) - as.numeric(dateofbirth))/365.25,dig = 0),
                                  "BMI (IQR)" =  median.iqr(bmi,dig = 0),
                                  "IMD quintile (IQR)" = median.iqr(as.numeric(imd5),dig = 0),
-                                 "1st Vaccination" = round(mean(is.finite(covid_vaccine_dates_1) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_1 >= 14),digits = 2),
-                                 "2nd Vaccination" = round(mean(is.finite(covid_vaccine_dates_2) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_2 >= 14),digits = 2),
-                                 "3rd Vaccination" = round(mean(is.finite(covid_vaccine_dates_3) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_3 >= 14),digits = 2),
-                                 "Current Cancer"  = round(mean(substr(get(paste0(proc,'_primary_diagnosis')),1,1) =='C'), digits = 2),
-                                 "Emergency" = round(mean(substr(get(paste0(proc,'_admission_method')),1,1) == "2"),digits = 2),
+                                 "1st Vaccination" = round(mean(is.finite(covid_vaccine_dates_1) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_1 >= 14),digits = 3)*100,
+                                 "2nd Vaccination" = round(mean(is.finite(covid_vaccine_dates_2) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_2 >= 14),digits = 3)*100,
+                                 "3rd Vaccination" = round(mean(is.finite(covid_vaccine_dates_3) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_3 >= 14),digits = 3)*100,
+                                 "Current Cancer"  = round(mean(substr(get(paste0(proc,'_primary_diagnosis')),1,1) =='C'), digits = 3)*100,
+                                 "Emergency" = round(mean(substr(get(paste0(proc,'_admission_method')),1,1) == "2"),digits = 3)*100,
                                  "Length of stay (IQR)" =  median.iqr(get(paste0(proc,'_date_discharged')) - get(paste0(proc,'_date_admitted')),dig = 0),
-                                 "90 day mortality" = round(mean(is.finite(date_death_ons) & date_death_ons - get(paste0(proc,'_date_admitted')) <= 90),digits = 2),
-                                 "90 day COVID-19" = round(mean(is.finite(get(paste0(proc,'_date'))) & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) <= 90  & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) >=0),digits = 2),
-                                 "90 day VTE" = round(mean(get(paste0(proc,'post.VTE')), na.rm = T),digits = 2))],
+                                 "90 day mortality" = round(mean(is.finite(date_death_ons) & date_death_ons - get(paste0(proc,'_date_admitted')) <= 90),digits = 3)*100,
+                                 "90 day COVID-19" = round(mean(is.finite(get(paste0(proc,'_date'))) & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) <= 90  & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) >=0),digits = 3)*100,
+                                 "90 day VTE" = round(mean(get(paste0(proc,'post.VTE')), na.rm = T),digits = 4)*100)],
                                t(dt[is.finite(get(paste0(proc,'_date_admitted'))) ,rnd(.N), keyby = region][,V1]),
-                               t(dt[is.finite(get(paste0(proc,'_date_admitted'))),.N, by = .(.grp = eval(parse(text = paste0(proc,'_primary_diagnosis'))))][order(-N), do.call(paste,c(.SD, sep = ": "))][1:5]))
+                               t(dt[is.finite(get(paste0(proc,'_date_admitted'))),rnd(.N), by = .(.grp = eval(parse(text = paste0(proc,'_primary_diagnosis'))))][order(-N), do.call(paste,c(.SD, sep = ": "))][1:5]))
     )
       }
   )
@@ -171,7 +171,7 @@ demo.tab <- xtable::xtable(
   ),include.rownames = T)
 
 
-#rownames(demo.tab) <- c("Procedures (N)","Patients (N)","Male (%)","Median Age, years (IQR)","Median BMI (IQR)","IMD quintile (IQR)","1st Vaccination (%)","2nd Vaccination (%)","3rd Vaccination (%)","Cancer diagnosis (%)", "Emergency (%)","Median length of stay (IQR)","90 day mortality (%)","90 day COVID-19 (%)","90 day VTE","Region: Other","East of England","East Midlands","London","North East","North West","South East","South West","West Midlands","Yorkshire and the Humber", "Top 5 primary diagnoses: 1", "2","3","4","5")
+#rownames(demo.tab) <- c("Procedures (N)","Patients (N)","Female (%)","Median Age, years (IQR)","Median BMI (IQR)","IMD quintile (IQR)","1st Vaccination (%)","2nd Vaccination (%)","3rd Vaccination (%)","Cancer diagnosis (%)", "Emergency (%)","Median length of stay (IQR)","90 day mortality (%)","90 day COVID-19 (%)","90 day VTE","Region: Other","East of England","East Midlands","London","North East","North West","South East","South West","West Midlands","Yorkshire and the Humber", "Top 5 primary diagnoses: 1", "2","3","4","5")
 colnames(demo.tab) <- procedures
                         
 knitr::kable(demo.tab, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
