@@ -138,9 +138,9 @@ for(x in procedures) {
 ```
 
 ## Study population
-`r stringr::str_to_sentence(numbers2words(n.pats))` adult patients were identified undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. `r stringr::str_to_sentence(numbers2words(n.ops))` were identified within thse patients' registration period after restricting to the first 5 procedures in each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & Vascular). The numbers and demographics are shown in Table 1.
+`r stringr::str_to_sentence(numbers2words(n.pats))` adult patients were identified undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. `r stringr::str_to_sentence(numbers2words(n.ops))` procedures were identified within thse patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & Vascular). The numbers and demographics of these patients and procedures are shown in Table 1.
 
-```{r demo, results='asis', echo = FALSE}
+```{r demo, results='asis', echo = T}
 
 median.iqr <- function(x, dig=0) paste0(round(median(x))," (",paste(round(quantile(x,c(0.25,0.75),na.rm = T),digits = dig),collapse = ","),")")
 
@@ -169,6 +169,9 @@ demo.tab <- xtable::xtable(
   )
   )
   ),include.rownames = T)
+
+demo.tab
+
 rownames(demo.tab) <- c("Procedures (N)","Patients (N)","Male (%)","Median Age, years (IQR)","Median BMI (IQR)","IMD quintile (IQR)","1st Vaccination (%)","2nd Vaccination (%)","3rd Vaccination (%)","Cancer diagnosis (%)", "Emergency (%)","Median length of stay (IQR)","90 day mortality (%)","90 day COVID-19 (%)","90 day VTE","Region: East Midlands","East of England","London","North East","North West","South East","West Midlands","Yorkshire and the Humber", "Top 5 primary diagnoses: 1", "2","3","4","5")[1:nrow(demo.tab)]
 colnames(demo.tab) <- procedures
                         
