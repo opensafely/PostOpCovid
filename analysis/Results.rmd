@@ -146,7 +146,7 @@ median.iqr <- function(x, dig=0) paste0(round(median(x, na.rm = T))," (",paste(r
 
 n.perc <- function(x, dig=0) paste0(rnd(sum(x == T, na.rm = T))," (",round(mean(x,na.rm = T),digits = dig)*100,"%)")
 
-date.90.day <- function(x,ref.dat) is.finite(get(x)) & as.numeric(get(x)) - as.numeric(get(ref.dat)) <= 90  & as.numeric(get(x)) - as.numeric(get(ref.dat)) >=0
+date.90.day <- function(x,ref.dat) is.finite(x) & as.numeric(x) - as.numeric(ref.dat) <= 90  & as.numeric(x) - as.numeric(ref.dat) >=0
 
 demo.tab <- xtable::xtable(
   data.table::rbindlist(
@@ -163,11 +163,11 @@ demo.tab <- xtable::xtable(
                                  "Current Cancer"  = n.perc(substr(get(paste0(proc,'_primary_diagnosis')),1,1) =='C',dig = 3),
                                  "Emergency" = n.perc(substr(get(paste0(proc,'_admission_method')),1,1) == "2",dig = 3),
                                  "Length of stay (IQR)" =  median.iqr(get(paste0(proc,'_date_discharged')) - get(paste0(proc,'_date_admitted')),dig = 0),
-                                 "90 day mortality" =n.perc(date.90.day(x = 'date_death_ons', ref.dat = paste0(proc,'_date_admitted')),dig = 4),
-                                 "90 day COVID-19" = n.perc(date.90.day(x = paste0(proc,'_date'), ref.dat = paste0(proc,'_date_admitted')),dig = 3),
-                                 n.perc(((date.90.day(x = paste0(proc,"_VTE_HES_date_admitted"), ref.dat = paste0(proc,'_date_admitted'))) |
-                                 (date.90.day(x = paste0(proc,"_VTE_GP_date"), ref.dat = paste0(proc,'_date_admitted')))) &
-                                 date.90.day(x = paste0(proc,"_anticoagulation_prescriptions_date"), ref.dat = paste0(proc,'_date_admitted')),dig = 4))],
+                                 "90 day mortality" =n.perc(date.90.day(x = date_death_ons, ref.dat = get(paste0(proc,'_date_admitted'))),dig = 4),
+                                 "90 day COVID-19" = n.perc(date.90.day(x = get(paste0(proc,'_date')), ref.dat = get(paste0(proc,'_date_admitted'))),dig = 3),
+                                 n.perc(((date.90.day(x = get(paste0(proc,"_VTE_HES_date_admitted"), ref.dat = get(paste0(proc,'_date_admitted')))) |
+                                 get((date.90.day(x = paste0(proc,"_VTE_GP_date")), ref.dat = get(paste0(proc,'_date_admitted'))))) &
+                                 date.90.day(x = get(paste0(proc,"_anticoagulation_prescriptions_date")), ref.dat = get(paste0(proc,'_date_admitted'))),dig = 4))],
                                t(dt[is.finite(get(paste0(proc,'_date_admitted'))) ,rnd(.N), keyby = region][,V1]),
                                t(dt[is.finite(get(paste0(proc,'_date_admitted'))),rnd(.N), by = .(.grp = eval(parse(text = paste0(proc,'_primary_diagnosis'))))][order(-V1), do.call(paste,c(.SD, sep = ": "))][1:5]))
     )
