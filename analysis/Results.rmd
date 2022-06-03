@@ -140,7 +140,7 @@ for(x in procedures) {
 ## Study population
 `r stringr::str_to_sentence(numbers2words(n.pats))` adult patients were identified undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. `r stringr::str_to_sentence(numbers2words(n.ops))` procedures were identified within thse patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & Vascular). The numbers and demographics of these patients and procedures are shown in Table 1.
 
-```{r demo, results='asis', echo = T}
+```{r demo, results='asis', echo = F}
 
 median.iqr <- function(x, dig=0) paste0(round(median(x, na.rm = T))," (",paste(round(quantile(x,c(0.25,0.75),na.rm = T),digits = dig),collapse = ","),")")
 
@@ -165,9 +165,9 @@ demo.tab <- xtable::xtable(
                                  "Length of stay (IQR)" =  median.iqr(get(paste0(proc,'_date_discharged')) - get(paste0(proc,'_date_admitted')),dig = 0),
                                  "90 day mortality" =n.perc(date.90.day(x = date_death_ons, ref.dat = get(paste0(proc,'_date_admitted'))),dig = 4),
                                  "90 day COVID-19" = n.perc(date.90.day(x = get(paste0(proc,'_date')), ref.dat = get(paste0(proc,'_date_admitted'))),dig = 3),
-                                 n.perc((date.90.day(x = get(paste0(proc,"_VTE_HES_date_admitted"), ref.dat = get(paste0(proc,'_date_admitted')))) |
+                                 n.perc(((date.90.day(x = get(paste0(proc,"_VTE_HES_date_admitted")), ref.dat = get(paste0(proc,'_date_admitted')))) |
                                  (date.90.day(x = get(paste0(proc,"_VTE_GP_date")), ref.dat = get(paste0(proc,'_date_admitted'))))) &
-                                 date.90.day(x = get(paste0(proc,"_anticoagulation_prescriptions_date")), ref.dat = get(paste0(proc,'_date_admitted'))),dig = 4)],
+                                 date.90.day(x = get(paste0(proc,"_anticoagulation_prescriptions_date")), ref.dat = get(paste0(proc,'_date_admitted'))),dig = 4))],
                                t(dt[is.finite(get(paste0(proc,'_date_admitted'))) ,rnd(.N), keyby = region][,V1]),
                                t(dt[is.finite(get(paste0(proc,'_date_admitted'))),rnd(.N), by = .(.grp = eval(parse(text = paste0(proc,'_primary_diagnosis'))))][order(-V1), do.call(paste,c(.SD, sep = ": "))][1:5]))
     )
