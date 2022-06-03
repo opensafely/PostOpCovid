@@ -347,15 +347,17 @@ study = StudyDefinition(
         return_expectations={
             "rate": "universal",
             "category": {
-                "ratios": {
+                "ratios": { 
+                    "Other": 0.1,
                     "North East": 0.1,
                     "North West": 0.1,
                     "Yorkshire and the Humber": 0.1,
                     "East Midlands": 0.1,
                     "West Midlands": 0.1,
                     "East of England": 0.1,
-                    "London": 0.2,
-                    "South East": 0.2,
+                    "London": 0.1,
+                    "South East": 0.1,
+                    "South West": 0.1
                 },
             },
         },
@@ -414,7 +416,7 @@ study = StudyDefinition(
 
     **loop_over_OPCS_codelists_admission_info(list_dict,returning = "admission_method", return_expectations ={"category": {"ratios": {"11": 0.1, "21": 0.2, "22": 0.7}}, "incidence" : 1}),
 
-    **loop_over_OPCS_codelists_admission_info(list_dict,returning = "primary_diagnosis", return_expectations ={ "category": {"ratios": {"C180": 0.3, "C190": 0.3, "K570": 0.2, "K512": 0.2}}, "incidence" : 1,}),
+    **loop_over_OPCS_codelists_admission_info(list_dict,returning = "primary_diagnosis", return_expectations ={ "category": {"ratios": {"C150": 0.2,"C180": 0.2, "C190": 0.2, "K570": 0.2, "K512": 0.2}}, "incidence" : 1,}),
 
     **loop_over_OPCS_codelists_admission_info(list_dict,returning = "days_in_critical_care", return_expectations ={"category": {"ratios": {"5": 0.1, "6": 0.2, "7": 0.7}}, "incidence" : 0.1}),
    

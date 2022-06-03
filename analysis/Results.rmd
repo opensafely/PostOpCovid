@@ -111,10 +111,10 @@ n.ops <- rnd(sum(unlist(lapply(paste0(procedures,"_date_admitted"), function(x) 
 n.pats <- rnd(sum(length(unique(dt[,patient_id]))))
 start.date <- data.table::as.IDate(min(vapply(paste0(procedures,"_date_admitted"), 
                                               FUN.VALUE = 1.0,
-                                              FUN =function(x) unlist(dt[order(x),x, with = F][1]))))
+                                              FUN =function(x) unlist(dt[is.finite(get(x))][order(get(x)),get(x), with = T][1]))))
 last.date <- data.table::as.IDate(max(vapply(paste0(procedures,"_date_admitted"), 
                                              FUN.VALUE = 1.0, 
-                                             FUN =function(x) unlist(dt[order(-x),x, with = F][1]))))
+                                             FUN =function(x) unlist(dt[is.finite(get(x))][order(-get(x)),get(x), with = T][1]))))
 
 dt[,(paste("admit.wave.",procedures, sep ="")) := lapply(.SD, function(x) cut(as.numeric(x), breaks =
                                                                                 c(as.numeric(data.table::as.IDate("2020-01-01", format = "%Y-%m-%d")), 
@@ -138,7 +138,7 @@ for(x in procedures) {
 ```
 
 ## Study population
-`r stringr::str_to_sentence(numbers2words(n.pats))` adult patients were identified undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. `r stringr::str_to_sentence(numbers2words(n.ops))` procedures were identified within thse patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & Vascular). The numbers and demographics of these patients and procedures are shown in Table 1.
+One third of GP practices in England use SystmOne, with records for approximately 44% of the English population. In this study `r numbers2words(n.pats)` adult patients were identified undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. `r stringr::str_to_sentence(numbers2words(n.ops))` procedures were identified within thse patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & Vascular). The numbers and demographics of these patients and procedures are shown in Table 1.
 
 ```{r demo, results='asis', echo = F}
 
@@ -164,12 +164,12 @@ demo.tab <- xtable::xtable(
                                  "Emergency" = n.perc(substr(get(paste0(proc,'_admission_method')),1,1) == "2",dig = 3),
                                  "Length of stay (IQR)" =  median.iqr(get(paste0(proc,'_date_discharged')) - get(paste0(proc,'_date_admitted')),dig = 0),
                                  "90 day mortality" =n.perc(date.90.day(x = date_death_ons, ref.dat = get(paste0(proc,'_date_admitted'))),dig = 4),
-                                 "90 day COVID-19" = n.perc(date.90.day(x = get(paste0(proc,'_date')), ref.dat = get(paste0(proc,'_date_admitted'))),dig = 3),
+                                 "90 day COVID-19 (%)" = paste0(rnd(sum(get(paste0(proc,'_case_category')) != "", na.rm = T))," (", round(100*mean(get(paste0(proc,'_case_category')) != "", na.rm = T), digits = 1),")"),
                                  n.perc(((date.90.day(x = get(paste0(proc,"_VTE_HES_date_admitted")), ref.dat = get(paste0(proc,'_date_admitted')))) |
                                  (date.90.day(x = get(paste0(proc,"_VTE_GP_date")), ref.dat = get(paste0(proc,'_date_admitted'))))) &
                                  date.90.day(x = get(paste0(proc,"_anticoagulation_prescriptions_date")), ref.dat = get(paste0(proc,'_date_admitted'))),dig = 4))],
-                               t(dt[is.finite(get(paste0(proc,'_date_admitted'))) ,rnd(.N), keyby = region][,V1]),
-                               t(dt[is.finite(get(paste0(proc,'_date_admitted'))),rnd(.N), by = .(.grp = eval(parse(text = paste0(proc,'_primary_diagnosis'))))][order(-V1), do.call(paste,c(.SD, sep = ": "))][1:5]))
+                               t(dt[is.finite(get(paste0(proc,'_date_admitted'))) ,rnd(.N), keyby = region][,paste0(V1, ' (',round(100*V1/sum(V1,na.rm = T), digits = 1),'%)')]),
+                               t(dt[is.finite(get(paste0(proc,'_date_admitted'))),rnd(.N), by = .(.grp = eval(parse(text = paste0(proc,'_primary_diagnosis'))))][order(-V1), paste0(do.call(paste,c(.SD, sep = ": ")),' (',round(100*V1/sum(V1,na.rm = T),digits = 1),'%)')][1:5]))
     )
       }
   )
@@ -177,7 +177,7 @@ demo.tab <- xtable::xtable(
   ),include.rownames = T)
 
 
-rownames(demo.tab) <- c("Procedures (N)","Patients (N)","Female (%)","Median Age, years (IQR)","Median BMI (IQR)","IMD quintile (IQR)","1st Vaccination (%)","2nd Vaccination (%)","3rd Vaccination (%)","Cancer diagnosis (%)", "Emergency (%)","Median length of stay (IQR)","90 day mortality (%)","90 day COVID-19 (%)","90 day VTE","Region: Other","East of England","East Midlands","London","North East","North West","South East","South West","West Midlands","Yorkshire and the Humber", "Top 5 primary diagnoses: 1", "2","3","4","5")[1:nrow(demo.tab)]
+rownames(demo.tab) <- c("Procedures (N)","Patients (N)","Female (%)","Median Age, years (IQR)","Median BMI (IQR)","IMD quintile (IQR)","1st Vaccination (%)","2nd Vaccination (%)","3rd Vaccination (%)","Cancer diagnosis (%)", "Emergency (%)","Median length of stay (IQR)","90 day mortality (%)","90 day COVID-19 (%)","90 day VTE (%)",unique(dt$region), "Top 5 primary diagnoses: 1", "2","3","4","5")
 colnames(demo.tab) <- procedures
                         
 knitr::kable(demo.tab, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
