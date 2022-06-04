@@ -69,7 +69,13 @@ numbers2words <- function(x){
   helper(x)
 }
 
-rnd <- function(x) round(x/5)*5
+rnd <- function(x) floor(x/5)*5
+
+median.iqr <- function(x, dig=0) paste0(round(median(x, na.rm = T))," (",paste(round(quantile(x,c(0.25,0.75),na.rm = T),digits = dig),collapse = ","),")")
+
+n.perc <- function(x, dig=0) paste0(rnd(sum(x == T, na.rm = T))," (",round(mean(x,na.rm = T),digits = dig)*100,"%)")
+
+date.90.day <- function(x,ref.dat) is.finite(x) & as.numeric(x) - as.numeric(ref.dat) <= 90  & as.numeric(x) - as.numeric(ref.dat) >=0
 
 ##########################################################
 
@@ -142,12 +148,6 @@ One third of GP practices in England use SystmOne, with records for approximatel
 
 ```{r demo, results='asis', echo = F}
 
-median.iqr <- function(x, dig=0) paste0(round(median(x, na.rm = T))," (",paste(round(quantile(x,c(0.25,0.75),na.rm = T),digits = dig),collapse = ","),")")
-
-n.perc <- function(x, dig=0) paste0(rnd(sum(x == T, na.rm = T))," (",round(mean(x,na.rm = T),digits = dig)*100,"%)")
-
-date.90.day <- function(x,ref.dat) is.finite(x) & as.numeric(x) - as.numeric(ref.dat) <= 90  & as.numeric(x) - as.numeric(ref.dat) >=0
-
 demo.tab <- xtable::xtable(
   data.table::rbindlist(
     list(lapply(procedures, function(proc) { 
@@ -181,4 +181,24 @@ rownames(demo.tab) <- c("Procedures (N)","Patients (N)","Female (%)","Median Age
 colnames(demo.tab) <- procedures
                         
 knitr::kable(demo.tab, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
+```
+
+
+## Post operative 90 day COVID-19 risk
+Table 2 shows the cumulative risk of testing positive for COVID-19 peri-opertively for elective patients, from 7 days prior to the operation (i.e within pre operative quarantine periods for elective procedures) to 90 days post operatively. 
+
+```{r demo, results='asis', echo = T}
+crude.covid.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[start>=0 & tstop <= covid.end,as.factor(get(covariates[i]))]))),
+                                                                           levels(dt.tv[start>=0 & tstop <= covid.end,as.factor(get(covariates[i]))]),
+                                                                           round(as.data.frame(summary(survival::survfit(survival::Surv(start,end,COVIDpositive) ~ get(covariates[i]),
+                                                                                                                   data = dt.tv[start>=0 & tstop <= covid.end], 
+                                                                                                                   id = patient_id), 
+                                                                                                 times = 90,
+                                                                                                 extend = T)[c('n.risk','n.event','surv','lower','upper')]), digits = 2))))
+crude.covid.cov <- crude.covid.cov[,`:=`(cuminc = 1 - surv,
+                                         lower95 = 1 - upper,
+                                         upper95 = 1 - lower)]
+names(crude.covid.cov)[1:2] <- c("Characteristic","Level")
+knitr::kable(crude.covid.cov[, .(Characteristic,Level,n.risk	n.event,cuminc, lower95, upper95)], caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
+
 ```
