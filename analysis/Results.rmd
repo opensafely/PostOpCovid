@@ -189,16 +189,12 @@ Table 2 shows the cumulative risk of testing positive for COVID-19 peri-opertive
 
 ```{r demo, results='asis', echo = T}
 crude.covid.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[start>=0 & tstop <= covid.end,as.factor(get(covariates[i]))]))),
-                                                                           levels(dt.tv[start>=0 & tstop <= covid.end,as.factor(get(covariates[i]))]),
-                                                                           round(as.data.frame(summary(survival::survfit(survival::Surv(start,end,COVIDpositive) ~ get(covariates[i]),
-                                                                                                                   data = dt.tv[start>=0 & tstop <= covid.end], 
-                                                                                                                   id = patient_id), 
-                                                                                                 times = 90,
-                                                                                                 extend = T)[c('n.risk','n.event','surv','lower','upper')]), digits = 2))))
+                                      levels(dt.tv[start>=0 & tstop <= covid.end,as.factor(get(covariates[i]))]),
+                                    round(as.data.frame(summary(survival::survfit(survival::Surv(start,end,COVIDpositive) ~ get(covariates[i]), data = dt.tv[start>=0 & tstop <= covid.end], id = patient_id),  times = 90,extend = T)[c('n.risk','n.event','surv','lower','upper')]), digits = 2))))
 crude.covid.cov <- crude.covid.cov[,`:=`(cuminc = 1 - surv,
                                          lower95 = 1 - upper,
                                          upper95 = 1 - lower)]
 names(crude.covid.cov)[1:2] <- c("Characteristic","Level")
-knitr::kable(crude.covid.cov[, .(Characteristic,Level,n.risk	n.event,cuminc, lower95, upper95)], caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
+knitr::kable(crude.covid.cov[, .(Characteristic,Level,n.risk,	n.event,cuminc, lower95, upper95)], caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
 
 ```
