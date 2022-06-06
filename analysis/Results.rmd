@@ -67,15 +67,56 @@ numbers2words <- function(x){
   suffixes <- c("thousand", "million", "billion", "trillion")     
   if (length(x) > 1) return(trim(sapply(x, helper)))
   helper(x)
-}
-
-rnd <- function(x) floor(x/5)*5
-
-median.iqr <- function(x, dig=0) paste0(round(median(x, na.rm = T))," (",paste(round(quantile(x,c(0.25,0.75),na.rm = T),digits = dig),collapse = ","),")")
-
-n.perc <- function(x, dig=0) paste0(rnd(sum(x == T, na.rm = T))," (",round(mean(x,na.rm = T),digits = dig)*100,"%)")
-
-date.90.day <- function(x,ref.dat) is.finite(x) & as.numeric(x) - as.numeric(ref.dat) <= 90  & as.numeric(x) - as.numeric(ref.dat) >=0
+  }
+  
+  rnd <- function(x) floor(x/5)*5
+  
+  median.iqr <- function(x, dig=0) paste0(round(median(x, na.rm = T))," (",paste(round(quantile(x,c(0.25,0.75),na.rm = T),digits = dig),collapse = ","),")")
+  
+  n.perc <- function(x, dig=0) paste0(rnd(sum(x == T, na.rm = T))," (",round(mean(x,na.rm = T),digits = dig)*100,"%)")
+  
+  date.90.day <- function(x,ref.dat) is.finite(x) & as.numeric(x) - as.numeric(ref.dat) <= 90  & as.numeric(x) - as.numeric(ref.dat) >=0
+  
+  
+  
+  cuminc.km <- function(x,iter)  { 
+    n.type.events <- max(dt.tv$event)
+  est <-boot.est <- Reduce(merge,lapply(1:n.type.events, function(i) data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==i) ~ get(x), 
+                                                                                 data = dt.tv[(postop.covid.cohort)], 
+                                                                                 id = patient_id),
+                                                               times = sort(unique(dt.tv[(postop.covid.cohort) & event == i,end]
+                                                               )
+                                                               )
+    )[c('strata','time','n.risk', 'n.event')])[,c('strata','time',paste0('haz',i)) := list(strata,time, n.event/n.risk)][,c(1,2,5)])
+    )[order(strata,time),
+      .(time,cumsum(exp(cumsum(log(1 - Reduce('+',.SD))))*haz1)),
+      by = strata, 
+      .SDcols = paste0('haz',1:n.type.events)][order(strata,time),
+                                   round(tail(V2,1),digits = 3)*100, 
+                                   by = strata] 
+  
+  for(i in 1:iter) {
+    samp.patient_id <- sort(sample(unique(dt.tv[(postop.covid.cohort),patient_id]), replace = T))
+    boot.est <- cbind(boot.est,Reduce(merge,lapply(1:n.type.events,
+                                                   function(i) data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==i) ~ get(x), 
+                                                                                 data = dt.tv[(postop.covid.cohort)][samp.patient_id,], 
+                                                                                 id = patient_id),
+                                                               times = sort(unique(dt.tv[event == i,end],
+                                                               extend = T
+                                                               )
+                                                               )
+    )[c('strata','time','n.risk', 'n.event')])[
+    ,c('strata','time',paste0('haz',i)) := list(strata,time, n.event/n.risk)][,c(1,2,5)])
+    )[order(strata,time),.(time,cumsum(exp(cumsum(log(1 - Reduce('+',.SD))))*haz1)),by = strata, .SDcols = paste0('haz',1:n.type.events)][order(strata,time),round(tail(V2,1),digits = 3)*100, by = strata][,2] )
+  }
+  return(cbind(est[,1],
+               rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==i) ~ get(x), 
+                                                               data = dt.tv[(postop.covid.cohort),],
+                                                               id = patient_id),
+                                             times = 90)[c('n.risk', 'n.event')])),
+               est[,2],
+               t(apply(boot.est[,2:(iter + 1)],1,quantile,c(0.025,0.975)))))
+  }
 
 ##########################################################
 
@@ -181,20 +222,38 @@ rownames(demo.tab) <- c("Procedures (N)","Patients (N)","Female (%)","Median Age
 colnames(demo.tab) <- procedures
                         
 knitr::kable(demo.tab, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
+rm(dt)
 ```
 
 
 ## Post operative 90 day COVID-19 risk
 Table 2 shows the cumulative risk of testing positive for COVID-19 peri-opertively for elective patients, from 7 days prior to the operation (i.e within pre operative quarantine periods for elective procedures) to 90 days post operatively. 
 
-```{r demo, results='asis', echo = T}
-crude.covid.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[start>=0 & tstop <= covid.end,as.factor(get(covariates[i]))]))),
-                                      levels(dt.tv[start>=0 & tstop <= covid.end,as.factor(get(covariates[i]))]),
-                                    round(as.data.frame(summary(survival::survfit(survival::Surv(start,end,COVIDpositive) ~ get(covariates[i]), data = dt.tv[start>=0 & tstop <= covid.end], id = patient_id),  times = 90,extend = T)[c('n.risk','n.event','surv','lower','upper')]), digits = 2))))
-crude.covid.cov <- crude.covid.cov[,`:=`(cuminc = 1 - surv,
-                                         lower95 = 1 - upper,
-                                         upper95 = 1 - lower)]
-names(crude.covid.cov)[1:2] <- c("Characteristic","Level")
-knitr::kable(crude.covid.cov[, .(Characteristic,Level,n.risk,	n.event,cuminc, lower95, upper95)], caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
+```{r cuminc, results='asis', echo = F}
+load(file = here::here("output","cohort_long.RData"))
+procedures <- unique(dt.tv$op.type)
+
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,final.date := covid.end]
+dt.tv[is.finite(readmit.end) & readmit.end < final.date, final.date := readmit.end]
+dt.tv[is.finite(end.fu) & end.fu < final.date, final.date := end.fu]
+
+dt.tv[,event :=0]
+dt.tv[tstop == COVIDpositivedate, event := 1]
+dt.tv[tstop == readmit.end, event := 2]
+dt.tv[died == T, event := 3]
+
+dt.tv[, postop.covid.cohort := start>=0 & tstop <= final.date & tstop <= final.date & end <= 90]
+
+
+covariates <- c('age.cat','sex','op.type','Charl12','bmi.cat','imd5','region','vaccination.status.factor','Emergency','Current.Cancer','wave')
+
+crude.covid.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]))),
+                                    levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]),                                             
+                                    cuminc.km(covariates[i], iter = 100)[,2:6])))
+
+names(crude.covid.cov) <- c("Characteristic","Level","Number at risk","Number of events","90 day Cumulative Risk","Bootstrapped Confidence","95% interval" )
+knitr::kable(crude.covid.cov, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
 
 ```
