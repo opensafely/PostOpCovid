@@ -81,6 +81,7 @@ numbers2words <- function(x){
   
   cuminc.km <- function(x,niter)  { 
     n.type.events <- sort(unique(dt.tv[(postop.covid.cohort),event]))[-1]
+    data.table::setkey(dt.tv, patient_id, tstart,tstop)
     est <-boot.est <- Reduce(merge,lapply(n.type.events, function(i) data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==i) ~ get(x), 
                                                                                  data = dt.tv[(postop.covid.cohort)], 
                                                                                  id = patient_id),
@@ -95,6 +96,7 @@ numbers2words <- function(x){
   
   for(iter in 1:niter) {
     samp.patient_id <- dt.tv[(sort(sample(unique(dt.tv[(postop.covid.cohort),patient_id]), replace = T))),]
+    data.table::setkey(dt.tv, patient_id, tstart,tstop)
     boot.est <- cbind(boot.est,Reduce(merge,lapply(n.type.events,
                                                    function(i) {
                                                      event.times = sort(unique(dt.tv[(postop.covid.cohort) & event == i,end]))
@@ -118,10 +120,11 @@ numbers2words <- function(x){
     )[order(strata,time),.(time,cumsum(exp(cumsum(safelog(1 - Reduce('+',.SD))))*haz1)),by = strata, .SDcols = paste0('haz',n.type.events)][order(strata,time),round(tail(V2,1),digits = 3)*100, by = strata][,2] )
   }
   return(cbind(est[,1],
+               rnd(dt.tv[(postop.covid.cohort),tail(.SD,1), keyby = c(x,'patient_id','admit.date')][,.N, keyby = get(x)][,2]),
                rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==1) ~ get(x), 
                                                                data = dt.tv[(postop.covid.cohort),],
                                                                id = patient_id),
-                                             times = 90)[c('n.risk', 'n.event')])),
+                                             times = 90)[c('n.event')])),
                est[,2],
                t(apply(boot.est[,2:(iter + 1)],1,quantile,c(0.025,0.975), na.rm = T))))
   }
@@ -212,8 +215,8 @@ demo.tab <- xtable::xtable(
                                  "Current Cancer"  = n.perc(substr(get(paste0(proc,'_primary_diagnosis')),1,1) =='C',dig = 3),
                                  "Emergency" = n.perc(substr(get(paste0(proc,'_admission_method')),1,1) == "2",dig = 3),
                                  "Length of stay (IQR)" =  median.iqr(get(paste0(proc,'_date_discharged')) - get(paste0(proc,'_date_admitted')),dig = 0),
-                                 "90 day mortality" =n.perc(date.90.day(x = date_death_ons, ref.dat = get(paste0(proc,'_date_admitted'))),dig = 4),
-                                 "90 day COVID-19 (%)" = paste0(rnd(sum(get(paste0(proc,'_case_category')) != "", na.rm = T))," (", round(100*mean(get(paste0(proc,'_case_category')) != "", na.rm = T), digits = 1),")"),
+                                 "90 day mortality (%)" =n.perc(date.90.day(x = date_death_ons, ref.dat = get(paste0(proc,'_date_admitted'))),dig = 4),
+                                 "90 day COVID-19 (%)" = paste0(rnd(sum(get(paste0(proc,'_case_category')) != "", na.rm = T))," (", round(100*mean(get(paste0(proc,'_case_category')) != "", na.rm = T), digits = 1),"%)"),
                                  n.perc(((date.90.day(x = get(paste0(proc,"_VTE_HES_date_admitted")), ref.dat = get(paste0(proc,'_date_admitted')))) |
                                  (date.90.day(x = get(paste0(proc,"_VTE_GP_date")), ref.dat = get(paste0(proc,'_date_admitted'))))) &
                                  date.90.day(x = get(paste0(proc,"_anticoagulation_prescriptions_date")), ref.dat = get(paste0(proc,'_date_admitted'))),dig = 4))],
@@ -252,14 +255,16 @@ dt.tv[tstop == COVIDpositivedate, event := 1]
 dt.tv[tstop == readmit.end, event := 2]
 dt.tv[died == T, event := 3]
 
-dt.tv[, postop.covid.cohort := start>=0 & tstop <= final.date & tstop <= final.date & end <= 90]
+dt.tv[, postop.covid.cohort := start>=0 & tstop <= final.date & end <= 90]
 
 
 covariates <- c('age.cat','sex','op.type','Charl12','bmi.cat','imd5','region','vaccination.status.factor','Emergency','Current.Cancer','wave')
 
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+
 crude.covid.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]))),
                                     levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]),                                             
-                                    cuminc.km(covariates[i], niter = 100)[,2:6])))
+                                    cuminc.km(covariates[i], niter = 1000)[,2:6])))
 
 names(crude.covid.cov) <- c("Characteristic","Level","Number at risk","Number of events","90 day Cumulative Risk","Bootstrapped Confidence","95% interval" )
 knitr::kable(crude.covid.cov, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
