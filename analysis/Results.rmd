@@ -213,7 +213,7 @@ dt.tv[,Emergency := max(Emergency, na.rm = T), by = .(patient_id, end.fu)]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,bmi := max(bmi, na.rm = T), by = .(patient_id, end.fu) ]
-dt.tv[,imd5 := max(as.numeric(imd5), na.rm = T), by = .(patient_id, end.fu) ]
+dt.tv[,imd.quin := max(as.numeric(imd5), na.rm = T), by = .(patient_id, end.fu) ]
 dt.tv[!is.finite(vaccination.status), vaccination.status := 0]
 dt.tv[,vaccination.status := cumsum(vaccination.status), by = .(patient_id, end.fu) ]
 dt.tv[!is.finite(Current.Cancer), Current.Cancer := 0]
@@ -237,7 +237,7 @@ dt.tv[tstop == end.fu & !is.na(op.type),.('Procedures' = rnd(.N),
                          'Female' = n.perc(sex=='F',dig=3),
                          'Age (IQR)' = median.iqr(age,dig = 0),
                          "BMI (IQR)" =  median.iqr(bmi,dig = 0),
-                         "IMD quintile (IQR)" = median.iqr(as.numeric(imd5),dig = 0),
+                         "IMD quintile (IQR)" = median.iqr(as.numeric(imd.quin),dig = 0),
                          "1st Vaccination" = n.perc(vaccination.status == 1,dig = 3),
                          "2nd Vaccination" = n.perc(vaccination.status == 2,dig = 3),
                          "3rd Vaccination" = n.perc(vaccination.status == 3,dig = 3),
