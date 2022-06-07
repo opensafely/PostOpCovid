@@ -246,7 +246,7 @@ dt.tv[tstop == end.fu & !is.na(op.type),.('Procedures' = rnd(.N),
                          "90 day mortality (%)" =n.perc(died == T,dig = 4),
                          "90 day COVID-19 (%)" = n.perc(postcovid == 1, dig = 3),
                          "90 day VTE (%)" = n.perc(postVTEany == 1, dig = 3)), keyby = op.type],
-<<<<<<< Updated upstream
+
 data.table::transpose(
   cbind(
     data.table::transpose(
@@ -295,10 +295,8 @@ data.table::transpose(
 ),
 make.names = 'op.type',
 keep.names = 'Characteristics')
-=======
-data.table::transpose(cbind(data.table::transpose(data.table::dcast(cbind(dt.tv[tstop == end.fu & !is.na(op.type),rnd(table(op.type)), keyby = region],rep(procedures,times = 10)), V2 ~ region, value.var = 'V1' ),keep.names = "region", make.names = "V2")[,lapply(.SD, function(x) paste0(x, ' (',round(100*x/sum(x,na.rm = T), digits = 1),'%)')), .SDcols = 2:7],sort(unique(dt.tv$region))), make.names = "V2"),
-data.table::transpose(cbind(1:5,data.table::transpose(data.table::dcast(dt.tv[tstart == admit.date & !is.na(op.type),rnd(.N), keyby = c('op.type','primary_diagnosis')],op.type ~ primary_diagnosis, value.var = 'V1'), keep.names = "Primary_Diagnosis", make.names = "op.type")[,1:7][,lapply(.SD, function(x) paste0(Primary_Diagnosis,": ", x, ' (',round(100*x/sum(x,na.rm = T), digits = 1),'%)')[order(x)]), .SDcols = 2:7][1:5,]), make.names = 'V1')),make.names = 'op.type', keep.names = 'Characteristics')
->>>>>>> Stashed changes
+
+
 # 
 #                           
 # 
