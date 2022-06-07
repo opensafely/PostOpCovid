@@ -213,7 +213,6 @@ dt.tv[,Emergency := max(Emergency, na.rm = T), by = .(patient_id, end.fu)]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,bmi := max(bmi, na.rm = T), by = .(patient_id, end.fu) ]
-dt.tv[!is.finite(imd5), imd5 := 0]
 dt.tv[,imd5 := max(as.numeric(imd5), na.rm = T), by = .(patient_id, end.fu) ]
 dt.tv[!is.finite(vaccination.status), vaccination.status := 0]
 dt.tv[,vaccination.status := cumsum(vaccination.status), by = .(patient_id, end.fu) ]
