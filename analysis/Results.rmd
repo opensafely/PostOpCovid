@@ -246,7 +246,6 @@ dt.tv[tstop == end.fu & !is.na(op.type),.('Procedures' = rnd(.N),
                          "90 day mortality (%)" =n.perc(died == T,dig = 4),
                          "90 day COVID-19 (%)" = n.perc(postcovid == 1, dig = 3),
                          "90 day VTE (%)" = n.perc(postVTEany == 1, dig = 3)), keyby = op.type],
-
 data.table::transpose(
   cbind(
     data.table::transpose(
