@@ -206,8 +206,29 @@ for(x in procedures) {
 ## Study population
 One third of GP practices in England use SystmOne, with records for approximately 44% of the English population. In this study `r numbers2words(n.pats)` adult patients were identified undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. `r stringr::str_to_sentence(numbers2words(n.ops))` procedures were identified within thse patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & Vascular). The numbers and demographics of these patients and procedures are shown in Table 1.
 
-```{r demo, results='asis', echo = F}
+```{r demo, results='asis', echo = F, warning=F}
 load(file = here::here("output","cohort_long.RData"))
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,bmi := max(bmi, na.rm = T), by = .(patient_id, end.fu) ]
+dt.tv[!is.finite(imd5), imd5 := 0]
+dt.tv[,imd5 := max(as.numeric(imd5), na.rm = T), by = .(patient_id, end.fu) ]
+dt.tv[!is.finite(vaccination.status), vaccination.status := 0]
+dt.tv[,vaccination.status := cumsum(vaccination.status), by = .(patient_id, end.fu) ]
+dt.tv[!is.finite(Current.Cancer), Current.Cancer := 0]
+dt.tv[,Current.Cancer := cumsum(Current.Cancer), by = .(patient_id, end.fu) ]
+dt.tv[!is.finite(Emergency), Emergency := 0]
+dt.tv[,Emergency := cumsum(Emergency), by = .(patient_id, end.fu) ]
+dt.tv[!is.finite(died), died := 0]
+dt.tv[,died := cumsum(died), by = .(patient_id, end.fu) ]
+dt.tv[!is.finite(postcovid), postcovid := 0]
+dt.tv[,postcovid := cumsum(postcovid), by = .(patient_id, end.fu) ]
+dt.tv[!is.finite(postVTEany), postVTEany := 0]
+dt.tv[,postVTEany := cumsum(postVTEany), by = .(patient_id, end.fu) ]
+dt.tv[,region := max(region, na.rm = T), by = .(patient_id, end.fu) ]
+dt.tv[,primary_diagnosis := max(primary_diagnosis, na.rm = T), by = .(patient_id, end.fu) ]
+dt.tv[start<=90 & end>90, end := 90]
+dt.tv <- dt.tv[end <= 90]
 
 demo.tab <- data.table::transpose(cbind(
 dt.tv[tstop == end.fu & !is.na(op.type),.('Procedures' = rnd(.N),
@@ -223,9 +244,55 @@ dt.tv[tstop == end.fu & !is.na(op.type),.('Procedures' = rnd(.N),
                          "Emergency" = n.perc(Emergency == T,dig = 0),
                          "90 day mortality (%)" =n.perc(died == T,dig = 4),
                          "90 day COVID-19 (%)" = n.perc(postcovid == 1, dig = 3),
-                         "90 day COVID-19 (%)" = n.perc(postVTEany == 1, dig = 3)), keyby = op.type],
-data.table::transpose(cbind(data.table::transpose(data.table::dcast(cbind(dt.tv[tstop == end.fu & !is.na(op.type),rnd(table(op.type)), keyby = region],rep(procedures,times = 10)), V2 ~ region, value.var = 'V1' ),keep.names = "region", make.names = "V2")[,lapply(.SD, function(x) paste0(x, ' (',round(100*x/sum(x,na.rm = T), digits = 1),'%)')), .SDcols = 2:7],sort(unique(dt.tv$region))), make.names = "V2"),
-data.table::transpose(cbind(1:5,data.table::transpose(data.table::dcast(dt.tv[tstart == admit.date & !is.na(op.type),rnd(.N), keyby = c('op.type','primary_diagnosis')],op.type ~ primary_diagnosis, value.var = 'V1'), keep.names = "Primary_Diagnosis", make.names = "op.type")[,1:7][,lapply(.SD, function(x) paste0(Primary_Diagnosis,": ", x, ' (',round(100*x/sum(x,na.rm = T), digits = 1),'%)')[order(x)]), .SDcols = 2:7][1:5,]), make.names = 'V1')),make.names = 'op.type', keep.names = 'Characteristics')
+                         "90 day VTE (%)" = n.perc(postVTEany == 1, dig = 3)), keyby = op.type],
+data.table::transpose(
+  cbind(
+    data.table::transpose(
+      data.table::dcast(
+        cbind(
+          dt.tv[tstop == end.fu & !is.na(op.type),
+                rnd(table(op.type)),
+                keyby = region],
+          rep(procedures,times = 10)),
+        V2 ~ region, 
+        value.var = 'V1' ),
+      keep.names = "region", 
+      make.names = "V2")[,
+                         lapply(.SD,
+                                function(x) paste0(x, 
+                                                   ' (',
+                                                   round(100*x/sum(x,na.rm = T), 
+                                                         digits = 1),
+                                                   '%)')
+                                ),
+                         .SDcols = 2:7],
+    sort(unique(dt.tv$region))
+    ),
+  make.names = "V2"),
+data.table::transpose(
+  cbind(1:5,
+        data.table::transpose(
+          data.table::dcast(
+            dt.tv[tstart == admit.date & !is.na(op.type),
+                  rnd(.N),
+                  keyby = c('op.type','primary_diagnosis')],
+            op.type ~ primary_diagnosis,
+            value.var = 'V1'), 
+          keep.names = "Primary_Diagnosis",
+          make.names = "op.type")[,1:7][,
+                                        lapply(.SD, 
+                                               function(x) paste0(Primary_Diagnosis,
+                                                                  ": ",
+                                                                  x, 
+                                                                  ' (',
+                                                                  round(100*x/sum(x,na.rm = T),
+                                                                        digits = 1),
+                                                                  '%)')[order(x)]), 
+                                        .SDcols = 2:7][1:5,]), 
+  make.names = 'V1')
+),
+make.names = 'op.type',
+keep.names = 'Characteristics')
 # 
 #                           
 # 
