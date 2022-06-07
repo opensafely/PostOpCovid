@@ -381,6 +381,8 @@ dt.tv[,Charl12 := cut(Charlson, breaks = c(0,1,2,100), labels = c("None","Single
 ### Define elective or emergency operations
 dt.tv[,Emergency := substr(as.character(admission_method),1,1)=="2"]
 dt.tv[is.na(Emergency), Emergency := F]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,Emergency := max(Emergency, na.rm = T), by = .(patient_id, end.fu)]
 
 ## Define vaccination status - 14 days post date as effective
 dt.tv[, vaccination.status := is.finite(covid_vaccine_dates_1) + is.finite(covid_vaccine_dates_2) + is.finite(covid_vaccine_dates_3)]
