@@ -210,26 +210,27 @@ One third of GP practices in England use SystmOne, with records for approximatel
 load(file = here::here("output","cohort_long.RData"))
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,Emergency := max(Emergency, na.rm = T), by = .(patient_id, end.fu)]
-
+dt.tv[start<=90 & end>90, end := 90]
+dt.tv[(tstop - tstart)>90, tstop := tstart + 90]
+dt.tv <- dt.tv[end <= 90]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,bmi := max(bmi, na.rm = T), by = .(patient_id, end.fu) ]
 dt.tv[,imd.quin := max(as.numeric(imd5), na.rm = T), by = .(patient_id, end.fu) ]
 dt.tv[!is.finite(vaccination.status), vaccination.status := 0]
-dt.tv[,vaccination.status := cumsum(vaccination.status), by = .(patient_id, end.fu) ]
+dt.tv[,vaccination.status := max(vaccination.status, na.rm = T), by = .(patient_id, end.fu) ]
 dt.tv[!is.finite(Current.Cancer), Current.Cancer := 0]
-dt.tv[,Current.Cancer := cumsum(Current.Cancer), by = .(patient_id, end.fu) ]
+dt.tv[,Current.Cancer := max(Current.Cancer, na.rm = T), by = .(patient_id, end.fu) ]
 dt.tv[!is.finite(Emergency), Emergency := 0]
-dt.tv[,Emergency := cumsum(Emergency), by = .(patient_id, end.fu) ]
+dt.tv[,Emergency := max(Emergency, na.rm = T), by = .(patient_id, end.fu) ]
 dt.tv[!is.finite(died), died := 0]
 dt.tv[,died := cumsum(died), by = .(patient_id, end.fu) ]
 dt.tv[!is.finite(postcovid), postcovid := 0]
-dt.tv[,postcovid := cumsum(postcovid), by = .(patient_id, end.fu) ]
+dt.tv[,postcovid := max(postcovid, na.rm = T), by = .(patient_id, end.fu) ]
 dt.tv[!is.finite(postVTEany), postVTEany := 0]
-dt.tv[,postVTEany := cumsum(postVTEany), by = .(patient_id, end.fu) ]
+dt.tv[,postVTEany := max(postVTEany, na.rm = T), by = .(patient_id, end.fu) ]
 dt.tv[,region := max(region, na.rm = T), by = .(patient_id, end.fu) ]
 dt.tv[,primary_diagnosis := max(primary_diagnosis, na.rm = T), by = .(patient_id, end.fu) ]
-dt.tv[start<=90 & end>90, end := 90]
-dt.tv <- dt.tv[end <= 90]
+
 
 demo.tab <- data.table::transpose(cbind(
 dt.tv[tstop == end.fu & !is.na(op.type),.('Procedures' = rnd(.N),
@@ -242,10 +243,10 @@ dt.tv[tstop == end.fu & !is.na(op.type),.('Procedures' = rnd(.N),
                          "2nd Vaccination" = n.perc(vaccination.status == 2,dig = 3),
                          "3rd Vaccination" = n.perc(vaccination.status == 3,dig = 3),
                          "Current Cancer"  = n.perc(Current.Cancer == T,dig = 3),
-                         "Emergency" = n.perc(Emergency == T,dig = 0),
+                         "Emergency" = n.perc(Emergency >= 1,dig = 3),
                          "90 day mortality (%)" =n.perc(died == T,dig = 4),
-                         "90 day COVID-19 (%)" = n.perc(postcovid == 1, dig = 3),
-                         "90 day VTE (%)" = n.perc(postVTEany == 1, dig = 3)), keyby = op.type],
+                         "90 day COVID-19 (%)" = n.perc(postcovid >= 1, dig = 3),
+                         "90 day VTE (%)" = n.perc(postVTEany >= 1, dig = 3)), keyby = op.type],
 data.table::transpose(
   cbind(
     data.table::transpose(
