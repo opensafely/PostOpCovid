@@ -220,6 +220,7 @@ dt[, post.VTE := ((!is.na(VTE_GP_date) &
 One third of GP practices in England use SystmOne, with records for approximately 44% of the English population. In this study `r numbers2words(n.pats)` adult patients were identified undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. `r stringr::str_to_sentence(numbers2words(n.ops))` procedures were identified within thse patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & Vascular). The numbers and demographics of these patients and procedures are shown in Table 1.
 
 ```{r demo, results='asis', echo = F, warning=F}
+
 dt[bmi == 0, bmi := NA]
 demo.tab <- 
   data.table::transpose(cbind(dt[ ,.("Procedures" = rnd(.N),
