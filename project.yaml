@@ -17,8 +17,6 @@ actions:
     outputs:
       highly_sensitive:
         cohort: output/cohort_long.RData
-      moderately_sensitive:
-        initial_tables: output/table1*.html
         
   analysis_crude:
     run: r:latest analysis/analysis_crude.R

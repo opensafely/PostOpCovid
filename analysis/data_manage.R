@@ -22,16 +22,20 @@ dt[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordere
 # Multiple operations per row. Reshape to long format
 ####################################################################
 
+
+####### Reshape repeated procedures within a specialty
 repeated.vars <- names(dt)[grepl(pattern = paste(procedures,collapse = '|'),x = names(dt))]
 non.op.vars <- names(dt)[!grepl(pattern = paste(procedures,collapse = '|'),x = names(dt))]
 
 aggregate_operations <- data.table::melt(dt, id.var = 'patient_id',
-                 measure = patterns(as.vector(outer(paste0(procedures,'_[0-9]'),
-                                                    unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = repeated.vars)),
-                                                    paste0))),
-                  value.name = as.vector(outer(procedures,unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = repeated.vars)),paste0)))
+                                         measure = patterns(as.vector(outer(paste0(procedures,'_[0-9]'),
+                                                                            unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = paste0(repeated.vars,'$'))),
+                                                                            paste0))),
+                                         variable.name = 'op.number',
+                                         value.name = as.vector(outer(procedures,unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = repeated.vars)),paste0)))[order(patient_id,op.number)]
 dt <- dt[,non.op.vars, with = F][aggregate_operations, on = "patient_id"]
 rm(aggregate_operations)
+
 #summary(dt)
 dt[, keep := F]
 dt[!is.na(dereg_date), dereg_date := data.table::as.IDate(paste0(dereg_date,"-30"), format = "%Y-%m-%d")]

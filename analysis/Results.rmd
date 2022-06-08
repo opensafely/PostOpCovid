@@ -155,31 +155,49 @@ dt[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordere
 # Multiple operations per row. Reshape to long format
 ####################################################################
 
+
+####### Reshape repeated procedures within a specialty
 repeated.vars <- names(dt)[grepl(pattern = paste(procedures,collapse = '|'),x = names(dt))]
 non.op.vars <- names(dt)[!grepl(pattern = paste(procedures,collapse = '|'),x = names(dt))]
 
 aggregate_operations <- data.table::melt(dt, id.var = 'patient_id',
-                                         measure = patterns(as.vector(outer(paste0(procedures,'_[0-9]'),
-                                                                            unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = repeated.vars)),
+                     measure = patterns(as.vector(outer(paste0(procedures,'_[0-9]'),
+                unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = paste0(repeated.vars,'$'))),
+                paste0))),
+                variable.name = 'op.number',
+                value.name = as.vector(outer(procedures,unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = repeated.vars)),paste0)))[order(patient_id,op.number)]
+
+
+
+####### Reshape repeated procedures within a specialty
+repeated.vars <- names(aggregate_operations)[grepl(pattern = paste(procedures,collapse = '|'),x = names(aggregate_operations))]
+
+aggregate_operations <- data.table::melt(aggregate_operations, id.var = 'patient_id',
+                                         measure = patterns(as.vector(outer(paste0('(',paste0(procedures, collapse = '|'),')_'),
+                                                                            unique(gsub(pattern = paste0(paste0(procedures,"_"),collapse = "|"),replacement = "",x = paste0(repeated.vars,'$'))),
                                                                             paste0))),
-                                         value.name = as.vector(outer(procedures,unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = repeated.vars)),paste0)))
+                                         variable.name = 'op.type', 
+                                         variable.factor = T,
+                                         value.name = unique(gsub(pattern = paste0(paste0(procedures,"_"),collapse = "|"),replacement = "",x = repeated.vars)))[order(patient_id,date_admitted, op.type)]
+
+aggregate_operations[,op.type := factor(op.type, levels = 1:6, labels = procedures)]
+
 dt <- dt[,non.op.vars, with = F][aggregate_operations, on = "patient_id"]
 rm(aggregate_operations)
+
+
 dt[, keep := F]
 dt[!is.na(dereg_date), dereg_date := data.table::as.IDate(paste0(dereg_date,"-30"), format = "%Y-%m-%d")]
-for (x in paste0(procedures,"_date_admitted")) { dt[is.na(dereg_date) | x <= dereg_date, keep := T] }
+dt[is.na(dereg_date) | as.numeric(date_admitted) <= dereg_date, keep := T] 
 dt <- dt[keep == T,]
 
-n.ops <- rnd(sum(unlist(lapply(paste0(procedures,"_date_admitted"), function(x) dt[is.finite(get(x)),.N]))))
+n.ops <- rnd(dt[is.finite(date_admitted),.N])
 n.pats <- rnd(sum(length(unique(dt[,patient_id]))))
-start.date <- data.table::as.IDate(min(vapply(paste0(procedures,"_date_admitted"), 
-                                              FUN.VALUE = 1.0,
-                                              FUN =function(x) unlist(dt[is.finite(get(x))][order(get(x)),get(x), with = T][1]))))
-last.date <- data.table::as.IDate(max(vapply(paste0(procedures,"_date_admitted"), 
-                                             FUN.VALUE = 1.0, 
-                                             FUN =function(x) unlist(dt[is.finite(get(x))][order(-get(x)),get(x), with = T][1]))))
+start.date <- dt[, min(date_admitted)]
 
-dt[,(paste("admit.wave.",procedures, sep ="")) := lapply(.SD, function(x) cut(as.numeric(x),
+last.date <-  dt[, max(date_admitted)]
+
+dt[,admit.wave := cut(as.numeric(date_admitted),
                 breaks =
                   c(as.numeric(data.table::as.IDate("2020-01-01", format = "%Y-%m-%d")), 
                     as.numeric(data.table::as.IDate("2020-09-01", format = "%Y-%m-%d")),                                       
@@ -187,19 +205,14 @@ dt[,(paste("admit.wave.",procedures, sep ="")) := lapply(.SD, function(x) cut(as
                     as.numeric(data.table::as.IDate("2021-12-31", format = "%Y-%m-%d")),
                     as.numeric(data.table::as.IDate("2022-05-01", format = "%Y-%m-%d"))),
                     labels = c("Wave_1","Wave_2","Wave_3","Wave_4"),
-                    ordered = T)), 
-   .SDcols = c(paste0(procedures,"_date_admitted"))]
-for(x in procedures) {
-  dt[, (paste0(x,"post.VTE")) := ((!is.na(.SD[,3]) &  
-                                     .SD[,3] <= .SD[,1] + 90 & .SD[,3] >= .SD[,1]) | 
-                                    ((!is.na(.SD[,4]) &  
-                                        .SD[,4] <= .SD[,1] + 90 & .SD[,4] >= .SD[,1]))) & 
-       (!is.na(.SD[,5]) &  
-          .SD[,5] <= .SD[,1] + 90 & .SD[,5] >= .SD[,1]), 
-     .SDcols = paste0(procedures,c("_date_admitted","_date_discharged",
-                                   "_VTE_GP_date","_VTE_HES_date_admitted",
-                                   "_anticoagulation_prescriptions_date"))]  # events flagged at end of episode
-}
+                    ordered = T)]
+
+dt[, post.VTE := ((!is.na(VTE_GP_date) &  
+                                   VTE_GP_date <= date_admitted + 90 & VTE_GP_date >= date_admitted) | 
+                                  ((!is.na(VTE_HES_date_admitted) &  
+                                      VTE_HES_date_admitted<= date_admitted + 90 & VTE_HES_date_admitted >= date_admitted))) & 
+     (!is.na(anticoagulation_prescriptions_date) &  
+        anticoagulation_prescriptions_date <= date_admitted + 90 & anticoagulation_prescriptions_date >= date_admitted)]  
 
 ```
 
@@ -207,130 +220,74 @@ for(x in procedures) {
 One third of GP practices in England use SystmOne, with records for approximately 44% of the English population. In this study `r numbers2words(n.pats)` adult patients were identified undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. `r stringr::str_to_sentence(numbers2words(n.ops))` procedures were identified within thse patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & Vascular). The numbers and demographics of these patients and procedures are shown in Table 1.
 
 ```{r demo, results='asis', echo = F, warning=F}
-load(file = here::here("output","cohort_long.RData"))
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[,Emergency := max(Emergency, na.rm = T), by = .(patient_id, end.fu)]
-
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[,bmi := max(bmi, na.rm = T), by = .(patient_id, end.fu) ]
-dt.tv[,imd5 := max(as.numeric(imd5), na.rm = T), by = .(patient_id, end.fu) ]
-dt.tv[!is.finite(vaccination.status), vaccination.status := 0]
-dt.tv[,vaccination.status := cumsum(vaccination.status), by = .(patient_id, end.fu) ]
-dt.tv[!is.finite(Current.Cancer), Current.Cancer := 0]
-dt.tv[,Current.Cancer := cumsum(Current.Cancer), by = .(patient_id, end.fu) ]
-dt.tv[!is.finite(Emergency), Emergency := 0]
-dt.tv[,Emergency := cumsum(Emergency), by = .(patient_id, end.fu) ]
-dt.tv[!is.finite(died), died := 0]
-dt.tv[,died := cumsum(died), by = .(patient_id, end.fu) ]
-dt.tv[!is.finite(postcovid), postcovid := 0]
-dt.tv[,postcovid := cumsum(postcovid), by = .(patient_id, end.fu) ]
-dt.tv[!is.finite(postVTEany), postVTEany := 0]
-dt.tv[,postVTEany := cumsum(postVTEany), by = .(patient_id, end.fu) ]
-dt.tv[,region := max(region, na.rm = T), by = .(patient_id, end.fu) ]
-dt.tv[,primary_diagnosis := max(primary_diagnosis, na.rm = T), by = .(patient_id, end.fu) ]
-dt.tv[start<=90 & end>90, end := 90]
-dt.tv <- dt.tv[end <= 90]
-
-demo.tab <- data.table::transpose(cbind(
-dt.tv[tstop == end.fu & !is.na(op.type),.('Procedures' = rnd(.N),
-                         'Patients' = rnd(length(unique(patient_id))), 
-                         'Female' = n.perc(sex=='F',dig=3),
-                         'Age (IQR)' = median.iqr(age,dig = 0),
-                         "BMI (IQR)" =  median.iqr(bmi,dig = 0),
-                         "IMD quintile (IQR)" = median.iqr(as.numeric(imd5),dig = 0),
-                         "1st Vaccination" = n.perc(vaccination.status == 1,dig = 3),
-                         "2nd Vaccination" = n.perc(vaccination.status == 2,dig = 3),
-                         "3rd Vaccination" = n.perc(vaccination.status == 3,dig = 3),
-                         "Current Cancer"  = n.perc(Current.Cancer == T,dig = 3),
-                         "Emergency" = n.perc(Emergency == T,dig = 0),
-                         "90 day mortality (%)" =n.perc(died == T,dig = 4),
-                         "90 day COVID-19 (%)" = n.perc(postcovid == 1, dig = 3),
-                         "90 day VTE (%)" = n.perc(postVTEany == 1, dig = 3)), keyby = op.type],
-
-data.table::transpose(
+dt[bmi == 0, bmi := NA]
+demo.tab <- 
+  data.table::transpose(cbind(dt[ ,.("Procedures" = rnd(.N),
+                                 "Patients" = rnd(length(unique(patient_id))),
+                                 "Female" = n.perc(sex=='F',dig = 3),
+                                 "Age (IQR)" = median.iqr((as.numeric(date_admitted) - as.numeric(dateofbirth))/365.25,dig = 0),
+                                 "BMI (IQR)" =  median.iqr(bmi,dig = 0),
+                                 "IMD quintile (IQR)" = median.iqr(as.numeric(imd5),dig = 0),
+                                 "1st Vaccination" = n.perc(is.finite(covid_vaccine_dates_1) & date_admitted  - covid_vaccine_dates_1 >= 14,dig = 3),
+                                 "2nd Vaccination" = n.perc(is.finite(covid_vaccine_dates_2) & date_admitted  - covid_vaccine_dates_2 >= 14,dig = 3),
+                                 "3rd Vaccination" = n.perc(is.finite(covid_vaccine_dates_3) & date_admitted - covid_vaccine_dates_3 >= 14,dig = 3),
+                                 "Current Cancer"  = n.perc(substr(primary_diagnosis,1,1) =='C',dig = 3),
+                                 "Emergency" = n.perc(substr(admission_method,1,1) == "2",dig = 3),
+                                 "Length of stay (IQR)" =  median.iqr(date_discharged - date_admitted,dig = 0),
+                                 "90 day mortality (%)" =n.perc(date.90.day(x = date_death_ons, ref.dat = date_admitted),dig = 4),
+                                 "90 day COVID-19 (%)" = paste0(rnd(sum(case_category != "", na.rm = T))," (", round(100*mean(case_category != "", na.rm = T), digits = 1),"%)"),
+                                 "90 day VTE (%)" = n.perc((date.90.day(x = VTE_HES_date_admitted, ref.dat = date_admitted) |
+                                 date.90.day(x = VTE_GP_date, ref.dat = date_admitted)) &
+                                 date.90.day(x = anticoagulation_prescriptions_date, ref.dat = date_admitted),dig = 4)), keyby = op.type],
+  data.table::transpose(
   cbind(
     data.table::transpose(
       data.table::dcast(
         cbind(
-          dt.tv[tstop == end.fu & !is.na(op.type),
+          dt[,
                 rnd(table(op.type)),
                 keyby = region],
           rep(procedures,times = 10)),
-        V2 ~ region, 
+        V2 ~ region,
         value.var = 'V1' ),
-      keep.names = "region", 
+      keep.names = "region",
       make.names = "V2")[,
                          lapply(.SD,
-                                function(x) paste0(x, 
+                                function(x) paste0(x,
                                                    ' (',
-                                                   round(100*x/sum(x,na.rm = T), 
+                                                   round(100*x/sum(x,na.rm = T),
                                                          digits = 1),
                                                    '%)')
                                 ),
                          .SDcols = 2:7],
-    sort(unique(dt.tv$region))
+    sort(unique(dt$region))
     ),
   make.names = "V2"),
-data.table::transpose(
+  data.table::transpose(
   cbind(1:5,
         data.table::transpose(
           data.table::dcast(
-            dt.tv[tstart == admit.date & !is.na(op.type),
+            dt[,
                   rnd(.N),
                   keyby = c('op.type','primary_diagnosis')],
             op.type ~ primary_diagnosis,
-            value.var = 'V1'), 
+            value.var = 'V1'),
           keep.names = "Primary_Diagnosis",
           make.names = "op.type")[,1:7][,
-                                        lapply(.SD, 
+                                        lapply(.SD,
                                                function(x) paste0(Primary_Diagnosis,
                                                                   ": ",
-                                                                  x, 
+                                                                  x,
                                                                   ' (',
                                                                   round(100*x/sum(x,na.rm = T),
                                                                         digits = 1),
-                                                                  '%)')[order(x)]), 
-                                        .SDcols = 2:7][1:5,]), 
+                                                                  '%)')[order(-x)]),
+                                        .SDcols = 2:7][1:5,]),
   make.names = 'V1')
 ),
 make.names = 'op.type',
 keep.names = 'Characteristics')
 
-
-# 
-#                           
-# 
-# demo.tab <- xtable::xtable(
-#   data.table::rbindlist(
-#     list(lapply(procedures, function(proc) { 
-#   t(cbind(dt[is.finite(get(paste0(proc,'_date_admitted'))) ,.("Procedures" = rnd(.N),
-#                                  "Patients" = rnd(length(unique(patient_id))),
-#                                  "Female" = n.perc(sex=='F',dig = 3),
-#                                  "Age (IQR)" = median.iqr(as.numeric(get(paste0(proc,'_date_admitted')) - as.numeric(dateofbirth))/365.25,dig = 0),
-#                                  "BMI (IQR)" =  median.iqr(bmi,dig = 0),
-#                                  "IMD quintile (IQR)" = median.iqr(as.numeric(imd5),dig = 0),
-#                                  "1st Vaccination" = n.perc(is.finite(covid_vaccine_dates_1) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_1 >= 14,dig = 3),
-#                                  "2nd Vaccination" = n.perc(is.finite(covid_vaccine_dates_2) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_2 >= 14,dig = 3),
-#                                  "3rd Vaccination" = n.perc(is.finite(covid_vaccine_dates_3) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_3 >= 14,dig = 3),
-#                                  "Current Cancer"  = n.perc(substr(get(paste0(proc,'_primary_diagnosis')),1,1) =='C',dig = 3),
-#                                  "Emergency" = n.perc(substr(get(paste0(proc,'_admission_method')),1,1) == "2",dig = 3),
-#                                  "Length of stay (IQR)" =  median.iqr(get(paste0(proc,'_date_discharged')) - get(paste0(proc,'_date_admitted')),dig = 0),
-#                                  "90 day mortality (%)" =n.perc(date.90.day(x = date_death_ons, ref.dat = get(paste0(proc,'_date_admitted'))),dig = 4),
-#                                  "90 day COVID-19 (%)" = paste0(rnd(sum(get(paste0(proc,'_case_category')) != "", na.rm = T))," (", round(100*mean(get(paste0(proc,'_case_category')) != "", na.rm = T), digits = 1),"%)"),
-#                                  n.perc(((date.90.day(x = get(paste0(proc,"_VTE_HES_date_admitted")), ref.dat = get(paste0(proc,'_date_admitted')))) |
-#                                  (date.90.day(x = get(paste0(proc,"_VTE_GP_date")), ref.dat = get(paste0(proc,'_date_admitted'))))) &
-#                                  date.90.day(x = get(paste0(proc,"_anticoagulation_prescriptions_date")), ref.dat = get(paste0(proc,'_date_admitted'))),dig = 4))],
-#                                t(dt[is.finite(get(paste0(proc,'_date_admitted'))) ,rnd(.N), keyby = region][,paste0(V1, ' (',round(100*V1/sum(V1,na.rm = T), digits = 1),'%)')]),
-#                                t(dt[is.finite(get(paste0(proc,'_date_admitted'))),rnd(.N), by = .(.grp = eval(parse(text = paste0(proc,'_primary_diagnosis'))))][order(-V1), paste0(do.call(paste,c(.SD, sep = ": ")),' (',round(100*V1/sum(V1,na.rm = T),digits = 1),'%)')][1:5]))
-#     )
-#       }
-#   )
-#   )
-#   ),include.rownames = T)
-# 
-# 
-# rownames(demo.tab) <- c("Procedures (N)","Patients (N)","Female (%)","Median Age, years (IQR)","Median BMI (IQR)","IMD quintile (IQR)","1st Vaccination (%)","2nd Vaccination (%)","3rd Vaccination (%)","Cancer diagnosis (%)", "Emergency (%)","Median length of stay (IQR)","90 day mortality (%)","90 day COVID-19 (%)","90 day VTE (%)",unique(dt$region), "Top 5 primary diagnoses: 1", "2","3","4","5")
-# colnames(demo.tab) <- procedures
                         
 knitr::kable(demo.tab, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
 
