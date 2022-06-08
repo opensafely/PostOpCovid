@@ -14,10 +14,10 @@ output:
 
 ```{r setup, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(doParallel)
-ncores <- parallel::detectCores(logical = T)
-cl <- makeCluster(ncores)
-registerDoParallel(cl)
+#library(doParallel)
+#ncores <- parallel::detectCores(logical = T)
+#cl <- makeCluster(ncores)
+#registerDoParallel(cl)
 ###########################################################
 #https://github.com/ateucher/useful_code/blob/master/R/numbers2words.r
 #https://gist.github.com/psychemedia/numbers2words.R
@@ -86,7 +86,7 @@ numbers2words <- function(x){
     safelog <- function(x) { x[x < 1e-200] <- 1e-200; log(x) }
     n.type.events <- sort(unique(dt.tv[(postop.covid.cohort),event]))[-1]
     data.table::setkey(dt.tv, patient_id, tstart,tstop)
-    est <- Reduce(merge,lapply(n.type.events, function(i) data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==i) ~ get(x), 
+    est <- boot.est <- Reduce(merge,lapply(n.type.events, function(i) data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==i) ~ get(x), 
                                                                                  data = dt.tv[(postop.covid.cohort)], 
                                                                                  id = patient_id),
                                                                times = sort(unique(dt.tv[(postop.covid.cohort) & event == i,end]))
@@ -98,10 +98,12 @@ numbers2words <- function(x){
                                    round(tail(V2,1),digits = 3)*100, 
                                    keyby = strata] 
   
-  boot.est<- foreach::foreach(iter = 1:niter, .combine = 'cbind',.multicombine = T,.export = 'dt.tv',.packages = 'data.table') %dopar% {
+#  boot.est<- foreach::foreach(iter = 1:niter, .combine = 'cbind',.multicombine = T,.export = 'dt.tv',.packages = 'data.table') %dopar% {
+
+  for(iter in 1:niter) {
     samp.patient_id <- dt.tv[patient_id %in% sort(sample(unique(dt.tv[(postop.covid.cohort),patient_id]), replace = T))]
     data.table::setkey(dt.tv, patient_id, tstart,tstop)
-     Reduce(merge,lapply(n.type.events,
+     boot.est <- cbind(boot.est,Reduce(merge,lapply(n.type.events,
                                     function(i) {
        event.times = sort(unique(dt.tv[(postop.covid.cohort) & event == i,end]))
        if(samp.patient_id[(event==i),.N] > 0) {
@@ -125,7 +127,7 @@ numbers2words <- function(x){
   keyby = strata, 
   .SDcols = paste0('haz',n.type.events)][order(strata,time),
                                          round(tail(V2,1),digits = 3)*100,
-                                         keyby = strata][,2]
+                                         keyby = strata][,2])
 }
   return(cbind(est[,1],
                rnd(dt.tv[(postop.covid.cohort) & tstop == final.date,.N, keyby = get(x)][,2]),
