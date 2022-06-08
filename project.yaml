@@ -40,5 +40,7 @@ actions:
     outputs:
       moderately_sensitive:
         results_report: output/Results.html
+        bootstrap_km: output/bootstrap.RData
+        
 
 
