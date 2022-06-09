@@ -84,14 +84,16 @@ numbers2words <- function(x){
   
   cuminc.km <- function(x,niter)  { 
     safelog <- function(x) { x[x < 1e-200] <- 1e-200; log(x) }
-    n.type.events <- sort(unique(dt.tv[(postop.covid.cohort),event]))[-1]
+    n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) & !is.na(get(x)),event]))[-1]
     data.table::setkey(dt.tv, patient_id, tstart,tstop)
-    est <- boot.est <- Reduce(merge,lapply(n.type.events, function(i) data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==i) ~ get(x), 
-                                                                                 data = dt.tv[(postop.covid.cohort)], 
+    est <- boot.est <- Reduce(function(x, y) merge(x, y, by = c("strata",'time'),all = T,sort = T, incomparables = 0),
+                              lapply(n.type.events, function(i) data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==i) ~ get(x), 
+                                                                                 data = dt.tv[(postop.covid.cohort) & !is.na(get(x))], 
                                                                                  id = patient_id),
-                                                               times = sort(unique(dt.tv[(postop.covid.cohort) & event == i,end]))
+                                                               times = sort(unique(dt.tv[(postop.covid.cohort) & event == i & !is.na(get(x)),end])), extend = T
     )[c('strata','time','n.risk', 'n.event')])[,(paste0('haz',i)) := n.event/n.risk][,c(1,2,5)])
-    )[order(strata,time),
+    )[,(paste0('haz',n.type.events)) := lapply(.SD, function(x) fifelse(is.na(x),0,x)), .SDcols = paste0('haz',n.type.events)][
+      order(strata,time),
       .(time,cumsum(exp(cumsum(log(1 - Reduce('+',.SD))))*haz1)),
       keyby = strata, 
       .SDcols = paste0('haz',n.type.events)][order(strata,time),
@@ -101,18 +103,19 @@ numbers2words <- function(x){
 #  boot.est<- foreach::foreach(iter = 1:niter, .combine = 'cbind',.multicombine = T,.export = 'dt.tv',.packages = 'data.table') %dopar% {
 
   for(iter in 1:niter) {
-    samp.patient_id <- dt.tv[patient_id %in% sort(sample(unique(dt.tv[(postop.covid.cohort),patient_id]), replace = T))]
+    samp.patient_id <- dt.tv[patient_id %in% sort(sample(unique(dt.tv[(postop.covid.cohort) & !is.na(get(x)),patient_id]), replace = T))]
     data.table::setkey(dt.tv, patient_id, tstart,tstop)
-     boot.est <- cbind(boot.est,Reduce(merge,lapply(n.type.events,
+     boot.est <- cbind(boot.est,Reduce(function(x, y) merge(x, y, by = c("strata",'time'),all = T,sort = T, incomparables = 0),
+                                       lapply(n.type.events,
                                     function(i) {
-       event.times = sort(unique(dt.tv[(postop.covid.cohort) & event == i,end]))
+       event.times = sort(unique(dt.tv[(postop.covid.cohort) & !is.na(get(x)) & event == i,end]))
        if(samp.patient_id[(event==i),.N] > 0) {
           data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==i) ~ get(x), 
       data = samp.patient_id,
       id = patient_id),
       times = event.times,
-      extend = T)[c('strata','time','n.risk', 'n.event')])[
-        , (paste0('haz',i)) := n.event/n.risk][,c(1,2,5)]
+      extend = T
+      )[c('strata','time','n.risk', 'n.event')])[,(paste0('haz',i)) := n.event/n.risk][,c(1,2,5)]
        }
        else {
         data.table::data.table('strata' = rep(levels(est[[1]]), 
@@ -122,7 +125,9 @@ numbers2words <- function(x){
        }
      }
     )
-)[order(strata,time),.(time,
+)[,(paste0('haz',n.type.events)) := lapply(.SD, function(x) fifelse(is.na(x),0,x)),
+  .SDcols = paste0('haz',n.type.events)][
+  order(strata,time),.(time,
                        cumsum(exp(cumsum(safelog(1 - Reduce('+',.SD))))*haz1)),
   keyby = strata, 
   .SDcols = paste0('haz',n.type.events)][order(strata,time),
@@ -130,9 +135,9 @@ numbers2words <- function(x){
                                          keyby = strata][,2])
 }
   return(cbind(est[,1],
-               rnd(dt.tv[(postop.covid.cohort) & tstop == final.date,.N, keyby = get(x)][,2]),
+               rnd(dt.tv[(postop.covid.cohort) & !is.na(get(x)) & tstop == final.date,.N, keyby = get(x)][,2]),
                rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==1) ~ get(x), 
-                   data = dt.tv[(postop.covid.cohort),],
+                   data = dt.tv[(postop.covid.cohort) & !is.na(get(x)),],
                    id = patient_id), times = 90)[c('n.event')])),
                est[,2],
                t(apply(boot.est[,2:(iter + 1)],1,quantile,c(0.025,0.975), na.rm = T))))
@@ -240,7 +245,7 @@ dt[, Charlson := (is.finite(pre_MI_GP) & pre_MI_GP < date_admitted) +
 ```
 
 ## Study population
-One third of GP practices in England use SystmOne, with records for approximately 44% of the English population. In this study `r numbers2words(n.pats)` adult patients were identified undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. `r stringr::str_to_sentence(numbers2words(n.ops))` procedures were identified within thse patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & Vascular). The numbers and demographics of these patients and procedures are shown in Table 1.
+One third of GP practices in England use SystmOne, with records for approximately 44% of the English population. In this study `r rnd(n.pats)` adult patients were identified undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. `r stringr::str_to_sentence(numbers2words(n.ops))` procedures were identified within these patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & Vascular). The numbers and demographics of these patients and procedures are shown in Table 1.
 
 ```{r demo, results='asis', echo = F, warning=F}
 
@@ -335,9 +340,9 @@ knitr::kable(demo.tab, caption = "Demographics of patients by procedure type wit
 ## Post operative 90 day COVID-19 risk
 Table 2 shows the cumulative risk of testing positive for COVID-19 peri-opertively for elective patients, from 7 days prior to the operation (i.e within pre operative quarantine periods for elective procedures) to 90 days post operatively. 
 
-```{r cuminc, results='asis', echo = F, warning=FALSE, eval=F}
+```{r cuminc, results='asis', echo = F, warning=FALSE, eval=T}
 load(file = here::here("output","cohort_long.RData"))
-procedures <- unique(dt.tv$op.type)
+procedures <- sort(unique(dt.tv[!is.na(op.type)]$op.type))
 
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -352,15 +357,14 @@ dt.tv[died == T & COVIDpositive !=T, event := 3]
 
 dt.tv[, postop.covid.cohort := start>=0 & tstop <= final.date & end <= 90]
 
-
-covariates <- c('age.cat','sex','op.type','Charl12','bmi.cat','imd5','region',
-                'vaccination.status.factor','Emergency','Current.Cancer','wave')
+covariates <- c('op.type','age.cat','sex','bmi.cat','imd5','wave',
+                'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 crude.covid.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]))),
                                     levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]),
-                                    cuminc.km(covariates[i], niter = 1000)[,2:6])))
+                                    cuminc.km(covariates[i], niter = 20)[,2:6])))
 
 names(crude.covid.cov) <- c("Characteristic","Level","Number at risk",
                             "Number of events","90 day Cumulative Risk",
@@ -369,60 +373,74 @@ names(crude.covid.cov) <- c("Characteristic","Level","Number at risk",
 save(crude.covid.cov, file = here::here("output","bootstrap.RData"))
 
 
+knitr::kable(crude.covid.cov, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
 
 ```
 
 
 ```{r}
 load(file = here::here("output","bootstrap.RData"))
+procedures <- sort(unique(dt.tv[!is.na(op.type)]$op.type))
 
 ################################
 # Post operative COVID risk ----
 ##################################
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
-covariates <- c('age.cat','sex','op.type','postcovid','Charl12','bmi.cat','imd5','region','vaccination.status.factor','Emergency','Current.Cancer','wave','recentCOVID','previousCOVID')
 
 
 post.op.covid.model <- 
-  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ op.type + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + Current.Cancer + Emergency + Charlson + recentCOVID + previousCOVID, id = patient_id,
+  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event==i) ~op.type + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                   data = dt.tv[(postop.covid.cohort)], model = T))
 
-survival::basehaz(post.op.covid.model[[1]],centered = F)[,1] -c(0,head(survival::basehaz(post.op.covid.model[[1]],centered = F)[,1],-1))*predict(object = post.op.covid.model[[1]],type = 'lp', newdata = data.table::data.table('start' = rep(0,8),
+cuminc.adjusted <- apply(exp(apply((log((1 - Reduce('+',lapply(n.type.events, function(i) outer(survival::basehaz(post.op.covid.model[[i]],centered = F)[,1] -
+                                                         c(0,head(survival::basehaz(post.op.covid.model[[i]],centered = F)[,1],-1)),
+                                                       exp(predict(object = post.op.covid.model[[i]],
+                                                                   type = 'lp', 
+                                                                   newdata = data.table::data.table(
+                                                                    'start' = rep(0,8),
                                                                     'end' = rep(30,8*length(procedures)),
                                                                     'event' = rep(F,8*length(procedures)),
                                                                     'op.type' = rep(procedures,each = 8),
-                                                                    'age.cat' = rep('(50,70]',8*length(procedures)),                                                                                                                                                             + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + Current.Cancer + Emergency + Charlson + recentCOVID + previousCOVID))
-
-data.table::fwrite(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
-
-covid.risk.30day <- predict(object = post.op.covid.model, 
-                                   newdata = data.table::data.table('start' = rep(0,8),
-                                                                    'end' = rep(30,8*length(procedures)),
-                                                                    'COVIDpositive' = rep(F,8*length(procedures)),
-                                                                    'recentCOVID' = rep(F,8*length(procedures)),
-                                                                    'previousCOVID' = rep(F,8*length(procedures)),
-                                                                    'op.type' = rep(procedures,each = 8),
-                                                                    'wave' = rep(paste0('Wave_',1:4),times = 2*length(procedures)),
-                                                                    'age' = rep(60,8*length(procedures)),
-                                                                    'sex' = rep('M',8*length(procedures)),
-                                                                    'region' = rep("East Midlands",8*length(procedures)),
-                                                                    'imd5' = rep(levels(dt.tv$imd5)[3], 8*length(procedures)),
+                                                                    'age.cat' = rep('(50,70]',8*length(procedures)),
+                                                                    'sex' = rep('F',8*length(procedures)),
                                                                     'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],8*length(procedures)),
+                                                                    'imd5' = rep(levels(dt.tv$imd5)[3], 8*length(procedures)),
+                                                                    'wave' = rep(paste0('Wave_',1:4),times = 2*length(procedures)),
                                                                     'vaccination.status.factor' = rep('3',8*length(procedures)),
+                                                                    'region' = rep("East Midlands",8*length(procedures)),
                                                                     'Current.Cancer' = rep(T,8*length(procedures)),
                                                                     'Emergency' =  rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
-                                                                    'Charlson' =  rep(1,8*length(procedures)),
-                                                                    'patient_id' = 1:8*length(procedures)), type = 'expected',se.fit = T)
-covid.risk.ci.30day <- matrix(paste0(round((1- exp(-covid.risk.30day$fit))*100,3),
-                                   ' (', round((1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit)))*100,3),',',
-                                   round((1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit)))*100,3),')'),nrow = 4)
+                                                                    'Charl12' =  rep('Single',8*length(procedures)),
+                                                                    'recentCOVID' = rep(F,8*length(procedures)),
+                                                                    'previousCOVID' = rep(F,8*length(procedures)),
+                                                                    'patient_id' = 1:(8*length(procedures))))),'*')))))),
+                 2,cumsum))*
+        outer(survival::basehaz(post.op.covid.model[[1]],centered = F)[,1] -
+                                                         c(0,head(survival::basehaz(post.op.covid.model[[1]],centered = F)[,1],-1)),
+         exp(predict(object = post.op.covid.model[[1]],
+                                                                   type = 'lp', 
+                                                                   newdata = data.table::data.table(
+                                                                    'start' = rep(0,8),
+                                                                    'end' = rep(30,8*length(procedures)),
+                                                                    'event' = rep(F,8*length(procedures)),
+                                                                    'op.type' = rep(procedures,each = 8),
+                                                                    'age.cat' = rep('(50,70]',8*length(procedures)),
+                                                                    'sex' = rep('F',8*length(procedures)),
+                                                                    'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],8*length(procedures)),
+                                                                    'imd5' = rep(levels(dt.tv$imd5)[3], 8*length(procedures)),
+                                                                    'wave' = rep(paste0('Wave_',1:4),times = 2*length(procedures)),
+                                                                    'vaccination.status.factor' = rep('3',8*length(procedures)),
+                                                                    'region' = rep("East Midlands",8*length(procedures)),
+                                                                    'Current.Cancer' = rep(T,8*length(procedures)),
+                                                                    'Emergency' =  rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
+                                                                    'Charl12' =  rep('Single',8*length(procedures)),
+                                                                    'recentCOVID' = rep(F,8*length(procedures)),
+                                                                    'previousCOVID' = rep(F,8*length(procedures)),
+                                                                    'patient_id' = 1:(8*length(procedures)))))),
+      2,cumsum)[90,]
 
-rownames(covid.risk.ci.30day) <- paste0('Wave_',1:4)
-colnames(covid.risk.ci.30day) <- paste0(c('Elective_','Emergency_'),rep(procedures, each = 2))
+#data.table::fwrite(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
 
-covid.risk.ci.30day
-
-
-knitr::kable(crude.covid.cov, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
+knitr::kable(cuminc.adjusted)
 ```
 
