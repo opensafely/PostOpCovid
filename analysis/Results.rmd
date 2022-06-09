@@ -154,6 +154,8 @@ dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
 dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
 dt[, imd := as.numeric(imd)]
 dt[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordered_result = F)]
+dt[bmi == 0, bmi := NA]
+dt[, bmi.cat := cut(bmi, breaks = c(0,18,24,29,100),  include.lowest = T, ordered_result = F)]
 
 ####################################################################
 # Multiple operations per row. Reshape to long format
@@ -217,7 +219,24 @@ dt[, post.VTE := ((!is.na(VTE_GP_date) &
                                       VTE_HES_date_admitted<= date_admitted + 90 & VTE_HES_date_admitted >= date_admitted))) & 
      (!is.na(anticoagulation_prescriptions_date) &  
         anticoagulation_prescriptions_date <= date_admitted + 90 & anticoagulation_prescriptions_date >= date_admitted)]  
-
+dt[, Charlson := (is.finite(pre_MI_GP) & pre_MI_GP < date_admitted) +
+        (is.finite(pre_CCF_GP) & pre_CCF_GP < date_admitted) +
+        (is.finite(pre_PVD_GP) & pre_PVD_GP < date_admitted) +
+        (is.finite(pre_Stroke_GP) & pre_Stroke_GP < date_admitted) +
+        (is.finite(pre_Dementia_GP) & pre_Dementia_GP < date_admitted) +
+        (is.finite(pre_Respiratory_GP) & pre_Respiratory_GP < date_admitted) +
+        (is.finite(pre_RA_SLE_Psoriasis_GP) & pre_RA_SLE_Psoriasis_GP < date_admitted) +
+        (is.finite(pre_Ulcer_or_bleed_GP) & pre_Ulcer_or_bleed_GP < date_admitted) +
+        (is.finite(pre_all_liver_GP) & pre_all_liver_GP< date_admitted) + 
+        (is.finite(pre_Cirrhosis_GP) & pre_Cirrhosis_GP< date_admitted)*2 + # counted in all_liver_GP too
+        (is.finite(pre_all_diabetes_GP) & pre_all_diabetes_GP< date_admitted) +
+        (is.finite(pre_Diabetic_Complications_GP) & pre_Diabetic_Complications_GP< date_admitted) + # counted in diabetes too
+        (is.finite(pre_Other_Neurology_GP) & pre_Other_Neurology_GP< date_admitted)*2 +
+        ((is.finite(pre_CKD_3_5_GP) & pre_CKD_3_5_GP< date_admitted) | (is.finite(pre_Renal_GP) & pre_Renal_GP < date_admitted))*2 +
+        (is.finite(pre_Non_Haematology_malignancy_GP) & pre_Non_Haematology_malignancy_GP< date_admitted)*2 +
+        (is.finite(pre_Haematology_malignancy_GP) & pre_Haematology_malignancy_GP< date_admitted)*2 +
+        (is.finite(pre_Metastases_GP) & pre_Metastases_GP< date_admitted)*6 +
+        (is.finite(pre_HIV_GP) & pre_HIV_GP< date_admitted)*6] 
 ```
 
 ## Study population
@@ -225,22 +244,36 @@ One third of GP practices in England use SystmOne, with records for approximatel
 
 ```{r demo, results='asis', echo = F, warning=F}
 
-dt[bmi == 0, bmi := NA]
+
 demo.tab <- 
   data.table::transpose(cbind(dt[ ,.("Procedures" = rnd(.N),
                                  "Patients" = rnd(length(unique(patient_id))),
                                  "Female" = n.perc(sex=='F',dig = 3),
                                  "Age (IQR)" = median.iqr((as.numeric(date_admitted) - as.numeric(dateofbirth))/365.25,dig = 0),
-                                 "BMI (IQR)" =  median.iqr(bmi,dig = 0),
-                                 "IMD quintile (IQR)" = median.iqr(as.numeric(imd5),dig = 0),
+                                 "BMI < 19" =  n.perc(as.numeric(bmi.cat) ==  1, dig  = 3),
+                                 "BMI 19-24" =  n.perc(as.numeric(bmi.cat) ==  2, dig  = 3),
+                                 "BMI 15-29" =  n.perc(as.numeric(bmi.cat) ==  3, dig  = 3),
+                                 "BMI > 30" =  n.perc(as.numeric(bmi.cat) ==  4, dig  = 3),
+                                 "IMD quintile 1" = n.perc(as.numeric(imd5) ==  1, dig  = 3),
+                                 "IMD quintile 2" = n.perc(as.numeric(imd5) ==  2, dig  = 3),
+                                 "IMD quintile 3" = n.perc(as.numeric(imd5) ==  3, dig  = 3),
+                                 "IMD quintile 4" = n.perc(as.numeric(imd5) ==  4, dig  = 3),
+                                 "IMD quintile 5" = n.perc(as.numeric(imd5) ==  5, dig  = 3),
+                                 "Wave 1" = n.perc(admit.wave == 'Wave_1', dig = 3),
+                                 "Wave 2" = n.perc(admit.wave == 'Wave_2', dig = 3),
+                                 "Wave 3" = n.perc(admit.wave == 'Wave_3', dig = 3),
+                                 "Wave 4" = n.perc(admit.wave == 'Wave_4', dig = 3),
                                  "1st Vaccination" = n.perc(is.finite(covid_vaccine_dates_1) & date_admitted  - covid_vaccine_dates_1 >= 14,dig = 3),
                                  "2nd Vaccination" = n.perc(is.finite(covid_vaccine_dates_2) & date_admitted  - covid_vaccine_dates_2 >= 14,dig = 3),
                                  "3rd Vaccination" = n.perc(is.finite(covid_vaccine_dates_3) & date_admitted - covid_vaccine_dates_3 >= 14,dig = 3),
                                  "Current Cancer"  = n.perc(substr(primary_diagnosis,1,1) =='C',dig = 3),
                                  "Emergency" = n.perc(substr(admission_method,1,1) == "2",dig = 3),
+                                 "Charlson index" = median.iqr(Charlson, dig = 1),
                                  "Length of stay (IQR)" =  median.iqr(date_discharged - date_admitted,dig = 0),
                                  "90 day mortality (%)" =n.perc(date.90.day(x = date_death_ons, ref.dat = date_admitted),dig = 4),
                                  "90 day COVID-19 (%)" = paste0(rnd(sum(case_category != "", na.rm = T))," (", round(100*mean(case_category != "", na.rm = T), digits = 1),"%)"),
+                                 "Recent COVID_19 (%)" = paste0(rnd(sum(recent_case_category != "", na.rm = T))," (", round(100*mean(recent_case_category != "", na.rm = T), digits = 1),"%)"),
+                                 "Previous COVID_19 (%)" = paste0(rnd(sum(previous_case_category != "", na.rm = T))," (", round(100*mean(previous_case_category != "", na.rm = T), digits = 1),"%)"),
                                  "90 day VTE (%)" = n.perc((date.90.day(x = VTE_HES_date_admitted, ref.dat = date_admitted) |
                                  date.90.day(x = VTE_GP_date, ref.dat = date_admitted)) &
                                  date.90.day(x = anticoagulation_prescriptions_date, ref.dat = date_admitted),dig = 4)), keyby = op.type],
@@ -302,7 +335,7 @@ knitr::kable(demo.tab, caption = "Demographics of patients by procedure type wit
 ## Post operative 90 day COVID-19 risk
 Table 2 shows the cumulative risk of testing positive for COVID-19 peri-opertively for elective patients, from 7 days prior to the operation (i.e within pre operative quarantine periods for elective procedures) to 90 days post operatively. 
 
-```{r cuminc, results='asis', echo = F, warning=FALSE, eval=T}
+```{r cuminc, results='asis', echo = F, warning=FALSE, eval=F}
 load(file = here::here("output","cohort_long.RData"))
 procedures <- unique(dt.tv$op.type)
 
@@ -335,6 +368,61 @@ names(crude.covid.cov) <- c("Characteristic","Level","Number at risk",
 
 save(crude.covid.cov, file = here::here("output","bootstrap.RData"))
 
-knitr::kable(crude.covid.cov, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
+
 
 ```
+
+
+```{r}
+load(file = here::here("output","bootstrap.RData"))
+
+################################
+# Post operative COVID risk ----
+##################################
+data.table::setkey(dt.tv,"patient_id","tstart","tstop")
+covariates <- c('age.cat','sex','op.type','postcovid','Charl12','bmi.cat','imd5','region','vaccination.status.factor','Emergency','Current.Cancer','wave','recentCOVID','previousCOVID')
+
+
+post.op.covid.model <- 
+  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ op.type + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + Current.Cancer + Emergency + Charlson + recentCOVID + previousCOVID, id = patient_id,
+                  data = dt.tv[(postop.covid.cohort)], model = T))
+
+survival::basehaz(post.op.covid.model[[1]],centered = F)[,1] -c(0,head(survival::basehaz(post.op.covid.model[[1]],centered = F)[,1],-1))*predict(object = post.op.covid.model[[1]],type = 'lp', newdata = data.table::data.table('start' = rep(0,8),
+                                                                    'end' = rep(30,8*length(procedures)),
+                                                                    'event' = rep(F,8*length(procedures)),
+                                                                    'op.type' = rep(procedures,each = 8),
+                                                                    'age.cat' = rep('(50,70]',8*length(procedures)),                                                                                                                                                             + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + Current.Cancer + Emergency + Charlson + recentCOVID + previousCOVID))
+
+data.table::fwrite(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
+
+covid.risk.30day <- predict(object = post.op.covid.model, 
+                                   newdata = data.table::data.table('start' = rep(0,8),
+                                                                    'end' = rep(30,8*length(procedures)),
+                                                                    'COVIDpositive' = rep(F,8*length(procedures)),
+                                                                    'recentCOVID' = rep(F,8*length(procedures)),
+                                                                    'previousCOVID' = rep(F,8*length(procedures)),
+                                                                    'op.type' = rep(procedures,each = 8),
+                                                                    'wave' = rep(paste0('Wave_',1:4),times = 2*length(procedures)),
+                                                                    'age' = rep(60,8*length(procedures)),
+                                                                    'sex' = rep('M',8*length(procedures)),
+                                                                    'region' = rep("East Midlands",8*length(procedures)),
+                                                                    'imd5' = rep(levels(dt.tv$imd5)[3], 8*length(procedures)),
+                                                                    'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],8*length(procedures)),
+                                                                    'vaccination.status.factor' = rep('3',8*length(procedures)),
+                                                                    'Current.Cancer' = rep(T,8*length(procedures)),
+                                                                    'Emergency' =  rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
+                                                                    'Charlson' =  rep(1,8*length(procedures)),
+                                                                    'patient_id' = 1:8*length(procedures)), type = 'expected',se.fit = T)
+covid.risk.ci.30day <- matrix(paste0(round((1- exp(-covid.risk.30day$fit))*100,3),
+                                   ' (', round((1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit)))*100,3),',',
+                                   round((1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit)))*100,3),')'),nrow = 4)
+
+rownames(covid.risk.ci.30day) <- paste0('Wave_',1:4)
+colnames(covid.risk.ci.30day) <- paste0(c('Elective_','Emergency_'),rep(procedures, each = 2))
+
+covid.risk.ci.30day
+
+
+knitr::kable(crude.covid.cov, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
+```
+
