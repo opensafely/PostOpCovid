@@ -252,7 +252,7 @@ One third of GP practices in England use SystmOne, with records for approximatel
 
 
 demo.tab <- 
-  data.table::transpose(cbind(dt[ ,.("Procedures" = rnd(.N),
+  data.table::transpose(cbind(dt[date_discharged >= date_admitted | is.na(date_discharged) ,.("Procedures" = rnd(.N),
                                  "Patients" = rnd(length(unique(patient_id))),
                                  "Female" = n.perc(sex=='F',dig = 3),
                                  "Age (IQR)" = median.iqr((as.numeric(date_admitted) - as.numeric(dateofbirth))/365.25,dig = 0),
@@ -277,7 +277,7 @@ demo.tab <-
                                  "Charlson index" = median.iqr(Charlson, dig = 1),
                                  "Length of stay (IQR)" =  median.iqr(date_discharged - date_admitted,dig = 0),
                                  "90 day mortality (%)" =n.perc(date.90.day(x = date_death_ons, ref.dat = date_admitted),dig = 4),
-                                 "90 day COVID-19 (%)" = paste0(rnd(sum(case_category != "", na.rm = T))," (", round(100*mean(case_category != "", na.rm = T), digits = 1),"%)"),
+                                 "30 day COVID-19 (%)" = n.perc(date.30.day(x = date, ref.dat = date_admitted), dig = 3),
                                  "Recent COVID_19 (%)" = paste0(rnd(sum(recent_case_category != "", na.rm = T))," (", round(100*mean(recent_case_category != "", na.rm = T), digits = 1),"%)"),
                                  "Previous COVID_19 (%)" = paste0(rnd(sum(previous_case_category != "", na.rm = T))," (", round(100*mean(previous_case_category != "", na.rm = T), digits = 1),"%)"),
                                  "90 day VTE (%)" = n.perc((date.90.day(x = VTE_HES_date_admitted, ref.dat = date_admitted) |
@@ -351,12 +351,14 @@ dt.tv[,final.date := covid.end]
 dt.tv[is.finite(readmit.end) & readmit.end < final.date, final.date := readmit.end]
 dt.tv[is.finite(end.fu) & end.fu < final.date, final.date := end.fu]
 
-dt.tv[,event :=0]
-dt.tv[COVIDpositive == T, event := 1]
-dt.tv[emergency_readmit == T & COVIDpositive !=T, event := 2]
-dt.tv[died == T & COVIDpositive !=T, event := 3]
+# COVIDpositivedate minimum among end.fu. _date inserted as an event at end of row time period 
 
-dt.tv[, postop.covid.cohort := start>=0 & tstop <= final.date & end <= 90]
+dt.tv[,event :=0]
+dt.tv[COVIDpositivedate == tstop, event := 1]
+dt.tv[emergency_readmitdate  == tstop & event != 1, event := 2]
+dt.tv[date_death_ons == tstop & event != 1, event := 3]
+
+dt.tv[, postop.covid.cohort := start>=0 & tstart <= final.date & end <= 90]
 
 covariates <- c('op.type','age.cat','sex','bmi.cat','imd5','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
