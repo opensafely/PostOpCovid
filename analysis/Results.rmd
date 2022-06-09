@@ -92,7 +92,7 @@ numbers2words <- function(x){
                                                                                  id = patient_id),
                                                                times = sort(unique(dt.tv[(postop.covid.cohort) & event == i & !is.na(get(x)),end])), extend = T
     )[c('strata','time','n.risk', 'n.event')])[,(paste0('haz',i)) := n.event/n.risk][,c(1,2,5)])
-    )[,(paste0('haz',n.type.events)) := lapply(.SD, function(x) fifelse(is.na(x),0,x)), .SDcols = paste0('haz',n.type.events)][
+    )[,(paste0('haz',n.type.events)) := lapply(.SD, function(x) data.table::fifelse(is.na(x),0,x)), .SDcols = paste0('haz',n.type.events)][
       order(strata,time),
       .(time,cumsum(exp(cumsum(log(1 - Reduce('+',.SD))))*haz1)),
       keyby = strata, 
@@ -125,7 +125,7 @@ numbers2words <- function(x){
        }
      }
     )
-)[,(paste0('haz',n.type.events)) := lapply(.SD, function(x) fifelse(is.na(x),0,x)),
+)[,(paste0('haz',n.type.events)) := lapply(.SD, function(x) data.table::fifelse(is.na(x),0,x)),
   .SDcols = paste0('haz',n.type.events)][
   order(strata,time),.(time,
                        cumsum(exp(cumsum(safelog(1 - Reduce('+',.SD))))*haz1)),
