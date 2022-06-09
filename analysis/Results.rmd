@@ -441,6 +441,6 @@ cuminc.adjusted <- apply(exp(apply((log((1 - Reduce('+',lapply(n.type.events, fu
 
 #data.table::fwrite(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
 
-knitr::kable(cuminc.adjusted)
+knitr::kable(matrix(cuminc.adjusted, byrow = T, ncol = 4))
 ```
 
