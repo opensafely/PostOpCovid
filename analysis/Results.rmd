@@ -179,6 +179,7 @@ aggregate_operations <- data.table::melt(dt, id.var = 'patient_id',
                 variable.name = 'op.number',
                 value.name = as.vector(outer(procedures,unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = repeated.vars)),paste0)))[order(patient_id,op.number)]
 
+aggregate_operations <- aggregate_operations[(!is.na(Abdominal_date_admitted)|!is.na(Cardiac_date_admitted)|!is.na(Obstetrics_date_admitted)|!is.na(Orthopaedic_date_admitted)|!is.na(Thoracic_date_admitted)|!is.na(Vascular_date_admitted))]
 
 
 ####### Reshape repeated procedures within a specialty
@@ -191,6 +192,8 @@ aggregate_operations <- data.table::melt(aggregate_operations, id.var = 'patient
                                          variable.name = 'op.type', 
                                          variable.factor = T,
                                          value.name = unique(gsub(pattern = paste0(paste0(procedures,"_"),collapse = "|"),replacement = "",x = repeated.vars)))[order(patient_id,date_admitted, op.type)]
+
+aggregate_operations <- aggregate_operations[!is.na(date_admitted)]
 
 aggregate_operations[,op.type := factor(op.type, levels = 1:6, labels = procedures)]
 
@@ -246,9 +249,120 @@ dt[, Charlson := (is.finite(pre_MI_GP) & pre_MI_GP < date_admitted) +
 ```
 
 ## Study population
-One third of GP practices in England use SystmOne, with records for approximately 44% of the English population. In this study `r rnd(n.pats)` adult patients were identified undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. `r stringr::str_to_sentence(numbers2words(n.ops))` procedures were identified within these patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & Vascular). The numbers and demographics of these patients and procedures are shown in Table 1.
+One third of GP practices in England use SystmOne, with records for approximately 44% of the English population. `r numbers2words(n.pats)` adult patients were identified as the study population undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. `r stringr::str_to_sentence(n.ops))` procedures were identified within these patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & vascular). The numbers and demographics of these patients and procedures are shown in Table 1.
 
-```{r demo, results='asis', echo = F, warning=F}
+```{r demo, results='asis', echo = F, warning=F, eval = TRUE}
+
+load(file = here::here("output","cohort_long.RData"))
+procedures <- sort(unique(dt.tv[!is.na(op.type)]$op.type))
+
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,final.date := covid.end]
+dt.tv[is.finite(readmit.end) & readmit.end < final.date, final.date := readmit.end]
+dt.tv[is.finite(end.fu) & end.fu < final.date, final.date := end.fu]
+
+# COVIDpositivedate minimum among end.fu. _date inserted as an event at end of row time period 
+
+dt.tv[,event :=0]
+dt.tv[COVIDpositivedate == tstop, event := 1]
+dt.tv[emergency_readmitdate  == tstop & event != 1, event := 2]
+dt.tv[date_death_ons == tstop & event != 1, event := 3]
+
+dt.tv[, postop.covid.cohort := start>=0 & tstart <= final.date & end <= 90]
+dt.tv[,postVTE90.perepisode := max(post.VTE & end <=90,na.rm = T), by = .(patient_id, end.fu)]
+dt.tv[!is.finite(postVTE90.perepisode),postVTE90.perepisode := 0]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+
+demo.tab <- 
+  data.table::transpose(cbind(dt.tv[(postop.covid.cohort) & start ==0,
+                                 .("Procedures" = rnd(sum(tstart == admit.date, na.rm = T)),
+                                 "Patients" = rnd(length(unique(patient_id))),
+                                 "Female" = n.perc(sex=='F',dig = 3),
+                                 "Age (IQR)" = median.iqr(age,dig = 0),
+                                 "BMI < 19" =  n.perc(as.numeric(bmi.cat) ==  1, dig  = 3),
+                                 "BMI 19-24" =  n.perc(as.numeric(bmi.cat) ==  2, dig  = 3),
+                                 "BMI 15-29" =  n.perc(as.numeric(bmi.cat) ==  3, dig  = 3),
+                                 "BMI > 30" =  n.perc(as.numeric(bmi.cat) ==  4, dig  = 3),
+                                 "IMD quintile 1" = n.perc(as.numeric(imd5) ==  1, dig  = 3),
+                                 "IMD quintile 2" = n.perc(as.numeric(imd5) ==  2, dig  = 3),
+                                 "IMD quintile 3" = n.perc(as.numeric(imd5) ==  3, dig  = 3),
+                                 "IMD quintile 4" = n.perc(as.numeric(imd5) ==  4, dig  = 3),
+                                 "IMD quintile 5" = n.perc(as.numeric(imd5) ==  5, dig  = 3),
+                                 "Wave 1" = n.perc(wave == 'Wave_1', dig = 3),
+                                 "Wave 2" = n.perc(wave == 'Wave_2', dig = 3),
+                                 "Wave 3" = n.perc(wave == 'Wave_3', dig = 3),
+                                 "Wave 4" = n.perc(wave == 'Wave_4', dig = 3),
+                                 "1st Vaccination" = n.perc(vaccination.status.factor==1,dig = 3),
+                                 "2nd Vaccination" = n.perc(vaccination.status.factor==2,dig = 3),
+                                 "3rd Vaccination" = n.perc(vaccination.status.factor==3,dig = 3),
+                                 "Current Cancer"  = n.perc(substr(primary_diagnosis,1,1) =='C',dig = 3),
+                                 "Emergency" = n.perc(substr(admission_method,1,1) == "2",dig = 3),
+                                 "Charlson index" = median.iqr(Charlson, dig = 1),
+                                 "Length of stay (IQR)" =  median.iqr(discharge.date - admit.date,dig = 0),
+                                 "90 day mortality (%)" =n.perc(date.90.day(x = date_death_ons, ref.dat = admit.date),dig = 4),
+                                 "30 day COVID-19 (%)" = n.perc(date.30.day(x = COVIDpositivedate, ref.dat = admit.date), dig = 3),
+                                 "Recent COVID_19 (%)" = paste0(rnd(sum(recentCOVID, na.rm = T))," (", round(100*mean(recentCOVID != "", na.rm = T), digits = 1),"%)"),
+                                 "Previous COVID_19 (%)" = paste0(rnd(sum(previousCOVID, na.rm = T))," (", round(100*mean(previousCOVID != "", na.rm = T), digits = 1),"%)"),
+                                 "90 day VTE (%)" = n.perc(postVTE90.perepisode, dig = 4)), keyby = op.type], #n.perc((date.90.day(x = VTE_HES_date_admitted, ref.dat = date_admitted) |
+  #                               date.90.day(x = VTE_GP_date, ref.dat = date_admitted)) &
+   #                              date.90.day(x = anticoagulation_prescriptions_date, ref.dat = date_admitted),dig = 4)), keyby = op.type],
+  data.table::transpose(
+  cbind(
+    data.table::transpose(
+      data.table::dcast(
+        cbind(
+          dt.tv[(postop.covid.cohort) & start ==0,
+                rnd(table(op.type)),
+                keyby = region],
+          rep(procedures,times = 10)),
+        V2 ~ region,
+        value.var = 'V1' ),
+      keep.names = "region",
+      make.names = "V2")[,
+                         lapply(.SD,
+                                function(x) paste0(x,
+                                                   ' (',
+                                                   round(100*x/sum(x,na.rm = T),
+                                                         digits = 1),
+                                                   '%)')
+                                ),
+                         .SDcols = 2:7],
+    sort(unique(dt$region))
+    ),
+  make.names = "V2"),
+  data.table::transpose(
+  cbind(1:5,
+        data.table::transpose(
+          data.table::dcast(
+            dt.tv[(postop.covid.cohort) & start ==0,
+                  rnd(.N),
+                  keyby = c('op.type','primary_diagnosis')],
+            op.type ~ primary_diagnosis,
+            value.var = 'V1'),
+          keep.names = "Primary_Diagnosis",
+          make.names = "op.type")[,1:7][,
+                                        lapply(.SD,
+                                               function(x) paste0(Primary_Diagnosis,
+                                                                  ": ",
+                                                                  x,
+                                                                  ' (',
+                                                                  round(100*x/sum(x,na.rm = T),
+                                                                        digits = 1),
+                                                                  '%)')[order(-x)]),
+                                        .SDcols = 2:7][1:5,]),
+  make.names = 'V1')
+),
+make.names = 'op.type',
+keep.names = 'Characteristics')
+
+                        
+knitr::kable(demo.tab, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
+
+```
+
+```{r demo, results='asis', echo = F, warning=F, eval = FALSE}
 
 
 demo.tab <- 
