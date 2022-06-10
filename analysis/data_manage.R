@@ -22,10 +22,21 @@ dt[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordere
 # Multiple operations per row. Reshape to long format
 ####################################################################
 
-
+#Clean invalidi admission sequences
+op.admit.vars <- sort(paste0(outer(procedures,paste0("_",1:5),paste0),'_date_admitted'))
+op.discharge.vars <- sort(paste0(outer(procedures,paste0("_",1:5),paste0),'_date_discharged'))
+for (i in 1:length(op.admit.vars)) {
+  dt[get(op.admit.vars[i])>get(op.discharge.vars[i]), 
+     (names(dt)[grepl(pattern = paste0(gsub(x =op.admit.vars[i],
+                                            pattern = '_date_admitted',
+                                            replacement = ""),'*'),
+                      x = names(dt))]) := NA]
+}
 ####### Reshape repeated procedures within a specialty
 repeated.vars <- names(dt)[grepl(pattern = paste(procedures,collapse = '|'),x = names(dt))]
 non.op.vars <- names(dt)[!grepl(pattern = paste(procedures,collapse = '|'),x = names(dt))]
+
+
 
 aggregate_operations <- data.table::melt(dt, id.var = 'patient_id',
                                          measure = patterns(as.vector(outer(paste0(procedures,'_[0-9]'),

@@ -136,7 +136,7 @@ numbers2words <- function(x){
                                          keyby = strata][,2])
 }
   return(cbind(est[,1],
-               rnd(dt.tv[(postop.covid.cohort) & !is.na(get(x)) & tstop == final.date,.N, keyby = get(x)][,2]),
+               rnd(dt.tv[(postop.covid.cohort) & !is.na(get(x)) & start == 0,.N, keyby = list(get(x))][,2]),
                rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==1) ~ get(x), 
                    data = dt.tv[(postop.covid.cohort) & !is.na(get(x)),],
                    id = patient_id), times = 30)[c('n.event')])),
@@ -150,102 +150,102 @@ numbers2words <- function(x){
 #########################
 # Basic counts and descriptions from raw data
 #############################
-index_date <- data.table::as.IDate("2020-02-01")
-dt <- data.table::fread(here::here("output", "input.csv"))
-
-procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
-procs <- paste0(rep(procedures,each = 5),"_",1:5)
-
-dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
-dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
-dt[, imd := as.numeric(imd)]
-dt[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordered_result = F)]
-dt[bmi == 0, bmi := NA]
-dt[, bmi.cat := cut(bmi, breaks = c(0,18,24,29,100),  include.lowest = T, ordered_result = F)]
-
-####################################################################
-# Multiple operations per row. Reshape to long format
-####################################################################
-
-
-####### Reshape repeated procedures within a specialty
-repeated.vars <- names(dt)[grepl(pattern = paste(procedures,collapse = '|'),x = names(dt))]
-non.op.vars <- names(dt)[!grepl(pattern = paste(procedures,collapse = '|'),x = names(dt))]
-
-aggregate_operations <- data.table::melt(dt, id.var = 'patient_id',
-                     measure = patterns(as.vector(outer(paste0(procedures,'_[0-9]'),
-                unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = paste0(repeated.vars,'$'))),
-                paste0))),
-                variable.name = 'op.number',
-                value.name = as.vector(outer(procedures,unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = repeated.vars)),paste0)))[order(patient_id,op.number)]
-
-aggregate_operations <- aggregate_operations[(!is.na(Abdominal_date_admitted)|!is.na(Cardiac_date_admitted)|!is.na(Obstetrics_date_admitted)|!is.na(Orthopaedic_date_admitted)|!is.na(Thoracic_date_admitted)|!is.na(Vascular_date_admitted))]
-
-
-####### Reshape repeated procedures within a specialty
-repeated.vars <- names(aggregate_operations)[grepl(pattern = paste(procedures,collapse = '|'),x = names(aggregate_operations))]
-
-aggregate_operations <- data.table::melt(aggregate_operations, id.var = 'patient_id',
-                                         measure = patterns(as.vector(outer(paste0('(',paste0(procedures, collapse = '|'),')_'),
-                                                                            unique(gsub(pattern = paste0(paste0(procedures,"_"),collapse = "|"),replacement = "",x = paste0(repeated.vars,'$'))),
-                                                                            paste0))),
-                                         variable.name = 'op.type', 
-                                         variable.factor = T,
-                                         value.name = unique(gsub(pattern = paste0(paste0(procedures,"_"),collapse = "|"),replacement = "",x = repeated.vars)))[order(patient_id,date_admitted, op.type)]
-
-aggregate_operations <- aggregate_operations[!is.na(date_admitted)]
-
-aggregate_operations[,op.type := factor(op.type, levels = 1:6, labels = procedures)]
-
-dt <- dt[,non.op.vars, with = F][aggregate_operations, on = "patient_id"]
-rm(aggregate_operations)
-
-
-dt[, keep := F]
-dt[!is.na(dereg_date), dereg_date := data.table::as.IDate(paste0(dereg_date,"-30"), format = "%Y-%m-%d")]
-dt[!is.na(date_admitted) &  (is.na(dereg_date) | as.numeric(date_admitted) <= dereg_date), keep := T] 
-dt <- dt[keep == T,]
-
-n.ops <- rnd(dt[is.finite(date_admitted),.N])
-n.pats <- rnd(sum(length(unique(dt[,patient_id]))))
-start.date <- dt[, min(date_admitted)]
-
-last.date <-  dt[, max(date_admitted)]
-
-dt[,admit.wave := cut(as.numeric(date_admitted),
-                breaks =
-                  c(as.numeric(data.table::as.IDate("2020-01-01", format = "%Y-%m-%d")), 
-                    as.numeric(data.table::as.IDate("2020-09-01", format = "%Y-%m-%d")),                                       
-                    as.numeric(data.table::as.IDate("2021-05-01", format = "%Y-%m-%d")),
-                    as.numeric(data.table::as.IDate("2021-12-31", format = "%Y-%m-%d")),
-                    as.numeric(data.table::as.IDate("2022-05-01", format = "%Y-%m-%d"))),
-                    labels = c("Wave_1","Wave_2","Wave_3","Wave_4"),
-                    ordered = T)]
-
-dt[, post.VTE := ((!is.na(VTE_GP_date) &  
-                                   VTE_GP_date <= date_admitted + 90 & VTE_GP_date >= date_admitted) | 
-                                  ((!is.na(VTE_HES_date_admitted) &  
-                                      VTE_HES_date_admitted<= date_admitted + 90 & VTE_HES_date_admitted >= date_admitted))) & 
-     (!is.na(anticoagulation_prescriptions_date) &  
-        anticoagulation_prescriptions_date <= date_admitted + 90 & anticoagulation_prescriptions_date >= date_admitted)]  
-dt[, Charlson := (is.finite(pre_MI_GP) & pre_MI_GP < date_admitted) +
-        (is.finite(pre_CCF_GP) & pre_CCF_GP < date_admitted) +
-        (is.finite(pre_PVD_GP) & pre_PVD_GP < date_admitted) +
-        (is.finite(pre_Stroke_GP) & pre_Stroke_GP < date_admitted) +
-        (is.finite(pre_Dementia_GP) & pre_Dementia_GP < date_admitted) +
-        (is.finite(pre_Respiratory_GP) & pre_Respiratory_GP < date_admitted) +
-        (is.finite(pre_RA_SLE_Psoriasis_GP) & pre_RA_SLE_Psoriasis_GP < date_admitted) +
-        (is.finite(pre_Ulcer_or_bleed_GP) & pre_Ulcer_or_bleed_GP < date_admitted) +
-        (is.finite(pre_all_liver_GP) & pre_all_liver_GP< date_admitted) + 
-        (is.finite(pre_Cirrhosis_GP) & pre_Cirrhosis_GP< date_admitted)*2 + # counted in all_liver_GP too
-        (is.finite(pre_all_diabetes_GP) & pre_all_diabetes_GP< date_admitted) +
-        (is.finite(pre_Diabetic_Complications_GP) & pre_Diabetic_Complications_GP< date_admitted) + # counted in diabetes too
-        (is.finite(pre_Other_Neurology_GP) & pre_Other_Neurology_GP< date_admitted)*2 +
-        ((is.finite(pre_CKD_3_5_GP) & pre_CKD_3_5_GP< date_admitted) | (is.finite(pre_Renal_GP) & pre_Renal_GP < date_admitted))*2 +
-        (is.finite(pre_Non_Haematology_malignancy_GP) & pre_Non_Haematology_malignancy_GP< date_admitted)*2 +
-        (is.finite(pre_Haematology_malignancy_GP) & pre_Haematology_malignancy_GP< date_admitted)*2 +
-        (is.finite(pre_Metastases_GP) & pre_Metastases_GP< date_admitted)*6 +
-        (is.finite(pre_HIV_GP) & pre_HIV_GP< date_admitted)*6] 
+# index_date <- data.table::as.IDate("2020-02-01")
+# dt <- data.table::fread(here::here("output", "input.csv"))
+# 
+# procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
+# procs <- paste0(rep(procedures,each = 5),"_",1:5)
+# 
+# dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
+# dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
+# dt[, imd := as.numeric(imd)]
+# dt[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordered_result = F)]
+# dt[bmi == 0, bmi := NA]
+# dt[, bmi.cat := cut(bmi, breaks = c(0,18,24,29,100),  include.lowest = T, ordered_result = F)]
+# 
+# ####################################################################
+# # Multiple operations per row. Reshape to long format
+# ####################################################################
+# 
+# 
+# ####### Reshape repeated procedures within a specialty
+# repeated.vars <- names(dt)[grepl(pattern = paste(procedures,collapse = '|'),x = names(dt))]
+# non.op.vars <- names(dt)[!grepl(pattern = paste(procedures,collapse = '|'),x = names(dt))]
+# 
+# aggregate_operations <- data.table::melt(dt, id.var = 'patient_id',
+#                      measure = patterns(as.vector(outer(paste0(procedures,'_[0-9]'),
+#                 unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = paste0(repeated.vars,'$'))),
+#                 paste0))),
+#                 variable.name = 'op.number',
+#                 value.name = as.vector(outer(procedures,unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = repeated.vars)),paste0)))[order(patient_id,op.number)]
+# 
+# aggregate_operations <- aggregate_operations[(!is.na(Abdominal_date_admitted)|!is.na(Cardiac_date_admitted)|!is.na(Obstetrics_date_admitted)|!is.na(Orthopaedic_date_admitted)|!is.na(Thoracic_date_admitted)|!is.na(Vascular_date_admitted))]
+# 
+# 
+# ####### Reshape repeated procedures within a specialty
+# repeated.vars <- names(aggregate_operations)[grepl(pattern = paste(procedures,collapse = '|'),x = names(aggregate_operations))]
+# 
+# aggregate_operations <- data.table::melt(aggregate_operations, id.var = 'patient_id',
+#                                          measure = patterns(as.vector(outer(paste0('(',paste0(procedures, collapse = '|'),')_'),
+#                                                                             unique(gsub(pattern = paste0(paste0(procedures,"_"),collapse = "|"),replacement = "",x = paste0(repeated.vars,'$'))),
+#                                                                             paste0))),
+#                                          variable.name = 'op.type', 
+#                                          variable.factor = T,
+#                                          value.name = unique(gsub(pattern = paste0(paste0(procedures,"_"),collapse = "|"),replacement = "",x = repeated.vars)))[order(patient_id,date_admitted, op.type)]
+# 
+# aggregate_operations <- aggregate_operations[!is.na(date_admitted)]
+# 
+# aggregate_operations[,op.type := factor(op.type, levels = 1:6, labels = procedures)]
+# 
+# dt <- dt[,non.op.vars, with = F][aggregate_operations, on = "patient_id"]
+# rm(aggregate_operations)
+# 
+# 
+# dt[, keep := F]
+# dt[!is.na(dereg_date), dereg_date := data.table::as.IDate(paste0(dereg_date,"-30"), format = "%Y-%m-%d")]
+# dt[!is.na(date_admitted) &  (is.na(dereg_date) | as.numeric(date_admitted) <= dereg_date), keep := T] 
+# dt <- dt[keep == T,]
+# 
+# n.ops <- rnd(dt[is.finite(date_admitted),.N])
+# n.pats <- rnd(sum(length(unique(dt[,patient_id]))))
+# start.date <- dt[, min(date_admitted)]
+# 
+# last.date <-  dt[, max(date_admitted)]
+# 
+# dt[,admit.wave := cut(as.numeric(date_admitted),
+#                 breaks =
+#                   c(as.numeric(data.table::as.IDate("2020-01-01", format = "%Y-%m-%d")), 
+#                     as.numeric(data.table::as.IDate("2020-09-01", format = "%Y-%m-%d")),                                       
+#                     as.numeric(data.table::as.IDate("2021-05-01", format = "%Y-%m-%d")),
+#                     as.numeric(data.table::as.IDate("2021-12-31", format = "%Y-%m-%d")),
+#                     as.numeric(data.table::as.IDate("2022-05-01", format = "%Y-%m-%d"))),
+#                     labels = c("Wave_1","Wave_2","Wave_3","Wave_4"),
+#                     ordered = T)]
+# 
+# dt[, post.VTE := ((!is.na(VTE_GP_date) &  
+#                                    VTE_GP_date <= date_admitted + 90 & VTE_GP_date >= date_admitted) | 
+#                                   ((!is.na(VTE_HES_date_admitted) &  
+#                                       VTE_HES_date_admitted<= date_admitted + 90 & VTE_HES_date_admitted >= date_admitted))) & 
+#      (!is.na(anticoagulation_prescriptions_date) &  
+#         anticoagulation_prescriptions_date <= date_admitted + 90 & anticoagulation_prescriptions_date >= date_admitted)]  
+# dt[, Charlson := (is.finite(pre_MI_GP) & pre_MI_GP < date_admitted) +
+#         (is.finite(pre_CCF_GP) & pre_CCF_GP < date_admitted) +
+#         (is.finite(pre_PVD_GP) & pre_PVD_GP < date_admitted) +
+#         (is.finite(pre_Stroke_GP) & pre_Stroke_GP < date_admitted) +
+#         (is.finite(pre_Dementia_GP) & pre_Dementia_GP < date_admitted) +
+#         (is.finite(pre_Respiratory_GP) & pre_Respiratory_GP < date_admitted) +
+#         (is.finite(pre_RA_SLE_Psoriasis_GP) & pre_RA_SLE_Psoriasis_GP < date_admitted) +
+#         (is.finite(pre_Ulcer_or_bleed_GP) & pre_Ulcer_or_bleed_GP < date_admitted) +
+#         (is.finite(pre_all_liver_GP) & pre_all_liver_GP< date_admitted) + 
+#         (is.finite(pre_Cirrhosis_GP) & pre_Cirrhosis_GP< date_admitted)*2 + # counted in all_liver_GP too
+#         (is.finite(pre_all_diabetes_GP) & pre_all_diabetes_GP< date_admitted) +
+#         (is.finite(pre_Diabetic_Complications_GP) & pre_Diabetic_Complications_GP< date_admitted) + # counted in diabetes too
+#         (is.finite(pre_Other_Neurology_GP) & pre_Other_Neurology_GP< date_admitted)*2 +
+#         ((is.finite(pre_CKD_3_5_GP) & pre_CKD_3_5_GP< date_admitted) | (is.finite(pre_Renal_GP) & pre_Renal_GP < date_admitted))*2 +
+#         (is.finite(pre_Non_Haematology_malignancy_GP) & pre_Non_Haematology_malignancy_GP< date_admitted)*2 +
+#         (is.finite(pre_Haematology_malignancy_GP) & pre_Haematology_malignancy_GP< date_admitted)*2 +
+#         (is.finite(pre_Metastases_GP) & pre_Metastases_GP< date_admitted)*6 +
+#         (is.finite(pre_HIV_GP) & pre_HIV_GP< date_admitted)*6] 
 ```
 
 ## Study population
@@ -456,31 +456,25 @@ knitr::kable(demo.tab, caption = "Demographics of patients by procedure type wit
 Table 2 shows the cumulative risk of testing positive for COVID-19 peri-opertively for elective patients, from 7 days prior to the operation (i.e within pre operative quarantine periods for elective procedures) to 90 days post operatively. 
 
 ```{r cuminc, results='asis', echo = F, warning=FALSE, eval=T}
-load(file = here::here("output","cohort_long.RData"))
-procedures <- sort(unique(dt.tv[!is.na(op.type)]$op.type))
-
-
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[,final.date := covid.end]
-dt.tv[is.finite(readmit.end) & readmit.end < final.date, final.date := readmit.end]
-dt.tv[is.finite(end.fu) & end.fu < final.date, final.date := end.fu]
+# load(file = here::here("output","cohort_long.RData"))
+# procedures <- sort(unique(dt.tv[!is.na(op.type)]$op.type))
+# 
+# 
+# data.table::setkey(dt.tv,patient_id,tstart,tstop)
+# dt.tv[,final.date := covid.end]
+# dt.tv[is.finite(readmit.end) & readmit.end < final.date, final.date := readmit.end]
+# dt.tv[is.finite(end.fu) & end.fu < final.date, final.date := end.fu]
 
 # COVIDpositivedate minimum among end.fu. _date inserted as an event at end of row time period 
 
-dt.tv[,event :=0]
-dt.tv[COVIDpositivedate == tstop, event := 1]
-dt.tv[emergency_readmitdate  == tstop & event != 1, event := 2]
-dt.tv[date_death_ons == tstop & event != 1, event := 3]
-
-dt.tv[, postop.covid.cohort := start>=0 & tstart <= final.date & end <= 90]
+#dt.tv[, postop.covid.cohort := start>=0 & tstart <= final.date & end <= 90]
 
 covariates <- c('op.type','age.cat','sex','bmi.cat','imd5','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-crude.covid.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]))),
-                                    levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]),
+crude.covid.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]))),                                    levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]),
                                     cuminc.km(covariates[i], niter = 2)[,2:6])))
 
 names(crude.covid.cov) <- c("Characteristic","Level","Number at risk",
@@ -510,7 +504,7 @@ post.op.covid.model <-
                   data = dt.tv[(postop.covid.cohort)], model = T))
 
 n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
-cuminc.adjusted <- apply(exp(apply((log((1 - Reduce('+',lapply(n.type.events, function(i) outer(survival::basehaz(post.op.covid.model[[i]],centered = F)[,1] -
+cuminc.adjusted <- matrix(apply(exp(apply((log((1 - Reduce('+',lapply(n.type.events, function(i) outer(survival::basehaz(post.op.covid.model[[i]],centered = F)[,1] -
                                                          c(0,head(survival::basehaz(post.op.covid.model[[i]],centered = F)[,1],-1)),
                                                        exp(predict(object = post.op.covid.model[[i]],
                                                                    type = 'lp', 
@@ -555,10 +549,10 @@ cuminc.adjusted <- apply(exp(apply((log((1 - Reduce('+',lapply(n.type.events, fu
                                                                     'recentCOVID' = rep(F,8*length(procedures)),
                                                                     'previousCOVID' = rep(F,8*length(procedures)),
                                                                     'patient_id' = 1:(8*length(procedures)))))),
-      2,cumsum)[30,]
-
-#data.table::fwrite(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
-
-knitr::kable(matrix(cuminc.adjusted, byrow = T, ncol = 4))
+      2,cumsum)[30,], byrow = T, ncol = 4)
+  #data.table::fwrite(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
+rownames(cuminc.adjusted) <- c(paste0(rep(procedures,each = 2), 
+                                    rep(c(F,T), times = length(procedures))))
+knitr::kable(cuminc.adjusted,col.names = paste0("Wave ",1:4), row.names = T)
 ```
 
