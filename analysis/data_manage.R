@@ -286,14 +286,19 @@ dt.tv[!is.finite(study.start), study.start := NA]
 ##########
 ## Defining operation for each post op period--------------
 ######
-## Assumption can't have two colonic resections on same day
-for (i in 1:length(procedures)) dt.tv[study.start == get(paste0(procedures[i],"_date_admitted")),op.type := procedures[i]]
+## Assumption can't be made that can't have more than procedures on same day
+
+for (i in 1:length(procedures)) dt.tv[, (procedures[i]) := is.finite(get(paste0(procedures[i],"_date_admitted"))) &
+                                        is.finite(admit.date) &
+                                        admit.date <= get(paste0(procedures[i],"_date_admitted")) & 
+                                        (is.finite(end.fu) | 
+                                           end.fu >= get(paste0(procedures[i],"_date_admitted")))]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 id_change = dt.tv[, c(TRUE, patient_id[-1] != patient_id[-.N] | end.fu[-1] != end.fu[-.N])]
-dt.tv[, op.type := op.type[cummax(((!is.na(x)) | id_change) * .I)]]
+dt.tv[, (procedures) := .SD[cummax(((!is.na(x)) | id_change) * .I)], .SDcols = c(procedures)]
 
-dt.tv[is.infinite(op.type), op.type := NA]
+for (i in 1:length(procedures)) dt.tv[is.infinite(get(procedures[i])), (procedures[i]) := NA]
 
 ## Coalesce across values for each post op exposure period. Already carried forward in time by tmerge
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
