@@ -1,9 +1,9 @@
-#detach("package:here", unload = TRUE)
-#setwd("C:\\Users\\mczcjc\\Documents\\GitHub\\PostOpCovid")
-#library(here)
-#detach("package:here", unload = TRUE)
-#setwd("P:\\GitHub\\PostOpCovid")
-#library(here)
+# detach("package:here", unload = TRUE)
+# setwd("C:\\Users\\mczcjc\\Documents\\GitHub\\PostOpCovid")
+# library(here)
+# detach("package:here", unload = TRUE)
+# setwd("P:\\GitHub\\PostOpCovid")
+# library(here)
 library(data.table)
 index_date <- data.table::as.IDate("2020-02-01")
 dt <- data.table::fread(here::here("output", "input.csv"))
@@ -280,7 +280,7 @@ dt.tv <- dt.tv[tstop <= end.fu,]
 
 dt.tv[!is.finite(admit.date), admit.date := NA]
 dt.tv[!is.finite(end.fu), end.fu := NA]
-dt.tv[!is.finite(discharge.date), discharge.date := end.fu]
+dt.tv[!is.finite(discharge.date), discharge.date := NA]
 dt.tv[!is.finite(study.start), study.start := NA]
 
 ##########
@@ -293,12 +293,13 @@ for (i in 1:length(procedures)) dt.tv[, (procedures[i]) := is.finite(get(paste0(
                                         admit.date <= get(paste0(procedures[i],"_date_admitted")) & 
                                         (is.finite(end.fu) | 
                                            end.fu >= get(paste0(procedures[i],"_date_admitted")))]
+dt.tv[,(procedures) := lapply(.SD, function(x) data.table::fifelse(x==0,NA,x)), .SDcols = c(procedures)]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 id_change = dt.tv[, c(TRUE, patient_id[-1] != patient_id[-.N] | end.fu[-1] != end.fu[-.N])]
 dt.tv[, (procedures) := .SD[cummax(((!is.na(x)) | id_change) * .I)], .SDcols = c(procedures)]
 
-for (i in 1:length(procedures)) dt.tv[is.infinite(get(procedures[i])), (procedures[i]) := NA]
+for (i in 1:length(procedures)) dt.tv[!is.finite(get(procedures[i])), (procedures[i]) := F]
 
 ## Coalesce across values for each post op exposure period. Already carried forward in time by tmerge
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -416,7 +417,7 @@ dt.tv[,vaccination.status.factor := factor(vaccination.status, ordered = F)]
 dt.tv[,discharged := is.finite(discharge.date) & discharge.date == tstop]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,los.end := min(as.numeric(discharge.date), na.rm = T), by = .(patient_id, end.fu) ]
-
+dt.tv[!is.finite(los.end), los.end := end.fu]
 ### Post operative VTE----
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, anticoagulation_prescriptions := lapply(.SD, data.table::nafill, type = "nocb"), by = patient_id, .SDcols = 'anticoagulation_prescriptions']
