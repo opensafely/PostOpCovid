@@ -176,13 +176,13 @@ dates.expand.start.align_ <-  function(dt, start.DTTM, end.DTTM, ID, merged.DTTM
 	# Move 2nd row start date in group to merged start date
 	EVAL(dt,"[", start.DTTM,"== data.table::shift(",start.DTTM,", n = 1L, type = 'lag'),",start.DTTM, ":=", merged.DTTM, "]")
 	# Move 1st row end date in group to before merged start date
-	EVAL(dt,"[GRP == data.table::shift(GRP, n = 1L, type = 'lead'),",end.DTTM, ":=", merged.DTTM, " - 1]")
+	EVAL(dt,"[GRP == data.table::shift(GRP, n = 1L, type = 'lead'),",end.DTTM, ":=", merged.DTTM, " - 0]")
 	# For subsequent rows in matched sequence, identify time the subsequent row starts
 	# (Done for all rows without filter as will be valid for all rows)
 	EVAL(dt,"[,end := data.table::shift(",start.DTTM,", n = 1L, type = 'lead')]")
 	# For subsequent rows in matched sequence set end to the time subsequent row ends
 	# (Done for all rows without filter as will be valid for all rows)
-	EVAL(dt,"[",ID," == data.table::shift(",ID,", n = 1L, type = 'lead'),",end.DTTM, ":= end - 1]")
+	EVAL(dt,"[",ID," == data.table::shift(",ID,", n = 1L, type = 'lead'),",end.DTTM, ":= end - 0]")
 	# Remove merged dates from outside matched sequence set
 	EVAL(dt,"[GRP == data.table::shift(GRP, n = 1L, type = 'lead') & ",
 			 merged.DTTM, "== data.table::shift(",merged.DTTM ,", n = 1L, type = 'lead'), ",merged.DTTM, ":= NA]")
@@ -224,7 +224,7 @@ dates.expand.end.align_ <-  function(dt, start.DTTM, end.DTTM, ID, merged.DTTM) 
 	# Identify the new duplicated rows
 	EVAL(dt,"[,GRP := .GRP, by = .(",ID,",",start.DTTM,",",merged.DTTM,")]")
 	# Move 2nd row start date in group to after merged end date
-	EVAL(dt,"[", start.DTTM,"==data.table::shift(",start.DTTM,", n = 1L, type = 'lag'),",start.DTTM, ":=", merged.DTTM ,"+ 1]")
+	EVAL(dt,"[", start.DTTM,"==data.table::shift(",start.DTTM,", n = 1L, type = 'lag'),",start.DTTM, ":=", merged.DTTM ,"+ 0]")
 	# Move 1st row end date in group to merged end date
 	EVAL(dt,"[GRP == data.table::shift(GRP, n = 1L, type = 'lead'),",end.DTTM, ":=", merged.DTTM, "]")
 	# For subsequent rows in matched sequence, no further updates are done, as should have been aligned first with dates.expand.start()
