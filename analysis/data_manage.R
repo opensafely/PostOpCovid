@@ -534,24 +534,5 @@ dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE & end <= 90 &
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-### post COVID mortality cohort
-dt.tv[,final.date.admit := VTE.end]
-dt.tv[is.finite(readmit.end) & readmit.end < final.date.VTE, final.date.VTE := readmit.end]
-dt.tv[is.finite(end.fu) & end.fu < final.date.VTE, final.date.VTE := end.fu]
-
-dt.tv[,event.VTE :=0]
-dt.tv[post.VTE.date == tstop, event.VTE := 1]
-dt.tv[emergency_readmitdate  == tstop & event.VTE != 1, event.VTE := 2]
-dt.tv[date_death_ons == tstop & event.VTE != 1, event.VTE := 3]
-
-dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE & end <= 90]
-dt.tv[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date),any.op := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
-dt.tv[is.na(any.op), any.op := F]
-dt.tv[, any.op := max(any.op,na.rm = T), by = .(patient_id, end.fu)]
-
-dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE & end <= 90 & any.op == T]
-
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-
 
 save(dt.tv, file = here::here("output","cohort_long.RData"))
