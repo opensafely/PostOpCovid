@@ -430,7 +430,7 @@ dt.tv[, post.VTE := ((is.finite(VTE_GP) &
         is.finite(anticoagulation_prescriptions) &
         tstop <= end.fu]  # events flagged at end of episode
 dt.tv[post.VTE == T, post.VTE.date := tstop]
-dt.tv[,post.VTE.date := min(as.numeric(post.VTE.date), na.rm = T), by = patient_id]
+dt.tv[,post.VTE.date := min(as.numeric(post.VTE.date), na.rm = T), by = .(patient_id, end.fu)]
 dt.tv[,postVTEany := cumsum(post.VTE), by = .(patient_id, end.fu)]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -491,5 +491,67 @@ dt.tv[, `:=`(start = tstart - study.start,
 dt.tv[start >= 0,discharge.start := min(discharge.date, na.rm = T), by = .(patient_id, end.fu)]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
+
+
+############## Define cohorts
+
+
+### post op COVID cohort
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[,final.date := covid.end]
+dt.tv[is.finite(readmit.end) & readmit.end < final.date, final.date := readmit.end]
+dt.tv[is.finite(end.fu) & end.fu < final.date, final.date := end.fu]
+
+dt.tv[,event :=0]
+dt.tv[COVIDpositivedate == tstop, event := 1]
+dt.tv[emergency_readmitdate  == tstop & event != 1, event := 2]
+dt.tv[date_death_ons == tstop & event != 1, event := 3]
+
+dt.tv[, postop.covid.cohort := start>=0 & tstop <= final.date & end <= 90]
+
+dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date),any.op := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
+dt.tv[is.na(any.op), any.op := F]
+dt.tv[, any.op := max(any.op,na.rm = T), by = .(patient_id, end.fu)]
+
+dt.tv[, postop.covid.cohort := start>=0 & tstop <= final.date & end <= 90 & any.op == T]
+
+### post COVID VTE cohort
+dt.tv[,final.date.VTE := VTE.end]
+dt.tv[is.finite(readmit.end) & readmit.end < final.date.VTE, final.date.VTE := readmit.end]
+dt.tv[is.finite(end.fu) & end.fu < final.date.VTE, final.date.VTE := end.fu]
+
+dt.tv[,event.VTE :=0]
+dt.tv[post.VTE.date == tstop, event.VTE := 1]
+dt.tv[emergency_readmitdate  == tstop & event.VTE != 1, event.VTE := 2]
+dt.tv[date_death_ons == tstop & event.VTE != 1, event.VTE := 3]
+
+dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE & end <= 90]
+dt.tv[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date),any.op := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
+dt.tv[is.na(any.op), any.op := F]
+dt.tv[, any.op := max(any.op,na.rm = T), by = .(patient_id, end.fu)]
+
+dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE & end <= 90 & any.op == T]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+
+### post COVID mortality cohort
+dt.tv[,final.date.admit := VTE.end]
+dt.tv[is.finite(readmit.end) & readmit.end < final.date.VTE, final.date.VTE := readmit.end]
+dt.tv[is.finite(end.fu) & end.fu < final.date.VTE, final.date.VTE := end.fu]
+
+dt.tv[,event.VTE :=0]
+dt.tv[post.VTE.date == tstop, event.VTE := 1]
+dt.tv[emergency_readmitdate  == tstop & event.VTE != 1, event.VTE := 2]
+dt.tv[date_death_ons == tstop & event.VTE != 1, event.VTE := 3]
+
+dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE & end <= 90]
+dt.tv[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date),any.op := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
+dt.tv[is.na(any.op), any.op := F]
+dt.tv[, any.op := max(any.op,na.rm = T), by = .(patient_id, end.fu)]
+
+dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE & end <= 90 & any.op == T]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+
 
 save(dt.tv, file = here::here("output","cohort_long.RData"))
