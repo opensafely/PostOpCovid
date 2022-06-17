@@ -11,7 +11,6 @@ load(file = here::here("output","cohort_long.RData"))
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[,age.cat := factor(age.cat, order = F)]
 
 covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')

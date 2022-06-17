@@ -2,7 +2,6 @@ library(foreach)
 library(data.table)
 ncores <- parallel::detectCores(logical = T) - 1
 data.table::setDTthreads(ncores)
-max.category <- function(predi) {unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)[which.max(dt.tv[!is.na(get(covariates[predi])),.N, by = c(covariates[predi])][['N']])]}
 
 source(here::here("analysis","Utils.R"))
 

@@ -72,7 +72,7 @@ print(xtable::xtable(finalfit::finalfit.coxph(dt.tv[start>=0 & tstop <= covid.en
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
 post.op.VTE.model <- 
-  survival::coxph(survival::Surv(start,end,post.VTE) ~ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular +  wave + postcovid + age.cat + sex + bmi.cat + imd5  + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+  survival::coxph(survival::Surv(start,end,post.VTE) ~ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular +  wave + postcovid + age.cat + sex + bmi.cat + imd5  + vaccination.status.factor + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                   data = dt.tv[start>=0 & tstop <= VTE.end  ])
 data.table::fwrite(broom::tidy(post.op.VTE.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_VTE_model.csv"))
 

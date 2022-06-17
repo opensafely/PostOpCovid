@@ -2,23 +2,13 @@ library(foreach)
 library(data.table)
 ncores <- parallel::detectCores(logical = T) - 1
 data.table::setDTthreads(ncores)
-
+library(flexsurv)
 source(here::here("analysis","Utils.R"))
 
 ###########################################################
 
 load(file = here::here("output","cohort_long.RData"))
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
-
-## Count variables for demographic tables
-dt.tv[,postVTE90.perepisode := max(post.VTE & end <=90,na.rm = T), keyby = .(patient_id, end.fu)]
-dt.tv[!is.finite(postVTE90.perepisode),postVTE90.perepisode := 0]
-
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[ ,postCOVID30.perepisode := event == 1 & end <=30]
-
-dt.tv[,postCOVID30.perepisode := max(postCOVID30.perepisode,na.rm = T), keyby = .(patient_id, end.fu)]
-dt.tv[!is.finite(postCOVID30.perepisode),postCOVID30.perepisode := 0]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
@@ -30,7 +20,6 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,event.los := (died == T)*2]
 dt.tv[event.los !=2,event.los := discharged == T]
 dt.tv[, postop.los.cohort := start>=0 & tstop <= los.end & end <= 90 & any.op ==T]
-dt.tv[,age.cat := factor(age.cat, order = F)]
 
 n.type.events <- sort(unique(dt.tv[(postop.los.cohort) ,event.los]))[-1]
 
@@ -67,7 +56,7 @@ new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedu
 
 
 
-mean.adjusted.los <- predict(post.op.LOS.model, newdata = new.data.postop.covid, type = "response", conf.int = T)
+mean.adjusted.los <- summary(object = post.op.LOS.model, newdata = new.data.postop.covid, type = "mean", ci = T, tidy = T)[,1:3]
  # matrix(cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv', model = 'post.op.LOS.model', newdata = 'new.data.postop.covid', day = 14), byrow = T, ncol = 4)
 
 mean.adjusted.los <- matrix(apply(mean.adjusted.los,1,function(x) paste0(round(x[1], digits = 1), 

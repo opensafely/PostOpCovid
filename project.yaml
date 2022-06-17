@@ -17,13 +17,21 @@ actions:
     outputs:
       highly_sensitive:
         cohort: output/cohort_long.RData
+  
+  flowchart:      
+    run: r:latest analysis/FlowChart.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        flowchart_data: output/flowchart.RData
+        flowchart_fig: output/Flowchart.pdf
         
   table_demo:      
     run: r:latest analysis/Table_demo.R
     needs: [generate_study_population, data_manage]
     outputs:
       moderately_sensitive:
-        table1: output/table_demo.RData
+        table_demo: output/table_demo.RData
 
   table_postopcovid_crude:      
     run: r:latest analysis/Table_postopcovid_crude.R
@@ -47,7 +55,7 @@ actions:
         table_tv: output/postopcovid_tv.RData
 
   table_postopLOS:      
-    run: r:latest analysis/Table_postoplOS.R
+    run: r:latest analysis/Table_postoplos.R
     needs: [generate_study_population, data_manage]
     outputs:
       moderately_sensitive:
@@ -78,7 +86,7 @@ actions:
         
   report:
     run: r:latest -e 'rmarkdown::render("analysis/Results.rmd", output_dir = "/workspace/output/",knit_root_dir = "/workspace",)'    
-    needs: [generate_study_population, data_manage, table_demo,table_postopcovid_crude,table_postopcovid_adjusted,table_postopcovid_tv,table_postopLOS,table_postopVTE]
+    needs: [generate_study_population, data_manage, table_demo,table_postopcovid_crude,table_postopcovid_adjusted,table_postopcovid_tv,table_postopLOS,table_postopVTE,flowchart]
     outputs:
       moderately_sensitive:
         results_report: output/Results.html

@@ -27,7 +27,6 @@ names(crude.covid.cov) <- c("Characteristic","Level","Number at risk",
 
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
-dt.tv[,age.cat := factor(age.cat, order = F)]
 n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 post.op.covid.model <- 

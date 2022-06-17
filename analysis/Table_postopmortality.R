@@ -16,11 +16,10 @@ covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[,age.cat := factor(age.cat, order = F)]
 
 post.op.died.model <- 
   list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
-                       data = dt.tv, model = T))
+                       data = dt.tv[start >=0 & any.op == T], model = T))
 
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
                                                 'end' = rep(30,8*length(procedures)),
@@ -47,7 +46,10 @@ new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedu
                                                 'patient_id' = 1:(8*length(procedures)))
 
 n.type.events <- 1
-cuminc.adjusted.mortality <-   matrix(cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv', model = 'post.op.died.model', newdata = 'new.data.postop.covid', day = 90), byrow = T, ncol = 4)
+cuminc.adjusted.mortality <-   matrix(cuminc.cox(n.type.events = n.type.events,
+                                                 dt = 'dt.tv[start >=0 & any.op == T]',
+                                                 model = 'post.op.died.model',
+                                                 newdata = 'new.data.postop.covid', day = 90), byrow = T, ncol = 4)
 
 
 colnames(cuminc.adjusted.mortality) <- paste0('Wave_',1:4)

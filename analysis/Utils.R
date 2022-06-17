@@ -475,7 +475,9 @@ numbers2words <- function(x){
   helper(x)
 }
 
-rnd <- function(x) floor(x/5)*5
+rnd <- function(x) floor(x/10)*10
+
+max.category <- function(predi) {unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)[which.max(dt.tv[!is.na(get(covariates[predi])),.N, by = c(covariates[predi])][['N']])]}
 
 median.iqr <- function(x, dig=0) paste0(round(median(x, na.rm = T))," (",paste(round(quantile(x,c(0.25,0.75),na.rm = T),digits = dig),collapse = ","),")")
 

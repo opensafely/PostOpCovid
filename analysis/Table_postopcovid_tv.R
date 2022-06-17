@@ -4,6 +4,7 @@ ncores <- parallel::detectCores(logical = T) - 1
 data.table::setDTthreads(ncores)
 
 source(here::here("analysis","Utils.R"))
+max.category <- function(predi) {unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)[which.max(dt.tv[!is.na(get(covariates[predi])),.N, by = c(covariates[predi])][['N']])]}
 
 ###########################################################
 
@@ -12,7 +13,6 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
 
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[,age.cat := factor(age.cat, order = F)]
 
 covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
