@@ -59,77 +59,8 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 One third of GP practices in England use SystmOne, with records for approximately 44% of the English population. `r numbers2words(n.pats)` adult patients were identified as the study population undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. `r stringr::str_to_sentence(numbers2words(sum(n.ops)))` procedures were identified within these patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & vascular). The numbers and demographics of these patients and procedures are shown in Table 1.
 
 ```{r demo, results='asis', echo = F, warning=F, eval = TRUE}
+load(here::here("output","table_demo.RData"))
 
-demo.tab <- 
-  data.table::transpose(cbind(data.table::data.table("procedures" = procedures),
-                              foreach::foreach(i = 1:length(procedures), .combine = 'rbind', .inorder = T) %do% dt.tv[(postop.covid.cohort) & start ==0  & final.date >= tstop & any.op == T & get(paste0(procedures[i])) == T,
-      .("Procedures" = rnd(.N),
-        "Patients" = rnd(length(unique(patient_id))),
-        "Female" = n.perc(sex=='F',dig = 3),
-        "Age (IQR)" = median.iqr(age,dig = 0),
-        "BMI < 19" =  n.perc(as.numeric(bmi.cat) ==  1, dig  = 3),
-        "BMI 19-24" =  n.perc(as.numeric(bmi.cat) ==  2, dig  = 3),
-        "BMI 15-29" =  n.perc(as.numeric(bmi.cat) ==  3, dig  = 3),
-        "BMI > 30" =  n.perc(as.numeric(bmi.cat) ==  4, dig  = 3),
-        "IMD quintile 1" = n.perc(as.numeric(imd5) ==  1, dig  = 3),
-        "IMD quintile 2" = n.perc(as.numeric(imd5) ==  2, dig  = 3),
-        "IMD quintile 3" = n.perc(as.numeric(imd5) ==  3, dig  = 3),
-        "IMD quintile 4" = n.perc(as.numeric(imd5) ==  4, dig  = 3),
-        "IMD quintile 5" = n.perc(as.numeric(imd5) ==  5, dig  = 3),
-        "Wave 1" = n.perc(wave == 'Wave_1', dig = 3),
-        "Wave 2" = n.perc(wave == 'Wave_2', dig = 3),
-        "Wave 3" = n.perc(wave == 'Wave_3', dig = 3),
-        "Wave 4" = n.perc(wave == 'Wave_4', dig = 3),
-        "1st Vaccination" = n.perc(vaccination.status.factor==1,dig = 3),
-        "2nd Vaccination" = n.perc(vaccination.status.factor==2,dig = 3),
-        "3rd Vaccination" = n.perc(vaccination.status.factor==3,dig = 3),
-        "Current Cancer"  = n.perc(substr(primary_diagnosis,1,1) =='C',dig = 3),
-        "Emergency" = n.perc(substr(admission_method,1,1) == "2",dig = 3),
-        "Charlson index" = median.iqr(Charlson, dig = 1),
-        "Length of stay (IQR)" =  median.iqr(discharge.date - admit.date,dig = 0),
-        "90 day mortality (%)" =n.perc(date.90.day(x = date_death_ons, ref.dat = admit.date),dig = 4),
-        "30 day COVID-19 (%)" = n.perc(postCOVID30.perepisode, dig = 3),
-        "Recent COVID_19 (%)" = paste0(rnd(sum(recentCOVID, na.rm = T))," (", round(100*mean(recentCOVID != "", na.rm = T), digits = 1),"%)"),
-        "Previous COVID_19 (%)" = paste0(rnd(sum(previousCOVID, na.rm = T))," (", round(100*mean(previousCOVID != "", na.rm = T), digits = 1),"%)"),
-        "90 day VTE (%)" = n.perc(postVTE90.perepisode, dig = 4))],
-  data.table::transpose(
-  cbind(
-    data.table::transpose(
-          dt.tv[(postop.covid.cohort) & start ==0,
-      lapply(.SD,function(x) rnd(sum(x))),
-      keyby = region, .SDcols = c(procedures)],
-      keep.names = "procedure",make.names = "region")[,
-                         lapply(.SD,
-                                function(x) paste0(x,
-                                                   ' (',
-                                                   round(100*x/sum(x,na.rm = T),
-                                                         digits = 1),
-                                                   '%)')
-                                ),
-                         .SDcols = 2:7],
-    sort(unique(dt.tv$region))
-    ),
-  make.names = "V2"),
-  data.table::transpose(
-  cbind(1:5,
-            dt.tv[(postop.covid.cohort) & start ==0,
-      lapply(.SD,function(x) rnd(sum(x))),
-                  keyby = c('primary_diagnosis'), .SDcols = c(procedures)][,
-                                        lapply(.SD,
-                                               function(x) paste0(primary_diagnosis,
-                                                                  ": ",
-                                                                  x,
-                                                                  ' (',
-                                                                  round(100*x/sum(x,na.rm = T),
-                                                                        digits = 1),
-                                                                  '%)')[order(-x)]),
-                                        .SDcols = 2:7][1:5,]),
-  make.names = 'V1')
-),
-make.names = 'procedures',
-keep.names = 'Characteristics')
-
-                        
 knitr::kable(demo.tab, caption = "Demographics of patients by procedure type with counts rounded to nearest 5")
 
 ```
@@ -138,255 +69,36 @@ knitr::kable(demo.tab, caption = "Demographics of patients by procedure type wit
 ## Post operative 90 day COVID-19 risk
 Table 2 shows the cumulative risk of testing positive for COVID-19 peri-opertively for elective patients, from the operation (i.e within pre operative quarantine periods for elective procedures) to 90 days post operatively. 
 
-```{r cuminc, results='asis', echo = F, warning=FALSE, eval=T}
-
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
-                'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
-
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-
-crude.covid.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]))),                                    levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]),
-                                    cuminc.km(covariates[i], niter = 2)[,2:5])))
-
-names(crude.covid.cov) <- c("Characteristic","Level","Number at risk",
-                            "Number of events","30 day Cumulative Risk adjusted for censoring","30 day Cumulative Risk adjusted for death and emergency readmission")
-
-save(crude.covid.cov, file = here::here("output","bootstrap.RData"))
-
-
-
-```
-
-
-```{r, eval = T, echo=FALSE}
+```{r postopcovid, eval = T, echo=FALSE}
 
 ################################
-# Post operative COVID risk ----
+# Post operative COVID risk model----
 ##################################
-data.table::setkey(dt.tv,"patient_id","tstart","tstop")
-dt.tv[,age.cat := factor(age.cat, order = F)]
-n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
-
-post.op.covid.model <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
-                  data = dt.tv[(postop.covid.cohort)], model = T))
+load(here::here("output","postopcovid_crude.RData"))
+load(here::here("output","postopcovid_adjusted.RData"))
 
 knitr::kable(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 
-new.data.postop <- data.table::data.table(
-                                                                    'start' = rep(0,8*length(procedures)),
-                                                                    'end' = rep(30,8*length(procedures)),
-                                                                    'event' = rep(F,8*length(procedures)),
-                                                                     'Abdominal' = c(rep(T,8),rep(F,40)),
-                                                                    'Cardiac'=c(rep(F,8),rep(T,8),rep(T,32)),
-                                                                    'Obstetrics'=c(rep(F,16),rep(T,8),rep(F,24)),
-                                                                    'Orthopaedic'=c(rep(F,24),rep(T,8),rep(F,16)),
-                                                                    'Thoracic'=c(rep(F,32),rep(T,8),rep(F,8)),
-                                                                    'Vascular'=c(rep(F,40),rep(T,8)),
-                                                                    'age.cat' = rep('(50,70]',8*length(procedures)),
-                                                                    'sex' = rep('F',8*length(procedures)),
-                                                                    'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],8*length(procedures)),
-                                                                    'imd5' = rep(levels(dt.tv$imd5)[3], 8*length(procedures)),
-                                                                    'wave' = rep(paste0('Wave_',1:4),times = 2*length(procedures)),
-                                                                    'vaccination.status.factor' = rep('3',8*length(procedures)),
-                                                                    'region' = rep("East Midlands",8*length(procedures)),
-                                                                    'Current.Cancer' = rep(T,8*length(procedures)),
-                                                                    'Emergency' =  rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
-                                                                    'Charl12' =  rep('Single',8*length(procedures)),
-                                                                    'recentCOVID' = rep(F,8*length(procedures)),
-                                                                    'previousCOVID' = rep(F,8*length(procedures)),
-                                                                    'patient_id' = 1:(8*length(procedures)))
-
-
-cuminc.adjusted <- 
-    matrix(cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv', model = 'post.op.covid.model', newdata = 'new.data.postop', day = 30), byrow = T, ncol = 4)
-
-colnames(cuminc.adjusted) <- paste0('Wave_',1:4)
-rownames(cuminc.adjusted) <- paste0(c('Elective','Emergency'),rep(procedures, each = 2))
-
-knitr::kable(cuminc.adjusted,col.names = paste0("Wave ",1:4), row.names = T, digits = 2)
+knitr::kable(cuminc.adjusted.waves,col.names = paste0("Wave ",1:4), row.names = T, digits = 2)
 ```
 
-```{r}
-load(file = here::here("output","bootstrap.RData"))
-library(foreach)
+```{r postopcovid_cuminc}
 ################################
-# Post operative COVID risk ----
+# Post operative COVID risk cumulative incidence per co variate----
 ##################################
-data.table::setkey(dt.tv,"patient_id","tstart","tstop")
-dt.tv[,age.cat := factor(age.cat, order = F)]
 
-post.op.covid.model <- 
-  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
-                  data = dt.tv[(postop.covid.cohort)], model = T))
+comb_postop_covid <- cbind(crude.covid.cov,adjusted.cuminc)
 
-dt.tv[,age.cat := factor(age.cat, order = F)]
-
-
-n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
-
-adjusted.cuminc <- cbind(crude.covid.cov,
-                         foreach::foreach(predi = 1:length(covariates), .combine = 'c', .inorder = T) %do% {
-                           newdata.rows <- length(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])]))
-                           
-                           newdata.pred <- data.table::data.table('start' = rep(0,newdata.rows),
-                                                                  'end' = rep(30,newdata.rows),
-                                                                  'event' = rep(F,newdata.rows),
-                                                                  'patient_id' = 1:newdata.rows)
-                           if ( predi > length(procedures)) {
-                           newdata.pred[,(procedures) := lapply(procedures, function(x) x == procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])])] } else {
-                             newdata.pred[,(procedures) := lapply(procedures, function(x) x == covariates[predi] & patient_id > 1)]
-                           }
-                           
-                           newdata.pred[,(covariates[-c(1:length(procedures))]) := lapply(((length(procedures)+1):length(covariates)), function(i.c) {
-                             if(is.factor(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
-                               as.character(rep(max.category(i.c),newdata.rows))
-                             } else if(is.logical(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
-                               as.logical(rep(max.category(i.c),newdata.rows))
-                             } else if(is.numeric(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
-                               is.numeric(rep(max.category(i.c),newdata.rows))
-                             } else {
-                               rep(max.category(i.c),newdata.rows)
-                             }
-                           })]
-                           
-                           #names(newdata.pred) <- c('start','end','event', covariates,'patient_id') 
-                           if(is.factor(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])])) {
-                             newdata.pred[,(covariates[predi]) :=  as.character(sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
-                           } else if(is.logical(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])])) {
-                             newdata.pred[,(covariates[predi]) :=  as.logical(sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
-                           } else if(is.numeric(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])])) {
-                             newdata.pred[,(covariates[predi]) :=  is.numeric(sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
-                           } else {
-                             newdata.pred[,(covariates[predi]) := sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T))]
-                           }
-                           
-                           cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv', model = 'post.op.covid.model', newdata = 'newdata.pred', day = 30)
-                           }
-                         )
-
-names(adjusted.cuminc) <- c("Characteristic","Level","Number at risk",
+names(comb_postop_covid) <- c("Characteristic","Level","Number at risk",
                             "Number of events","30 day Cumulative Risk adjusted for censoring","30 day Cumulative Risk adjusted for death and emergency readmission","30 day Cumulative Risk adjusted for all covariates")
 
-knitr::kable(adjusted.cuminc, 
+knitr::kable(comb_postop_covid, 
              caption = paste0("Cumulative incidence of 30 day post operative COVID of patients by procedure type with counts rounded to nearest 5. Adjusted predictions for factors set at their most frequent population values:\n procedure = ", procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])], Reduce(lapply(which(covariates == 'age.cat'):which(covariates == 'previousCOVID'), function(i) paste0(covariates[i] ,' = ',max.category(which(covariates == covariates[i])))), f =function(x,y) paste(x,y, collapse = ", "))))
 
 ```
 
-```{r}
-dt.tv[,`:=`(post.disch.wk1 = discharge.date  ,
-            post.disch.wk2 = discharge.date + 7 ,
-            post.disch.wk3 = discharge.date + 14 ,
-            post.disch.wk4 = discharge.date + 21 ,
-            post.disch.wk5 = discharge.date + 28,
-            covid.event = event == 1,
-            censor.event = event!=1)]
-
-
-dt.tv.splits <- data.table::melt(dt.tv[is.finite(discharge.date),tail(.SD,1),
-                                       .SDcols = c(paste0("post.disch.wk",1:5)),
-                                       keyby = c('patient_id')], 
-                                 id.vars = c('patient_id'),
-                                 value.name = "post.disch.wk",
-                                 variable.name = "week.post.disch" )[
-                                   order(patient_id, week.post.disch),][,
-                                                                       `:=` (tstart = post.disch.wk,
-                                                                             week.post.disch = as.numeric(gsub(".*?([0-9]+).*",'\\1',week.post.disch)))][
-                                                                         ,.(patient_id, week.post.disch,tstart)]
-
-#
-dt.tv[,week.post.disch := NA]
-dt.tv.splits <- unique(data.table::rbindlist(list(dt.tv.splits,dt.tv[,.(patient_id, week.post.disch, tstart)])))
-dt.tv.splits[,post.disch.wk := tstart]
-data.table::setkey(dt.tv.splits,patient_id, tstart)
-dt.tv[,week.post.disch := NULL]
-dt.tv.splits <- dt.tv[dt.tv.splits,,roll = Inf, on = .(patient_id,tstart)]
-
-dates.expand.start.align_(dt = 'dt.tv.splits',
-                          start.DTTM = 'tstart',
-                          end.DTTM = 'tstop',
-                          ID = 'patient_id',
-                          merged.DTTM = 'post.disch.wk')
-
-dates.expand.end.align_(dt = 'dt.tv.splits',
-                          start.DTTM = 'tstart',
-                          end.DTTM = 'tstop',
-                          ID = 'patient_id',
-                          merged.DTTM = 'post.disch.wk')
-
-locf.roll_(dt = 'dt.tv.splits',
-           ID = 'patient_id',
-           start.DTTM = 'tstart',
-           group = 'c("patient_id","end.fu")',
-           var.cols = 'c("week.post.disch")')
-
-dt.tv.splits[tstart >= admit.date & (!is.finite(discharge.date) | tstop <= discharge.date), week.post.disch := 0 ]
-
-dt.tv.splits[,week.post.disch := as.factor(week.post.disch)]
-dt.tv.splits[, los.end := min(los.end, na.rm = T), keyby = .(patient_id, end.fu)]
-
-dt.tv.splits[, `:=`(start = tstart - los.end,
-             end = tstop - los.end)]
-dt.tv.splits <- dt.tv.splits[is.finite(los.end)]
-dt.tv.splits[event == 3, event := 2]
-data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
-post.op.covid.model.split <- 
-  lapply(1:2, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ week.post.disch + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,data = dt.tv.splits[(postop.covid.cohort) & start <=end], model = T))
-
-
-newdata.rows <- length(levels(dt.tv.splits$week.post.disch))
-newdata.pred <- data.table::data.table('start' = c(-7,0,7,14,21),
-                                       'end' = c(0,7,14,21,28),
-                                       'event' = rep(F,newdata.rows),
-                                       'patient_id' = rep(1,newdata.rows),
-                                       'week.post.disch' = paste(0:(newdata.rows - 1)))
-
-newdata.pred[,(procedures) := lapply(procedures, function(x) x == procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])])]
-
-newdata.pred[,(covariates[-c(1:length(procedures))]) := lapply(((length(procedures)+1):length(covariates)), function(i.c) {
-  if(is.factor(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
-    as.character(rep(max.category(i.c),newdata.rows))
-  } else if(is.logical(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
-    as.logical(rep(max.category(i.c),newdata.rows))
-  } else if(is.numeric(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
-    is.numeric(rep(max.category(i.c),newdata.rows))
-  } else {
-    rep(max.category(i.c),newdata.rows)
-  }
-})]
-n.type.events <- 2
-
-times <- lapply(1:n.type.events, function(i) { survival::basehaz(post.op.covid.model.split[[i]],centered = F)$time })
-
-base.haz <- lapply(1:n.type.events, function(i) { data.table::data.table('time' = times[[i]],
-  'base.haz' = survival::basehaz(post.op.covid.model.split[[i]],centered = F)[,1] - c(0,head(survival::basehaz(post.op.covid.model.split[[i]],centered = F)[,1],-1)))})
-
-lp <- lapply(1:n.type.events, function(i) {  data.table::data.table('time' = seq(-7,28,7),
-                                   'risk' = exp(predict(object = post.op.covid.model.split[[i]],
-                                    type = 'lp', 
-                                    newdata = newdata.pred))) })
-  
-base.haz.merge <- Reduce(x =base.haz,f = function(x,y) merge(x,y,by = 'time', no.dups = T, suffixes = c(".x",".y"), all = T))
-
-weekly.post.op.risk <- 
-    unlist(round(100*cumsum(exp(cumsum(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
-      lp[[i]][base.haz.merge[,.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][,.SD[,1]*.SD[,2] ,.SDcols = c(2:3)] 
-      })))))*
-     lp[[1]][base.haz.merge[,.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][,.SD[,1]*.SD[,2] ,.SDcols = c(2:3)] ), digits = 3))
-
-weekly.post.op.risk[!is.finite(weekly.post.op.risk)] <- 0
-
-times.comb <- unique(sort(unlist(times)))[unique(sort(unlist(times))) >= -7]
-
-weekly.post.op.risk <- c(weekly.post.op.risk[max(which(times.comb <= 0))],
-weekly.post.op.risk[max(which(times.comb <= 7))],
-weekly.post.op.risk[max(which(times.comb <= 14))],
-weekly.post.op.risk[max(which(times.comb <= 21))],
-weekly.post.op.risk[max(which(times.comb <= 28))])
-
-
-weekly.post.op.risk  <-  data.table::data.table("Risk" = weekly.post.op.risk - c(0,weekly.post.op.risk[-length(weekly.post.op.risk)]),
-                        "Risk period" = c("Week pre discharge","1st week","2nd week","3rd week","4th week"))
+```{r postopcovid_tv}
+load(file = here::here("output","postopcovid_tv.RData"))
 
 ggplot2::ggplot(weekly.post.op.risk) + 
   ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")), 
@@ -399,81 +111,24 @@ ggplot2::xlab("Risk Period post discharge") +
 
 # COVID impact on post operative length of stay
 
-```{r}
+```{r postopLOS}
 
+load(file = here::here("output","postoplos.RData"))
 
-dt.tv[,event.los := (died == T)*2]
-dt.tv[event.los !=2,event.los := discharged == T]
-dt.tv[, postop.los.cohort := start>=0 & tstop <= los.end & end <= 90 & any.op ==T]
+knitr::kable(broom::tidy(post.op.LOS.model, exponentiate= T, conf.int = T),digits = 2)
 
-n.type.events <- sort(unique(dt.tv[(postop.los.cohort) ,event.los]))[-1]
-
-post.op.LOS.model <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end, event.los == i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
-                  data = dt.tv[(postop.los.cohort)], model = T))
-
-knitr::kable(broom::tidy(post.op.LOS.model[[1]], exponentiate= T, conf.int = T),digits = 2)
-
-new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
-                                                                    'end' = rep(30,8*length(procedures)),
-                                                                    'event' = rep(F,8*length(procedures)),
-                                                                     'Abdominal' = c(rep(T,8),rep(F,40)),
-                                                                    'Cardiac'=c(rep(F,8),rep(T,8),rep(T,32)),
-                                                                    'Obstetrics'=c(rep(F,16),rep(T,8),rep(F,24)),
-                                                                    'Orthopaedic'=c(rep(F,24),rep(T,8),rep(F,16)),
-                                                                    'Thoracic'=c(rep(F,32),rep(T,8),rep(F,8)),
-                                                                    'Vascular'=c(rep(F,40),rep(T,8)),
-                                                                    'postcovid' = rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
-                                                                    'age.cat' = rep('(50,70]',8*length(procedures)),
-                                                                    'sex' = rep('F',8*length(procedures)),
-                                                                    'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],8*length(procedures)),
-                                                                    'imd5' = rep(levels(dt.tv$imd5)[3], 8*length(procedures)),
-                                                                    'wave' = rep(paste0('Wave_',1:4),times = 2*length(procedures)),
-                                                                    'vaccination.status.factor' = rep('3',8*length(procedures)),
-                                                                    'region' = rep("East Midlands",8*length(procedures)),
-                                                                    'Current.Cancer' = rep(T,8*length(procedures)),
-                                                                    'Emergency' =   rep(F,8*length(procedures)),
-                                                                    'Charl12' =  rep('Single',8*length(procedures)),
-                                                                    'recentCOVID' = rep(F,8*length(procedures)),
-                                                                    'previousCOVID' = rep(F,8*length(procedures)),
-                                                                    'patient_id' = 1:(8*length(procedures)))
-
-
-
-cuminc.adjusted.los <- 
- matrix(cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv', model = 'post.op.LOS.model', newdata = 'new.data.postop.covid', day = 14), byrow = T, ncol = 4)
-
-
-
-colnames(cuminc.adjusted.los) <- paste0('Wave_',1:4)
-rownames(cuminc.adjusted.los) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
-
-knitr::kable(cuminc.adjusted.los,col.names = paste0("Wave ",1:4), row.names = T, digits = 2)
-
+knitr::kable(mean.adjusted.los,col.names = paste0("Wave ",1:4), row.names = T, digits = 2)
 
 ```
 
 
 # Post operative VTE risk
 
-```{r, results='asis'}
-data.table::setkey(dt.tv,"patient_id","tstart","tstop")
-
-
-post.op.VTE.model <- 
-  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
-                  data = dt.tv[(postcovid.VTE.cohort)], model = T))
+```{r postopVTE, results='asis'}
+load(file = here::here("output","postopVTE.RData"))
 
 knitr::kable(broom::tidy(post.op.VTE.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 
-n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
-
-
-cuminc.adjusted.VTE <- 
-  matrix(cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv', model = 'post.op.VTE.model', newdata = 'new.data.postop.covid', day = 90), byrow = T, ncol = 4)
-
-colnames(cuminc.adjusted.VTE) <- paste0('Wave_',1:4)
-rownames(cuminc.adjusted.VTE) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
 
 knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4), row.names = T, digits = 4)
 
@@ -483,20 +138,9 @@ knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4), row.names = T,
 
 # COVID impact on post operative Mortality
 
-```{r}
-
-post.op.died.model <- 
-  list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
-                  data = dt.tv, model = T))
-
+```{r postopmortality}
 knitr::kable(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 
-n.type.events <- 1
-cuminc.adjusted.mortality <-   matrix(cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv', model = 'post.op.died.model', newdata = 'new.data.postop.covid', day = 90), byrow = T, ncol = 4)
-
-
-colnames(cuminc.adjusted.mortality) <- paste0('Wave_',1:4)
-rownames(cuminc.adjusted.mortality) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
 
 knitr::kable(cuminc.adjusted.mortality,col.names = paste0("Wave ",1:4), row.names = T, digits = 4)
 

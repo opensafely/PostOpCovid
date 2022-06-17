@@ -425,6 +425,9 @@ numbers2words <- function(x){
   ## Function by John Fox found here: 
   ## http://tolstoy.newcastle.edu.au/R/help/05/04/2715.html
   ## Tweaks by AJH to add commas and "and"
+  #https://github.com/ateucher/useful_code/blob/master/R/numbers2words.r
+  #https://gist.github.com/psychemedia/numbers2words.R
+  
   helper <- function(x){
     
     digits <- rev(strsplit(as.character(x), "")[[1]])

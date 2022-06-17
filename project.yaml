@@ -18,6 +18,48 @@ actions:
       highly_sensitive:
         cohort: output/cohort_long.RData
         
+  table_demo:      
+    run: r:latest analysis/Table_demo.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table1: output/table1_demo.RData
+
+  table_postopcovid_crude:      
+    run: r:latest analysis/Table_postopcovid_crude.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_crude: output/postopcovid_crude.RData.RData
+
+  table_postopcovid_adjusted:      
+    run: r:latest analysis/Table_postopcovid_adjusted.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_adjusted: output/postopcovid_adjusted.RData.RData
+
+  table_postopcovid_tv:      
+    run: r:latest analysis/Table_postopcovid_tv.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_tv: output/postopcovid_tv.RData.RData
+
+  table_postopLOS:      
+    run: r:latest analysis/Table_postoplOS.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_los: output/postoplos.RData.RData
+        
+  table_postopVTE:      
+    run: r:latest analysis/Table_postopVTE.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_VTE: output/postopVTE.RData.RData
+        
   analysis_crude:
     run: r:latest analysis/analysis_crude.R
     needs: [generate_study_population, data_manage]
@@ -36,7 +78,7 @@ actions:
         
   report:
     run: r:latest -e 'rmarkdown::render("analysis/Results.rmd", output_dir = "/workspace/output/",knit_root_dir = "/workspace",)'    
-    needs: [generate_study_population, data_manage]
+    needs: [generate_study_population, data_manage, table_demo,table_postopcovid_crude,table_postopcovid_adjusted,table_postopcovid_tv,table_postopLOS,table_postopVTE]
     outputs:
       moderately_sensitive:
         results_report: output/Results.html

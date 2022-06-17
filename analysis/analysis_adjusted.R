@@ -7,13 +7,13 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 covariates <- c(procedures,'age.cat','sex','postcovid','Charl12','bmi.cat','imd5','region','vaccination.status.factor','Emergency','Current.Cancer','wave','recentCOVID','previousCOVID')
 
 post.op.covid.overall.model <- 
-  survival::coxph(survival::Surv(start,end,COVIDpositive) ~ wave + age.cat + sex + bmi.cat + imd5 + region + vaccination.status.factor + Current.Cancer + Emergency + Charlson + recentCOVID + previousCOVID, id = patient_id,
+  survival::coxph(survival::Surv(start,end,COVIDpositive) ~ wave + age.cat + sex + bmi.cat + imd5 + region + vaccination.status.factor + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                   data = dt.tv[start>=0 & tstop <= covid.end  ], model = T)
 data.table::fwrite(broom::tidy(post.op.covid.overall.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_overall_model.csv"))
 
 
 post.op.covid.model <- 
-  survival::coxph(survival::Surv(start,end,COVIDpositive) ~ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + + wave + age.cat + sex + bmi.cat + imd5 + region + vaccination.status.factor + Current.Cancer + Emergency + Charlson + recentCOVID + previousCOVID, id = patient_id,
+  survival::coxph(survival::Surv(start,end,COVIDpositive) ~ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + + wave + age.cat + sex + bmi.cat + imd5 + region + vaccination.status.factor + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                   data = dt.tv[start>=0 & tstop <= covid.end  ], model = T)
 data.table::fwrite(broom::tidy(post.op.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_covid_model.csv"))
 
