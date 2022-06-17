@@ -23,42 +23,42 @@ actions:
     needs: [generate_study_population, data_manage]
     outputs:
       moderately_sensitive:
-        table1: output/table1_demo.RData
+        table1: output/table_demo.RData
 
   table_postopcovid_crude:      
     run: r:latest analysis/Table_postopcovid_crude.R
     needs: [generate_study_population, data_manage]
     outputs:
       moderately_sensitive:
-        table_crude: output/postopcovid_crude.RData.RData
+        table_crude: output/postopcovid_crude.RData
 
   table_postopcovid_adjusted:      
     run: r:latest analysis/Table_postopcovid_adjusted.R
     needs: [generate_study_population, data_manage]
     outputs:
       moderately_sensitive:
-        table_adjusted: output/postopcovid_adjusted.RData.RData
+        table_adjusted: output/postopcovid_adjusted.RData
 
   table_postopcovid_tv:      
     run: r:latest analysis/Table_postopcovid_tv.R
     needs: [generate_study_population, data_manage]
     outputs:
       moderately_sensitive:
-        table_tv: output/postopcovid_tv.RData.RData
+        table_tv: output/postopcovid_tv.RData
 
   table_postopLOS:      
     run: r:latest analysis/Table_postoplOS.R
     needs: [generate_study_population, data_manage]
     outputs:
       moderately_sensitive:
-        table_los: output/postoplos.RData.RData
+        table_los: output/postoplos.RData
         
   table_postopVTE:      
     run: r:latest analysis/Table_postopVTE.R
     needs: [generate_study_population, data_manage]
     outputs:
       moderately_sensitive:
-        table_VTE: output/postopVTE.RData.RData
+        table_VTE: output/postopVTE.RData
         
   analysis_crude:
     run: r:latest analysis/analysis_crude.R
