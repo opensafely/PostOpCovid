@@ -30,7 +30,7 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 post.op.covid.model <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort)], model = T))
 
 new.data.postop <- data.table::data.table(
@@ -70,13 +70,6 @@ rownames(cuminc.adjusted.waves) <- paste0(c('Elective','Emergency'),rep(procedur
 
 
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
-
-post.op.covid.model <- 
-  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
-                                          data = dt.tv[(postop.covid.cohort)], model = T))
-
-
-n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 adjusted.cuminc <-  foreach::foreach(predi = 1:length(covariates), .combine = 'c', .inorder = T) %do% {
                            newdata.rows <- length(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])]))
