@@ -80,25 +80,44 @@ post.op.covid.model.split <-
 
 
 newdata.rows <- length(levels(dt.tv.splits$week.post.disch))
+
 newdata.pred <- data.table::data.table('start' = c(-7,0,7,14,21),
                                        'end' = c(0,7,14,21,28),
                                        'event' = rep(F,newdata.rows),
-                                       'patient_id' = rep(1,newdata.rows),
-                                       'week.post.disch' = paste(0:(newdata.rows - 1)))
+                                      'week.post.disch' = paste(0:(newdata.rows - 1)),
+                                      'patient_id' = 1:newdata.rows,
+                                      'Abdominal' = rep(T,newdata.rows),
+                                      'Cardiac'= rep(F,newdata.rows),
+                                      'Obstetrics'=rep(F,newdata.rows),
+                                      'Orthopaedic'=rep(F,newdata.rows),
+                                      'Thoracic'=rep(F,newdata.rows),
+                                      'Vascular'=rep(F,newdata.rows),
+                                      'age.cat' = rep('(50,70]',newdata.rows),
+                                      'sex' = rep('F',newdata.rows),
+                                      'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows),
+                                      'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows),
+                                      'wave' = rep(paste0('Wave_',4),times = newdata.rows),
+                                      'vaccination.status.factor' = rep('3',newdata.rows),
+                                      'region' = rep("East Midlands",newdata.rows),
+                                      'Current.Cancer' = rep(T,newdata.rows),
+                                      'Emergency' =  rep(F,newdata.rows),
+                                      'Charl12' =  rep('Single',newdata.rows),
+                                      'recentCOVID' = rep(F,newdata.rows),
+                                      'previousCOVID' = rep(F,newdata.rows)
+                                      )
+#newdata.pred[,(procedures) := lapply(procedures, function(x) x == procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])])]
 
-newdata.pred[,(procedures) := lapply(procedures, function(x) x == procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])])]
-
-newdata.pred[,(covariates[-c(1:length(procedures))]) := lapply(((length(procedures)+1):length(covariates)), function(i.c) {
-  if(is.factor(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
-    as.character(rep(max.category(i.c),newdata.rows))
-  } else if(is.logical(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
-    as.logical(rep(max.category(i.c),newdata.rows))
-  } else if(is.numeric(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
-    is.numeric(rep(max.category(i.c),newdata.rows))
-  } else {
-    rep(max.category(i.c),newdata.rows)
-  }
-})]
+# newdata.pred[,(covariates[-c(1:length(procedures))]) := lapply(((length(procedures)+1):length(covariates)), function(i.c) {
+#   if(is.factor(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
+#     as.character(rep(max.category(i.c),newdata.rows))
+#   } else if(is.logical(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
+#     as.logical(rep(max.category(i.c),newdata.rows))
+#   } else if(is.numeric(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
+#     is.numeric(rep(max.category(i.c),newdata.rows))
+#   } else {
+#     rep(max.category(i.c),newdata.rows)
+#   }
+# })]
 n.type.events <- 2
 
 times <- lapply(1:n.type.events, function(i) { survival::basehaz(post.op.covid.model.split[[i]],centered = F)$time })
