@@ -56,7 +56,7 @@ One third of GP practices in England use SystmOne, with records for approximatel
 
 ```{r flowchart,out.width = "85%", fig.align = "center",fig.cap = c("Flow chart of patients, procedures and outcomes included within censored follow up time")}
 #load(here::here("output","flowchart.RData"))
-knitr::include_graphics(path = here::here("output","flowchart.pdf"))
+knitr::include_graphics(path = here::here("output","Flowchart.pdf"))
 ```
 
 ```{r demo, results='asis', echo = F, warning=F, eval = TRUE}
