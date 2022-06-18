@@ -142,6 +142,8 @@ knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4), row.names = T,
 ## COVID impact on post operative Mortality
 
 ```{r postopmortality}
+load(file = here::here("output","postopmortality.RData"))
+
 #knitr::kable(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 
 
