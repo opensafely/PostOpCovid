@@ -78,7 +78,7 @@ The cumulative risk of testing positive for COVID-19 peri-opertively, from the o
 load(here::here("output","postopcovid_crude.RData"))
 load(here::here("output","postopcovid_adjusted.RData"))
 
-knitr::kable(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T),digits = 2)
+#knitr::kable(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 
 comb_postop_covid <- cbind(crude.covid.cov,adjusted.cuminc)
 
@@ -120,7 +120,7 @@ An accelerated failure survival model was fitted to directly estimate the effect
 
 load(file = here::here("output","postoplos.RData"))
 
-knitr::kable(broom::tidy(post.op.LOS.model, exponentiate= T, conf.int = T),digits = 2)
+#knitr::kable(broom::tidy(post.op.LOS.model, exponentiate= T, conf.int = T),digits = 2)
 
 knitr::kable(mean.adjusted.los,col.names = paste0("Wave ",1:4),caption = paste0("Predicted mean length of stay for patients by procedure type and COVID-19 infection, stratified by COVID-19 wave."), row.names = T, digits = 2)
 
@@ -132,7 +132,7 @@ knitr::kable(mean.adjusted.los,col.names = paste0("Wave ",1:4),caption = paste0(
 ```{r postopVTE, results='asis'}
 load(file = here::here("output","postopVTE.RData"))
 
-knitr::kable(broom::tidy(post.op.VTE.model[[1]], exponentiate= T, conf.int = T),digits = 2)
+#knitr::kable(broom::tidy(post.op.VTE.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 
 
 knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
@@ -146,7 +146,7 @@ knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4),caption = paste
 ```{r postopmortality}
 load(file = here::here("output","postopmortality.RData"))
 
-knitr::kable(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T),digits = 2)
+#knitr::kable(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 
 
 knitr::kable(cuminc.adjusted.mortality,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative mortality risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
