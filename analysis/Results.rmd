@@ -96,7 +96,7 @@ The  adjusted cumulative risk estimates were calculated for each COVID-19 wave s
 
 ```{r postopcovid_waves}
 
-knitr::kable(cuminc.adjusted.waves,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 30 day post operative COVID of patients by procedure type stratified by COVID-19 wave.") row.names = T, digits = 2)
+knitr::kable(cuminc.adjusted.waves,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 30 day post operative COVID of patients by procedure type stratified by COVID-19 wave."), row.names = T, digits = 2)
 
 ```
 
@@ -135,7 +135,7 @@ load(file = here::here("output","postopVTE.RData"))
 #knitr::kable(broom::tidy(post.op.VTE.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 
 
-knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4),caption = caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
+knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
 
 
 ```
@@ -149,7 +149,7 @@ load(file = here::here("output","postopmortality.RData"))
 #knitr::kable(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 
 
-knitr::kable(cuminc.adjusted.mortality,col.names = paste0("Wave ",1:4),paste0("Cumulative incidence of 90 day post operative mortality risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
+knitr::kable(cuminc.adjusted.mortality,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative mortality risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
 
 ```
 
