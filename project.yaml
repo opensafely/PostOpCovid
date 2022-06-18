@@ -68,6 +68,13 @@ actions:
       moderately_sensitive:
         table_VTE: output/postopVTE.RData
         
+  table_postopmortality:      
+    run: r:latest analysis/Table_postopmortality.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_mortality: output/postopmortality.RData
+
   analysis_crude:
     run: r:latest analysis/analysis_crude.R
     needs: [generate_study_population, data_manage]
@@ -86,7 +93,7 @@ actions:
         
   report:
     run: r:latest -e 'rmarkdown::render("analysis/Results.rmd", output_dir = "/workspace/output/",knit_root_dir = "/workspace",)'    
-    needs: [generate_study_population, data_manage, table_demo,table_postopcovid_crude,table_postopcovid_adjusted,table_postopcovid_tv,table_postopLOS,table_postopVTE,flowchart]
+    needs: [generate_study_population, data_manage, table_demo,table_postopcovid_crude,table_postopcovid_adjusted,table_postopcovid_tv,table_postopLOS,table_postopVTE,flowchart,table_postopmortality]
     outputs:
       moderately_sensitive:
         results_report: output/Results.html
