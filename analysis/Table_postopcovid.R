@@ -96,7 +96,26 @@ adjusted.cuminc <- cbind(crude.covid.cov,
                            newdata.pred <- data.table::data.table('start' = rep(0,newdata.rows),
                                                                   'end' = rep(30,newdata.rows),
                                                                   'event' = rep(F,newdata.rows),
-                                                                  'patient_id' = 1:newdata.rows)
+                                                                  'patient_id' = 1:newdata.rows,
+                                                                  'Abdominal' = rep(T,newdata.rows),
+                                                                  'Cardiac'= rep(F,newdata.rows),
+                                                                  'Obstetrics'=rep(F,newdata.rows),
+                                                                  'Orthopaedic'=rep(F,newdata.rows),
+                                                                  'Thoracic'=rep(F,newdata.rows),
+                                                                  'Vascular'=rep(F,newdata.rows),
+                                                                  'age.cat' = rep('(50,70]',newdata.rows),
+                                                                  'sex' = rep('F',newdata.rows),
+                                                                  'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows),
+                                                                  'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows),
+                                                                  'wave' = rep(paste0('Wave_',4),times = newdata.rows),
+                                                                  'vaccination.status.factor' = rep('3',newdata.rows),
+                                                                  'region' = rep("East Midlands"newdata.rows),
+                                                                  'Current.Cancer' = rep(T,newdata.rows),
+                                                                  'Emergency' =  rep(F,newdata.rows),
+                                                                  'Charl12' =  rep('Single',newdata.rows),
+                                                                  'recentCOVID' = rep(F,newdata.rows),
+                                                                  'previousCOVID' = rep(F,newdata.rows),
+                                                                  )
                            if ( predi > length(procedures)) {
                              newdata.pred[,(procedures) := lapply(procedures, function(x) x == procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])])] } else {
                                newdata.pred[,(procedures) := lapply(procedures, function(x) x == covariates[predi] & patient_id > 1)]

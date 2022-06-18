@@ -56,8 +56,7 @@ new.data.postop <- data.table::data.table(
   'recentCOVID' = rep(F,8*length(procedures)),
   'previousCOVID' = rep(F,8*length(procedures)),
   'patient_id' = 1:(8*length(procedures)))
-
-
+  
 cuminc.adjusted.waves <- 
   matrix(cuminc.cox(n.type.events = n.type.events,
                     dt = 'dt.tv',
@@ -74,38 +73,68 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 adjusted.cuminc <-  foreach::foreach(predi = 1:length(covariates), .combine = 'c', .inorder = T) %do% {
                            newdata.rows <- length(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])]))
                            
+   
                            newdata.pred <- data.table::data.table('start' = rep(0,newdata.rows),
                                                                   'end' = rep(30,newdata.rows),
                                                                   'event' = rep(F,newdata.rows),
-                                                                  'patient_id' = 1:newdata.rows)
-                           if ( predi > length(procedures)) {
-                             newdata.pred[,(procedures) := lapply(procedures, function(x) x == procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])])] } else {
-                               newdata.pred[,(procedures) := lapply(procedures, function(x) x == covariates[predi] & patient_id > 1)]
-                             }
+                                                                  'patient_id' = 1:newdata.rows,
+                                                                  'Abdominal' = rep(T,newdata.rows),
+                                                                  'Cardiac'= rep(F,newdata.rows),
+                                                                  'Obstetrics'=rep(F,newdata.rows),
+                                                                  'Orthopaedic'=rep(F,newdata.rows),
+                                                                  'Thoracic'=rep(F,newdata.rows),
+                                                                  'Vascular'=rep(F,newdata.rows),
+                                                                  'age.cat' = rep('(50,70]',newdata.rows),
+                                                                  'sex' = rep('F',newdata.rows),
+                                                                  'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows),
+                                                                  'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows),
+                                                                  'wave' = rep(paste0('Wave_',4),times = newdata.rows),
+                                                                  'vaccination.status.factor' = rep('3',newdata.rows),
+                                                                  'region' = rep("East Midlands"newdata.rows),
+                                                                  'Current.Cancer' = rep(T,newdata.rows),
+                                                                  'Emergency' =  rep(F,newdata.rows),
+                                                                  'Charl12' =  rep('Single',newdata.rows),
+                                                                  'recentCOVID' = rep(F,newdata.rows),
+                                                                  'previousCOVID' = rep(F,newdata.rows),
+                                                                  )
+                            if ( predi <= length(procedures)) {
+                                newdata.pred[,(procedures) := F]
+                                newdata.pred[,(procedures[predi]) := T]
+                            } else {
+
+                            
+                          #  newdata.pred <- data.table::data.table('start' = rep(0,newdata.rows),
+                          #                                         'end' = rep(30,newdata.rows),
+                          #                                         'event' = rep(F,newdata.rows),
+                          #                                         'patient_id' = 1:newdata.rows)
+                          #  if ( predi > length(procedures)) {
+                          #    newdata.pred[,(procedures) := lapply(procedures, function(x) x == procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])])] } else {
+                          #      newdata.pred[,(procedures) := lapply(procedures, function(x) x == covariates[predi] & patient_id > 1)]
+                          #    }
                            
-                           newdata.pred[,(covariates[-c(1:length(procedures))]) := lapply(((length(procedures)+1):length(covariates)), function(i.c) {
-                             if(is.factor(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
-                               as.character(rep(max.category(i.c),newdata.rows))
-                             } else if(is.logical(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
-                               as.logical(rep(max.category(i.c),newdata.rows))
-                             } else if(is.numeric(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
-                               is.numeric(rep(max.category(i.c),newdata.rows))
-                             } else {
-                               rep(max.category(i.c),newdata.rows)
-                             }
-                           })]
+                          #  newdata.pred[,(covariates[-c(1:length(procedures))]) := lapply(((length(procedures)+1):length(covariates)), function(i.c) {
+                          #    if(is.factor(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
+                          #      as.character(rep(max.category(i.c),newdata.rows))
+                          #    } else if(is.logical(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
+                          #      as.logical(rep(max.category(i.c),newdata.rows))
+                          #    } else if(is.numeric(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
+                          #      is.numeric(rep(max.category(i.c),newdata.rows))
+                          #    } else {
+                          #      rep(max.category(i.c),newdata.rows)
+                          #    }
+                          #  })]
                            
-                           #names(newdata.pred) <- c('start','end','event', covariates,'patient_id') 
+                          #  #names(newdata.pred) <- c('start','end','event', covariates,'patient_id') 
                            if(is.factor(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])])) {
-                             newdata.pred[,(covariates[predi]) :=  as.character(sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
-                           } else if(is.logical(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])])) {
-                             newdata.pred[,(covariates[predi]) :=  as.logical(sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
-                           } else if(is.numeric(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])])) {
-                             newdata.pred[,(covariates[predi]) :=  is.numeric(sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
-                           } else {
-                             newdata.pred[,(covariates[predi]) := sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T))]
-                           }
-                           
+                              newdata.pred[,(covariates[predi]) :=  as.character(sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
+                            } else if(is.logical(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])])) {
+                              newdata.pred[,(covariates[predi]) :=  as.logical(sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
+                            } else if(is.numeric(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])])) {
+                              newdata.pred[,(covariates[predi]) :=  is.numeric(sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
+                            } else {
+                              newdata.pred[,(covariates[predi]) := sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T))]
+                            }
+                            }
                            cuminc.cox(n.type.events = n.type.events,
                                       dt = 'dt.tv', 
                                       model = 'post.op.covid.model', 
