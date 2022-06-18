@@ -25,6 +25,8 @@ source(here::here("analysis","Utils.R"))
 
 load(file = here::here("output","cohort_long.RData"))
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
+covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
+                'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
 
 
 ## Count variables for demographic tables
