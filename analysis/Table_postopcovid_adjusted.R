@@ -95,7 +95,7 @@ adjusted.cuminc <-  foreach::foreach(predi = 1:length(covariates), .combine = 'c
                                                                   'Emergency' =  rep(F,newdata.rows),
                                                                   'Charl12' =  rep('Single',newdata.rows),
                                                                   'recentCOVID' = rep(F,newdata.rows),
-                                                                  'previousCOVID' = rep(F,newdata.rows),
+                                                                  'previousCOVID' = rep(F,newdata.rows)
                                                                   )
                             if ( predi <= length(procedures)) {
                                 newdata.pred[,(procedures) := F]
