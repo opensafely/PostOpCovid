@@ -83,7 +83,7 @@ rownames(cuminc.adjusted.waves) <- paste0(c('Elective','Emergency'),rep(procedur
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
 post.op.covid.model <- 
-  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                           data = dt.tv[(postop.covid.cohort)], model = T))
 
 

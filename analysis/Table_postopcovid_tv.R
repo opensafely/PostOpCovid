@@ -76,7 +76,7 @@ dt.tv.splits <- dt.tv.splits[is.finite(los.end)]
 dt.tv.splits[event == 3, event := 2]
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split <- 
-  lapply(1:2, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ week.post.disch + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,data = dt.tv.splits[(postop.covid.cohort) & start <=end], model = T))
+  lapply(1:2, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ week.post.disch + Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,data = dt.tv.splits[(postop.covid.cohort) & start <=end], model = T))
 
 
 newdata.rows <- length(levels(dt.tv.splits$week.post.disch))

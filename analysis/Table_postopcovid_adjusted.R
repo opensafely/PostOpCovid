@@ -30,7 +30,7 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 post.op.covid.model <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort)], model = T))
 
 new.data.postop <- data.table::data.table(
@@ -56,7 +56,7 @@ new.data.postop <- data.table::data.table(
   'recentCOVID' = rep(F,8*length(procedures)),
   'previousCOVID' = rep(F,8*length(procedures)),
   'patient_id' = 1:(8*length(procedures)))
-  
+
 cuminc.adjusted.waves <- 
   matrix(cuminc.cox(n.type.events = n.type.events,
                     dt = 'dt.tv',
@@ -90,7 +90,7 @@ adjusted.cuminc <-  foreach::foreach(predi = 1:length(covariates), .combine = 'c
                                                                   'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows),
                                                                   'wave' = rep(paste0('Wave_',4),times = newdata.rows),
                                                                   'vaccination.status.factor' = rep('3',newdata.rows),
-                                                                  'region' = rep("East Midlands"newdata.rows),
+                                                                  'region' = rep("East Midlands",newdata.rows),
                                                                   'Current.Cancer' = rep(T,newdata.rows),
                                                                   'Emergency' =  rep(F,newdata.rows),
                                                                   'Charl12' =  rep('Single',newdata.rows),
