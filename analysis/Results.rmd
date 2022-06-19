@@ -54,9 +54,10 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 ## Study population
 One third of GP practices in England use SystmOne, with records for approximately 44% of the English population. `r numbers2words(n.pats)` adult patients were identified as the study population undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. The flow chart shows the procedures identified within these patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & vascular), and the numbers of outcomes after adjusting for censoring by competing risks.  The numbers and demographics of these patients and procedures are shown in Table 1.
 
-```{r flowchart,out.width = "85%", fig.align = "center",fig.cap = c("Flow chart of patients, procedures and outcomes included within censored follow up time")}
-#load(here::here("output","flowchart.RData"))
-knitr::include_graphics(path = here::here("output","Flowchart.pdf"))
+```{r flowchart, fig.dim = c(6, 8),fig.align = "center",fig.cap = c("Flow chart of patients, procedures and outcomes included within censored follow up time")}
+load(here::here("output","flowchart.RData"))
+#knitr::include_graphics(path = here::here("output","Flowchart.pdf"))
+p
 ```
 
 ```{r demo, results='asis', echo = F, warning=F, eval = TRUE}
@@ -140,6 +141,19 @@ knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4),caption = paste
 
 ```
 
+```{r postopcovid_VTE_tv}
+
+ggplot2::ggplot(weekly.post.op.VTE.risk) + 
+  ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")), 
+                                                                      y = Risk, 
+                                 group = COVID, 
+                                 colour = COVID,
+                                 fill = COVID)) +
+ggplot2::xlab("Risk Period post discharge") + 
+  ggplot2::ylab("Cumulative risk during time period") + ggplot2::ggtitle("Post operative risk of VTE over time stratified by COVID-19 infection",
+                                                                         subtitle = "Adjusted for age, sex, SES, BMI, co-morbidity, vaccination,\n operation category, emergency, previous COVID-19, \n COVID_19 wave, and competing risks of death and readmission")
+
+``` 
 
 ## COVID impact on post operative Mortality
 

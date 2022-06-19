@@ -29,9 +29,12 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
 n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
-post.op.covid.model <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+post.op.covid.model.waves <- 
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency*wave + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort)], model = T))
+
+data.table::fwrite(broom::tidy(post.op.covid.model.waves[[1]], exponentiate= T, conf.int = T), file = here::here("output","post.op.covid.model.waves.csv"))
+
 
 new.data.postop <- data.table::data.table(
   'start' = rep(0,8*length(procedures)),
@@ -66,9 +69,20 @@ cuminc.adjusted.waves <-
 
 colnames(cuminc.adjusted.waves) <- paste0('Wave_',1:4)
 rownames(cuminc.adjusted.waves) <- paste0(c('Elective','Emergency'),rep(procedures, each = 2))
-
+#############################################################################################
 
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
+post.op.covid.model <- 
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal + Cardiac + 
+                                                      Obstetrics + Orthopaedic + Thoracic + Vascular + 
+                                                      age.cat + sex + bmi.cat + imd5 + 
+                                                      vaccination.status.factor + region + Current.Cancer + 
+                                                      Emergency + wave + Charl12 + recentCOVID + previousCOVID, 
+                                                    id = patient_id,
+                                                    data = dt.tv[(postop.covid.cohort)], model = T))
+
+data.table::fwrite(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","post.op.covid.model.csv"))
+
 
 adjusted.cuminc <-  foreach::foreach(predi = 1:length(covariates), .combine = 'c', .inorder = T) %do% {
                            newdata.rows <- length(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])]))
@@ -99,7 +113,7 @@ adjusted.cuminc <-  foreach::foreach(predi = 1:length(covariates), .combine = 'c
                                                                   )
                             if ( predi <= length(procedures)) {
                                 newdata.pred[,(procedures) := F]
-                                newdata.pred[,(procedures[predi]) := T]
+                                newdata.pred[,(procedures[predi]) := c(F,T)]
                             } else {
 
                             
