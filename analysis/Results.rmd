@@ -93,7 +93,7 @@ knitr::kable(comb_postop_covid,
 
 ```
 #### Selected procedures
-```{r postopcovid_subS, eval = T, echo=FALSE}
+```{r postopcovid_sub, eval = T, echo=FALSE}
 
 ################################
 # Post operative COVID risk model----
@@ -127,7 +127,7 @@ knitr::kable(cuminc.adjusted.waves,col.names = paste0("Wave ",1:4),caption = pas
 ```
 
 #### Selected procedures
-```{r postopcovid_waves}
+```{r postopcovid_waves_sub}
 
 knitr::kable(cuminc.adjusted.waves.sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 30 day post operative COVID of patients by selected procedures type stratified by COVID-19 wave."), row.names = T, digits = 2)
 
@@ -148,7 +148,7 @@ ggplot2::xlab("Risk Period post discharge") +
 ```   
 
 #### Selected procedures
-```{r postopcovid_tv}
+```{r postopcovid_tv_sub}
 load(file = here::here("output","postopcovid_tv_sub.RData"))
 
 ggplot2::ggplot(weekly.post.op.risk.sub) + 
