@@ -30,8 +30,8 @@ post.op.LOS.model <-  flexsurv::flexsurvreg(survival::Surv(start,end, event.los 
 #  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end, event.los == i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,data = dt.tv[(postop.los.cohort)], model = T))
 
 
-data.table::fwrite(broom::tidy(post.op.LOS.model, exponentiate= T, conf.int = T), file = here::here("output","post.op.LOS.model.csv"))
-
+#data.table::fwrite(broom::tidy(post.op.LOS.model, exponentiate= T, conf.int = T), file = here::here("output","post.op.LOS.model.csv"))
+write.table(tidy.flexsurvreg(post.op.LOS.model), here::here("output","post.op.LOS.model.csv"), sep = ",",quote = F, row.names = F)
 
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
                                                 'end' = rep(30,8*length(procedures)),

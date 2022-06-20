@@ -63,7 +63,7 @@ new.data.postop <- data.table::data.table(
 cuminc.adjusted.waves <- 
   matrix(cuminc.cox(n.type.events = n.type.events,
                     dt = 'dt.tv',
-                    model = 'post.op.covid.model', 
+                    model = 'post.op.covid.model.waves', 
                     newdata = 'new.data.postop',
                     day = 30), byrow = T, ncol = 4)
 

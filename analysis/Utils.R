@@ -578,3 +578,18 @@ cuminc.cox <- function(n.type.events,dt, model, newdata, day) {
         outer(unlist(base.haz.merge[,2]),unlist(lp[[1]]),'*'),2,cumsum), digits = 3))[day,])
 }
 
+glance.flexsurvreg <- function(x,...) {
+	tibble::tibble(
+		logLik = x$loglik,
+		AIC = x$AIC,
+		df.residual = x$pars
+	)
+}
+
+tidy.flexsurvreg <- function(x,...) {
+	tibble::tibble(
+		term = names(x$coefficients),
+		estimate = x$coefficients,
+		std.error = x$res[,4]
+	)
+}
