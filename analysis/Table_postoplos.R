@@ -31,7 +31,7 @@ post.op.LOS.model <-  flexsurv::flexsurvreg(survival::Surv(start,end, event.los 
 
 
 #data.table::fwrite(broom::tidy(post.op.LOS.model, exponentiate= T, conf.int = T), file = here::here("output","post.op.LOS.model.csv"))
-write.table(tidy.flexsurvreg(post.op.LOS.model), here::here("output","post.op.LOS.model.csv"), sep = ",",quote = F, row.names = F)
+write.table(tidy.flexsurvreg(post.op.LOS.model), here::here("output","postopLOSmodel.csv"), sep = ",",quote = F, row.names = F)
 
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
                                                 'end' = rep(30,8*length(procedures)),

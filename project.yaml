@@ -47,7 +47,7 @@ actions:
       moderately_sensitive:
         table_adjusted: output/postopcovid_adjusted.RData
         model_adjusted: output/post.op.covid.model.csv
-        model_adjusted_waves: output/post.op.covid.model.waves.csv
+        model_adjusted_waves: output/postopcovidmodelwaves.csv
 
   table_postopcovid_tv:      
     run: r:latest analysis/Table_postopcovid_tv.R
@@ -55,8 +55,8 @@ actions:
     outputs:
       moderately_sensitive:
         table_tv: output/postopcovid_tv.RData
-        model_VTE_tv: output/post.op.VTE.model.split.csv
-        model_COVID_tv: output/post.op.covid.model.split.csv
+        model_VTE_tv: output/postopVTEmodelsplit.csv
+        model_COVID_tv: output/postopcovidmodelsplit.csv
 
   table_postopLOS:      
     run: r:latest analysis/Table_postoplos.R
@@ -64,7 +64,7 @@ actions:
     outputs:
       moderately_sensitive:
         table_los: output/postoplos.RData
-        model_los: output/post.op.LOS.model.csv
+        model_los: output/postopLOSmodel.csv
         
   table_postopVTE:      
     run: r:latest analysis/Table_postopVTE.R
@@ -72,7 +72,7 @@ actions:
     outputs:
       moderately_sensitive:
         table_VTE: output/postopVTE.RData
-        model_VTE: output/post.op.VTE.model.csv
+        model_VTE: output/postopVTEmodel.csv
         
   table_postopmortality:      
     run: r:latest analysis/Table_postopmortality.R
@@ -80,7 +80,7 @@ actions:
     outputs:
       moderately_sensitive:
         table_mortality: output/postopmortality.RData
-        model_mortality: output/post.op.died.model.csv
+        model_mortality: output/postopdiedmodel.csv
 
   analysis_crude:
     run: r:latest analysis/analysis_crude.R

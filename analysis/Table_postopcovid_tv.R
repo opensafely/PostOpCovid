@@ -81,7 +81,7 @@ data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split <- 
   lapply(1:2, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal*week.post.disch + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,data = dt.tv.splits[(postop.covid.cohort) & start <=end], model = T))
 
-data.table::fwrite(broom::tidy(post.op.covid.model.split[[1]], exponentiate= T, conf.int = T), file = here::here("output","post.op.covid.model.split.csv"))
+data.table::fwrite(broom::tidy(post.op.covid.model.split[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelsplit.csv"))
 
 
 newdata.rows <- length(levels(dt.tv.splits$week.post.disch)) - 1
@@ -168,7 +168,7 @@ post.op.VTE.model.split <-
                                           id = patient_id,
                                           data = dt.tv.splits[(postcovid.VTE.cohort) & start <=end], model = T))
 
-data.table::fwrite(broom::tidy(post.op.VTE.model.split[[1]], exponentiate= T, conf.int = T), file = here::here("output","post.op.VTE.model.split.csv"))
+data.table::fwrite(broom::tidy(post.op.VTE.model.split[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelsplit.csv"))
 
 
 newdata.rows <- length(levels(dt.tv.splits$week.post.disch)) - 1

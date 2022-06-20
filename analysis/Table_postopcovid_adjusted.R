@@ -81,7 +81,7 @@ post.op.covid.model <-
                                                     id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort)], model = T))
 
-data.table::fwrite(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","post.op.covid.model.csv"))
+data.table::fwrite(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodel.csv"))
 
 
 adjusted.cuminc <-  foreach::foreach(predi = 1:length(covariates), .combine = 'c', .inorder = T) %do% {
