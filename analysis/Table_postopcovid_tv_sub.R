@@ -12,6 +12,7 @@ load(file = here::here("output","cohort_long.RData"))
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
+n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
@@ -84,9 +85,9 @@ dt.tv.splits <- dt.tv.splits[is.finite(los.end)]
 dt.tv.splits[event == 3, event := 2]
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split.sub <- 
-  lapply(1:2, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Colectomy*week.post.disch + Cholecystectomy + HipReplacement + 
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Colectomy + Cholecystectomy + HipReplacement + 
                                             KneeReplacement + age.cat + sex + bmi.cat + imd5 + wave + 
-                                            vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + 
+                                            vaccination.status.factor + region + Current.Cancer + Emergency*week.post.disch  + Charl12 + 
                                             recentCOVID + previousCOVID,
                                           id = patient_id,
                                           data = dt.tv.splits[(postop.covid.cohort) & start <=end & sub.op == T], model = T))
@@ -131,15 +132,14 @@ newdata.pred <- data.table::data.table('start' = c(-7,0,7,14,21),
 #     rep(max.category(i.c),newdata.rows)
 #   }
 # })]
-n.type.events <- 2
 
-times <- lapply(1:n.type.events, function(i) { survival::basehaz(post.op.covid.model.split.sub[[i]],centered = F)$time })
+times <- lapply(n.type.events, function(i) { survival::basehaz(post.op.covid.model.split.sub[[i]],centered = F)$time })
 
-base.haz <- lapply(1:n.type.events, function(i) { data.table::data.table('time' = times[[i]],
+base.haz <- lapply(n.type.events, function(i) { data.table::data.table('time' = times[[i]],
                                                                          'base.haz' = survival::basehaz(post.op.covid.model.split.sub[[i]],centered = F)[,1] -
                                                                            c(0,head(survival::basehaz(post.op.covid.model.split.sub[[i]],centered = F)[,1],-1)))})
 
-lp <- lapply(1:n.type.events, function(i) {  data.table::data.table('time' = seq(-7,21,7),
+lp <- lapply(n.type.events, function(i) {  data.table::data.table('time' = seq(-7,21,7),
                                                                     'risk' = exp(predict(object = post.op.covid.model.split.sub[[i]],
                                                                                          type = 'lp', 
                                                                                          newdata = newdata.pred))) })
@@ -169,10 +169,10 @@ weekly.post.op.risk.sub  <-  data.table::data.table("Risk" = weekly.post.op.risk
 
 ##############
 post.op.VTE.model.split.sub <- 
-  lapply(1:2, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Colectomy + survival::strata(postcovid)*week.post.disch +  
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Colectomy + survival::strata(postcovid) +  
                                             Cholecystectomy + HipReplacement + KneeReplacement + age.cat + 
                                             sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + 
-                                            Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, 
+                                            Current.Cancer + Emergency*week.post.disch + Charl12 + recentCOVID + previousCOVID, 
                                           id = patient_id,
                                           data = dt.tv.splits[(postcovid.VTE.cohort) & start <=end & sub.op == T], model = T))
 
@@ -205,15 +205,13 @@ newdata.pred <- data.table::data.table('start' = rep(c(-7,0,7,14,21), times = 2)
                                        'previousCOVID' = rep(F,newdata.rows*2)
 )
 
-n.type.events <- 2
+times <- lapply(n.type.events, function(i) { survival::basehaz(post.op.VTE.model.split.sub[[i]],centered = F)$time })
 
-times <- lapply(1:n.type.events, function(i) { survival::basehaz(post.op.VTE.model.split.sub[[i]],centered = F)$time })
-
-base.haz <- lapply(1:n.type.events, function(i) { data.table::data.table('time' = times[[i]],
+base.haz <- lapply(n.type.events, function(i) { data.table::data.table('time' = times[[i]],
                                                                          'base.haz' = survival::basehaz(post.op.VTE.model.split.sub[[i]],centered = F)[,1] -
                                                                            c(0,head(survival::basehaz(post.op.VTE.model.split.sub[[i]],centered = F)[,1],-1)))})
 
-lp <- lapply(1:n.type.events, function(i) {  data.table::dcast(data.table::data.table('patient_id' = rep(1:2, each = 5),
+lp <- lapply(n.type.events, function(i) {  data.table::dcast(data.table::data.table('patient_id' = rep(1:2, each = 5),
   'time' = rep(seq(-7,21,7),2),
                                                                     'risk' = exp(predict(object = post.op.VTE.model.split.sub[[i]],
                                                                                          type = 'lp', 

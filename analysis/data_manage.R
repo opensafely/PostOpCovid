@@ -320,6 +320,10 @@ dt.tv[,Current.Cancer := substr(primary_diagnosis,1,1) =='C']
 dt.tv[is.na(Current.Cancer), Current.Cancer := F]
 dt.tv[,(proc.tval.cols) := NULL]
 
+sub.procedures <- c('Colectomy','Cholecystectomy',
+                'HipReplacement','KneeReplacement')
+dt.tv[,(sub.procedures) := lapply(.SD, function(x) max(x, na.rm = T)), by = .(patient_id, end.fu), .SDcols = c(sub.procedures)]                
+
 ## Coalescing outcome event variables into continuous record
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,COVIDpositivedate  := min(do.call(pmax, c(.SD, na.rm = T)), na.rm = T), .SDcols = paste0(procedures,"_date"), by = .(patient_id, end.fu)]
