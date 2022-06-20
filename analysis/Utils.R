@@ -553,6 +553,41 @@ cuminc.km <- function(x,niter)  {
   )
 }
 
+
+cuminc.km.sub <- function(x,niter)  { 
+  safelog <- function(x) { x[x < 1e-200] <- 1e-200; log(x) }
+  n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) & sub.op == T & !is.na(get(x)),event]))[-1]
+  data.table::setkey(dt.tv, patient_id, tstart,tstop)
+  est <- boot.est <- Reduce(function(x, y) merge(x, y, by = c("strata",'time'),all = T,sort = T, incomparables = 0),
+                            lapply(n.type.events, function(i) data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==i) ~ get(x), 
+                                                                                                          data = dt.tv[(postop.covid.cohort) & sub.op == T & !is.na(get(x))], 
+                                                                                                          id = patient_id),
+                                                                                        times = sort(unique(dt.tv[(postop.covid.cohort) & sub.op == T &    event == i & !is.na(get(x)),end])), 
+                                                                                        extend = T
+                            )[c('strata','time','n.risk', 'n.event')])[,(paste0('haz',i)) := n.event/n.risk][,c(1,2,5)])
+  )[,(paste0('haz',n.type.events)) := lapply(.SD, function(x) data.table::fifelse(is.na(x),0,x)), .SDcols = paste0('haz',n.type.events)][
+    order(strata,time),
+    .(time,cumsum(exp(cumsum(log(1-Reduce('+',.SD))))*haz1)),
+    keyby = strata, 
+    .SDcols = paste0('haz',n.type.events)][time == 30,
+                                           round(tail(V2,1),digits = 3)*100, 
+                                           keyby = strata] 
+  return(cbind(est[,1],
+               rnd(dt.tv[(postop.covid.cohort) & !is.na(get(x)) & sub.op == T & start == 0,.N, keyby = list(get(x))][,2]),
+               rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==1) ~ get(x), 
+                                                               data = dt.tv[(postop.covid.cohort) & !is.na(get(x)) & sub.op == T,],
+                                                               id = patient_id), 
+                                             times = 30,
+                                             extend = T)[c('n.event')])),
+               100*round(1 - (data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==1) ~ get(x), 
+                                                                          data = dt.tv[(postop.covid.cohort) & !is.na(get(x)) & sub.op == T,],
+                                                                          id = patient_id), times = 30,
+                                                         extend = T)[c('surv')])), digits = 3),
+               est[,2]
+  )
+  )
+}
+
 cuminc.cox <- function(n.type.events,dt, model, newdata, day) {
   
   base.haz <- EVAL('lapply(n.type.events, function(i) { survival::basehaz(',model,'[[i]],centered = F)})')
