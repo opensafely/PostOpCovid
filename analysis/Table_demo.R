@@ -8,7 +8,8 @@ source(here::here("analysis","Utils.R"))
 ###########################################################
 
 load(file = here::here("output","cohort_long.RData"))
-procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
+procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular', 'Colectomy','Cholecystectomy',
+                'HipReplacement','KneeReplacement')
 
 ## Count variables for demographic tables
 dt.tv[,postVTE90.perepisode := max(post.VTE & end <=90,na.rm = T), keyby = .(patient_id, end.fu)]
@@ -76,7 +77,7 @@ demo.tab <-
                                                                                                                     digits = 1),
                                                                                                               '%)')
                                                                                     ),
-                                                                                    .SDcols = 2:7],
+                                                                                    .SDcols = 2:(length(procedures)+ 1)],
                                   sort(unique(dt.tv$region))
                                 ),
                                 make.names = "V2"),
@@ -93,7 +94,7 @@ demo.tab <-
                                                                                                                                round(100*x/sum(x,na.rm = T),
                                                                                                                                      digits = 1),
                                                                                                                                '%)')[order(-x)]),
-                                                                                                     .SDcols = 2:7][1:5,]),
+                                                                                                     .SDcols = 2:(length(procedures) + 1)][1:5,]),
                                 make.names = 'V1')
   ),
   make.names = 'procedures',
