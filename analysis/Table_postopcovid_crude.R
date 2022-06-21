@@ -17,6 +17,8 @@ covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
+ data.table::setnafill(dt.tv[,(covariates)], 0)
+
 crude.covid.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[(postop.covid.cohort),
                                                                                                                               as.factor(get(covariates[i]))]))), 
                                                                                         levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]),

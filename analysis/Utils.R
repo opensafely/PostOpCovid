@@ -575,7 +575,7 @@ cuminc.km.sub <- function(x,niter)  {
   return(cbind(est[,1],
                rnd(dt.tv[(postop.covid.cohort) & !is.na(get(x)) & sub.op == T & start == 0,.N, keyby = list(get(x))][,2]),
                rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==1) ~ get(x), 
-                                                               data = dt.tv[(postop.covid.cohort) & !is.na(get(x)) & sub.op == T,],
+                                                               data = dt.tv[(postop.covid.cohort) & !is.na(get(x)) & sub.op == T & start >= 0,],
                                                                id = patient_id), 
                                              times = 30,
                                              extend = T)[c('n.event')])),

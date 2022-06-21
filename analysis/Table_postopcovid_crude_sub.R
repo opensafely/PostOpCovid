@@ -21,6 +21,8 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
         (is.finite(KneeReplacement) & KneeReplacement == T)]
 
+ data.table::setnafill(dt.tv[,(covariates)], 0)
+ 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 crude.covid.cov.sub <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[(postop.covid.cohort),
