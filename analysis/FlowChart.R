@@ -55,7 +55,7 @@ p <- p + ggplot2::geom_rect(xmin = 70, xmax=101, ymin=86, ymax=98, color='black'
 
 p <- p + ggplot2::geom_rect(xmin = 28, xmax=71, ymin=62, ymax=78, color='black',
                             fill='white', size=0.25) +
-  ggplot2::annotate('text', x= 50, y=71,label= paste0("Procedure categories (not mutually exclusive):\n",paste(paste0(names(n.ops),':'),n.ops, collapse = ' procedures \n '),' procedures'), size=2.5)
+  ggplot2::annotate('text', x= 50, y=71,label= paste0(sum(n.ops)," Procedures in categories (not mutually exclusive):\n",paste(paste0(names(n.ops),':'),n.ops, collapse = ' procedures \n '),' procedures'), size=2.5)
 
 p <- p +
   ggplot2::geom_segment(
