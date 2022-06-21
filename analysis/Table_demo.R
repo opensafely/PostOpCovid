@@ -12,11 +12,11 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
                 'HipReplacement','KneeReplacement')
 
 ## Count variables for demographic tables
-dt.tv[,postVTE90.perepisode := max(post.VTE & end <=90,na.rm = T), keyby = .(patient_id, end.fu)]
+dt.tv[,postVTE90.perepisode := max(post.VTE & end <=90 & start >=0,na.rm = T), keyby = .(patient_id, end.fu)]
 dt.tv[!is.finite(postVTE90.perepisode),postVTE90.perepisode := 0]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[ ,postCOVID30.perepisode := event == 1 & end <=30]
+dt.tv[ ,postCOVID30.perepisode := event == 1 & end <=30 & start >=0]
 
 dt.tv[,postCOVID30.perepisode := max(postCOVID30.perepisode,na.rm = T), keyby = .(patient_id, end.fu)]
 dt.tv[!is.finite(postCOVID30.perepisode),postCOVID30.perepisode := 0]
@@ -33,7 +33,7 @@ last.date <-  dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date) &
 
 demo.tab <- 
   data.table::transpose(cbind(data.table::data.table("procedures" = procedures),
-                              foreach::foreach(i = 1:length(procedures), .combine = 'rbind', .inorder = T) %do% dt.tv[(postop.covid.cohort) & start ==0  & final.date >= tstop & any.op == T & get(paste0(procedures[i])) == T,
+                              foreach::foreach(i = 1:length(procedures), .combine = 'rbind', .inorder = T) %do% dt.tv[(postop.covid.cohort) & start ==0  & final.date >= tstop & any.op == T & get(paste0(procedures[i])) == T,tail(.SD,1),keyby = .(patient_id,end_fu)][,
                                                                                                                       .("Procedures" = rnd(.N),
                                                                                                                         "Patients" = rnd(length(unique(patient_id))),
                                                                                                                         "Female" = n.perc(sex=='F',dig = 3),
@@ -59,9 +59,9 @@ demo.tab <-
                                                                                                                         "Charlson index" = median.iqr(Charlson, dig = 1),
                                                                                                                         "Length of stay (IQR)" =  median.iqr(discharge.date - admit.date,dig = 0),
                                                                                                                         "90 day mortality (%)" =n.perc(date.90.day(x = date_death_ons, ref.dat = admit.date),dig = 4),
-                                                                                                                        "30 day COVID-19 (%)" = n.perc(postCOVID30.perepisode, dig = 3),
-                                                                                                                        "Recent COVID_19 (%)" = paste0(rnd(sum(recentCOVID, na.rm = T))," (", round(100*mean(recentCOVID != "", na.rm = T), digits = 1),"%)"),
-                                                                                                                        "Previous COVID_19 (%)" = paste0(rnd(sum(previousCOVID, na.rm = T))," (", round(100*mean(previousCOVID != "", na.rm = T), digits = 1),"%)"),
+                                                                                                                        "30 day post operative COVID-19 (%)" = n.perc(postCOVID30.perepisode, dig = 3),
+                                                                                                                        "Recent 7 to 42 days COVID-19 (%)" = paste0(rnd(sum(recentCOVID, na.rm = T))," (", round(100*mean(recentCOVID != "", na.rm = T), digits = 1),"%)"),
+                                                                                                                        "Previous > 42 COVID-19 (%)" = paste0(rnd(sum(previousCOVID, na.rm = T))," (", round(100*mean(previousCOVID != "", na.rm = T), digits = 1),"%)"),
                                                                                                                         "90 day VTE (%)" = n.perc(postVTE90.perepisode, dig = 4))],
                               data.table::transpose(
                                 cbind(
