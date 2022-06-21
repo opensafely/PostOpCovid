@@ -16,7 +16,7 @@ n.pats <- rnd(length(unique(dt.tv[,patient_id])))
 n.pats.study <- rnd(length(unique(dt.tv[start ==0 & is.finite(admit.date) & any.op == T & admit.date <= end.fu,patient_id])))
 n.pats.late <- rnd(length(unique(dt.tv[admit.date > gp.end & any.op == T,patient_id])))
 
-n.covid.90 <- rnd(dt.tv[any.op == T,max(event == 1 & end <=90, na.rm = T) , keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.covid.90 <- rnd(dt.tv[any.op == T,max(event == 1 & start >=0 & end <=90, na.rm = T) , keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 n.covid.90.censored <- rnd(dt.tv[(postop.covid.cohort) & any.op == T,max(event == 1 & end <=90, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 n.covid.30.censored <- rnd(dt.tv[(postop.covid.cohort) & any.op == T,max(event == 1 & end <=30, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 n.covid.7.censored <- rnd(dt.tv[(postop.covid.cohort) & any.op == T,max(event == 1 & end <=7, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])

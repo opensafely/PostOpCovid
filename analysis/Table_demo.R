@@ -12,11 +12,11 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
                 'HipReplacement','KneeReplacement')
 
 ## Count variables for demographic tables
-dt.tv[,postVTE90.perepisode := max(post.VTE & end <=90 & start >=0,na.rm = T), keyby = .(patient_id, end.fu)]
+dt.tv[,postVTE90.perepisode := max(post.VTE & end <=90 & start >=0 & (postop.covid.cohort) &   final.date >= tstop & any.op == T ,na.rm = T), keyby = .(patient_id, end.fu)]
 dt.tv[!is.finite(postVTE90.perepisode),postVTE90.perepisode := 0]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[ ,postCOVID30.perepisode := event == 1 & end <=30 & start >=0]
+dt.tv[,postCOVID30.perepisode := event == 1 & end <=30 & start >=0 & (postop.covid.cohort) &   final.date >= tstop & any.op == T ]
 
 dt.tv[,postCOVID30.perepisode := max(postCOVID30.perepisode,na.rm = T), keyby = .(patient_id, end.fu)]
 dt.tv[!is.finite(postCOVID30.perepisode),postCOVID30.perepisode := 0]
