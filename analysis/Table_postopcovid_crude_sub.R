@@ -21,7 +21,7 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
         (is.finite(KneeReplacement) & KneeReplacement == T)]
 
- data.table::setnafill(dt.tv[,(covariates)], 0)
+dt.tv[,(covariates) := lapply(.SD, function(x) data.table::fifelse(is.na(x),0,x)), .SDcols = c(covariates)]
  
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
