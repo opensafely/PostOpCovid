@@ -16,7 +16,7 @@ procs <- paste0(rep(procedures,each = 5),"_",1:5)
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
 dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
 dt[, imd := as.numeric(imd)]
-dt[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordered_result = F)]
+dt[, imd5 := cut(imd, breaks = seq(-1,33000,33000/5),  include.lowest = T, ordered_result = F)]
 
 ####################################################################
 # Multiple operations per row. Reshape to long format
@@ -364,10 +364,16 @@ dt.tv[,(c(proc.time.cols.start,proc.time.cols.end)) := NULL]
 # Pre operative risk factors----
 ##############################
 dt.tv[,age := floor((tstart - as.numeric(as.Date(paste0(dob,'-15'))))/365.25)]
-dt.tv[,age.cat := cut(age, breaks = c(1,50,70,80,90),ordered_result = F , right = T, include.lowest = T)]
-dt.tv[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordered_result = F)]
-dt.tv[, bmi.cat := cut(bmi, breaks = c(0,18,24,29,100),  include.lowest = T, ordered_result = F)]
+max.age <- max(dt.tv$age,na.rm = T)
+dt.tv[,age.cat := cut(age, breaks = c(1,50,70,80,max.age),ordered_result = F , right = T, include.lowest = T)]
 
+dt.tv[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordered_result = F)]
+levels(dt.tv$imd5) <- "Missing"
+dt.tv[is.na(imd5) , imd5 := "Missing"]
+
+dt.tv[, bmi.cat := cut(bmi, breaks = c(0,18,24,29,100),  include.lowest = T, ordered_result = F)]
+levels(dt.tv$bmi.cat) <- "Missing"
+dt.tv[is.na(bmi.cat) , bmi.cat := "Missing"]
 
 ### Calculate Charlson index at time of operation - tdc so date present from first recording
 comorb.cols <- c(names(dt)[grep("^pre",names(dt))])
@@ -393,8 +399,9 @@ dt.tv[, Charlson := is.finite(pre_MI_GP) +
         is.finite(pre_Metastases_GP)*6 +
         is.finite(pre_HIV_GP)*6]  
 
-dt.tv[,Charl12 := cut(Charlson, breaks = c(0,1,2,100), labels = c("None","Single","Multiple or Severe"), ordered = F)]
-
+dt.tv[,Charl12 := cut(Charlson, breaks = c(0,1,2,100),  include.lowest = T, labels = c("None","Single","Multiple or Severe"), ordered = F)]
+levels(dt.tv$Charl12) <- "Missing"
+dt.tv[is.na(Charl12) , Charl12 := "Missing"]
 ## Operation type
 
 #dt.tv[Trauma == F & op.type == 'FractureProcedure',op.type := NA]
@@ -411,8 +418,8 @@ dt.tv[,Emergency := max(Emergency, na.rm = T), by = .(patient_id, end.fu)]
 
 ## Define vaccination status - 14 days post date as effective
 dt.tv[, vaccination.status := is.finite(covid_vaccine_dates_1) + is.finite(covid_vaccine_dates_2) + is.finite(covid_vaccine_dates_3)]
-dt.tv[,vaccination.status.factor := factor(vaccination.status, ordered = F)]
-
+dt.tv[,vaccination.status.factor := factor(vaccination.status, include.lowest = T, ordered = F)]
+dt.tv[is.na(vaccination.status.factor), vaccination.status.factor := 0]
 ##############################
 #Post operative outcomes----
 ##############################
@@ -439,7 +446,7 @@ dt.tv[,postVTEany := cumsum(post.VTE), by = .(patient_id, end.fu)]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,VTE.end := min(as.numeric(post.VTE.date), na.rm = T), by = .(patient_id, end.fu) ]
-
+dt.tv[!is.finite(VTE.end), VTE.end := end.fu]
 
 ### Post operative Covid-19----
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -448,6 +455,7 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,postcovid := cumsum(COVIDpositive), by = .(patient_id, end.fu)]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,covid.end := min(as.numeric(COVIDpositivedate), na.rm = T), by = .(patient_id, end.fu) ]
+dt.tv[!is.finite(covid.end), covid.end := end.fu]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,recentCOVID := is.finite(recentCOVIDpositivedate) ]
