@@ -33,7 +33,7 @@ last.date <-  dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date) &
 
 demo.tab <- 
   data.table::transpose(cbind(data.table::data.table("procedures" = procedures),
-                              foreach::foreach(i = 1:length(procedures), .combine = 'rbind', .inorder = T) %do% dt.tv[(postop.covid.cohort) & start ==0  & final.date >= tstop & any.op == T & get(paste0(procedures[i])) == T,tail(.SD,1),keyby = .(patient_id,end_fu)][,
+                              foreach::foreach(i = 1:length(procedures), .combine = 'rbind', .inorder = T) %do% dt.tv[(postop.covid.cohort) & start ==0  & final.date >= tstop & any.op == T & get(paste0(procedures[i])) == T,tail(.SD,1),keyby = .(patient_id,end.fu)][,
                                                                                                                       .("Procedures" = rnd(.N),
                                                                                                                         "Patients" = rnd(length(unique(patient_id))),
                                                                                                                         "Female" = n.perc(sex=='F',dig = 3),
