@@ -148,10 +148,10 @@ base.haz.merge <- Reduce(x =base.haz,f = function(x,y) merge(x,y,by = 'time', no
 
 
 weekly.post.op.risk.sub <- 
-  unlist(round(100*cumsum(exp(cumsum(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
-    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.SD[,1]*.SD[,2] ,.SDcols = c(2:3)] 
-  })))))*
-    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.SD[,1]*.SD[,2] ,.SDcols = c(2:3)] ), digits = 3))
+  unlist(round(100*apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
+    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)] 
+  })))),2,cumsum)*
+    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)],2,cumsum ), digits = 3))
 
 weekly.post.op.risk.sub[!is.finite(weekly.post.op.risk.sub)] <- 0
 

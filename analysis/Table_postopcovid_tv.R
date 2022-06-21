@@ -127,7 +127,7 @@ newdata.pred <- data.table::data.table('start' = c(-7,0,7,14,21),
 
 times <- lapply(n.type.events, function(i) { survival::basehaz(post.op.covid.model.split[[i]],centered = F)$time })
 
-base.haz <- lapply:n.type.events, function(i) { data.table::data.table('time' = times[[i]],
+base.haz <- lapply(n.type.events, function(i) { data.table::data.table('time' = times[[i]],
                                                                          'base.haz' = survival::basehaz(post.op.covid.model.split[[i]],centered = F)[,1] -
                                                                            c(0,head(survival::basehaz(post.op.covid.model.split[[i]],centered = F)[,1],-1)))})
 
@@ -140,10 +140,10 @@ base.haz.merge <- Reduce(x =base.haz,f = function(x,y) merge(x,y,by = 'time', no
 
 
 weekly.post.op.risk <- 
-  unlist(round(100*cumsum(exp(cumsum(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
-    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.SD[,1]*.SD[,2] ,.SDcols = c(2:3)] 
-  })))))*
-    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.SD[,1]*.SD[,2] ,.SDcols = c(2:3)] ), digits = 3))
+  unlist(round(100*apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
+    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)] 
+  }))),2,cumsum))*
+    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)] ,2,cumsum), digits = 3))
 
 weekly.post.op.risk[!is.finite(weekly.post.op.risk)] <- 0
 
