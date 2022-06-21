@@ -12,7 +12,7 @@ n.ops <- rnd(dt.tv[start ==0 & any.op == T  & is.finite(admit.date),lapply(.SD,f
 n.ops.VTE <- rnd(dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date) & any.op == T,lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
 n.ops.COVID <- rnd(dt.tv[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date) & any.op == T,lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
 
-n.pats <- rnd(length(unique(dt.tv[any.op == T,patient_id])))
+n.pats <- rnd(length(unique(dt.tv[,patient_id])))
 n.pats.study <- rnd(length(unique(dt.tv[start ==0 & is.finite(admit.date) & any.op == T & admit.date <= end.fu,patient_id])))
 n.pats.late <- rnd(length(unique(dt.tv[admit.date > gp.end & any.op == T,patient_id])))
 
@@ -55,7 +55,7 @@ p <- p + ggplot2::geom_rect(xmin = 70, xmax=101, ymin=86, ymax=98, color='black'
 
 p <- p + ggplot2::geom_rect(xmin = 28, xmax=71, ymin=62, ymax=78, color='black',
                             fill='white', size=0.25) +
-  ggplot2::annotate('text', x= 50, y=71,label= paste0(sum(n.ops)," Procedures in categories (not mutually exclusive):\n",paste(paste0(names(n.ops),':'),n.ops, collapse = ' procedures \n '),' procedures'), size=2.5)
+  ggplot2::annotate('text', x= 50, y=71,label= paste0(sum(n.ops)," Procedures in categories \n(not mutually exclusive):\n",paste(paste0(names(n.ops),':'),n.ops, collapse = ' procedures \n '),' procedures'), size=2.5)
 
 p <- p +
   ggplot2::geom_segment(
