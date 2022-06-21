@@ -368,11 +368,11 @@ max.age <- max(dt.tv$age,na.rm = T)
 dt.tv[,age.cat := cut(age, breaks = c(1,50,70,80,max.age),ordered_result = F , right = T, include.lowest = T)]
 
 dt.tv[, imd5 := cut(imd, breaks = seq(0,33000,33000/5),  include.lowest = T, ordered_result = F)]
-levels(dt.tv$imd5) <- "Missing"
+levels(dt.tv$imd5) <- c(levels(dt.tv$imd5),"Missing")
 dt.tv[is.na(imd5) , imd5 := "Missing"]
 
 dt.tv[, bmi.cat := cut(bmi, breaks = c(0,18,24,29,100),  include.lowest = T, ordered_result = F)]
-levels(dt.tv$bmi.cat) <- "Missing"
+levels(dt.tv$bmi.cat) <- c(levels(dt.tv$bmi.cat),"Missing")
 dt.tv[is.na(bmi.cat) , bmi.cat := "Missing"]
 
 ### Calculate Charlson index at time of operation - tdc so date present from first recording
@@ -400,7 +400,7 @@ dt.tv[, Charlson := is.finite(pre_MI_GP) +
         is.finite(pre_HIV_GP)*6]  
 
 dt.tv[,Charl12 := cut(Charlson, breaks = c(0,1,2,100),  include.lowest = T, labels = c("None","Single","Multiple or Severe"), ordered = F)]
-levels(dt.tv$Charl12) <- "Missing"
+levels(dt.tv$Charl12) <- c(levels(dt.tv$Charl12),"Missing")
 dt.tv[is.na(Charl12) , Charl12 := "Missing"]
 ## Operation type
 
@@ -461,6 +461,7 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,recentCOVID := is.finite(recentCOVIDpositivedate) ]
 dt.tv[,recentCOVID := max(as.numeric(recentCOVID), na.rm = T), keyby = .(patient_id, end.fu) ]
 dt.tv[!is.finite(recentCOVID), recentCOVID := 0]
+
 dt.tv[,previousCOVID := is.finite(previousCOVIDpositivedate) ]
 dt.tv[,previousCOVID := max(as.numeric(previousCOVID), na.rm = T), keyby = .(patient_id, end.fu) ]
 dt.tv[!is.finite(previousCOVID), previousCOVID := 0]
