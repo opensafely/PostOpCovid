@@ -12,7 +12,7 @@ load(file = here::here("output","cohort_long.RData"))
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
-n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
+n.type.events <- 1:2 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 

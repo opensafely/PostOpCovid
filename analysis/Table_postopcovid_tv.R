@@ -11,7 +11,7 @@ max.category <- function(predi) {unique(dt.tv[!is.na(get(covariates[predi])),get
 load(file = here::here("output","cohort_long.RData"))
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
 
-n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
+n.type.events <- 1:2 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
@@ -161,7 +161,7 @@ weekly.post.op.risk  <-  data.table::data.table("Risk" = weekly.post.op.risk - c
 
 ##############
 post.op.VTE.model.split <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Abdominal + survival::strata(postcovid) +  
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Abdominal + survival::strata(postcovid) +    
                                             Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + 
                                             sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + 
                                             Current.Cancer + Emergency*week.post.disch + Charl12 + recentCOVID + previousCOVID, 
@@ -198,7 +198,6 @@ newdata.pred <- data.table::data.table('start' = rep(c(-7,0,7,14,21), times = 2)
                                        'recentCOVID' = rep(F,newdata.rows*2),
                                        'previousCOVID' = rep(F,newdata.rows*2)
 )
-
 
 times <- lapply(n.type.events, function(i) { survival::basehaz(post.op.VTE.model.split[[i]],centered = F)$time })
 
