@@ -21,8 +21,9 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
         (is.finite(KneeReplacement) & KneeReplacement == T)]
 
-dt.tv[,(covariates) := lapply(.SD, function(x) data.table::fifelse(is.na(x),0,x)), .SDcols = c(covariates)]
- 
+bin.cov <- c(procedures,'sex','Current.Cancer','Emergency','recentCOVID','previousCOVID')
+dt.tv[,(bin.cov) := lapply(.SD, function(x) data.table::fifelse(is.na(x),F,x)), .SDcols = c(bin.cov)]
+
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 crude.covid.cov.sub <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[(postop.covid.cohort),
