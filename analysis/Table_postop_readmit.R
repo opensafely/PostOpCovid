@@ -50,7 +50,7 @@ data.table::setkey(dt.tv, patient_id, end.fu, start)
 
 post.op.readmit.model <- 
   lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event.readmit==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid*wave + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
-                                          data = dt.tv[(postcovid.readmit.cohort)], model = T))
+                                          data = dt.tv[(postop.readmit.cohort)], model = T))
 
 data.table::fwrite(broom::tidy(post.op.readmit.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodel.csv"))
 
@@ -82,7 +82,7 @@ new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedu
                                                 'patient_id' = 1:(8*length(procedures)))
 
 cuminc.adjusted.readmit <- 
-  matrix(cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv[(postcovid.readmit.cohort)]', model = 'post.op.readmit.model', newdata = 'new.data.postop.covid', day = 90), byrow = T, ncol = 4)
+  matrix(cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv[(postop.readmit.cohort)]', model = 'post.op.readmit.model', newdata = 'new.data.postop.covid', day = 90), byrow = T, ncol = 4)
 
 colnames(cuminc.adjusted.readmit) <- paste0('Wave_',1:4)
 rownames(cuminc.adjusted.readmit) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))

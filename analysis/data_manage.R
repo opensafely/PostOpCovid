@@ -564,5 +564,5 @@ dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE & end <= 90 &
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-dt.tv <- dt.tv[any.op == T & start >=0 & end <=90,]
+dt.tv <- dt.tv[(any.op == T | any.op.VTE == T) & start >=0 & end <=90,]
 save(dt.tv, file = here::here("output","cohort_long.RData"))
