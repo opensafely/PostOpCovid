@@ -17,6 +17,7 @@ output:
 knitr::opts_chunk$set(echo = F, warning = F)
 library(foreach)
 library(data.table)
+library(kableExtra)
 ncores <- parallel::detectCores(logical = T) - 1
 data.table::setDTthreads(ncores)
 max.category <- function(predi) {unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)[which.max(dt.tv[!is.na(get(covariates[predi])),.N, by = c(covariates[predi])][['N']])]}
@@ -63,7 +64,9 @@ p
 ```{r demo, results='asis', echo = F, warning=F, eval = TRUE}
 load(here::here("output","table_demo.RData"))
 
-knitr::kable(demo.tab, caption = "Demographics of patients by procedure type with counts rounded to nearest 10, columns not mutually exclusive")
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
+ knitr::kable(demo.tab, caption = "Demographics of patients by procedure type with counts rounded to nearest 10, columns not mutually exclusive")
+ )
 
 ```
 
@@ -86,11 +89,12 @@ comb_postop_covid <- cbind(crude.covid.cov,adjusted.cuminc)
 names(comb_postop_covid) <- c("Characteristic","Level","Number at risk",
                             "Number of events","30 day Cumulative Risk adjusted for censoring","30 day Cumulative Risk adjusted for death and emergency readmission","30 day Cumulative Risk adjusted for all covariates")
 
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(comb_postop_covid, 
              caption = paste0("Cumulative incidence of 30 day post operative COVID of patients by procedure type with counts rounded to nearest 10. Adjusted predictions set for 50 year old female with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation")
              #at their most frequent population values:\n procedure = ", procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])], Reduce(lapply(which(covariates == 'age.cat'):which(covariates == 'previousCOVID'), function(i) paste0(covariates[i] ,' = ',max.category(which(covariates == covariates[i])))), f =function(x,y) paste(x,y, collapse = ", ")))
              )
-
+)
 ```
 #### Selected procedures
 ```{r postopcovid_sub, eval = T, echo=FALSE}
@@ -107,12 +111,13 @@ comb_postop_covid.sub <- cbind(crude.covid.cov.sub,adjusted.cuminc.sub)
 
 names(comb_postop_covid.sub) <- c("Characteristic","Level","Number at risk",
                             "Number of events","30 day Cumulative Risk adjusted for censoring","30 day Cumulative Risk adjusted for death and emergency readmission","30 day Cumulative Risk adjusted for all covariates")
-
+ 
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(comb_postop_covid.sub, 
              caption = paste0("Cumulative incidence of 30 day post operative COVID of patients by procedure type with counts rounded to nearest 10. Adjusted predictions set for 50 year old female with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation")
              #at their most frequent population values:\n procedure = ", procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])], Reduce(lapply(which(covariates == 'age.cat'):which(covariates == 'previousCOVID'), function(i) paste0(covariates[i] ,' = ',max.category(which(covariates == covariates[i])))), f =function(x,y) paste(x,y, collapse = ", ")))
              )
-
+)
 ```
 
 
@@ -122,15 +127,17 @@ The  adjusted cumulative risk estimates were calculated for each COVID-19 wave s
 
 ```{r postopcovid_waves}
 
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(cuminc.adjusted.waves,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 30 day post operative COVID of patients by procedure type stratified by COVID-19 wave."), row.names = T, digits = 2)
-
+ )
 ```
 
 #### Selected procedures
 ```{r postopcovid_waves_sub}
 
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(cuminc.adjusted.waves.sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 30 day post operative COVID of patients by selected procedures type stratified by COVID-19 wave."), row.names = T, digits = 2)
-
+ )
 ```
 
 ### Post operative COVID-19 risk by weekly post discharge period
@@ -178,8 +185,9 @@ load(file = here::here("output","postoplos_sub.RData"))
 
 #knitr::kable(broom::tidy(post.op.LOS.model, exponentiate= T, conf.int = T),digits = 2)
 
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(mean.adjusted.los.sub,col.names = paste0("Wave ",1:4),caption = paste0("Predicted mean length of stay for patients by procedure type and COVID-19 infection, stratified by COVID-19 wave."), row.names = T, digits = 2)
-
+ )
 ```
 
 ## Post operative VTE risk
@@ -190,8 +198,9 @@ load(file = here::here("output","postopVTE.RData"))
 #knitr::kable(broom::tidy(post.op.VTE.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 
 
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
-
+ )
 
 ```
 
@@ -202,7 +211,7 @@ ggplot2::ggplot(weekly.post.op.VTE.risk) +
                                                                       y = Risk, 
                                  group = COVID, 
                                  colour = COVID,
-                                 fill = COVID)) +
+                                 fill = COVID), position = "dodge") +
 ggplot2::xlab("Risk Period post discharge") + 
   ggplot2::ylab("Cumulative risk during time period") + ggplot2::ggtitle("Post operative risk of VTE over time stratified by COVID-19 infection",
                                                                          subtitle = "Adjusted for age, sex, SES, BMI, co-morbidity, vaccination,\n operation category, emergency, previous COVID-19, \n COVID_19 wave, and competing risks of death and readmission")
@@ -216,8 +225,9 @@ load(file = here::here("output","postopVTE_sub.RData"))
 #knitr::kable(broom::tidy(post.op.VTE.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 
 
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(cuminc.adjusted.VTE.sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
-
+ )
 
 ```
 
@@ -228,7 +238,7 @@ ggplot2::ggplot(weekly.post.op.VTE.risk.sub) +
                                                                       y = Risk, 
                                  group = COVID, 
                                  colour = COVID,
-                                 fill = COVID)) +
+                                 fill = COVID), position = "dodge") +
 ggplot2::xlab("Risk Period post discharge") + 
   ggplot2::ylab("Cumulative risk during time period") + ggplot2::ggtitle("Post operative risk of VTE over time stratified by COVID-19 infection",
                                                                          subtitle = "Adjusted for age, sex, SES, BMI, co-morbidity, vaccination,\n operation category, emergency, previous COVID-19, \n COVID_19 wave, and competing risks of death and readmission")
@@ -243,8 +253,9 @@ load(file = here::here("output","postopmortality.RData"))
 #knitr::kable(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 
 
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(cuminc.adjusted.mortality,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative mortality risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
-
+ )
 ```
 
 #### Selected procedures
@@ -256,20 +267,28 @@ load(file = here::here("output","postopmortality_sub.RData"))
 #knitr::kable(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 
 
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(cuminc.adjusted.mortality.sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative mortality risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
-
+ )
 ```
 
-################################
-# COVID impact on Emergency Readmission ----
-#################################
-data.table::setkey(dt.tv,"patient_id","tstart","tstop")
+# COVID impact on Emergency Readmission
 
-post.op.los.post.covid.model <- survival::coxph(survival::Surv(start,end,emergency_readmit) ~ op.type + postcovid*wave + age + sex + bmi + factor(vaccination.status, ordered = F) + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, 
-                                                id = patient_id, data = dt.tv[start>=0 & tstop <= readmit.end])
-data.table::fwrite(broom::tidy(post.op.los.post.covid.model, exponentiate= T, conf.int = T), file = here::here("output","post_op_readmit_post_covid_model.csv"))
+```{r postopreadmit}
+load(file = here::here("output","postopreadmit.RData"))
 
-print(xtable::xtable(finalfit::finalfit.coxph(dt.tv[start>=0 & tstop <=  readmit.end ],
-                                                        'survival::Surv(start,end,emergency_readmit)',
-                                                        covariates
-)), type = 'html', file = here::here("output","post_op_readmit_ff_model.html"))
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
+knitr::kable(cuminc.adjusted.readmit,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative emergency non covid readmission risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
+ )
+```
+
+#### Selected procedures
+
+
+```{r postopreadmit_sub}
+load(file = here::here("output","postopreadmit_sub.RData"))
+
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
+knitr::kable(cuminc.adjusted.readmit_sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative emergency non covid readmission risk by selected procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
+ )
+```

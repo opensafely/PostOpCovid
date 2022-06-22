@@ -14,7 +14,7 @@ n.ops.COVID <- rnd(dt.tv[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.d
 
 n.pats <- rnd(length(unique(dt.tv[,patient_id])))
 n.pats.study <- rnd(length(unique(dt.tv[start ==0 & is.finite(admit.date) & any.op == T & admit.date <= end.fu,patient_id])))
-n.pats.late <- rnd(length(unique(dt.tv[admit.date > gp.end & any.op == T,patient_id])))
+n.pats.late <- rnd(length(unique(dt.tv[(admit.date > gp.end | !is.finite(gp.end)) & any.op == T,patient_id])))
 
 n.covid.90 <- rnd(dt.tv[,max(event == 1 & start >=0 & end <=90 & any.op == T, na.rm = T) , keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 n.covid.90.censored <- rnd(dt.tv[,max(event == 1 & start >=0  & end <=90 & (postop.covid.cohort) & any.op == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
@@ -22,9 +22,9 @@ n.covid.30.censored <- rnd(dt.tv[,max(event == 1 & start >=0  & end <=30 & (post
 n.covid.7.censored <- rnd(dt.tv[,max(event == 1 & start >=0  & start >=0  & end <=7 &(postop.covid.cohort) & any.op == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 
 n.VTE.90 <- rnd(dt.tv[any.op == T,max(event.VTE == 1 & start >=0   & end <=90 , na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.VTE.90.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=90  & (postcovid.VTE.cohort) & any.op == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.VTE.30.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=30 & (postcovid.VTE.cohort) & any.op == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.VTE.7.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=7 & (postcovid.VTE.cohort) & any.op == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.90.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=90  & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.30.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=30 & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.7.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=7 & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 
 n.surv.90 <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=90, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 n.surv.90.censored <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=90, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
@@ -53,7 +53,7 @@ p <- p + ggplot2::geom_rect(xmin = 70, xmax=101, ymin=86, ymax=98, color='black'
             fill='white', size=0.25) +
   ggplot2::annotate('text', x= 85, y=92,label= paste0(n.pats - n.pats.study,' Patients excluded: \n Procedures when not registered \n to a primary care practice \n contributing to SystmOne'), size=2.5)
 
-p <- p + ggplot2::geom_rect(xmin = 28, xmax=71, ymin=62, ymax=78, color='black',
+p <- p + ggplot2::geom_rect(xmin = 28, xmax=71, ymin=62, ymax=79, color='black',
                             fill='white', size=0.25) +
   ggplot2::annotate('text', x= 50, y=71,label= paste0(sum(n.ops)," Procedures in categories \n(not mutually exclusive):\n",paste(paste0(names(n.ops),':'),n.ops, collapse = ' procedures \n '),' procedures'), size=2.5)
 
@@ -67,7 +67,7 @@ p <- p +
     size=0.15, linejoin = "mitre", lineend = "butt",
     arrow = ggplot2::arrow(length = ggplot2::unit(1, "mm"), type= "closed")) +
   ggplot2::geom_segment(
-    x=50, xend=50, y=81.5, yend=78, 
+    x=50, xend=50, y=81.5, yend=79, 
     size=0.15, linejoin = "mitre", lineend = "butt",
     arrow = ggplot2::arrow(length = ggplot2::unit(1, "mm"), type= "closed")) +
   ggplot2::geom_segment(

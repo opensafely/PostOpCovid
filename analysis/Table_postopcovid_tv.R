@@ -1,6 +1,6 @@
 library(foreach)
 library(data.table)
-ncores <- parallel::detectCores(logical = T) - 1
+ncores <- parallel::detectCores(logical = T) 
 data.table::setDTthreads(ncores)
 
 source(here::here("analysis","Utils.R"))

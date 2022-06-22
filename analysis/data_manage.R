@@ -381,6 +381,9 @@ dt.tv[, bmi.cat := cut(bmi, breaks = c(0,18,24,29,100),  include.lowest = T, ord
 levels(dt.tv$bmi.cat) <- c(levels(dt.tv$bmi.cat),"Missing")
 dt.tv[is.na(bmi.cat) , bmi.cat := "Missing"]
 
+levels(dt.tv$region) <- c(levels(dt.tv$region),"Missing")
+dt.tv[is.na(region) , region := "Missing"]
+
 ### Calculate Charlson index at time of operation - tdc so date present from first recording
 comorb.cols <- c(names(dt)[grep("^pre",names(dt))])
 
