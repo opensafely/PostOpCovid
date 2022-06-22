@@ -53,7 +53,7 @@ post.op.readmit.model.sub <-
   lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event.readmit==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                           data = dt.tv[(postcovid.readmit.cohort)], model = T))
 
-data.table::fwrite(broom::tidy(post.op.readmit.model.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodel_sub.csv"))
+data.table::fwrite(broom::tidy(post.op.readmit.model.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodelsub.csv"))
 
 
 n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event]))[-1]
