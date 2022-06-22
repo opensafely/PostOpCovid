@@ -22,6 +22,7 @@ EVAL <- function(...)eval(parse(text = paste0(...)),envir = pos.to.env(1))
 #' Maximum by in place roll
 #'
 #' 7 times faster than using max and by
+#' Superceded by max.grp.col_ which is faster and works across columns
 #'
 #' @param dt Data table name to update as char cannot be dt or then it does copy
 #' @param aggregate.var Name char to apply min to
@@ -46,6 +47,34 @@ max.roll_ <- function(dt,aggregate.var,max.var,group)  EVAL(dt,"[,",max.var, ":=
 #'
 min.roll_ <- function(dt,aggregate.var,min.var,group) EVAL(dt,"[,",min.var, ":=",dt,"[",dt,"[,.I[which.min(",aggregate.var,")], keyby = ",group,"]$V1,c(",group,",'",aggregate.var,"')][",dt,"[,",group,"],",aggregate.var,", on = ",group,"]]")#, envir = .GlobalEnv)
 
+
+#' Maximum by in place sort across columns
+#'
+#'
+#' @param dt Data table name to update as char cannot be dt or then it does copy
+#' @param aggregate.cols Name char to apply max to
+#' @param max.var.name Name char for group max
+#' @param id.vars Char vector of grouping variable/s
+#'
+#' @return  assign.dt assigned into parent frame
+#'
+max.grp.col_ <- function(dt, max.var.name, aggregate.cols, id.vars) { 
+  EVAL(dt,'[,',max.var.name,' := data.table::melt(',dt,'[,c("',paste(c(id.vars,aggregate.cols),collapse = '","'),'"), with = F],id.vars=c("'
+       ,paste(c(id.vars),collapse = '","'),'"))[order(',paste(c(id.vars),collapse = ','),',-value),.SD[1], keyby = .(',paste(c(id.vars),collapse = ','),')][J(',dt,'[,.(',paste(c(id.vars),collapse = ','),')]),.(value)]]') }
+
+#' Minimum by in place sort across columns
+#'
+#'
+#' @param dt Data table name to update as char cannot be dt or then it does copy
+#' @param aggregate.cols Name char to apply min to
+#' @param min.var.name Name char for group min
+#' @param id.vars Char vector of grouping variable/s
+#'
+#' @return  assign.dt assigned into parent frame
+#'
+min.grp.col_ <- function(dt, min.var.name, aggregate.cols, id.vars) { 
+  EVAL(dt,'[,',min.var.name,' := data.table::melt(',dt,'[,c("',paste(c(id.vars,aggregate.cols),collapse = '","'),'"), with = F],id.vars=c("'
+       ,paste(c(id.vars),collapse = '","'),'"))[order(',paste(c(id.vars),collapse = ','),',value),.SD[1], keyby = .(',paste(c(id.vars),collapse = ','),')][J(',dt,'[,.(',paste(c(id.vars),collapse = ','),')]),.(value)]]') }
 
 
 #' Merge in place
@@ -258,7 +287,7 @@ dates.expand.end.align_ <-  function(dt, start.DTTM, end.DTTM, ID, merged.DTTM) 
 locf.roll_ <- function(dt, ID, start.DTTM, group, var.cols) {
 	EVAL("if(sum(is.na(",dt,"[,",group,"]))>0) stop('missing in group')")
 	EVAL(dt,"[, GRP := .GRP, by = ",group,"]")
-	EVAL("data.table::setkey(",dt,",",ID,",",start.DTTM,",GRP)")
+	EVAL("data.table::setorder(",dt,",",ID,",",start.DTTM,",GRP)")
 	EVAL("new_grp <- ",dt,"[order(",ID,",",start.DTTM,",GRP),
 																c(TRUE, GRP[-1] != GRP[-.N])]")
 	EVAL("new_grp[is.na(new_grp)] <- FALSE")  # If could be sure this wasn't needed then could condense function into one line?
@@ -266,6 +295,19 @@ locf.roll_ <- function(dt, ID, start.DTTM, group, var.cols) {
 	EVAL("rm(new_grp)")
 #	assign(dt, value = EVAL(dt),
 #			 envir = .GlobalEnv)
+}
+
+nocb.roll_ <- function(dt, ID, start.DTTM, group, var.cols) {
+  EVAL("if(sum(is.na(",dt,"[,",group,"]))>0) stop('missing in group')")
+  EVAL(dt,"[, GRP := .GRP, by = ",group,"]")
+  EVAL("data.table::setorder(",dt,",",ID,",-",start.DTTM,",GRP)")
+  EVAL("new_grp <- ",dt,"[order(",ID,",-as.numeric(",start.DTTM,"),GRP),
+																c(TRUE, GRP[-1] != GRP[-.N])]")
+  EVAL("new_grp[is.na(new_grp)] <- FALSE")  # If could be sure this wasn't needed then could condense function into one line?
+  EVAL(dt,"[, (",var.cols,") :=  lapply(.SD,function(x) x[cummax((!is.na(x) | new_grp) * .I)]), .SDcols = ",var.cols,"]")
+  EVAL("rm(new_grp)")
+  #	assign(dt, value = EVAL(dt),
+  #			 envir = .GlobalEnv)
 }
 
 #' Delete rows in place for memory efficiency
