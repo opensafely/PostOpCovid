@@ -22,7 +22,7 @@ dt[, imd5 := cut(imd, breaks = seq(-1,33000,33000/5),  include.lowest = T, order
 # Multiple operations per row. Reshape to long format
 ####################################################################
 
-#Clean invalidi admission sequences
+#Clean invalid admission sequences
 op.admit.vars <- sort(paste0(outer(procedures,paste0("_",1:5),paste0),'_date_admitted'))
 op.discharge.vars <- sort(paste0(outer(procedures,paste0("_",1:5),paste0),'_date_discharged'))
 for (i in 1:length(op.admit.vars)) {
@@ -297,7 +297,7 @@ dt.tv[,(procedures) := lapply(.SD, function(x) data.table::fifelse(x==0,NA,x)), 
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 id_change = dt.tv[, c(TRUE, patient_id[-1] != patient_id[-.N] | end.fu[-1] != end.fu[-.N])]
-dt.tv[, (procedures) := .SD[cummax(((!is.na(x)) | id_change) * .I)], .SDcols = c(procedures)]
+dt.tv[, (procedures) := lapply(.SD, function(x) x[cummax(((!is.na(x)) | id_change) * .I)]), .SDcols = c(procedures)]
 
 for (i in 1:length(procedures)) dt.tv[!is.finite(get(procedures[i])), (procedures[i]) := F]
 
@@ -418,7 +418,7 @@ dt.tv[,Emergency := max(Emergency, na.rm = T), by = .(patient_id, end.fu)]
 
 ## Define vaccination status - 14 days post date as effective
 dt.tv[, vaccination.status := is.finite(covid_vaccine_dates_1) + is.finite(covid_vaccine_dates_2) + is.finite(covid_vaccine_dates_3)]
-dt.tv[,vaccination.status.factor := factor(vaccination.status, include.lowest = T, ordered = F)]
+dt.tv[,vaccination.status.factor := factor(vaccination.status,  ordered = F)]
 dt.tv[is.na(vaccination.status.factor), vaccination.status.factor := 0]
 ##############################
 #Post operative outcomes----
@@ -526,7 +526,8 @@ dt.tv[, postop.covid.cohort := start>=0 & tstop <= final.date & end <= 90]
 dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date),any.op := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
 dt.tv[is.na(any.op), any.op := F]
 dt.tv[, any.op := any.op > 0]
-dt.tv[, any.op := max(any.op,na.rm = T), by = .(patient_id, end.fu)]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[, any.op := cummax(any.op, na.rm = T), keyby = .(patient_id, end.fu)]
 
 dt.tv[, postop.covid.cohort := start>=0 & tstop <= final.date & end <= 90 & any.op == T]
 
@@ -551,5 +552,5 @@ dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE & end <= 90 &
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-
+dt.tv <- dt.tv[any.op == T & start >=0 & end <=90,]
 save(dt.tv, file = here::here("output","cohort_long.RData"))
