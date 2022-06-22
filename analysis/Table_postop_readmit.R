@@ -47,15 +47,15 @@ dt.tv[, any.op.readmit := cummax(any.op.readmit), keyby = .(patient_id, end.fu)]
 dt.tv[, postop.readmit.cohort := start>=0 & tstop <= final.date & end <= 90 & any.op.readmit == T]
 
 data.table::setkey(dt.tv, patient_id, end.fu, start)
+n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event]))[-1]
 
 post.op.readmit.model <- 
-  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event.readmit==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid*wave + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.readmit==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid*wave + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                           data = dt.tv[(postop.readmit.cohort)], model = T))
 
 data.table::fwrite(broom::tidy(post.op.readmit.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodel.csv"))
 
 
-n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event]))[-1]
 
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
                                                 'end' = rep(30,8*length(procedures)),
@@ -82,7 +82,10 @@ new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedu
                                                 'patient_id' = 1:(8*length(procedures)))
 
 cuminc.adjusted.readmit <- 
-  matrix(cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv[(postop.readmit.cohort)]', model = 'post.op.readmit.model', newdata = 'new.data.postop.covid', day = 90), byrow = T, ncol = 4)
+  matrix(cuminc.cox(n.type.events = n.type.events,
+  dt = 'dt.tv[(postop.readmit.cohort)]',
+   model = 'post.op.readmit.model', 
+   newdata = 'new.data.postop.covid', day = 90), byrow = T, ncol = 4)
 
 colnames(cuminc.adjusted.readmit) <- paste0('Wave_',1:4)
 rownames(cuminc.adjusted.readmit) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
