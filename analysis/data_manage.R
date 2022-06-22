@@ -527,7 +527,7 @@ dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date),any.op := rowSu
 dt.tv[is.na(any.op), any.op := F]
 dt.tv[, any.op := any.op > 0]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[, any.op := cummax(any.op, na.rm = T), keyby = .(patient_id, end.fu)]
+dt.tv[, any.op := cummax(any.op), keyby = .(patient_id, end.fu)]
 
 dt.tv[, postop.covid.cohort := start>=0 & tstop <= final.date & end <= 90 & any.op == T]
 
