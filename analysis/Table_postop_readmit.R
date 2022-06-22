@@ -18,7 +18,7 @@ locf.roll_(dt = 'dt.tv',
            ID = 'patient_id',
            start.DTTM = 'tstart',
            group = 'c("patient_id","end.fu")',
-           var.cols = paste0('c("discharge.date"',paste(covariates,collapse = '","'),')'))
+           var.cols = paste0('c("discharge.date","',paste(covariates,collapse = '","'),'")'))
 
 
 dt.tv[, `:=`(start = tstart - discharge.date,
