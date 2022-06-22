@@ -49,7 +49,7 @@ dt.tv[, postop.readmit.cohort := start>=0 & tstop <= final.date & end <= 90 & an
 data.table::setkey(dt.tv, patient_id, end.fu, start)
 
 post.op.readmit.model <- 
-  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event.readmit==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event.readmit==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid*wave + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                           data = dt.tv[(postcovid.readmit.cohort)], model = T))
 
 data.table::fwrite(broom::tidy(post.op.readmit.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodel.csv"))

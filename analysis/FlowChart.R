@@ -7,6 +7,16 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
 source(here::here("analysis","Utils.R"))
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
+##########can be removed after data manage rerun
+dt.tv[,event.VTE :=0]
+dt.tv[post.VTE.date == tstop, event.VTE := 1]
+dt.tv[emergency_readmitdate  == tstop & event.VTE != 1, event.VTE := 2]
+dt.tv[date_death_ons == tstop & event.VTE != 1, event.VTE := 3]
+dt.tv[, any.op.VTE := cummax(any.op.VTE), keyby = .(patient_id, end.fu)]
+
+dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE & end <= 90 & any.op.VTE == T]
+
+##########################
 
 n.ops <- rnd(dt.tv[start ==0 & any.op == T  & is.finite(admit.date),lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
 n.ops.VTE <- rnd(dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date) & any.op == T,lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])

@@ -132,7 +132,7 @@ actions:
         model_mortality_sub: output/postopdiedmodelsub.csv
   
   table_postopreadmit:      
-    run: r:latest analysis/Table_postopreadmit.R
+    run: r:latest analysis/Table_postop_readmit.R
     needs: [generate_study_population, data_manage]
     outputs:
       moderately_sensitive:
@@ -140,7 +140,7 @@ actions:
         model_readmit: output/postopreadmitmodel.csv
         
   table_postopreadmit_sub:      
-    run: r:latest analysis/Table_postopreadmit_sub.R
+    run: r:latest analysis/Table_postop_readmit_sub.R
     needs: [generate_study_population, data_manage]
     outputs:
       moderately_sensitive:
