@@ -47,7 +47,7 @@ dt.tv[, any.op.readmit := cummax(any.op.readmit), keyby = .(patient_id, end.fu)]
 dt.tv[, postop.readmit.cohort := start>=0 & tstop <= final.date & end <= 90 & any.op.readmit == T]
 
 data.table::setkey(dt.tv, patient_id, end.fu, start)
-n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event]))[-1]
+n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event.readmit]))[-1]
 
 post.op.readmit.model <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.readmit==i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid*wave + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
