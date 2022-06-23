@@ -7,16 +7,6 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
 source(here::here("analysis","Utils.R"))
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-##########can be removed after data manage rerun
-dt.tv[,event.VTE :=0]
-dt.tv[post.VTE.date == tstop, event.VTE := 1]
-dt.tv[emergency_readmitdate  == tstop & event.VTE != 1, event.VTE := 2]
-dt.tv[date_death_ons == tstop & event.VTE != 1, event.VTE := 3]
-dt.tv[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date),any.op.VTE := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
-
-dt.tv[, any.op.VTE := cummax(any.op.VTE), keyby = .(patient_id, end.fu)]
-
-dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE & end <= 90 & any.op.VTE == T]
 
 ##########################
 

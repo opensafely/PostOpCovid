@@ -25,6 +25,8 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
 #dt.tv[,(bin.cov) := lapply(.SD, function(x) data.table::fifelse(is.na(x),F,x)), .SDcols = c(bin.cov)]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
+#Could be removed after data.manage rerun
+dt.tv[, region:= as.factor(region)]
 
 crude.covid.cov.sub <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[(postop.covid.cohort),
                                                                                                                               as.factor(get(covariates[i]))]))), 

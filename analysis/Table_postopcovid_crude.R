@@ -19,6 +19,8 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 summary(dt.tv)
 
+#Could be removed after data.manage rerun
+dt.tv[, region:= as.factor(region)]
 #bin.cov <- c(procedures,'sex','Current.Cancer','Emergency','recentCOVID','previousCOVID')
 #dt.tv[,(bin.cov) := lapply(.SD, function(x) data.table::fifelse(is.na(x),F,x)), .SDcols = c(bin.cov)]
 
