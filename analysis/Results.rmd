@@ -289,6 +289,6 @@ knitr::kable(cuminc.adjusted.readmit,col.names = paste0("Wave ",1:4),caption = p
 load(file = here::here("output","postopreadmit_sub.RData"))
 
  kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
-knitr::kable(cuminc.adjusted.readmit_sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative emergency non covid readmission risk by selected procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
+knitr::kable(cuminc.adjusted.readmit.sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative emergency non covid readmission risk by selected procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
  )
 ```
