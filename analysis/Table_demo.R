@@ -7,33 +7,33 @@ source(here::here("analysis","Utils.R"))
 
 ###########################################################
 
-load(file = here::here("output","cohort_long.RData"))
+dt.tv <- data.table::setDT(feather::read_feather(here::here("output","cohort_long.feather")))
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular', 'Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
 ## Count variables for demographic tables
-dt.tv[,postVTE90.perepisode := max(post.VTE & end <=90 & start >=0 & (postop.covid.cohort) &   final.date >= tstop & any.op == T ,na.rm = T), keyby = .(patient_id, end.fu)]
+dt.tv[,postVTE90.perepisode := event.VTE == 1 & (postcovid.VTE.cohort)]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+max.grp.col_(dt = 'dt.tv',max.var.name = 'postVTE90.perepisode',aggregate.cols = 'postVTE90.perepisode',id.vars = c("patient_id", "end.fu"))
 dt.tv[!is.finite(postVTE90.perepisode),postVTE90.perepisode := 0]
 
+dt.tv[,postCOVID30.perepisode := event == 1 &  (postop.covid.cohort) & end <= 30]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[,postCOVID30.perepisode := event == 1 & end <=30 & start >=0 & (postop.covid.cohort) &   final.date >= tstop & any.op == T ]
-
-dt.tv[,postCOVID30.perepisode := max(postCOVID30.perepisode,na.rm = T), keyby = .(patient_id, end.fu)]
+max.grp.col_(dt = 'dt.tv',max.var.name = 'postCOVID30.perepisode',aggregate.cols = 'postCOVID30.perepisode',id.vars = c("patient_id", "end.fu"))
 dt.tv[!is.finite(postCOVID30.perepisode),postCOVID30.perepisode := 0]
 
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-n.ops <- rnd(dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date),lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
+n.ops <- rnd(dt.tv[start ==0  & is.finite(admit.date) & any.op == T, lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
 
-n.pats <- rnd(length(unique(dt.tv[(postop.covid.cohort) & start ==0 & is.finite(admit.date) & any.op == T,patient_id])))
+n.pats <- rnd(length(unique(dt.tv[start ==0 & is.finite(admit.date) & any.op == T,patient_id])))
 
-start.date <- dt.tv[(postop.covid.cohort) & start ==0 & is.finite(admit.date) & any.op == T, min(as.Date(as.integer(admit.date), origin = as.Date('1970-01-01')))]
+start.date <- dt.tv[start ==0 & is.finite(admit.date) & any.op == T, min(as.Date(as.integer(admit.date), origin = as.Date('1970-01-01')))]
 
-last.date <-  dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date) & any.op == T, max(as.Date(as.integer(admit.date), origin = as.Date('1970-01-01')))]
+last.date <-  dt.tv[start ==0  & is.finite(admit.date) & any.op == T, max(as.Date(as.integer(admit.date), origin = as.Date('1970-01-01')))]
 
 demo.tab <- 
   data.table::transpose(cbind(data.table::data.table("procedures" = procedures),
-                              foreach::foreach(i = 1:length(procedures), .combine = 'rbind', .inorder = T) %do% dt.tv[(postop.covid.cohort) & start ==0  & final.date >= tstop & any.op == T & get(paste0(procedures[i])) == T,tail(.SD,1),keyby = .(patient_id,end.fu)][,
+                              foreach::foreach(i = 1:length(procedures), .combine = 'rbind', .inorder = T) %do% dt.tv[start ==0  & final.date >= tstop & end <= 90 & any.op == T & get(paste0(procedures[i])) == T,tail(.SD,1),keyby = .(patient_id,end.fu)][,
                                                                                                                       .("Procedures" = rnd(.N),
                                                                                                                         "Patients" = rnd(length(unique(patient_id))),
                                                                                                                         "Female" = n.perc(sex=='F',dig = 3),

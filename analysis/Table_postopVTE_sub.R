@@ -7,7 +7,7 @@ source(here::here("analysis","Utils.R"))
 
 ###########################################################
 
-load(file = here::here("output","cohort_long.RData"))
+dt.tv <- data.table::setDT(feather::read_feather(here::here("output","cohort_long.feather")))
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
@@ -25,17 +25,19 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(KneeReplacement) & KneeReplacement == T)]
 
 post.op.VTE.model.sub <- 
-  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Colectomy + Cholecystectomy + HipReplacement + KneeReplacement + postcovid*wave + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Colectomy + Cholecystectomy + HipReplacement + KneeReplacement + 
+                                            postcovid*wave + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + E
+                                          mergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                           data = dt.tv[(postcovid.VTE.cohort) & sub.op == T], model = T))
 
 data.table::fwrite(broom::tidy(post.op.VTE.model.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelsub.csv"))
 
 
-n.type.events <- sort(unique(dt.tv[(postop.covid.cohort)  & sub.op == T,event]))[-1]
+n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort)  & sub.op == T,event]))[-1]
 
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
                                                 'end' = rep(30,8*length(procedures)),
-                                                'event' = rep(F,8*length(procedures)),
+                                                'event.VTE' = rep(F,8*length(procedures)),
                                                 'Colectomy' = c(rep(T,8),rep(F,24)),
                                                 'Cholecystectomy'=c(rep(F,8),rep(T,8),rep(F,16)),
                                                 'HipReplacement'=c(rep(F,16),rep(T,8),rep(F,8)),

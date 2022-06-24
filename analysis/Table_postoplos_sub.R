@@ -7,7 +7,7 @@ source(here::here("analysis","Utils.R"))
 
 ###########################################################
 
-load(file = here::here("output","cohort_long.RData"))
+dt.tv <- data.table::setDT(feather::read_feather(here::here("output","cohort_long.feather")))
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 

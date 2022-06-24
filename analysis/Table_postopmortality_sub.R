@@ -1,13 +1,13 @@
 library(foreach)
 library(data.table)
-ncores <- parallel::detectCores(logical = T) - 1
+ncores <- parallel::detectCores(logical = T) 
 data.table::setDTthreads(ncores)
 
 source(here::here("analysis","Utils.R"))
 
 ###########################################################
 
-load(file = here::here("output","cohort_long.RData"))
+dt.tv <- data.table::setDT(feather::read_feather(here::here("output","cohort_long.feather")))
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 

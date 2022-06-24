@@ -7,7 +7,7 @@ source(here::here("analysis","Utils.R"))
 
 ###########################################################
 
-load(file = here::here("output","cohort_long.RData"))
+dt.tv <- data.table::setDT(feather::read_feather(here::here("output","cohort_long.feather")))
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -24,11 +24,11 @@ post.op.VTE.model <-
 data.table::fwrite(broom::tidy(post.op.VTE.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodel.csv"))
 
 
-n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
+n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort) ,event]))[-1]
 
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
                                                 'end' = rep(30,8*length(procedures)),
-                                                'event' = rep(F,8*length(procedures)),
+                                                'event.VTE' = rep(F,8*length(procedures)),
                                                 'Abdominal' = c(rep(T,8),rep(F,40)),
                                                 'Cardiac'=c(rep(F,8),rep(T,8),rep(F,32)),
                                                 'Obstetrics'=c(rep(F,16),rep(T,8),rep(F,24)),

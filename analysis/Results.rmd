@@ -24,7 +24,7 @@ max.category <- function(predi) {unique(dt.tv[!is.na(get(covariates[predi])),get
 
 source(here::here("analysis","Utils.R"))
 
-load(file = here::here("output","cohort_long.RData"))
+dt.tv <- data.table::setDT(feather::read_feather(here::here("output","cohort_long.feather")))
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
 covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
@@ -174,9 +174,9 @@ An accelerated failure survival model was fitted to directly estimate the effect
 load(file = here::here("output","postoplos.RData"))
 
 #knitr::kable(broom::tidy(post.op.LOS.model, exponentiate= T, conf.int = T),digits = 2)
-
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(mean.adjusted.los,col.names = paste0("Wave ",1:4),caption = paste0("Predicted mean length of stay for patients by procedure type and COVID-19 infection, stratified by COVID-19 wave."), row.names = T, digits = 2)
-
+)
 ```
 #### Selected procedures
 ```{r postopLOS_sub}

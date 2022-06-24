@@ -16,8 +16,15 @@ actions:
     needs: [generate_study_population]
     outputs:
       highly_sensitive:
-        cohort: output/cohort_long.RData
-  
+        cohort: output/cohort_long.feather
+
+  data_manage_postdisch_week:
+    run: r:latest analysis/data_manage_postdisch_weeks.R
+    needs: [generate_study_population,data_manage]
+    outputs:
+      highly_sensitive:
+        cohort_splits: output/cohort_postdisch_week_splits.feather
+
   flowchart:      
     run: r:latest analysis/FlowChart.R
     needs: [generate_study_population, data_manage]
@@ -67,7 +74,7 @@ actions:
 
   table_postopcovid_tv:      
     run: r:latest analysis/Table_postopcovid_tv.R
-    needs: [generate_study_population, data_manage]
+    needs: [generate_study_population, data_manage,data_manage_postdisch_week]
     outputs:
       moderately_sensitive:
         table_tv: output/postopcovid_tv.RData
@@ -76,7 +83,7 @@ actions:
 
   table_postopcovid_tv_sub:      
     run: r:latest analysis/Table_postopcovid_tv_sub.R
-    needs: [generate_study_population, data_manage]
+    needs: [generate_study_population, data_manage,data_manage_postdisch_week]
     outputs:
       moderately_sensitive:
         table_tv_sub: output/postopcovid_tv_sub.RData
@@ -149,7 +156,7 @@ actions:
 
   report:
     run: r:latest -e 'rmarkdown::render("analysis/Results.rmd", output_dir = "/workspace/output/",knit_root_dir = "/workspace",)'    
-    needs: [generate_study_population, data_manage, 
+    needs: [generate_study_population, data_manage, data_manage_postdisch_week,
     flowchart,
     table_demo,
     table_postopcovid_crude,

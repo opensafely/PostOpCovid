@@ -7,63 +7,27 @@ source(here::here("analysis","Utils.R"))
 
 ###########################################################
 
-load(file = here::here("output","cohort_long.RData"))
+dt.tv <- data.table::setDT(feather::read_feather(here::here("output","cohort_long.feather")))
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
-                'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
 
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-locf.roll_(dt = 'dt.tv',
-           ID = 'patient_id',
-           start.DTTM = 'tstart',
-           group = 'c("patient_id","end.fu")',
-           var.cols = paste0('c("discharge.date","',paste(covariates,collapse = '","'),'")'))
+data.table::setkey(dt.tv,patient_id,tstart)
 
-
-dt.tv[, `:=`(start = tstart - discharge.date,
-                    end = tstop - discharge.date)]
-
-dt.tv <- dt.tv[start>=0 & end <=90]
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[,final.date := readmit.end]
-dt.tv[is.finite(end.fu) & end.fu < final.date, final.date := end.fu]
-min.grp.col_(dt = 'dt.tv',min.var.name = 'final.date',aggregate.cols = 'final.date',id.vars = c("patient_id","end.fu"))
-
-
-dt.tv[,event.readmit :=0]
-dt.tv[emergency_readmitdate  == tstop & COVIDpositivedate != tstop, event.readmit := 1]
-dt.tv[emergency_readmitdate  == tstop & COVIDpositivedate == tstop, event.readmit := 2]
-dt.tv[date_death_ons == tstop & event.readmit != 1, event.readmit := 3]
-
-dt.tv[, postop.readmit.cohort := start>=0 & tstop <= final.date & end <= 90]
-
-dt.tv[(postop.readmit.cohort) & start ==0 ,any.op.readmit := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
-dt.tv[is.na(any.op.readmit), any.op.readmit := F]
-dt.tv[, any.op.readmit := any.op.readmit > 0]
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[, any.op.readmit := cummax(any.op.readmit), keyby = .(patient_id, end.fu)]
-
-dt.tv[, postop.readmit.cohort := start>=0 & tstop <= final.date & end <= 90 & any.op.readmit == T]
-
-data.table::setkey(dt.tv, patient_id, end.fu, start)
 n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event.readmit]))[-1]
 
 
 post.op.readmit.model.sub <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.readmit==i) ~ Colectomy + Cholecystectomy + HipReplacement + 
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.readmit==i) ~ Colectomy + Cholecystectomy + HipReplacement + 
                                             KneeReplacement + postcovid*wave + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                           data = dt.tv[(postop.readmit.cohort)], model = T))
 
 data.table::fwrite(broom::tidy(post.op.readmit.model.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodelsub.csv"))
 
 
-n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event]))[-1]
-
-new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
-                                                'end' = rep(30,8*length(procedures)),
-                                                'event' = rep(F,8*length(procedures)),
+new.data.postop.covid <- data.table::data.table('start.readmit' = rep(0,8*length(procedures)),
+                                                'end.readmit' = rep(30,8*length(procedures)),
+                                                'event.readmit' = rep(F,8*length(procedures)),
                                                 'Colectomy' = c(rep(T,8),rep(F,24)),
                                                 'Cholecystectomy'=c(rep(F,8),rep(T,8),rep(F,16)),
                                                 'HipReplacement'=c(rep(F,16),rep(T,8),rep(F,8)),

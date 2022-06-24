@@ -1,22 +1,21 @@
 library(foreach)
 library(data.table)
-ncores <- parallel::detectCores(logical = T) - 1
+ncores <- parallel::detectCores(logical = T)
 data.table::setDTthreads(ncores)
 
 source(here::here("analysis","Utils.R"))
 
 ###########################################################
 
-load(file = here::here("output","cohort_long.RData"))
+dt.tv <- data.table::setDT(feather::read_feather(here::here("output","cohort_long.feather")))
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
 
-data.table::setkey(dt.tv,"patient_id","tstart","tstop")
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 

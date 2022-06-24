@@ -1,17 +1,16 @@
 library(foreach)
 library(data.table)
-ncores <- parallel::detectCores(logical = T) - 1
+ncores <- parallel::detectCores(logical = T)
 data.table::setDTthreads(ncores)
 
 source(here::here("analysis","Utils.R"))
 
 ###########################################################
 
-load(file = here::here("output","cohort_long.RData"))
+dt.tv <- data.table::setDT(feather::read_feather(here::here("output","cohort_long.feather")))
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
@@ -21,12 +20,8 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
         (is.finite(KneeReplacement) & KneeReplacement == T)]
 
-#bin.cov <- c(procedures,'sex','Current.Cancer','Emergency','recentCOVID','previousCOVID')
-#dt.tv[,(bin.cov) := lapply(.SD, function(x) data.table::fifelse(is.na(x),F,x)), .SDcols = c(bin.cov)]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-#Could be removed after data.manage rerun
-dt.tv[, region:= as.factor(region)]
 
 crude.covid.cov.sub <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[(postop.covid.cohort),
                                                                                                                               as.factor(get(covariates[i]))]))), 

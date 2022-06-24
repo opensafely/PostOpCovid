@@ -4,84 +4,30 @@ ncores <- parallel::detectCores(logical = T)
 data.table::setDTthreads(ncores)
 
 source(here::here("analysis","Utils.R"))
-max.category <- function(predi) {unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)[which.max(dt.tv[!is.na(get(covariates[predi])),.N, by = c(covariates[predi])][['N']])]}
 
 ###########################################################
 
-load(file = here::here("output","cohort_long.RData"))
+#load(file = here::here("output","cohort_postdisch_week_splits.RData"))
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
-
+dt.tv.splits <- data.table::setDT(feather::read_feather(here::here("output","cohort_postdisch_week_splits.feather")))
 n.type.events <- 1:2 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
+data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
-                'vaccination.status.factor','region','Current.Cancer',
-                'Emergency','Charl12','recentCOVID','previousCOVID')
+#covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
+#                'vaccination.status.factor','region','Current.Cancer',
+#                'Emergency','Charl12','recentCOVID','previousCOVID')
 
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
+data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 
-dt.tv[,`:=`(post.disch.wk1 = discharge.date  ,
-            post.disch.wk2 = discharge.date + 7 ,
-            post.disch.wk3 = discharge.date + 14 ,
-            post.disch.wk4 = discharge.date + 21 ,
-            post.disch.wk5 = discharge.date + 28,
-            covid.event = event == 1,
-            censor.event = event!=1)]
 
-dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
+
+dt.tv.splits[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(Cholecystectomy) & Cholecystectomy == T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
         (is.finite(KneeReplacement) & KneeReplacement == T)]
 
-dt.tv.splits <- data.table::melt(dt.tv[is.finite(discharge.date),tail(.SD,1),
-                                       .SDcols = c(paste0("post.disch.wk",1:5)),
-                                       keyby = c('patient_id')], 
-                                 id.vars = c('patient_id'),
-                                 value.name = "post.disch.wk",
-                                 variable.name = "week.post.disch" )[
-                                   order(patient_id, week.post.disch),][,
-                                        `:=` (tstart = post.disch.wk,
-                                              week.post.disch = as.numeric(gsub(".*?([0-9]+).*",
-                                                                                '\\1',
-                                                                                week.post.disch)))][
-                                                ,.(patient_id, week.post.disch,tstart)]
-
-#
-dt.tv[,week.post.disch := NA]
-dt.tv.splits <- unique(data.table::rbindlist(list(dt.tv.splits,dt.tv[,.(patient_id, week.post.disch, tstart)])))
-dt.tv.splits[,post.disch.wk := tstart]
-data.table::setkey(dt.tv.splits,patient_id, tstart)
-dt.tv[,week.post.disch := NULL]
-dt.tv.splits <- dt.tv[dt.tv.splits,,roll = Inf, on = .(patient_id,tstart)]
-
-dates.expand.start.align_(dt = 'dt.tv.splits',
-                          start.DTTM = 'tstart',
-                          end.DTTM = 'tstop',
-                          ID = 'patient_id',
-                          merged.DTTM = 'post.disch.wk')
-
-dates.expand.end.align_(dt = 'dt.tv.splits',
-                        start.DTTM = 'tstart',
-                        end.DTTM = 'tstop',
-                        ID = 'patient_id',
-                        merged.DTTM = 'post.disch.wk')
-
-locf.roll_(dt = 'dt.tv.splits',
-           ID = 'patient_id',
-           start.DTTM = 'tstart',
-           group = 'c("patient_id","end.fu")',
-           var.cols = 'c("week.post.disch")')
-
-dt.tv.splits[tstart >= admit.date & (!is.finite(discharge.date) | tstop <= discharge.date), week.post.disch := 0 ]
-
-dt.tv.splits[,week.post.disch := as.factor(week.post.disch)]
-dt.tv.splits[, los.end := min(los.end, na.rm = T), keyby = .(patient_id, end.fu)]
-
-dt.tv.splits[, `:=`(start = tstart - los.end,
-                    end = tstop - los.end)]
-dt.tv.splits <- dt.tv.splits[is.finite(los.end)]
 dt.tv.splits[event == 3, event := 2]
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split.sub <- 
@@ -108,8 +54,8 @@ newdata.pred <- data.table::data.table('start' = c(-7,0,7,14,21),
                                       'KneeReplacement'= rep(F,newdata.rows*2),
                                       'age.cat' = rep('(50,70]',newdata.rows),
                                       'sex' = rep('F',newdata.rows),
-                                      'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows),
-                                      'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows),
+                                      'bmi.cat' = rep(levels(dt.tv.splits$bmi.cat)[2],newdata.rows),
+                                      'imd5' = rep(levels(dt.tv.splits$imd5)[3], newdata.rows),
                                       'wave' = rep(paste0('Wave_',4),times = newdata.rows),
                                       'vaccination.status.factor' = rep('3',newdata.rows),
                                       'region' = rep("East Midlands",newdata.rows),
@@ -183,7 +129,7 @@ newdata.rows <- length(levels(dt.tv.splits$week.post.disch)) - 1
 
 newdata.pred <- data.table::data.table('start' = rep(c(-7,0,7,14,21), times = 2),
                                        'end' = rep(c(0,7,14,21,28),times = 2),
-                                       'event' = rep(F,newdata.rows*2),
+                                       'event.VTE' = rep(F,newdata.rows*2),
                                        'week.post.disch' = rep(paste(0:(newdata.rows - 1)), times = 2),
                                        'patient_id' = rep(1:2,each = newdata.rows),
                                        'Colectomy' =  rep(T,newdata.rows*2),
@@ -193,8 +139,8 @@ newdata.pred <- data.table::data.table('start' = rep(c(-7,0,7,14,21), times = 2)
                                        'postcovid'=rep(c(0,1), each = newdata.rows),
                                        'age.cat' = rep('(50,70]',newdata.rows*2),
                                        'sex' = rep('F',newdata.rows*2),
-                                       'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows*2),
-                                       'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows*2),
+                                       'bmi.cat' = rep(levels(dt.tv.splits$bmi.cat)[2],newdata.rows*2),
+                                       'imd5' = rep(levels(dt.tv.splits$imd5)[3], newdata.rows*2),
                                        'wave' = rep(paste0('Wave_',4),times = newdata.rows*2),
                                        'vaccination.status.factor' = rep('3',newdata.rows*2),
                                        'region' = rep("East Midlands",newdata.rows*2),
