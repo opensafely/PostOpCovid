@@ -33,4 +33,4 @@ names(crude.covid.cov.sub) <- c("Characteristic","Level","Number at risk",
 
 data.table::fwrite(crude.covid.cov.sub, file = here::here("output","postopcovid_crude_sub.csv"))
 
-#save(crude.covid.cov.sub, file = here::here("output","postopcovid_crude_sub.RData"))
+save(crude.covid.cov.sub, file = here::here("output","postopcovid_crude_sub.RData"))
