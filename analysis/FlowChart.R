@@ -17,21 +17,22 @@ n.ops.COVID <- rnd(dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.da
 n.pats <- rnd(length(unique(dt.tv[,patient_id])))
 n.pats.study <- rnd(length(unique(dt.tv[start ==0 & is.finite(admit.date) & any.op == T & admit.date <= end.fu,patient_id])))
 n.pats.late <- rnd(length(unique(dt.tv[(admit.date > gp.end | !is.finite(gp.end)) & any.op == T,patient_id])))
+                              foreach::foreach(i = 1:length(procedures), .combine = 'rbind', .inorder = T) %do% dt.tv[start ==0  & final.date >= tstop & end <= 90 & any.op == T & get(paste0(procedures[i])) == T,tail(.SD,1),keyby = .(patient_id,end.fu)][,
 
-n.covid.90 <- rnd(dt.tv[,max(event == 1 & start >=0 & end <=90 & any.op.COVID == T, na.rm = T) , keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.covid.90.censored <- rnd(dt.tv[,max(event == 1 & start >=0  & end <=90 & (postop.covid.cohort) & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.covid.30.censored <- rnd(dt.tv[,max(event == 1 & start >=0  & end <=30 & (postop.covid.cohort) & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.covid.7.censored <- rnd(dt.tv[,max(event == 1 & start >=0  & start >=0  & end <=7 &(postop.covid.cohort) & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.covid.90 <- rnd(dt.tv[,max(event == 1 & start >=0 & end <=90 & any.op.COVID == T, na.rm = T) , keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.covid.90.censored <- rnd(dt.tv[,max(event == 1 & start >=0  & end <=90 & (postop.covid.cohort) & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.covid.30.censored <- rnd(dt.tv[,max(event == 1 & start >=0  & end <=30 & (postop.covid.cohort) & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.covid.7.censored <- rnd(dt.tv[,max(event == 1 & start >=0  & start >=0  & end <=7 &(postop.covid.cohort) & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 
-n.VTE.90 <- rnd(dt.tv[any.op.VTE == T,max(event.VTE == 1 & start >=0   & end <=90 , na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.VTE.90.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=90  & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.VTE.30.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=30 & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.VTE.7.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=7 & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.90 <- rnd(dt.tv[any.op.VTE == T,max(event.VTE == 1 & start >=0   & end <=90 , na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.90.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=90  & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.30.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=30 & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.7.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=7 & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 
-n.surv.90 <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=90, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.surv.90.censored <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=90, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.surv.30.censored <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=30, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.surv.7.censored <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=7, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.surv.90 <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=90, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.surv.90.censored <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=90, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.surv.30.censored <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=30, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.surv.7.censored <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=7, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 
 
 start.date <- dt.tv[ start ==0 & is.finite(admit.date) & any.op == T, min(as.Date(as.integer(admit.date), origin = as.Date('1970-01-01')))]
