@@ -12,8 +12,8 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
-                'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
+covariates <- c(procedures,'sex','age.cat','bmi.cat','imd5','wave',
+                'vaccination.status.factor','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID','region')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
@@ -32,4 +32,5 @@ crude.covid.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i
 names(crude.covid.cov) <- c("Characteristic","Level","Number at risk",
                             "Number of events","30 day Cumulative Risk adjusted for censoring","30 day Cumulative Risk adjusted for death and emergency readmission")
 
+data.table::fwrite(crude.covid.cov, file = here::here("output","postopcovid_crude.csv"))
 save(crude.covid.cov, file = here::here("output","postopcovid_crude.RData"))

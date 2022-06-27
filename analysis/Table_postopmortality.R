@@ -12,13 +12,15 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
-                'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
+covariates <- c(procedures,'sex','age.cat','bmi.cat','imd5','wave',
+                'vaccination.status.factor','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID','region')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 post.op.died.model <- 
-  list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid*wave + age.cat + sex + bmi.cat + imd5  + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+  list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + 
+                         postcovid*wave + age.cat + sex + bmi.cat + imd5  + vaccination.status.factor + region + Current.Cancer +
+                         Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                        data = dt.tv[start >=0 & any.op == T], model = T))
 data.table::fwrite(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopdiedmodel.csv"))
 
@@ -58,3 +60,4 @@ colnames(cuminc.adjusted.mortality) <- paste0('Wave_',1:4)
 rownames(cuminc.adjusted.mortality) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
 
 save(post.op.died.model,cuminc.adjusted.mortality, file = here::here("output","postopmortality.RData"))
+data.table::fwrite(cuminc.adjusted.mortality, file = here::here("output","postopmortality.csv"))

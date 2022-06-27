@@ -64,3 +64,4 @@ colnames(cuminc.adjusted.VTE.sub) <- paste0('Wave_',1:4)
 rownames(cuminc.adjusted.VTE.sub) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
 
 save(post.op.VTE.model.sub,cuminc.adjusted.VTE.sub, file = here::here("output","postopVTE_sub.RData"))
+data.table::fwrite(cuminc.adjusted.VTE.sub, file = here::here("output","postopVTE_sub.csv"))

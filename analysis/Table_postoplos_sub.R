@@ -77,3 +77,4 @@ mean.adjusted.los.sub <- matrix(apply(mean.adjusted.los.sub,1,function(x) paste0
 colnames(mean.adjusted.los.sub) <- paste0('Wave_',1:4)
 rownames(mean.adjusted.los.sub) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
 save(mean.adjusted.los.sub,post.op.LOS.model.sub, file = here::here("output","postoplos_sub.RData"))
+data.table::fwrite(mean.adjusted.los.sub, file = here::here("output","postoplos_sub.csv"))

@@ -12,8 +12,8 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
-                'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
+covariates <- c(procedures,'sex','age.cat','bmi.cat','imd5','wave',
+                'vaccination.status.factor','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID','region')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
@@ -57,3 +57,4 @@ colnames(cuminc.adjusted.VTE) <- paste0('Wave_',1:4)
 rownames(cuminc.adjusted.VTE) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
 
 save(post.op.VTE.model,cuminc.adjusted.VTE, file = here::here("output","postopVTE.RData"))
+data.table::fwrite(cuminc.adjusted.VTE, file = here::here("output","postopVTE.csv"))

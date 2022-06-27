@@ -113,6 +113,9 @@ weekly.post.op.risk.sub <- c(weekly.post.op.risk.sub[max(which(times.comb <= 0))
 weekly.post.op.risk.sub  <-  data.table::data.table("Risk" = weekly.post.op.risk.sub - c(0,weekly.post.op.risk.sub[-length(weekly.post.op.risk.sub)]),
                                                 "Risk period" = c("Week pre discharge","1st week","2nd week","3rd week","4th week"))
 
+data.table::fwrite(weekly.post.op.risk.sub, file = here::here("output","postopcovid_tv_sub.csv"))
+
+
 ##############
 post.op.VTE.model.split.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Colectomy + survival::strata(postcovid) +  
@@ -189,3 +192,4 @@ weekly.post.op.VTE.risk.sub  <-  data.table::data.table("COVID"= rep(c(F,T), eac
 
 ##################################
 save(weekly.post.op.risk.sub,weekly.post.op.VTE.risk.sub, file = here::here("output","postopcovid_tv_sub.RData"))
+data.table::fwrite(weekly.post.op.risk.sub, file = here::here("output","postopcovid_VTE_tv_sub.csv"))

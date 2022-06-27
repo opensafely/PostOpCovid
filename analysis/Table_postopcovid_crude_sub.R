@@ -12,8 +12,8 @@ procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
 
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
-                'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
+covariates <- c(procedures,'sex','age.cat','bmi.cat','imd5','wave',
+                'vaccination.status.factor','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID','region')
 
 dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(Cholecystectomy) & Cholecystectomy == T) |
@@ -31,4 +31,6 @@ crude.covid.cov.sub <- data.table::rbindlist(lapply(1:length(covariates), functi
 names(crude.covid.cov.sub) <- c("Characteristic","Level","Number at risk",
                             "Number of events","30 day Cumulative Risk adjusted for censoring","30 day Cumulative Risk adjusted for death and emergency readmission")
 
-save(crude.covid.cov.sub, file = here::here("output","postopcovid_crude_sub.RData"))
+data.table::fwrite(crude.covid.cov.sub, file = here::here("output","postopcovid_crude_sub.csv"))
+
+#save(crude.covid.cov.sub, file = here::here("output","postopcovid_crude_sub.RData"))

@@ -99,5 +99,4 @@ demo.tab <-
   ),
   make.names = 'procedures',
   keep.names = 'Characteristics')
-
-save(demo.tab,file = here::here("output","table_demo.RData"))
+data.table::fwrite(demo.tab, file = here::here("output","table_demo.csv"))

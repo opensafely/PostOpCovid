@@ -12,8 +12,8 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
-                'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
+covariates <- c(procedures,'sex','age.cat','bmi.cat','imd5','wave',
+                'vaccination.status.factor','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID','region')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
@@ -60,6 +60,9 @@ cuminc.adjusted.waves <-
 
 colnames(cuminc.adjusted.waves) <- paste0('Wave_',1:4)
 rownames(cuminc.adjusted.waves) <- paste0(c('Elective','Emergency'),rep(procedures, each = 2))
+
+data.table::fwrite(cuminc.adjusted.waves, file = here::here("output","postopcovid_adjusted_waves.csv"))
+
 #############################################################################################
 
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
@@ -149,3 +152,5 @@ adjusted.cuminc <-  foreach::foreach(predi = 1:length(covariates), .combine = 'c
 
 
 save(cuminc.adjusted.waves,post.op.covid.model,adjusted.cuminc, file = here::here("output","postopcovid_adjusted.RData"))
+
+data.table::fwrite(adjusted.cuminc, file = here::here("output","postopcovid_adjusted.csv"))

@@ -65,3 +65,4 @@ colnames(cuminc.adjusted.mortality.sub) <- paste0('Wave_',1:4)
 rownames(cuminc.adjusted.mortality.sub) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
 
 save(post.op.died.model.sub,cuminc.adjusted.mortality.sub, file = here::here("output","postopmortality_sub.RData"))
+data.table::fwrite(cuminc.adjusted.mortality.sub, file = here::here("output","postopmortality_sub.csv"))

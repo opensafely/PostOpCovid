@@ -15,9 +15,9 @@ n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event.readmit]))[-1]
 
 post.op.readmit.model <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.readmit==i) ~ Abdominal + Cardiac + Obstetrics +
-                                                      Orthopaedic + Thoracic + Vascular + postcovid*wave + age.cat + 
-                                                      sex + bmi.cat + imd5 + vaccination.status.factor + region + 
-                                                      Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, 
+                                                      Orthopaedic + Thoracic + Vascular + postcovid*wave +  sex + age.cat + 
+                                                      bmi.cat + imd5 + vaccination.status.factor  + 
+                                                      Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID + region, 
                                                     id = patient_id,
                                           data = dt.tv[(postop.readmit.cohort)], model = T))
 
@@ -59,3 +59,4 @@ colnames(cuminc.adjusted.readmit) <- paste0('Wave_',1:4)
 rownames(cuminc.adjusted.readmit) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
 
 save(post.op.readmit.model,cuminc.adjusted.readmit, file = here::here("output","postopreadmit.RData"))
+data.table::fwrite(cuminc.adjusted.readmit, file = here::here("output","postopreadmit.csv"))

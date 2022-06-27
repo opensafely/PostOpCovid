@@ -23,7 +23,9 @@ dt.tv[, postop.los.cohort := start>=0 & tstop <= los.end & end <= 90 & any.op ==
 
 n.type.events <- sort(unique(dt.tv[(postop.los.cohort) ,event.los]))[-1]
 
-post.op.LOS.model <-  flexsurv::flexsurvreg(survival::Surv(start,end, event.los == 1) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, 
+post.op.LOS.model <-  flexsurv::flexsurvreg(survival::Surv(start,end, event.los == 1) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic +
+                                              Thoracic + Vascular + postcovid sex +  + age.cat +bmi.cat + imd5 + wave + vaccination.status.factor + 
+                                              Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID + region , 
                                            data = dt.tv[(postop.los.cohort)],
                                            dist = 'gengamma')
 
@@ -71,3 +73,5 @@ mean.adjusted.los <- matrix(apply(mean.adjusted.los,1,function(x) paste0(round(x
 colnames(mean.adjusted.los) <- paste0('Wave_',1:4)
 rownames(mean.adjusted.los) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
 save(mean.adjusted.los,post.op.LOS.model, file = here::here("output","postoplos.RData"))
+data.table::fwrite(mean.adjusted.los, file = here::here("output","postoplos.csv"))
+
