@@ -151,4 +151,4 @@ adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:len
 
 
 save(cuminc.adjusted.waves.sub,post.op.covid.model.sub,adjusted.cuminc.sub, file = here::here("output","postopcovid_adjusted_sub.RData"))
-data.table::fwrite(cuminc.adjusted.sub, file = here::here("output","postopcovid_adjusted_sub.csv"))
+data.table::fwrite(adjusted.cuminc.sub, file = here::here("output","postopcovid_adjusted_sub.csv"))
