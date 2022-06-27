@@ -33,7 +33,7 @@ post.op.LOS.model.sub <-  flexsurv::flexsurvreg(survival::Surv(start,end, event.
                                               postcovid + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + 
                                               Emergency + Charl12 + recentCOVID + previousCOVID, 
                                            data = dt.tv[(postop.los.cohort) & sub.op == T],
-                                           dist = 'gengamma')
+                                           dist = 'weibull')
 
 #  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end, event.los == i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,data = dt.tv[(postop.los.cohort)], model = T))
 

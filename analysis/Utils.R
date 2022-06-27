@@ -654,7 +654,7 @@ cuminc.cox <- function(n.type.events,dt, model, newdata, day) {
   
     return(unlist(round(100*apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
       outer(unlist(base.haz.merge[,.SD,.SDcols = (i+1)]) ,unlist(lp[[i]]),'*')}))),2,cumsum)) *
-        outer(unlist(base.haz.merge[,2]),unlist(lp[[1]]),'*'),2,cumsum), digits = 3))[day,])
+        outer(unlist(base.haz.merge[,2]),unlist(lp[[1]]),'*'),2,cumsum), digits = 3))[which(base.haz.merge[,1] == day),])
 }
 
 glance.flexsurvreg <- function(x,...) {

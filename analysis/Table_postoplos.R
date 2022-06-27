@@ -24,10 +24,10 @@ dt.tv[, postop.los.cohort := start>=0 & tstop <= los.end & end <= 90 & any.op ==
 n.type.events <- sort(unique(dt.tv[(postop.los.cohort) ,event.los]))[-1]
 
 post.op.LOS.model <-  flexsurv::flexsurvreg(survival::Surv(start,end, event.los == 1) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic +
-                                              Thoracic + Vascular + postcovid sex +  + age.cat +bmi.cat + imd5 + wave + vaccination.status.factor + 
+                                              Thoracic + Vascular + postcovid +  sex + age.cat +bmi.cat + imd5 + wave + vaccination.status.factor + 
                                               Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID + region , 
                                            data = dt.tv[(postop.los.cohort)],
-                                           dist = 'gengamma')
+                                           dist = 'weibull')
 
 #  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end, event.los == i) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + postcovid + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,data = dt.tv[(postop.los.cohort)], model = T))
 
