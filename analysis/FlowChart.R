@@ -10,28 +10,28 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 ##########################
 
-n.ops <- rnd(dt.tv[start ==0 & any.op == T  & is.finite(admit.date),lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
-n.ops.VTE <- rnd(dt.tv[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date) & any.op.VTE == T,lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
-n.ops.COVID <- rnd(dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date) & any.op.COVID == T,lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
+n.ops <- rnd(dt.tv[start ==0 & any.op == T  & is.finite(admit.date),][is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][,tail(.SD,1), keyby = .(patient_id, end.fu)][,lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
+n.ops.VTE <- rnd(dt.tv[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date) & any.op.VTE == T,][is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][,tail(.SD,1), keyby = .(patient_id, end.fu)][,lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
+n.ops.COVID <- rnd(dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date) & any.op.COVID == T,][is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][,tail(.SD,1), keyby = .(patient_id, end.fu)][,lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
 
 n.pats <- rnd(length(unique(dt.tv[,patient_id])))
-n.pats.study <- rnd(length(unique(dt.tv[start ==0 & is.finite(admit.date) & any.op == T & admit.date <= end.fu,patient_id])))
-n.pats.late <- rnd(length(unique(dt.tv[(admit.date > gp.end | !is.finite(gp.end)) & any.op == T,patient_id])))
+n.pats.study <- rnd(length(unique(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][start ==0 & is.finite(admit.date) & any.op == T & admit.date <= end.fu,patient_id])))
+n.pats.late <- rnd(length(unique(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][(admit.date > gp.end | !is.finite(gp.end)) & any.op == T,patient_id])))
 
-n.covid.90 <- rnd(dt.tv[,max(event == 1 & start >=0 & end <=90 & any.op.COVID == T, na.rm = T) , keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.covid.90.censored <- rnd(dt.tv[,max(event == 1 & start >=0  & end <=90 & (postop.covid.cohort) & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.covid.30.censored <- rnd(dt.tv[,max(event == 1 & start >=0  & end <=30 & (postop.covid.cohort) & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.covid.7.censored <- rnd(dt.tv[,max(event == 1 & start >=0  & start >=0  & end <=7 &(postop.covid.cohort) & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.covid.90 <- rnd(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][,max(event == 1 & start >=0 & end <=90 & any.op.COVID == T, na.rm = T) , keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.covid.90.censored <- rnd(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][,max(event == 1 & start >=0  & end <=90 & (postop.covid.cohort) & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.covid.30.censored <- rnd(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][,max(event == 1 & start >=0  & end <=30 & (postop.covid.cohort) & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.covid.7.censored <- rnd(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][,max(event == 1 & start >=0  &  end <=7 &(postop.covid.cohort) & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 
-n.VTE.90 <- rnd(dt.tv[any.op.VTE == T,max(event.VTE == 1 & start >=0   & end <=90 , na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.VTE.90.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=90  & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.VTE.30.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=30 & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.VTE.7.censored <- rnd(dt.tv[,max(event.VTE == 1 & start >=0  & end <=7 & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.90 <- rnd(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][any.op.VTE == T,max(event.VTE == 1 & start >=0   & end <=90 , na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.90.censored <- rnd(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][,max(event.VTE == 1 & start >=0  & end <=90  & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.30.censored <- rnd(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][,max(event.VTE == 1 & start >=0  & end <=30 & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.7.censored <- rnd(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][,max(event.VTE == 1 & start >=0  & end <=7 & (postcovid.VTE.cohort) & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 
-n.surv.90 <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=90, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.surv.90.censored <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=90, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.surv.30.censored <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=30, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.surv.7.censored <- rnd(dt.tv[start >= 0 & any.op == T,max(died == 1 & end <=7, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.surv.90 <- rnd(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][start >= 0 & any.op == T,max(died == 1 & end <=90, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.surv.90.censored <- rnd(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][start >= 0 & any.op == T,max(died == 1 & end <=90, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.surv.30.censored <- rnd(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][start >= 0 & any.op == T,max(died == 1 & end <=30, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.surv.7.censored <- rnd(dt.tv[is.finite(end.fu) & (Abdominal == T | Obstetrics == T | Orthopaedic == T | Thoracic == T | Vascular == T),][start >= 0 & any.op == T,max(died == 1 & end <=7, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 
 
 start.date <- dt.tv[ start ==0 & is.finite(admit.date) & any.op == T, min(as.Date(as.integer(admit.date), origin = as.Date('1970-01-01')))]
