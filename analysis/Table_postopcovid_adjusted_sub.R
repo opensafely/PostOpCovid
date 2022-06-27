@@ -79,7 +79,7 @@ post.op.covid.model.sub <-
 data.table::fwrite(broom::tidy(post.op.covid.model.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelsub.csv"))
 
 
-adjusted.cuminc.sub <-  foreach::foreach(predi = 1:length(covariates), .combine = 'c', .inorder = T) %do% {
+adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:length(covariates), .combine = 'c', .inorder = T) %do% {
                            newdata.rows <- length(unique(dt.tv[!is.na(get(covariates[predi])) ,get(covariates[predi])]))
                            
    
@@ -147,8 +147,8 @@ adjusted.cuminc.sub <-  foreach::foreach(predi = 1:length(covariates), .combine 
                                       model = 'post.op.covid.model.sub', 
                                       newdata = 'newdata.pred',
                                       day = 30)
-                         }
+                         })
 
 
 save(cuminc.adjusted.waves.sub,post.op.covid.model.sub,adjusted.cuminc.sub, file = here::here("output","postopcovid_adjusted_sub.RData"))
-data.table::fwrite(cuminc.adjusted.waves.sub, file = here::here("output","postopcovid_adjusted_sub.csv"))
+data.table::fwrite(cuminc.adjusted.sub, file = here::here("output","postopcovid_adjusted_sub.csv"))
