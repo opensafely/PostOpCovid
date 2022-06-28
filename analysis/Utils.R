@@ -634,8 +634,8 @@ cuminc.km.sub <- function(x,niter)  {
 
 cuminc.cox <- function(n.type.events,dt, model, newdata, day) {
   
-   EVAL('base.haz <- lapply(n.type.events, function(i) { survival::basehaz(',model,'[[i]],centered = F)[] })')
-  base.haz <- EVAL('lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(',dt,'[ event == i ,end])),][] })')
+  EVAL('assign(x = "base.haz", value = lapply(n.type.events, function(i) { survival::basehaz(',model,'[[i]],centered = F)[] }),envir=environment())')
+  EVAL('assign(x = "base.haz", value = lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(',dt,'[ event == i ,end])),][] }),envir=environment())')
   base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('time' = base.haz[[i]]$time,
                                                                          'base.haz' = base.haz[[i]][,1] - 
                                                                          c(0,head(base.haz[[i]][,1],-1)))})
@@ -646,15 +646,16 @@ cuminc.cox <- function(n.type.events,dt, model, newdata, day) {
   }
   base.haz.merge[is.na(base.haz.merge)] <- 0
   
-  risk <- EVAL("lapply(n.type.events, function(i) {  data.table::data.table(
-    'risk' = exp(predict(object = ",model,"[[i]], 
-                         type = 'risk',
-                         newdata = ",newdata,"))) })")
+  EVAL('assign(x = "risk",value = lapply(n.type.events, function(i) {
+        data.table::data.table(
+          "risk" = predict(object = ',model,'[[i]], 
+                         type = "risk",
+                         newdata = ',newdata,')) }),envir=environment())')
   
   
     return(unlist(100*round(apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
       outer(unlist(base.haz.merge[,.SD,.SDcols = (i+1)]) ,unlist(risk[[i]]),'*')}))),2,cumsum)) *
-        outer(unlist(base.haz.merge[,2]),unlist(risk[[1]]),'*'),2,cumsum), digits = 3))[which(base.haz.merge[,1] == day),])
+        outer(unlist(base.haz.merge[,2]),unlist(risk[[1]]),'*'),2,cumsum), digits = 4))[which(base.haz.merge[,1] == day),])
 
 }
 

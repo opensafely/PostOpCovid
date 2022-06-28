@@ -136,6 +136,8 @@ Additional covariates used within the analyses to adjust and stratify the result
       * South East
       * South West
   * Socioeconomic status - Defined as quintiles of the rankings of lower super output areas of home residence by the Indices of Multiple Deprivation.
+  * Recent COVID-19 infection - Defined as between 7 and 42 days prior to the operation date
+  * Prior COVID-19 infection - Defined as before 42 days prior to the operation date
   
 
 ## Statistical methods
