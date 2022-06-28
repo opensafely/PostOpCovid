@@ -53,7 +53,8 @@ n.type.events <- 1
 cuminc.adjusted.mortality <-   matrix(cuminc.cox(n.type.events = n.type.events,
                                                  dt = 'dt.tv[start >=0 & any.op == T]',
                                                  model = 'post.op.died.model',
-                                                 newdata = 'new.data.postop.covid', day = 90), byrow = T, ncol = 4)
+                                                 newdata = 'new.data.postop.covid', 
+                                                 day = 90), byrow = T, ncol = 4)
 
 
 colnames(cuminc.adjusted.mortality) <- paste0('Wave_',1:4)

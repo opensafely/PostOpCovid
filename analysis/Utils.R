@@ -642,7 +642,7 @@ cuminc.cox <- function(n.type.events,dt, model, newdata, day) {
   if(length(n.type.events) > 1) {
   base.haz.merge <- Reduce(x = base.haz.comp,f = function(x,y) merge(x,y,by = 'time', no.dups = T, suffixes = c(".x",".y"), all = T))
   } else {
-    base.haz.merge <- base.haz.comp
+    base.haz.merge <- base.haz.comp[[1]]
   }
   base.haz.merge[is.na(base.haz.merge)] <- 0
   
@@ -652,7 +652,7 @@ cuminc.cox <- function(n.type.events,dt, model, newdata, day) {
                          newdata = ",newdata,"))) })")
   
   
-    return(unlist(round(100*apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
+    return(unlist(100*round(apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
       outer(unlist(base.haz.merge[,.SD,.SDcols = (i+1)]) ,unlist(risk[[i]]),'*')}))),2,cumsum)) *
         outer(unlist(base.haz.merge[,2]),unlist(risk[[1]]),'*'),2,cumsum), digits = 3))[which(base.haz.merge[,1] == day),])
 
