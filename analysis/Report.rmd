@@ -48,8 +48,10 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 ```
 # Background
+
 ## Post operative COVID-19 risk
 People need to attend hospital for investigations and procedures to diagnose and treat illnesses. However, early evidence in the pandemic suggested that there was a significant risk and impact of acquiring COVID-19 on outcomes(1,2). There is evidence that fear of COVID-19 kept them away in the pandemic (3–5). As part of the health system recovery patients need to know whether they can come to hospital safely, doctors need to understand the risk and impact of acquiring COVID-19, and doctors also need to understand the patient and procedure factors predicting associated outcomes. Only then can they implement safe policies and inform patients the risks and benefits of attending hospital for their routine care. 
+
 ## VTE
 VTE risk is elevated following surgery. During the COVID pandemic an association between COVID infection and increased risk of VTE has been described in all patients and in those having surgery. The COVIDSURG collaborative reported an overall rate of post-operative VTE of 0.6% (742/128013). The rate was 0.5% (666/123,591) in patients without SARS-CoV-2; 2.2% (50/2317) in patients with peri-operative SARS-CoV-2; 1.6% (15/953) in patients with recent SARS-CoV-2; and 1.0% (11/1148) in patients with previous SARS-CoV-2. This represented a 2 fold increased risk of VTE in those with peri-operative COVID infection. VTE was independently associated with an increase in risk of mortality at 30 days. This study was only able to divide patients by major/minor surgery and so was not able to describe risk by type of surgery to help inform guidelines. They also only reported on rates to 30 days and prior work has demonstrated the risk of VTE extends beyond this period.
 
@@ -59,6 +61,7 @@ This project will use national linked primary and secondary health data to provi
 
 
 # Methods
+
 ## Study design
 All identified all adult patients as the study population who underwent at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. Patients were followed up from the admission for the operation to 90 days following discharge, and  outcomes of COVID-19 positive tests, first subsequent emergency hospital readmission, venous thromboembolism events, and all cause mortality.  
 

@@ -634,8 +634,8 @@ cuminc.km.sub <- function(x,niter)  {
 
 cuminc.cox <- function(n.type.events,dt, model, newdata, day) {
   
-  base.haz <- EVAL('lapply(n.type.events, function(i) { survival::basehaz(',model,'[[i]],centered = F)[] })')
-  base.haz <- EVAL('lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(',dt,'[ event == i ,end])),] })')
+   EVAL('base.haz <- lapply(n.type.events, function(i) { survival::basehaz(',model,'[[i]],centered = F)[] })')
+  base.haz <- EVAL('lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(',dt,'[ event == i ,end])),][] })')
   base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('time' = base.haz[[i]]$time,
                                                                          'base.haz' = base.haz[[i]][,1] - 
                                                                          c(0,head(base.haz[[i]][,1],-1)))})
