@@ -634,27 +634,28 @@ cuminc.km.sub <- function(x,niter)  {
 
 cuminc.cox <- function(n.type.events,dt, model, newdata, day) {
   
-  base.haz <- EVAL('lapply(n.type.events, function(i) { survival::basehaz(',model,'[[i]],centered = F)})')
-  
-    base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('time' = base.haz[[i]]$time,
+  base.haz <- EVAL('lapply(n.type.events, function(i) { survival::basehaz(',model,'[[i]],centered = F)[] })')
+  base.haz <- EVAL('lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(',dt,'[ event == i ,end])),] })')
+  base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('time' = base.haz[[i]]$time,
                                                                          'base.haz' = base.haz[[i]][,1] - 
                                                                          c(0,head(base.haz[[i]][,1],-1)))})
-  if(length(n.type.events > 1)) {
+  if(length(n.type.events) > 1) {
   base.haz.merge <- Reduce(x = base.haz.comp,f = function(x,y) merge(x,y,by = 'time', no.dups = T, suffixes = c(".x",".y"), all = T))
   } else {
     base.haz.merge <- base.haz.comp
   }
   base.haz.merge[is.na(base.haz.merge)] <- 0
   
-  lp <- EVAL("lapply(n.type.events, function(i) {  data.table::data.table(
+  risk <- EVAL("lapply(n.type.events, function(i) {  data.table::data.table(
     'risk' = exp(predict(object = ",model,"[[i]], 
-                         type = 'lp',
+                         type = 'risk',
                          newdata = ",newdata,"))) })")
   
   
     return(unlist(round(100*apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
-      outer(unlist(base.haz.merge[,.SD,.SDcols = (i+1)]) ,unlist(lp[[i]]),'*')}))),2,cumsum)) *
-        outer(unlist(base.haz.merge[,2]),unlist(lp[[1]]),'*'),2,cumsum), digits = 3))[which(base.haz.merge[,1] == day),])
+      outer(unlist(base.haz.merge[,.SD,.SDcols = (i+1)]) ,unlist(risk[[i]]),'*')}))),2,cumsum)) *
+        outer(unlist(base.haz.merge[,2]),unlist(risk[[1]]),'*'),2,cumsum), digits = 3))[which(base.haz.merge[,1] == day),])
+
 }
 
 glance.flexsurvreg <- function(x,...) {
