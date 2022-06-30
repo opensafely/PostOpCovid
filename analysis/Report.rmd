@@ -271,9 +271,9 @@ The adjusted cumulative risk for COVID-19 were calculated for an inpatient week 
 ```{r postopcovid_tv}
 load(file = here::here("output","postopcovid_tv.RData"))
 
-ggplot2::ggplot(weekly.post.op.risk) + ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk)) + 
-#  ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")), 
- #                                                                     y = Risk)) +
+ggplot2::ggplot(weekly.post.op.risk) + #ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk)) + 
+  ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")), 
+                                                                      y = Risk)) +
 ggplot2::xlab("Days post discharge") + 
   ggplot2::ylab("Cumulative risk during time period") + ggplot2::ggtitle("Post operative risk of COVID-19 over time",
                                                                          subtitle = "Adjusted for age, sex, SES, BMI, co-morbidity, vaccination,\n operation category, emergency, previous COVID-19, \n COVID_19 wave, and competing risks of death and readmission")
@@ -284,9 +284,9 @@ ggplot2::xlab("Days post discharge") +
 ```{r postopcovid_tv_sub}
 load(file = here::here("output","postopcovid_tv_sub.RData"))
 
-ggplot2::ggplot(weekly.post.op.risk.sub) + ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk)) + 
-#  ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")), 
- #                                                                     y = Risk)) +
+ggplot2::ggplot(weekly.post.op.risk.sub) + #ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk)) + 
+ ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")), 
+                                                                      y = Risk)) +
 ggplot2::xlab("Risk Period post discharge") + 
   ggplot2::ylab("Cumulative risk during time period") + ggplot2::ggtitle("Post operative risk of COVID-19 over time",
                                                                          subtitle = "Adjusted for age, sex, SES, BMI, co-morbidity, vaccination,\n operation category, emergency, previous COVID-19, \n COVID_19 wave, and competing risks of death and readmission")
@@ -332,12 +332,12 @@ knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4),caption = paste
 
 ```{r postopcovid_VTE_tv}
 
-ggplot2::ggplot(weekly.post.op.VTE.risk) + ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk, group = COVID, colour = COVID)) + 
-#  ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")), 
- #                                                                     y = Risk, 
-  #                               group = COVID, 
-   #                              colour = COVID,
-    #                             fill = COVID), position = "dodge") +
+ggplot2::ggplot(weekly.post.op.VTE.risk) + #ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk, group = COVID, colour = COVID)) + 
+ ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")),
+                                                                    y = Risk,
+                              group = COVID,
+                             colour = COVID,
+                            fill = COVID), position = "dodge") +
 ggplot2::xlab("Risk Period post discharge") + 
   ggplot2::ylab("Cumulative risk during time period") + ggplot2::ggtitle("Post operative risk of VTE over time stratified by COVID-19 infection",
                                                                          subtitle = "Adjusted for age, sex, SES, BMI, co-morbidity, vaccination,\n operation category, emergency, previous COVID-19, \n COVID_19 wave, and competing risks of death and readmission")
@@ -359,12 +359,12 @@ knitr::kable(cuminc.adjusted.VTE.sub,col.names = paste0("Wave ",1:4),caption = p
 
 ```{r postopcovid_VTE_tv_sub}
 
-ggplot2::ggplot(weekly.post.op.VTE.risk.sub) + ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk, group = COVID, colour = COVID)) + 
-#  ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")), 
- #                                                                     y = Risk, 
-  #                               group = COVID, 
-   #                              colour = COVID,
-    #                             fill = COVID), position = "dodge") +
+ggplot2::ggplot(weekly.post.op.VTE.risk.sub) + #ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk, group = COVID, colour = COVID)) + 
+ ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")),
+                                                                    y = Risk,
+                              group = COVID,
+                             colour = COVID,
+                            fill = COVID), position = "dodge") +
 ggplot2::xlab("Risk Period post discharge") + 
   ggplot2::ylab("Cumulative risk during time period") + 
   ggplot2::ggtitle("Post operative risk of VTE over time stratified by COVID-19 infection",
