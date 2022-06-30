@@ -17,7 +17,10 @@ data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits[event == 3, event := 2]
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal+ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency*week.post.disch  + Charl12 + recentCOVID + previousCOVID, id = patient_id,data = dt.tv.splits[(postop.covid.cohort) & start <=end], model = T))
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal+ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + 
+  sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency*week.post.disch  + Charl12 + recentCOVID + previousCOVID,
+   id = patient_id,
+  data = dt.tv.splits[(postop.covid.cohort) & start <=end], model = T))
 
 data.table::fwrite(broom::tidy(post.op.covid.model.split[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelsplit.csv"))
 
@@ -67,13 +70,14 @@ times <- lapply(n.type.events, function(i) { survival::basehaz(post.op.covid.mod
 base.haz <- lapply(n.type.events, function(i) { data.table::data.table('time' = times[[i]],
                                                                          'base.haz' = survival::basehaz(post.op.covid.model.split[[i]],centered = F)[,1] -
                                                                            c(0,head(survival::basehaz(post.op.covid.model.split[[i]],centered = F)[,1],-1)))})
-
+base.haz <- lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(dt.tv.splits[(postop.covid.cohort) & start <=end][ event == i ,end]))
 lp <- lapply(n.type.events, function(i) {  data.table::data.table('time' = seq(-7,21,7),
                                                                     'risk' = exp(predict(object = post.op.covid.model.split[[i]],
                                                                                          type = 'lp', 
                                                                                          newdata = newdata.pred))) })
 
 base.haz.merge <- Reduce(x =base.haz,f = function(x,y) merge(x,y,by = 'time', no.dups = T, suffixes = c(".x",".y"), all = T, sort = T))
+  base.haz.merge[is.na(base.haz.merge)] <- 0
 
 
 weekly.post.op.risk <- 
