@@ -17,7 +17,10 @@ data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits[event == 3, event := 2]
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal+ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency*week.post.disch  + Charl12 + recentCOVID + previousCOVID, id = patient_id,data = dt.tv.splits[(postop.covid.cohort) & start <=end], model = T))
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal+ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + 
+  sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency*week.post.disch  + Charl12 + recentCOVID + previousCOVID,
+   id = patient_id,
+  data = dt.tv.splits[(postop.covid.cohort) & start <=end], model = T))
 
 data.table::fwrite(broom::tidy(post.op.covid.model.split[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelsplit.csv"))
 
@@ -61,6 +64,7 @@ newdata.pred <- data.table::data.table('start' = c(-7,0,7,14,21),
 #     rep(max.category(i.c),newdata.rows)
 #   }
 # })]
+
 
 
 base.haz <- lapply(n.type.events, function(i) survival::basehaz(post.op.covid.model.split[[i]],centered = F))
