@@ -78,23 +78,26 @@ base.haz.merge <- Reduce(x =base.haz,f = function(x,y) merge(x,y,by = 'time', no
 
 weekly.post.op.risk <- 
   unlist(round(100*apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
-    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)] 
+    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =-Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)] 
   }))),2,cumsum))*
-    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)] ,2,cumsum), digits = 3))
+    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =-Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)] ,2,cumsum), digits = 3))
 
 weekly.post.op.risk[!is.finite(weekly.post.op.risk)] <- 0
 
 times.comb <- unique(sort(unlist(times)))[unique(sort(unlist(times))) >= -7]
 
-weekly.post.op.risk <- c(weekly.post.op.risk[max(which(times.comb <= 0))],
-                         weekly.post.op.risk[max(which(times.comb <= 7))],
-                         weekly.post.op.risk[max(which(times.comb <= 14))],
-                         weekly.post.op.risk[max(which(times.comb <= 21))],
-                         weekly.post.op.risk[max(which(times.comb <= 28))])
+#weekly.post.op.risk <- c(weekly.post.op.risk[max(which(times.comb <= 0))],
+#                         weekly.post.op.risk[max(which(times.comb <= 7))],
+#                         weekly.post.op.risk[max(which(times.comb <= 14))],
+#                         weekly.post.op.risk[max(which(times.comb <= 21))],
+#                         weekly.post.op.risk[max(which(times.comb <= 28))])
 
 
-weekly.post.op.risk  <-  data.table::data.table("Risk" = weekly.post.op.risk - c(0,weekly.post.op.risk[-length(weekly.post.op.risk)]),
-                                                "Risk period" = c("Week pre discharge","1st week","2nd week","3rd week","4th week"))
+#weekly.post.op.risk  <-  data.table::data.table("Risk" = weekly.post.op.risk - c(0,weekly.post.op.risk[-length(weekly.post.op.risk)]),
+#                                                "Risk period" = c("Week pre discharge","1st week","2nd week","3rd week","4th week"))
+
+weekly.post.op.risk  <-  data.table::data.table("Risk" = (weekly.post.op.risk - c(0,weekly.post.op.risk[-length(weekly.post.op.risk)])[which(times.comb <= 28)]),
+                                                "Days.post.discharge" = (-7):28)
 
 data.table::fwrite(weekly.post.op.risk, file = here::here("output","postopcovid_tv.csv"))
 
@@ -155,24 +158,24 @@ base.haz.merge <- Reduce(x =base.haz,f = function(x,y) merge(x,y,by = 'time', no
 
 weekly.post.op.VTE.risk <- 
   unlist(round(100*apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
-    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)] 
+    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =-Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)] 
   }))),2,cumsum))*
-    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)], 2, cumsum ), digits = 3))
+    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =-Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)], 2, cumsum ), digits = 3))
 
 weekly.post.op.VTE.risk[!is.finite(weekly.post.op.VTE.risk)] <- 0
 
 times.comb <- unique(sort(unlist(times)))[unique(sort(unlist(times))) >= -7]
 
-weekly.post.op.VTE.risk <- rbind(weekly.post.op.VTE.risk[max(which(times.comb <= 0)),],
-                             weekly.post.op.VTE.risk[max(which(times.comb <= 7)),],
-                             weekly.post.op.VTE.risk[max(which(times.comb <= 14)),],
-                             weekly.post.op.VTE.risk[max(which(times.comb <= 21)),],
-                         weekly.post.op.VTE.risk[max(which(times.comb <= 28)),])
+#weekly.post.op.VTE.risk <- rbind(weekly.post.op.VTE.risk[max(which(times.comb <= 0)),],
+#                             weekly.post.op.VTE.risk[max(which(times.comb <= 7)),],
+#                             weekly.post.op.VTE.risk[max(which(times.comb <= 14)),],
+#                             weekly.post.op.VTE.risk[max(which(times.comb <= 21)),],
+#                         weekly.post.op.VTE.risk[max(which(times.comb <= 28)),])
 
 
-weekly.post.op.VTE.risk  <-  data.table::data.table("COVID"= rep(c(F,T), each = 5),
-  "Risk" = as.vector(weekly.post.op.VTE.risk - rbind(c(0,0),weekly.post.op.VTE.risk[-nrow(weekly.post.op.VTE.risk),])),
-                                                "Risk period" = c("Week pre discharge","1st week","2nd week","3rd week","4th week"))
+weekly.post.op.VTE.risk  <-  data.table::data.table(#"COVID"= rep(c(F,T), each = 5),
+  "Risk" = as.vector(weekly.post.op.VTE.risk - rbind(c(0,0),weekly.post.op.VTE.risk[-nrow(weekly.post.op.VTE.risk),]))[which(times.comb <= 28)],
+                                                "Days.post.discharge" = (-7):28) #c("Week pre discharge","1st week","2nd week","3rd week","4th week"))
 
 ##################################
 save(weekly.post.op.risk,weekly.post.op.VTE.risk, file = here::here("output","postopcovid_tv.RData"))
