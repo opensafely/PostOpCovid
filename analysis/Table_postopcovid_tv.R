@@ -91,7 +91,7 @@ weekly.post.op.risk <-
 
 weekly.post.op.risk[!is.finite(weekly.post.op.risk)] <- 0
 
-times.comb <- unique(sort(unlist(times)))[unique(sort(unlist(times))) >= -7]
+times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.haz.merge$time))) >= -7]
 
 weekly.post.op.risk <- c(weekly.post.op.risk[max(which(times.comb <= 0))],
                         weekly.post.op.risk[max(which(times.comb <= 7))],

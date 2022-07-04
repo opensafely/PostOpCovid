@@ -148,10 +148,18 @@ dt[,date_death_ons := as.numeric(date_death_ons)]
 dt[,gp.end := as.numeric(gp.end)]
 
 # Variable for earliest of 90 days post procedure or death for end of follow up time
+# 90 days Post discharge
 dt[,(paste0(procedures,"_end_fu")) := lapply(.SD, function(x) data.table::fifelse(is.finite(date_death_ons) & x+90 > date_death_ons, date_death_ons,x+90)),
    .SDcols = paste0(procedures, '_date_discharged')]
 dt[,(paste0(procedures,"_end_fu")) := lapply(.SD, function(x) data.table::fifelse(is.finite(gp.end) & x > gp.end, gp.end,x)),
    .SDcols = paste0(procedures, '_end_fu')]
+
+# 90 days Post operative to ensure time break to allow censoring here
+dt[,(paste0(procedures,"_end_fu90")) := lapply(.SD, function(x) data.table::fifelse(is.finite(date_death_ons) & x+90 > date_death_ons, date_death_ons,x+90)),
+   .SDcols = paste0(procedures, '_date_admitted')]
+dt[,(paste0(procedures,"_end_fu90")) := lapply(.SD, function(x) data.table::fifelse(is.finite(gp.end) & x > gp.end, gp.end,x)),
+   .SDcols = paste0(procedures, '_end_fu90')]
+
 
 # For tmerge define final date for per patient taking into account final patient in GP database and currrent study end date
 
@@ -174,7 +182,8 @@ dt.times <- dt[,.SD, .SDcols = c('patient_id',
                                  'gp.end',
                                  proc.time.cols.start, 
                                  proc.time.cols.end,
-                                 paste(procedures,"_end_fu",sep = ""))]
+                                 paste(procedures,"_end_fu",sep = ""),
+                                 paste(procedures,"_end_fu90",sep = ""))]
 dt.times[, gp.end := as.numeric(gp.end)]
 
 # Data for long cohort table with variables that are time varying
@@ -252,8 +261,9 @@ for (i in 1:length(procedures))  dt.tv[get(paste0(procedures[i],
 
 
 for (i in c(proc.time.cols.end,
-                         paste0(procedures,"_end_fu"),
-                         "gp.end"))  dt.tv[get(v) != tstop, (v) := NA]
+            paste0(procedures,"_end_fu"),
+            paste0(procedures,"_end_fu90"),
+            "gp.end"))  dt.tv[get(v) != tstop, (v) := NA]
 
 
 
@@ -323,6 +333,7 @@ dt.tv <- dt.tv[tstop <= end.fu,]
 
 dt.tv[!is.finite(admit.date), admit.date := NA]
 dt.tv[!is.finite(end.fu), end.fu := NA]
+dt.tv[!is.finite(end.fu), end.fu90 := NA]
 dt.tv[!is.finite(discharge.date), discharge.date := NA]
 dt.tv[!is.finite(study.start), study.start := NA]
 
