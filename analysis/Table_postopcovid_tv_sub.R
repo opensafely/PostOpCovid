@@ -180,7 +180,7 @@ weekly.post.op.VTE.risk.sub <-
   }))),2,cumsum))*
     lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)], 2, cumsum ), digits = 3))
 
-for (j in 1:ncol(weekly.post.op.VTE.risk.sub)) set(weekly.post.op.VTE.risk.sub, which(!is.finite(weekly.post.op.VTE.risk.sub[,(j)])), j, 0)
+weekly.post.op.VTE.risk.sub <- weekly.post.op.VTE.risk.sub[,lapply(.SD, function(x) fifelse(!is.finite(x), 0, as.numeric(x)))]
 
 times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.haz.merge$time))) >= -7]
 
@@ -190,8 +190,7 @@ weekly.post.op.VTE.risk.sub <- rbind(weekly.post.op.VTE.risk.sub[max(which(times
                                      weekly.post.op.VTE.risk.sub[max(which(times.comb <= 21)),],
                                      weekly.post.op.VTE.risk.sub[max(which(times.comb <= 28)),])
 
-for (j in 1:ncol(weekly.post.op.VTE.risk.sub)) set(weekly.post.op.VTE.risk.sub, which(!is.finite(weekly.post.op.VTE.risk.sub[,(j)])), j, 0)
-
+weekly.post.op.VTE.risk.sub <- weekly.post.op.VTE.risk.sub[,lapply(.SD, function(x) fifelse(!is.finite(x), 0, as.numeric(x)))]
 weekly.post.op.VTE.risk.sub <- as.vector(weekly.post.op.VTE.risk.sub[,lapply(.SD, function(x) as.numeric(x) - as.numeric(c(0,head(x,-1))))])
 weekly.post.op.VTE.risk.sub  <-  cbind(data.table::data.table("COVID"= rep(c(F,T), each = 5),weekly.post.op.VTE.risk.sub,c("Week pre discharge","1st week","2nd week","3rd week","4th week")))
 
