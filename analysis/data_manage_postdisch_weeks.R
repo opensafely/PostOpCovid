@@ -3,7 +3,7 @@ ncores <- parallel::detectCores(logical = T)
 data.table::setDTthreads(ncores)
 source(here::here("analysis","Utils.R"))
 
-dt.tv <- data.table::setDT(feather::read_feather(here::here("output","cohort_long.feather")))
+dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 #load(file = here::here("output","cohort_long.RData"))
 
 dt.tv[,`:=`(post.disch.wk1 = discharge.date  ,
@@ -67,6 +67,6 @@ dt.tv.splits[date_death_ons == tstop & event.VTE != 1, event.VTE := 3]
 
 
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
-feather::write_feather(dt.tv.splits, path = here::here("output","cohort_postdisch_week_splits.feather"))
+arrow::write_feather(dt.tv.splits, sink = here::here("output","cohort_postdisch_week_splits.feather"))
 #save(dt.tv.splits, file = here::here("output","cohort_postdisch_week_splits.RData"))
 

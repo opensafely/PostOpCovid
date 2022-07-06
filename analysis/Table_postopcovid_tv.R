@@ -7,7 +7,7 @@ source(here::here("analysis","Utils.R"))
 
 ###########################################################
 
-dt.tv.splits <- data.table::setDT(feather::read_feather(here::here("output","cohort_postdisch_week_splits.feather")))
+dt.tv.splits <- data.table::setDT(arrow::read_feather(here::here("output","cohort_postdisch_week_splits.feather")))
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
 
 n.type.events <- 1:2 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
@@ -174,7 +174,7 @@ weekly.post.op.VTE.risk <-
 
 weekly.post.op.VTE.risk[!is.finite(weekly.post.op.VTE.risk)] <- 0
 
-times.comb <- unique(sort(unlist(times)))[unique(sort(unlist(times))) >= -7]
+times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.haz.merge$time))) >= -7]
 
 weekly.post.op.VTE.risk <- rbind(weekly.post.op.VTE.risk[max(which(times.comb <= 0)),],
                             weekly.post.op.VTE.risk[max(which(times.comb <= 7)),],

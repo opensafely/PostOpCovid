@@ -10,7 +10,7 @@ source(here::here("analysis","Utils.R"))
 #load(file = here::here("output","cohort_postdisch_week_splits.RData"))
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
-dt.tv.splits <- data.table::setDT(feather::read_feather(here::here("output","cohort_postdisch_week_splits.feather")))
+dt.tv.splits <- data.table::setDT(arrow::read_feather(here::here("output","cohort_postdisch_week_splits.feather")))
 n.type.events <- 1:2 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)

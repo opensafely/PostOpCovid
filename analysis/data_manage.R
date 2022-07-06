@@ -668,5 +668,5 @@ dt.tv[, postop.readmit.cohort := start.readmit>=0 & tstop <= final.date.readmit 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 dt.tv <- dt.tv[any.op == T & start >=0 & tstop <= end.fu,]
-feather::write_feather(dt.tv, path = here::here("output","cohort_long.feather"))
+arrow::write_feather(dt.tv, sink = here::here("output","cohort_long.feather"))
 #save(dt.tv, file = here::here("output","cohort_long.RData"))
