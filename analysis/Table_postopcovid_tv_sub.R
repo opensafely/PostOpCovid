@@ -157,7 +157,7 @@ newdata.pred <- data.table::data.table('start' = rep(c(-7,0,7,14,21), times = 2)
                                        'previousCOVID' = rep(F,newdata.rows*2)
 )
 
-base.haz <- lapply(n.type.events, function(i) survival::basehaz(post.op.VTE.model.split[[i]],centered = F))
+base.haz <- lapply(n.type.events, function(i) survival::basehaz(post.op.VTE.model.split.sub[[i]],centered = F))
 base.haz <- lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(dt.tv.splits[ event == i ,end])),][] })
 
 base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('time' = base.haz[[i]]$time,
