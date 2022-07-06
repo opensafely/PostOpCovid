@@ -80,7 +80,6 @@ newdata.pred <- data.table::data.table('start' = c(-7,0,7,14,21),
 # })]
 
 base.haz <- lapply(n.type.events, function(i) survival::basehaz(post.op.covid.model.split.sub[[i]],centered = F))
-base.haz <- lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(dt.tv.splits[ event == i ,end])),][] })
 
 base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('time' = base.haz[[i]]$time,
                                                                             base.haz = base.haz[[i]][,1] - 
@@ -88,7 +87,7 @@ base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('tim
 
 base.haz.merge <- Reduce(x =base.haz.comp,f = function(x,y) merge(x,y,by = 'time', no.dups = T, suffixes = c(".x",".y"), all = T, sort = T))
 
-base.haz.merge[is.na(base.haz.merge)] <- 0
+for (j in 1:ncol(base.haz.merge)) set(base.haz.merge, which(!is.finite(base.haz.merge[[j]])), j, 0)
 
 
 lp <- lapply(n.type.events, function(i) {  data.table::data.table('time' = seq(-7,21,7),
@@ -112,6 +111,7 @@ weekly.post.op.risk.sub <- c(weekly.post.op.risk.sub[max(which(times.comb <= 0))
                              weekly.post.op.risk.sub[max(which(times.comb <= 21))],
                              weekly.post.op.risk.sub[max(which(times.comb <= 28))])
 
+weekly.post.op.risk.sub[!is.finite(weekly.post.op.risk.sub)] <- 0
 
 weekly.post.op.risk.sub  <-  data.table::data.table("Risk" = weekly.post.op.risk.sub - c(0,weekly.post.op.risk.sub[-length(weekly.post.op.risk.sub)]),
                                                 "Risk period" = c("Week pre discharge","1st week","2nd week","3rd week","4th week"))
@@ -158,7 +158,6 @@ newdata.pred <- data.table::data.table('start' = rep(c(-7,0,7,14,21), times = 2)
 )
 
 base.haz <- lapply(n.type.events, function(i) survival::basehaz(post.op.VTE.model.split.sub[[i]],centered = F))
-base.haz <- lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(dt.tv.splits[ event == i ,end])),][] })
 
 base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('time' = base.haz[[i]]$time,
                                                                             base.haz = base.haz[[i]][,1] - 
@@ -173,14 +172,15 @@ lp <- lapply(n.type.events, function(i) {  data.table::dcast(data.table::data.ta
 base.haz.merge <- Reduce(x =base.haz.comp,f = function(x,y) merge(x,y,by = 'time', no.dups = T, suffixes = c(".x",".y"), all = T, sort = T))
 
 
-base.haz.merge[is.na(base.haz.merge)] <- 0
+for (j in 1:ncol(base.haz.merge)) set(base.haz.merge, which(!is.finite(base.haz.merge[[j]])), j, 0)
+
 weekly.post.op.VTE.risk.sub <- 
   unlist(round(100*apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
-    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =-Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)] 
+    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)] 
   }))),2,cumsum))*
-    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =-Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)], 2, cumsum ), digits = 3))
+    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)], 2, cumsum ), digits = 3))
 
-weekly.post.op.VTE.risk.sub[!is.finite(weekly.post.op.VTE.risk.sub)] <- 0
+for (j in 1:ncol(weekly.post.op.VTE.risk.sub)) set(weekly.post.op.VTE.risk.sub, which(!is.finite(weekly.post.op.VTE.risk.sub[[j]])), j, 0)
 
 times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.haz.merge$time))) >= -7]
 
@@ -190,10 +190,10 @@ weekly.post.op.VTE.risk.sub <- rbind(weekly.post.op.VTE.risk.sub[max(which(times
                                      weekly.post.op.VTE.risk.sub[max(which(times.comb <= 21)),],
                                      weekly.post.op.VTE.risk.sub[max(which(times.comb <= 28)),])
 
+for (j in 1:ncol(weekly.post.op.VTE.risk.sub)) set(weekly.post.op.VTE.risk.sub, which(!is.finite(weekly.post.op.VTE.risk.sub[[j]])), j, 0)
 
-weekly.post.op.VTE.risk.sub  <-  data.table::data.table("COVID"= rep(c(F,T), each = 5),
-  "Risk" = as.vector(weekly.post.op.VTE.risk.sub - rbind(c(0,0),weekly.post.op.VTE.risk.sub[-nrow(weekly.post.op.VTE.risk.sub),])),
-                                                "Risk period" = c("Week pre discharge","1st week","2nd week","3rd week","4th week"))
+weekly.post.op.VTE.risk.sub <- as.vector(weekly.post.op.VTE.risk.sub[,lapply(.SD, function(x) as.numeric(x) - as.numeric(c(0,head(x,-1))))])
+weekly.post.op.VTE.risk.sub  <-  cbind(data.table::data.table("COVID"= rep(c(F,T), each = 5),weekly.post.op.VTE.risk.sub,c("Week pre discharge","1st week","2nd week","3rd week","4th week")))
 
 # weekly.post.op.VTE.risk.sub  <-  data.table::data.table("Risk" = (weekly.post.op.VTE.risk.sub - c(0,weekly.post.op.VTE.risk.sub[-length(weekly.post.op.VTE.risk.sub)])[which(times.comb <= 28)]),
 #                                                 "Days.post.discharge" = (-7):28)

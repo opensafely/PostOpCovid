@@ -94,6 +94,7 @@ actions:
         table_tv_sub: output/postopcovid_tv_sub.RData
         table_tv_sub_csv: output/postopcovid_tv_sub.csv
         model_VTE_tv_sub: output/postopVTEmodelsplitsub.csv
+        table_VTE_tv_sub_csv: output/postopcovid_VTE_tv_sub.csv
         model_COVID_tv_sub: output/postopcovidmodelsplitsub.csv
         
   table_postopLOS:      
