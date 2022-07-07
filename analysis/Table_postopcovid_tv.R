@@ -161,7 +161,7 @@ lp <- lapply(n.type.events, function(i) {  data.table::dcast(data.table::data.ta
 
 base.haz.merge <- Reduce(x =base.haz.comp,f = function(x,y) merge(x,y,by = 'time', no.dups = T, suffixes = c(".x",".y"), all = T, sort = T))
 
-for (j in 1:ncol(base.haz.merge)) set(base.haz.merge, which(!is.finite(base.haz.merge[[j]])), j, 0)
+for (j in 1:ncol(base.haz.merge)) set(base.haz.merge, which(!is.finite(base.haz.merge[,(j)])), j, 0)
 
 weekly.post.op.VTE.risk <- 
   unlist(round(100*apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
@@ -169,7 +169,7 @@ weekly.post.op.VTE.risk <-
   }))),2,cumsum))*
     lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)], 2, cumsum ), digits = 3))
 
-weekly.post.op.VTE.risk <- weekly.post.op.VTE.risk[,lapply(.SD, function(x) fifelse(!is.finite(x), 0, as.numeric(x)))]
+weekly.post.op.VTE.risk[!is.finite(weekly.post.op.VTE.risk)] <- 0
 
 times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.haz.merge$time))) >= -7]
 
@@ -179,10 +179,10 @@ weekly.post.op.VTE.risk <- rbind(weekly.post.op.VTE.risk[max(which(times.comb <=
                             weekly.post.op.VTE.risk[max(which(times.comb <= 21)),],
                         weekly.post.op.VTE.risk[max(which(times.comb <= 28)),])
 
-weekly.post.op.VTE.risk <- weekly.post.op.VTE.risk[,lapply(.SD, function(x) fifelse(!is.finite(x), 0, as.numeric(x)))]
+weekly.post.op.VTE.risk[!is.finite(weekly.post.op.VTE.risk)] <- 0
 
-weekly.post.op.VTE.risk <- as.vector(weekly.post.op.VTE.risk[,lapply(.SD, function(x) as.numeric(x) - as.numeric(c(0,head(x,-1))))])
-weekly.post.op.VTE.risk  <-  cbind(data.table::data.table("COVID"= rep(c(F,T), each = 5),weekly.post.op.VTE.risk,c("Week pre discharge","1st week","2nd week","3rd week","4th week")))
+weekly.post.op.VTE.risk <- as.vector(weekly.post.op.VTE.risk - rbind(c(0,0),weekly.post.op.VTE.risk[1:4,]))
+weekly.post.op.VTE.risk  <-  cbind(data.table::data.table("COVID"= rep(c(F,T), each = 5),"Risk" = weekly.post.op.VTE.risk,"Risk period" = c("Week pre discharge","1st week","2nd week","3rd week","4th week")))
 
 
 ##################################

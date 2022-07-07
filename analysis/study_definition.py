@@ -460,11 +460,11 @@ study = StudyDefinition(
 
     **with_emergency_readmissions(list_dict, returning = "date_admitted",  return_expectations={"rate" : "uniform"}),
 
-    **with_post_op_hospital_events(name= "VTE",event_list=VTE_HES_codes,code_list_dict=list_dict, returning="date_admitted", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
+    **with_post_op_hospital_events(name= "VTE",event_list=VTE_HES_codes,code_list_dict=list_dict, returning="date_admitted", return_expectations={"incidence": 0.5,"rate" : "uniform",}),
 
-    **with_post_op_GP_events(name= "VTE",event_list=VTE_Read_codes,code_list_dict=list_dict, returning="date", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
+    **with_post_op_GP_events(name= "VTE",event_list=VTE_Read_codes,code_list_dict=list_dict, returning="date", return_expectations={"incidence": 0.5,"rate" : "uniform",}),
 
-    **with_post_op_GP_medications(name= "anticoagulation",event_list=any_anticoagulation,code_list_dict=list_dict, returning="date", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
+    **with_post_op_GP_medications(name= "anticoagulation",event_list=any_anticoagulation,code_list_dict=list_dict, returning="date", return_expectations={"incidence": 0.5,"rate" : "uniform",}),
 
  #   **with_post_op_hospital_events(name = "Trauma", event_list = all_trauma_codes,code_list_dict=list_dict, returning="date_admitted", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
 
