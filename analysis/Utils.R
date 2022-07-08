@@ -659,6 +659,47 @@ cuminc.cox <- function(n.type.events,dt, model, newdata, day) {
 
 }
 
+# 
+# new.data.postop.covid <- data.table::data.table('start.readmit' = 0,
+#                                                 'end.readmit' = 0,
+#                                                 'event.readmit' = F,
+#                                                 'Abdominal' = F,
+#                                                 'Cardiac'=F,
+#                                                 'Obstetrics'=F,
+#                                                 'Orthopaedic'=F,
+#                                                 'Thoracic'=F,
+#                                                 'Vascular'=F,
+#                                                 'postcovid' =F,
+#                                                 'age.cat' = levels(dt.tv$age.cat)[1],
+#                                                 'sex' = levels(dt.tv$sex)[1],
+#                                                 'bmi.cat' = levels(dt.tv$bmi.cat)[1],
+#                                                 'imd5' = levels(dt.tv$imd5)[1],
+#                                                 'wave' = 'Wave_1',
+#                                                 'vaccination.status.factor' = levels(dt.tv$vaccination.status.factor)[1],
+#                                                 'region' = levels(dt.tv$region)[1],
+#                                                 'Current.Cancer' = F,
+#                                                 'Emergency' =   F,
+#                                                 'Charl12' =  levels(dt.tv$Charl12)[1],
+#                                                 'recentCOVID' =F,
+#                                                 'previousCOVID' = F,
+#                                                 'patient_id' = 1)
+# 
+# Reduce(function(x, y) merge(x, y, by = c("strata",'time'),all = T,sort = T, incomparables = 0),
+#        lapply(n.type.events, function(i) data.table::setDT(summary(survival::survfit(post.op.readmit.model[[i]], 
+#                                                                                      data = dt.tv[(postop.covid.cohort)], 
+#                                                                                      id = patient_id),
+#                                                                    times = sort(unique(dt.tv[(postop.covid.cohort) & event == i ,end])), 
+#                                                                    newdata = new.data.postop.covid,extend = T
+#        )[c('cumhaz','surv','time','n.risk', 'n.event')]))
+# )[,(paste0('haz',n.type.events)) := lapply(.SD, function(x) data.table::fifelse(is.na(x),0,x)), .SDcols = paste0('haz',n.type.events)][
+#   order(strata,time),
+#   .(time,cumsum(exp(cumsum(log(1-Reduce('+',.SD))))*haz1)),
+#   keyby = strata, 
+#   .SDcols = paste0('haz',n.type.events)][time == 30,
+#                                          round(tail(V2,1),digits = 3)*100, 
+#                                          keyby = strata] 
+
+
 glance.flexsurvreg <- function(x,...) {
 	tibble::tibble(
 		logLik = x$loglik,

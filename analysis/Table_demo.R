@@ -60,8 +60,8 @@ demo.tab <-
                                                                                                                         "Length of stay (IQR)" =  median.iqr(discharge.date - admit.date,dig = 0),
                                                                                                                         "90 day mortality (%)" =n.perc(date.90.day(x = date_death_ons, ref.dat = admit.date),dig = 4),
                                                                                                                         "30 day post operative COVID-19 (%)" = n.perc(postCOVID30.perepisode, dig = 3),
-                                                                                                                        "Recent 7 to 42 days COVID-19 (%)" = paste0(rnd(sum(recentCOVID, na.rm = T))," (", round(100*mean(recentCOVID != "", na.rm = T), digits = 1),"%)"),
-                                                                                                                        "Previous > 42 COVID-19 (%)" = paste0(rnd(sum(previousCOVID, na.rm = T))," (", round(100*mean(previousCOVID != "", na.rm = T), digits = 1),"%)"),
+                                                                                                                        "Recent 7 to 42 days COVID-19 (%)" = n.perc(recentCOVID, dig = 3),
+                                                                                                                        "Previous > 42 COVID-19 (%)" = n.perc(previousCOVID, dig = 3),
                                                                                                                         "90 day VTE (%)" = n.perc(postVTE90.perepisode, dig = 4))],
                               data.table::transpose(
                                 cbind(
