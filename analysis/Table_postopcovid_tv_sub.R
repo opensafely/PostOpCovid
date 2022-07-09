@@ -193,7 +193,9 @@ weekly.post.op.VTE.risk.sub <- rbind(weekly.post.op.VTE.risk.sub[max(which(times
 weekly.post.op.VTE.risk.sub[!is.finite(weekly.post.op.VTE.risk.sub)] <- 0
 
 weekly.post.op.VTE.risk.sub <- as.vector(weekly.post.op.VTE.risk.sub - rbind(c(0,0),weekly.post.op.VTE.risk.sub[1:4,]))
-weekly.post.op.VTE.risk.sub  <-  cbind(data.table::data.table("COVID"= rep(c(F,T), each = 5),"Risk" = weekly.post.op.VTE.risk.sub,"Risk period" = c("Week pre discharge","1st week","2nd week","3rd week","4th week")))
+weekly.post.op.VTE.risk.sub  <-  cbind(data.table::data.table("COVID"= rep(c(F,T), each = 5),
+"Risk" = weekly.post.op.VTE.risk.sub,
+"Risk period" = c("Week pre discharge","1st week","2nd week","3rd week","4th week")))
 
 # weekly.post.op.VTE.risk.sub  <-  data.table::data.table("Risk" = (weekly.post.op.VTE.risk.sub - c(0,weekly.post.op.VTE.risk.sub[-length(weekly.post.op.VTE.risk.sub)])[which(times.comb <= 28)]),
 #                                                 "Days.post.discharge" = (-7):28)

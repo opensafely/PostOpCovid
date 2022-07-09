@@ -605,13 +605,13 @@ cuminc.km.sub <- function(x,niter)  {
   est <- boot.est <- Reduce(function(x, y) merge(x, y, by = c("strata",'time'),all = T,sort = T, incomparables = 0),
                             lapply(n.type.events, function(i) data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==i) ~ get(x), 
                                                                                                           data = dt.tv[(postop.covid.cohort) & sub.op == T & !is.na(get(x))], 
-                                                                                                          id = patient_id),
+                                                                                                          id = patient_id), censored = F,
                                                                                         times = sort(unique(dt.tv[(postop.covid.cohort) & sub.op == T &    event == i & !is.na(get(x)),end])), 
                                                                                         extend = T
                             )[c('strata','time','n.risk', 'n.event')])[,(paste0('haz',i)) := n.event/n.risk][,c(1,2,5)])
   )[,(paste0('haz',n.type.events)) := lapply(.SD, function(x) data.table::fifelse(is.na(x),0,x)), .SDcols = paste0('haz',n.type.events)][
     order(strata,time),
-    .(time,cumsum(exp(cumsum(log(1-Reduce('+',.SD))))*haz1)),
+    .(time,cumsum(exp(cumsum(safelog(1-Reduce('+',.SD))))*haz1)),
     keyby = strata, 
     .SDcols = paste0('haz',n.type.events)][time == 30,
                                            round(tail(V2,1),digits = 3)*100, 
