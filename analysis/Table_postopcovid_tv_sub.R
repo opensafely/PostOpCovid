@@ -200,4 +200,4 @@ weekly.post.op.VTE.risk.sub  <-  cbind(data.table::data.table("COVID"= rep(c(F,T
 
 ##################################
 save(weekly.post.op.risk.sub,weekly.post.op.VTE.risk.sub, file = here::here("output","postopcovid_tv_sub.RData"))
-data.table::fwrite(weekly.post.op.risk.sub, file = here::here("output","postopcovid_VTE_tv_sub.csv"))
+data.table::fwrite(weekly.post.op.VTE.risk.sub, file = here::here("output","postopcovid_VTE_tv_sub.csv"))
