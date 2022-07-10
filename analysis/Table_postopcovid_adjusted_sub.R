@@ -95,7 +95,7 @@ adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:len
                                                                   'sex' = rep('F',newdata.rows),
                                                                   'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows),
                                                                   'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows),
-                                                                  'wave' = rep(paste0('Wave_',4),times = newdata.rows),
+                                                                  'wave' = rep(paste0('Wave_',3),times = newdata.rows),
                                                                   'vaccination.status.factor' = rep('3',newdata.rows),
                                                                   'region' = rep("East Midlands",newdata.rows),
                                                                   'Current.Cancer' = rep(T,newdata.rows),
