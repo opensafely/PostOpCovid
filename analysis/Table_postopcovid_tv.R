@@ -27,8 +27,8 @@ data.table::fwrite(broom::tidy(post.op.covid.model.split[[1]], exponentiate= T, 
 
 newdata.rows <- length(levels(dt.tv.splits$week.post.disch)) - 1
 
-newdata.pred <- data.table::data.table('start' = c(0,7,14,21),
-                                       'end' = c(7,14,21,28),
+newdata.pred <- data.table::data.table('start' = c(0,7,14,21,28),
+                                       'end' = c(7,14,21,28,35),
                                        'event' = rep(F,newdata.rows),
                                       'week.post.disch' = paste(0:(newdata.rows - 1)),
                                       'patient_id' = 1:newdata.rows,
@@ -71,7 +71,7 @@ base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('tim
                                                                             base.haz = base.haz[[i]][,1] - 
                                                                               c(0,head(base.haz[[i]][,1],-1)))})
 
-lp <- lapply(n.type.events, function(i) {  data.table::data.table('time' = seq(0,21,7),
+lp <- lapply(n.type.events, function(i) {  data.table::data.table('time' = seq(0,28,7),
                                                                     'risk' = exp(predict(object = post.op.covid.model.split[[i]],
                                                                                          type = 'lp', 
                                                                                          newdata = newdata.pred))) })
@@ -82,9 +82,9 @@ for (j in 1:ncol(base.haz.merge)) set(base.haz.merge, which(!is.finite(base.haz.
 
 weekly.post.op.risk <- 
   unlist(round(100*apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
-    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)] 
+    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)] 
   }))),2,cumsum))*
-    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= -7][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)] ,2,cumsum), digits = 3))
+    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)] ,2,cumsum), digits = 3))
 
 weekly.post.op.risk[!is.finite(weekly.post.op.risk)] <- 0
 
@@ -93,12 +93,13 @@ times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.
 weekly.post.op.risk <- c(weekly.post.op.risk[max(which(times.comb <= 7))],
                         weekly.post.op.risk[max(which(times.comb <= 14))],
                         weekly.post.op.risk[max(which(times.comb <= 21))],
-                        weekly.post.op.risk[max(which(times.comb <= 28))])
+                        weekly.post.op.risk[max(which(times.comb <= 28))],
+                        weekly.post.op.risk[max(which(times.comb <= 35))])
 
 weekly.post.op.risk[!is.finite(weekly.post.op.risk)] <- 0
 
 weekly.post.op.risk  <-  data.table::data.table("Risk" = weekly.post.op.risk - c(0,weekly.post.op.risk[-length(weekly.post.op.risk)]),
-                                               "Risk period" = c("1st week","2nd week","3rd week","4th week"))
+                                               "Risk period" = c("1st week","2nd week","3rd week","4th week","5th week"))
 
 # weekly.post.op.risk  <-  data.table::data.table("Risk" = (weekly.post.op.risk - c(0,weekly.post.op.risk[-length(weekly.post.op.risk)])[which(times.comb <= 28)]),
 #                                                 "Days.post.discharge" = (-7):28)
@@ -119,8 +120,8 @@ data.table::fwrite(broom::tidy(post.op.VTE.model.split[[1]], exponentiate= T, co
 
 newdata.rows <- length(levels(dt.tv.splits$week.post.disch)) - 1
 
-newdata.pred <- data.table::data.table('start' = rep(c(0,7,14,21), times = 2),
-                                       'end' = rep(c(7,14,21,28),times = 2),
+newdata.pred <- data.table::data.table('start' = rep(c(0,7,14,21,28), times = 2),
+                                       'end' = rep(c(7,14,21,28,35),times = 2),
                                        'event.VTE' = rep(F,newdata.rows*2),
                                        'week.post.disch' = rep(paste(0:(newdata.rows - 1)), times = 2),
                                        'patient_id' = rep(1:2,each = newdata.rows),
@@ -153,7 +154,7 @@ base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('tim
 
 
 lp <- lapply(n.type.events, function(i) {  data.table::dcast(data.table::data.table('patient_id' = rep(1:2, each = 5),
-  'time' = rep(seq(0,21,7),2),
+  'time' = rep(seq(0,28,7),2),
                                                                     'risk' = exp(predict(object = post.op.VTE.model.split[[i]],
                                                                                          type = 'lp', 
                                                                                          newdata = newdata.pred))),time ~patient_id, value.var = 'risk')})
@@ -175,14 +176,15 @@ times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.
 weekly.post.op.VTE.risk <- rbind(weekly.post.op.VTE.risk[max(which(times.comb <= 7)),],
                             weekly.post.op.VTE.risk[max(which(times.comb <= 14)),],
                             weekly.post.op.VTE.risk[max(which(times.comb <= 21)),],
-                        weekly.post.op.VTE.risk[max(which(times.comb <= 28)),])
+                        weekly.post.op.VTE.risk[max(which(times.comb <= 28)),],
+                        weekly.post.op.VTE.risk[max(which(times.comb <= 35)),])
 
 weekly.post.op.VTE.risk[!is.finite(weekly.post.op.VTE.risk)] <- 0
 
 weekly.post.op.VTE.risk <- as.vector(weekly.post.op.VTE.risk - rbind(c(0,0),weekly.post.op.VTE.risk[1:4,]))
 weekly.post.op.VTE.risk  <-  cbind(data.table::data.table("COVID"= rep(c(F,T), each = 5),
 "Risk" = weekly.post.op.VTE.risk,
-"Risk period" = c("1st week","2nd week","3rd week","4th week")))
+"Risk period" = c("1st week","2nd week","3rd week","4th week","5th week")))
 
 
 ##################################
