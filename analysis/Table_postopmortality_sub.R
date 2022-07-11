@@ -24,7 +24,7 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(KneeReplacement) & KneeReplacement == T)]
 
 post.op.died.model.sub <- 
-  list(survival::coxph(survival::Surv(start,end,died) ~ Colectomy + Cholecystectomy + HipReplacement + KneeReplacement + 
+  list(survival::coxph(survival::Surv(start,end,died) ~ Colectomy + Cholecystectomy + KneeReplacement + 
                          postcovid*wave + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer +
                          Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                        data = dt.tv[start >=0 & sub.op == T & any.op == T], model = T))

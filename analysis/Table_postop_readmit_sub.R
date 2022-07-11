@@ -18,7 +18,7 @@ n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event.readmit]))[-1]
 
 
 post.op.readmit.model.sub <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.readmit==i) ~ Colectomy + Cholecystectomy + HipReplacement + 
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.readmit==i) ~ Colectomy + Cholecystectomy + 
                                             KneeReplacement + postcovid*wave + sex +  age.cat + bmi.cat + imd5 + vaccination.status.factor + Current.Cancer + 
                                               Emergency + Charl12 + recentCOVID + previousCOVID + region, id = patient_id,
                                           data = dt.tv[(postop.readmit.cohort)], model = T))

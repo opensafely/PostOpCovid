@@ -8,11 +8,13 @@ source(here::here("analysis","Utils.R"))
 ###########################################################
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
-procedures <- c('Colectomy','Cholecystectomy',
+procedures.sub <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
 
-covariates <- c(procedures,'sex','age.cat','bmi.cat','imd5','wave',
+dt.tv[,(procedures.sub) := lapply(.SD,function(x) x==1), .SDcols = (procedures.sub)]
+
+covariates <- c(procedures.sub,'sex','age.cat','bmi.cat','imd5','wave',
                 'vaccination.status.factor','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID','region')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -25,33 +27,33 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(KneeReplacement) & KneeReplacement == T)]
 
 post.op.covid.model.waves.sub <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Colectomy + Cholecystectomy + HipReplacement + KneeReplacement + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency*wave + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Colectomy + Cholecystectomy + KneeReplacement + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency*wave + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort) & sub.op == T], model = T))
 
 data.table::fwrite(broom::tidy(post.op.covid.model.waves.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelwavessub.csv"))
 
 
 new.data.postop <- data.table::data.table(
-  'start' = rep(0,8*length(procedures)),
-  'end' = rep(30,8*length(procedures)),
-  'event' = rep(F,8*length(procedures)),
+  'start' = rep(0,8*length(procedures.sub)),
+  'end' = rep(30,8*length(procedures.sub)),
+  'event' = rep(F,8*length(procedures.sub)),
   'Colectomy' = c(rep(T,8),rep(F,24)),
   'Cholecystectomy'=c(rep(F,8),rep(T,8),rep(F,16)),
   'HipReplacement'=c(rep(F,16),rep(T,8),rep(F,8)),
   'KneeReplacement'=c(rep(F,24),rep(T,8)),
-  'age.cat' = rep('(50,70]',8*length(procedures)),
-  'sex' = rep('F',8*length(procedures)),
-  'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],8*length(procedures)),
-  'imd5' = rep(levels(dt.tv$imd5)[3], 8*length(procedures)),
-  'wave' = rep(paste0('Wave_',1:4),times = 2*length(procedures)),
-  'vaccination.status.factor' = rep('3',8*length(procedures)),
-  'region' = rep("East Midlands",8*length(procedures)),
-  'Current.Cancer' = rep(T,8*length(procedures)),
-  'Emergency' =  rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
-  'Charl12' =  rep('Single',8*length(procedures)),
-  'recentCOVID' = rep(F,8*length(procedures)),
-  'previousCOVID' = rep(F,8*length(procedures)),
-  'patient_id' = 1:(8*length(procedures)))
+  'age.cat' = rep('(50,70]',8*length(procedures.sub)),
+  'sex' = rep('F',8*length(procedures.sub)),
+  'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],8*length(procedures.sub)),
+  'imd5' = rep(levels(dt.tv$imd5)[3], 8*length(procedures.sub)),
+  'wave' = rep(paste0('Wave_',1:4),times = 2*length(procedures.sub)),
+  'vaccination.status.factor' = rep('3',8*length(procedures.sub)),
+  'region' = rep("East Midlands",8*length(procedures.sub)),
+  'Current.Cancer' = rep(T,8*length(procedures.sub)),
+  'Emergency' =  rep(c(rep(F,4),rep(T,4)), times = length(procedures.sub)),
+  'Charl12' =  rep('Single',8*length(procedures.sub)),
+  'recentCOVID' = rep(F,8*length(procedures.sub)),
+  'previousCOVID' = rep(F,8*length(procedures.sub)),
+  'patient_id' = 1:(8*length(procedures.sub)))
 
 cuminc.adjusted.waves.sub <- 
   matrix(cuminc.cox(n.type.events = n.type.events,
@@ -61,7 +63,7 @@ cuminc.adjusted.waves.sub <-
                     day = 30), byrow = T, ncol = 4)
 
 colnames(cuminc.adjusted.waves.sub) <- paste0('Wave_',1:4)
-rownames(cuminc.adjusted.waves.sub) <- paste0(c('Elective','Emergency'),rep(procedures, each = 2))
+rownames(cuminc.adjusted.waves.sub) <- paste0(c('Elective','Emergency'),rep(procedures.sub, each = 2))
 
 data.table::fwrite(cuminc.adjusted.waves.sub, file = here::here("output","postopcovid_adjusted_waves_sub.csv"))
 
@@ -69,7 +71,7 @@ data.table::fwrite(cuminc.adjusted.waves.sub, file = here::here("output","postop
 
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 post.op.covid.model.sub <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Colectomy + Cholecystectomy + HipReplacement + KneeReplacement +
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Colectomy + Cholecystectomy  + KneeReplacement +
                                                       age.cat + sex + bmi.cat + imd5 + 
                                                       vaccination.status.factor + region + Current.Cancer + 
                                                       Emergency + wave + Charl12 + recentCOVID + previousCOVID, 
@@ -104,9 +106,9 @@ adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:len
                                                                   'recentCOVID' = rep(F,newdata.rows),
                                                                   'previousCOVID' = rep(F,newdata.rows)
                                                                   )
-                            if ( predi <= length(procedures)) {
-                                newdata.pred[,(procedures) := F]
-                                newdata.pred[,(procedures[predi]) := c(F,T)]
+                            if ( predi <= length(procedures.sub)) {
+                                newdata.pred[,(procedures.sub) := F]
+                                newdata.pred[,(procedures.sub[predi]) := c(F,T)]
                             } else {
 
                             
@@ -114,12 +116,12 @@ adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:len
                           #                                         'end' = rep(30,newdata.rows),
                           #                                         'event' = rep(F,newdata.rows),
                           #                                         'patient_id' = 1:newdata.rows)
-                          #  if ( predi > length(procedures)) {
-                          #    newdata.pred[,(procedures) := lapply(procedures, function(x) x == procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])])] } else {
-                          #      newdata.pred[,(procedures) := lapply(procedures, function(x) x == covariates[predi] & patient_id > 1)]
+                          #  if ( predi > length(procedures.sub)) {
+                          #    newdata.pred[,(procedures.sub) := lapply(procedures.sub, function(x) x == procedures.sub[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures.sub)])])] } else {
+                          #      newdata.pred[,(procedures.sub) := lapply(procedures.sub, function(x) x == covariates[predi] & patient_id > 1)]
                           #    }
                            
-                          #  newdata.pred[,(covariates[-c(1:length(procedures))]) := lapply(((length(procedures)+1):length(covariates)), function(i.c) {
+                          #  newdata.pred[,(covariates[-c(1:length(procedures.sub))]) := lapply(((length(procedures.sub)+1):length(covariates)), function(i.c) {
                           #    if(is.factor(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
                           #      as.character(rep(max.category(i.c),newdata.rows))
                           #    } else if(is.logical(dt.tv[!is.na(get(covariates[i.c])),get(covariates[i.c])])) {
@@ -151,4 +153,5 @@ adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:len
 
 
 save(cuminc.adjusted.waves.sub,post.op.covid.model.sub,adjusted.cuminc.sub, file = here::here("output","postopcovid_adjusted_sub.RData"))
+# Take out baseline no procedures.sub groups that are not observeds
 data.table::fwrite(adjusted.cuminc.sub, file = here::here("output","postopcovid_adjusted_sub.csv"))

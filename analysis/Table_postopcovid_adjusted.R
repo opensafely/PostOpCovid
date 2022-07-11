@@ -68,7 +68,7 @@ data.table::fwrite(cuminc.adjusted.waves, file = here::here("output","postopcovi
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 post.op.covid.model <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal + Cardiac + 
-                                                      Obstetrics + Orthopaedic + Thoracic + Vascular + 
+                                                      Obstetrics + Thoracic + Vascular + 
                                                       age.cat + sex + bmi.cat + imd5 + 
                                                       vaccination.status.factor + region + Current.Cancer + 
                                                       Emergency + wave + Charl12 + recentCOVID + previousCOVID, 

@@ -18,7 +18,7 @@ covariates <- c(procedures,'sex','age.cat','bmi.cat','imd5','wave',
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 post.op.died.model <- 
-  list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal + Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + 
+  list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal + Cardiac + Obstetrics + Thoracic + Vascular + 
                          postcovid*wave + age.cat + sex + bmi.cat + imd5  + vaccination.status.factor + region + Current.Cancer +
                          Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                        data = dt.tv[start >=0 & any.op == T], model = T))

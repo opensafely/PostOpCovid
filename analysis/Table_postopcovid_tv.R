@@ -17,7 +17,7 @@ data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits[event == 3, event := 2]
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal+ Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + 
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal+ Cardiac + Obstetrics +  Thoracic + Vascular + age.cat + 
   sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency*week.post.disch  + Charl12 + recentCOVID + previousCOVID,
    id = patient_id,
   data = dt.tv.splits[(postop.covid.cohort) & start <=end], model = T))

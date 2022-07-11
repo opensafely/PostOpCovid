@@ -31,7 +31,7 @@ dt.tv.splits[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
 dt.tv.splits[event == 3, event := 2]
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split.sub <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Colectomy + Cholecystectomy + HipReplacement + 
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Colectomy + Cholecystectomy +  
                                             KneeReplacement + age.cat + sex + bmi.cat + imd5 + wave + 
                                             vaccination.status.factor + region + Current.Cancer + Emergency*week.post.disch  + Charl12 + 
                                             recentCOVID + previousCOVID,
@@ -105,11 +105,11 @@ weekly.post.op.risk.sub[!is.finite(weekly.post.op.risk.sub)] <- 0
 
 times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.haz.merge$time))) >= 0]
 
-weekly.post.op.risk.sub <- c(weekly.post.op.risk.sub[max(which(times.comb <= 0))],
-                             weekly.post.op.risk.sub[max(which(times.comb <= 7))],
+weekly.post.op.risk.sub <- c(weekly.post.op.risk.sub[max(which(times.comb <= 7))],
                              weekly.post.op.risk.sub[max(which(times.comb <= 14))],
                              weekly.post.op.risk.sub[max(which(times.comb <= 21))],
-                             weekly.post.op.risk.sub[max(which(times.comb <= 28))])
+                             weekly.post.op.risk.sub[max(which(times.comb <= 28))],
+                             weekly.post.op.risk.sub[max(which(times.comb <= 35))])
 
 weekly.post.op.risk.sub[!is.finite(weekly.post.op.risk.sub)] <- 0
 
@@ -184,11 +184,11 @@ weekly.post.op.VTE.risk.sub[!is.finite(weekly.post.op.VTE.risk.sub)] <- 0
 
 times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.haz.merge$time))) >= 0]
 
-weekly.post.op.VTE.risk.sub <- rbind(weekly.post.op.VTE.risk.sub[max(which(times.comb <= 0)),],
-                                     weekly.post.op.VTE.risk.sub[max(which(times.comb <= 7)),],
+weekly.post.op.VTE.risk.sub <- rbind(weekly.post.op.VTE.risk.sub[max(which(times.comb <= 7)),],
                                      weekly.post.op.VTE.risk.sub[max(which(times.comb <= 14)),],
                                      weekly.post.op.VTE.risk.sub[max(which(times.comb <= 21)),],
-                                     weekly.post.op.VTE.risk.sub[max(which(times.comb <= 28)),])
+                                     weekly.post.op.VTE.risk.sub[max(which(times.comb <= 28)),],
+                                     weekly.post.op.VTE.risk.sub[max(which(times.comb <= 35)),])
 
 weekly.post.op.VTE.risk.sub[!is.finite(weekly.post.op.VTE.risk.sub)] <- 0
 

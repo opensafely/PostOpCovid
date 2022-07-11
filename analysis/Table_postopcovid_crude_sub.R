@@ -8,11 +8,12 @@ source(here::here("analysis","Utils.R"))
 ###########################################################
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
-procedures <- c('Colectomy','Cholecystectomy',
+procedures.sub <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
+dt.tv[,(procedures.sub) := lapply(.SD,function(x) x==1), .SDcols = (procedures.sub)]
 
-covariates <- c(procedures,'sex','age.cat','bmi.cat','imd5','wave',
+covariates <- c(procedures.sub,'sex','age.cat','bmi.cat','imd5','wave',
                 'vaccination.status.factor','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID','region')
 
 dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
