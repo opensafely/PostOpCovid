@@ -65,7 +65,7 @@ actions:
         table_adjusted_csv: output/postopcovid_adjusted.csv
         model_adjusted: output/postopcovidmodel.csv
         model_adjusted_waves: output/postopcovidmodelwaves.csv
-        plot_adjusted_waves: output/plot_adjusted_waves.png
+        plot_adjusted_waves: output/adjusted_waves_plot.png
 
   table_postopcovid_adjusted_sub:      
     run: r:latest analysis/Table_postopcovid_adjusted_sub.R
