@@ -60,3 +60,19 @@ rownames(cuminc.adjusted.readmit) <- paste0(c('No COVID','COVID'),rep(procedures
 
 save(post.op.readmit.model,cuminc.adjusted.readmit, file = here::here("output","postopreadmit.RData"))
 data.table::fwrite(cuminc.adjusted.readmit, file = here::here("output","postopreadmit.csv"))
+
+
+readmit.waves.plot <- ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.readmit, keep.rownames = T),
+                                 id.vars = 'rn',
+                                 variable.name = 'Wave',
+                                 value.name = '90 Day Cumulative Readmission Incidence (%)')[, `:=`(COVID = grepl('^COVID*',rn),
+                                                                                                Operation = gsub('^No COVID|^COVID', '',rn))],
+                ggplot2::aes(x = Wave, 
+                             y = `90 Day Cumulative Readmission Incidence (%)`, 
+                             group = rn,
+                             colour = Operation,
+                             linetype = COVID)) +
+  ggplot2::geom_line()
+
+ggplot2::ggsave(plot = readmit.waves.plot, here::here('output','readmit_waves_plot.png'),dpi = 'retina', width = 7, height = 5, units = 'in', device = 'png' )
+

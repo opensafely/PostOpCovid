@@ -408,10 +408,10 @@ knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4),caption = paste
  ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.VTE, keep.rownames = T),
                                  id.vars = 'rn',
                                  variable.name = 'Wave',
-                                 value.name = '90 Day Cumulative VTE Incidence')[, `:=`(COVID = grepl('^COVID*',rn),
+                                 value.name = '90 Day Cumulative VTE Incidence (%)')[, `:=`(COVID = grepl('^COVID*',rn),
                                                         Operation = gsub('^No COVID|^COVID', '',rn))],
                 ggplot2::aes(x = Wave, 
-                             y = `90 Day Cumulative VTE Incidence`, 
+                             y = `90 Day Cumulative VTE Incidence (%)`, 
                              group = rn,
                              colour = Operation,
                              linetype = COVID)) +

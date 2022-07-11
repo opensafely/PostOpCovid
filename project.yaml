@@ -65,6 +65,7 @@ actions:
         table_adjusted_csv: output/postopcovid_adjusted.csv
         model_adjusted: output/postopcovidmodel.csv
         model_adjusted_waves: output/postopcovidmodelwaves.csv
+        plot_adjusted_waves: output/plot_adjusted_waves.png
 
   table_postopcovid_adjusted_sub:      
     run: r:latest analysis/Table_postopcovid_adjusted_sub.R
@@ -75,6 +76,7 @@ actions:
         table_adjusted_sub_csv: output/postopcovid_adjusted_sub.csv
         model_adjusted_sub: output/postopcovidmodelsub.csv
         model_adjusted_waves_sub: output/postopcovidmodelwavessub.csv
+        plot_adjusted_waves_sub: output/adjusted_waves_sub_plot.png
 
   table_postopcovid_tv:      
     run: r:latest analysis/Table_postopcovid_tv.R
@@ -124,6 +126,7 @@ actions:
         table_VTE: output/postopVTE.RData
         table_VTE_csv: output/postopVTE.csv
         model_VTE: output/postopVTEmodel.csv
+        plot_VTE_waves: output/VTE_waves_plot.png
         
   table_postopVTE_sub:      
     run: r:latest analysis/Table_postopVTE_sub.R
@@ -133,7 +136,8 @@ actions:
         table_VTE_sub: output/postopVTE_sub.RData
         table_VTE_sub_csv: output/postopVTE_sub.csv        
         model_VTE_sub: output/postopVTEmodelsub.csv
-        
+        plot_VTE_sub_waves: output/VTE_waves_sub_plot.png
+       
   table_postopmortality:      
     run: r:latest analysis/Table_postopmortality.R
     needs: [generate_study_population, data_manage]
@@ -142,6 +146,7 @@ actions:
         table_mortality: output/postopmortality.RData
         table_mortality_csv: output/postopmortality.csv
         model_mortality: output/postopdiedmodel.csv
+        plot_mortality: output/mortality_waves_plot.png
         
   table_postopmortality_sub:      
     run: r:latest analysis/Table_postopmortality_sub.R
@@ -151,6 +156,7 @@ actions:
         table_mortality_sub: output/postopmortality_sub.RData
         table_mortality_sub_csv: output/postopmortality_sub.csv
         model_mortality_sub: output/postopdiedmodelsub.csv
+        plot_mortality_sub: output/mortality_waves_sub_plot.png
   
   table_postopreadmit:      
     run: r:latest analysis/Table_postop_readmit.R
@@ -160,6 +166,7 @@ actions:
         table_readmit: output/postopreadmit.RData
         table_readmit_csv: output/postopreadmit.csv
         model_readmit: output/postopreadmitmodel.csv
+        plot_readmit: output/readmit_waves_plot.png        
         
   table_postopreadmit_sub:      
     run: r:latest analysis/Table_postop_readmit_sub.R
@@ -169,6 +176,7 @@ actions:
         table_readmit_sub: output/postopreadmit_sub.RData
         table_readmit_sub_csv: output/postopreadmit_sub.csv
         model_readmit_sub: output/postopreadmitmodelsub.csv
+        plot_readmit_sub: output/readmit_waves_sub_plot.png
 
   report:
     run: r:latest -e 'rmarkdown::render("analysis/Report.rmd", output_dir = "/workspace/output/",knit_root_dir = "/workspace",)'    

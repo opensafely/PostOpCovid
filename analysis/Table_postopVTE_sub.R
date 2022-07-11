@@ -65,3 +65,17 @@ rownames(cuminc.adjusted.VTE.sub) <- paste0(c('No COVID','COVID'),rep(procedures
 
 save(post.op.VTE.model.sub,cuminc.adjusted.VTE.sub, file = here::here("output","postopVTE_sub.RData"))
 data.table::fwrite(cuminc.adjusted.VTE.sub, file = here::here("output","postopVTE_sub.csv"))
+
+VTE.waves.sub.plot <- ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.VTE.sub, keep.rownames = T),
+                                                       id.vars = 'rn',
+                                                       variable.name = 'Wave',
+                                                       value.name = '90 Day Cumulative VTE Incidence (%)')[, `:=`(COVID = grepl('^COVID*',rn),
+                                                                                                                  Operation = gsub('^No COVID|^COVID', '',rn))],
+                                      ggplot2::aes(x = Wave, 
+                                                   y = `90 Day Cumulative VTE Incidence (%)`, 
+                                                   group = rn,
+                                                   colour = Operation,
+                                                   linetype = COVID)) +
+  ggplot2::geom_line()
+
+ggplot2::ggsave(plot = VTE.waves.sub.plot, here::here('output','VTE_waves_sub_plot.png'),dpi = 'retina', width = 7, height = 5, units = 'in', device = 'png' )

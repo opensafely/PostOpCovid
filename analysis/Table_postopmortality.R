@@ -62,3 +62,18 @@ rownames(cuminc.adjusted.mortality) <- paste0(c('No COVID','COVID'),rep(procedur
 
 save(post.op.died.model,cuminc.adjusted.mortality, file = here::here("output","postopmortality.RData"))
 data.table::fwrite(cuminc.adjusted.mortality, file = here::here("output","postopmortality.csv"))
+
+mortality.waves.plot <- ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.mortality, keep.rownames = T),
+                                 id.vars = 'rn',
+                                 variable.name = 'Wave',
+                                 value.name = '90 Day Cumulative Mortality Risk (%)')[, `:=`(COVID = grepl('^COVID*',rn),
+                                                                                         Operation = gsub('^No COVID|^COVID', '',rn))],
+                ggplot2::aes(x = Wave, 
+                             y = `90 Day Cumulative Mortality Risk (%)`, 
+                             group = rn,
+                             colour = Operation,
+                             linetype = COVID)) +
+  ggplot2::geom_line()
+
+ggplot2::ggsave(plot = mortality.waves.plot, here::here('output','mortality_waves_plot.png'),dpi = 'retina', width = 7, height = 5, units = 'in', device = 'png' )
+

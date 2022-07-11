@@ -67,6 +67,21 @@ rownames(cuminc.adjusted.waves.sub) <- paste0(c('Elective','Emergency'),rep(proc
 
 data.table::fwrite(cuminc.adjusted.waves.sub, file = here::here("output","postopcovid_adjusted_waves_sub.csv"))
 
+
+adjusted.waves.sub.plot <- ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.waves.sub, keep.rownames = T),
+                                                        id.vars = 'rn',
+                                                        variable.name = 'Wave',
+                                                        value.name = '30 Day COVID Cumulative Incidence (%)')[, `:=`(Emergency = grepl('Emergency*',rn),
+                                                                                                                     Operation = gsub('Emergency|Elective', '',rn))],
+                                       ggplot2::aes(x = Wave, 
+                                                    y = `30 Day COVID Cumulative Incidence (%)`, 
+                                                    group = rn,
+                                                    colour = Operation,
+                                                    linetype = Emergency)) +
+  ggplot2::geom_line()
+
+ggplot2::ggsave(plot = adjusted.waves.sub.plot, here::here('output','adjusted_waves_sub_plot.png'),dpi = 'retina', width = 7, height = 5, units = 'in', device = 'png' )
+
 #############################################################################################
 
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
