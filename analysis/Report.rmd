@@ -11,9 +11,12 @@ output:
 
 ```{r setup, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = F, warning = F)
+
+# Loading libraries as some sub functions fail within Knitr. However function space is specified where possible to avoid confusion in scripts
 library(foreach)
 library(data.table)
 library(kableExtra)
+library(survival)
 
 # This alters kableExtra function to print black text in tables when Rstudio is in dark mode
 print.kableExtra <- function (x, ...) {

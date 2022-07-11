@@ -12,3 +12,4 @@ venv/
 .RData
 
 output, post_op_covid_cuminc.csv
+*.html
