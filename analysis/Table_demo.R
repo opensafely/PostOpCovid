@@ -1,6 +1,6 @@
 library(foreach)
 library(data.table)
-ncores <- parallel::detectCores(logical = T) - 1
+ncores <- parallel::detectCores(logical = T)
 data.table::setDTthreads(ncores)
 
 source(here::here("analysis","Utils.R"))
@@ -33,7 +33,7 @@ last.date <-  dt.tv[start ==0  & is.finite(admit.date) & any.op == T, max(as.Dat
 
 demo.tab <- 
   data.table::transpose(cbind(data.table::data.table("procedures" = procedures),
-                              foreach::foreach(i = 1:length(procedures), .combine = 'rbind', .inorder = T) %do% dt.tv[start ==0  & final.date >= tstop & end <= 90 & any.op == T & get(paste0(procedures[i])) == T,tail(.SD,1),keyby = .(patient_id,end.fu)][,
+                              foreach::foreach(i = 1:length(procedures), .combine = 'rbind', .inorder = T) %do% dt.tv[start ==0 & final.date >= tstart  & final.date >= tstop & end <= 90 & any.op == T & get(paste0(procedures[i])) == T,head(.SD,1),keyby = .(patient_id,end.fu)][,
                                                                                                                       .("Procedures" = rnd(.N),
                                                                                                                         "Patients" = rnd(length(unique(patient_id))),
                                                                                                                         "Female" = n.perc(sex=='F',dig = 3),
