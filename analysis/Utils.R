@@ -585,7 +585,9 @@ cuminc.km <- function(x,niter)  {
   #                                          keyby = strata][,2])
   # }
   return(cbind(est[,1],
-               rnd(dt.tv[(postop.covid.cohort) & !is.na(get(x)) & start == 0,.N, keyby = list(get(x))][,2]),
+               rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==1) ~ get(x), 
+                                                               data = dt.tv[(postop.covid.cohort) & !is.na(get(x)),],
+                                                               id = patient_id), times = 30)[c('n.risk')])),
                rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==1) ~ get(x), 
                                                                data = dt.tv[(postop.covid.cohort) & !is.na(get(x)),],
                                                                id = patient_id), times = 30)[c('n.event')])),
@@ -617,7 +619,11 @@ cuminc.km.sub <- function(x,niter)  {
                                            round(tail(V2,1),digits = 3)*100, 
                                            keyby = strata] 
   return(cbind(est[,1],
-               rnd(dt.tv[(postop.covid.cohort) & !is.na(get(x)) & sub.op == T & start == 0,.N, keyby = list(get(x))][,2]),
+               rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==1) ~ get(x), 
+                                                               data = dt.tv[(postop.covid.cohort) & !is.na(get(x)) & sub.op == T & start >= 0,],
+                                                               id = patient_id), 
+                                             times = 30,
+                                             extend = T)[c('n.risk')])),
                rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==1) ~ get(x), 
                                                                data = dt.tv[(postop.covid.cohort) & !is.na(get(x)) & sub.op == T & start >= 0,],
                                                                id = patient_id), 
