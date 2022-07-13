@@ -96,7 +96,7 @@ post.op.covid.model.sub <-
 data.table::fwrite(broom::tidy(post.op.covid.model.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelsub.csv"))
 
 
-adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:length(covariates), .combine = 'c', .inorder = T) %do% {
+adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:length(covariates), .combine = 'rbind', .inorder = T) %do% {
                            newdata.rows <- length(unique(dt.tv[!is.na(get(covariates[predi])) ,get(covariates[predi])]))
                            
    
@@ -159,11 +159,34 @@ adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:len
                               newdata.pred[,(covariates[predi]) := sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T))]
                             }
                             }
-                           cuminc.cox(n.type.events = n.type.events,
-                                      dt = 'dt.tv[(postop.covid.cohort) & sub.op == T]', 
-                                      model = 'post.op.covid.model.sub', 
-                                      newdata = 'newdata.pred',
-                                      day = 30)
+
+                           
+                           
+                           
+                           death.risk.30day <- predict(object = post.op.covid.model.sub[[3]], 
+                                                       newdata = newdata.pred,, type = 'expected',se.fit = T)
+                           
+                           readmit.risk.30day <- predict(object = post.op.covid.model.sub[[2]], 
+                                                         newdata = newdata.pred,, type = 'expected',se.fit = T)
+                           
+                           covid.risk.30day <- predict(object = post.op.covid.model.sub[[1]], 
+                                                       newdata = newdata.pred,, type = 'expected',se.fit = T)
+                           
+                           cbind(matrix(paste0(round((1- exp(-covid.risk.30day$fit))*100,3),
+                                               ' (', round((1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit)))*100,3),',',
+                                               round((1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
+                                 cuminc.cox(n.type.events = n.type.events,
+                                            dt = 'dt.tv[(postop.covid.cohort) & sub.op == T]', 
+                                            model = 'post.op.covid.model.sub', 
+                                            newdata = 'newdata.pred',
+                                            day = 30),
+                                 matrix(paste0(round((1- exp(-readmit.risk.30day$fit))*100,3),
+                                               ' (', round((1 - exp(-(readmit.risk.30day$fit - 1.96*readmit.risk.30day$se.fit)))*100,3),',',
+                                               round((1 - exp(-(readmit.risk.30day$fit + 1.96*readmit.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
+                                 matrix(paste0(round((1- exp(-death.risk.30day$fit))*100,3),
+                                               ' (', round((1 - exp(-(death.risk.30day$fit - 1.96*death.risk.30day$se.fit)))*100,3),',',
+                                               round((1 - exp(-(death.risk.30day$fit + 1.96*death.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows)
+                           )
                          })
 
 
