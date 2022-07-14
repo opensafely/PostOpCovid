@@ -523,7 +523,11 @@ dt.tv[!is.finite(VTE.end), VTE.end := end.fu]
 ### Post operative Covid-19----
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 names(dt.tv)[names(dt.tv)=='date'] <- 'COVIDpositivedate'
-dt.tv[(!is.na(emergency_readmit_primary_diagnosis) & emergency_readmit_primary_diagnosis %in% c('U071','U072')) & tstop < COVIDpositivedate, COVIDpositivedate := tstop] ## Primary readmission diagnosis was COVID then count at admission time
+
+dt.tv[(!is.na(emergency_readmit_primary_diagnosis) & 
+emergency_readmit_primary_diagnosis %in% c('U071','U072')) &
+ tstop < COVIDpositivedate, COVIDpositivedate := tstop] ## Primary readmission diagnosis was COVID then count at admission time
+
  data.table::setkey(dt.tv,patient_id,tstart,tstop)
   min.grp.col_(dt = 'dt.tv',
                min.var.name = 'COVIDpositivedate',
@@ -552,14 +556,27 @@ dt.tv[!is.finite(previousCOVID), previousCOVID := 0]
 
 ### Readmissions----
 ## Label COVID readmissions if within 2 days of admission in line with Government definition or coded as a primary diagnosis as cannot tell where would occur in readmission
-dt.tv[COVIDpositivedate >= emergency_readmit_date_admitted & COVIDpositivedate <= emergency_readmit_date_admitted + 2, 
-      COVIDreadmission := (!is.na(emergency_readmit_primary_diagnosis) & emergency_readmit_primary_diagnosis %in% c('U071','U072')) | (is.finite(COVIDpositivedate) & is.finite(emergency_readmit_date_admitted) &
-        COVIDpositivedate >= emergency_readmit_date_admitted & COVIDpositivedate <= emergency_readmit_date_admitted + 2)]
+dt.tv[,COVIDreadmission := (!is.na(emergency_readmit_primary_diagnosis) & 
+      emergency_readmit_primary_diagnosis %in% c('U071','U072')) | 
+      (is.finite(COVIDpositivedate) & is.finite(emergency_readmit_date_admitted) &
+        COVIDpositivedate >= emergency_readmit_date_admitted & 
+        COVIDpositivedate <= emergency_readmit_date_admitted + 2)]
+
 dt.tv[!is.finite(COVIDreadmission), COVIDreadmission := F]
-max.grp.col_(dt = 'dt.tv',max.var.name = 'COVIDreadmission',aggregate.cols = 'COVIDreadmission',id.vars = c("patient_id","end.fu"))
-dt.tv[,emergency_readmit  := is.finite(emergency_readmit_date_admitted) & emergency_readmit_date_admitted == tstop]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-min.grp.col_(dt = 'dt.tv',min.var.name = 'readmit.end',aggregate.cols = 'emergency_readmit_date_admitted',id.vars = c("patient_id","end.fu"))
+max.grp.col_(dt = 'dt.tv',
+   max.var.name = 'COVIDreadmission',
+   aggregate.cols = 'COVIDreadmission',
+   id.vars = c("patient_id","end.fu"))
+
+dt.tv[,emergency_readmit  := is.finite(emergency_readmit_date_admitted) & 
+                                 emergency_readmit_date_admitted == tstop]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+min.grp.col_(dt = 'dt.tv',
+   min.var.name = 'readmit.end',
+   aggregate.cols = 'emergency_readmit_date_admitted',
+   id.vars = c("patient_id","end.fu"))
 
 names(dt.tv)[names(dt.tv)=='emergency_readmit_date_admitted'] <- 'emergency_readmitdate'
 ## Define types of emergency readmissions
@@ -609,13 +626,8 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,final.date := covid.end]
 dt.tv[is.finite(readmit.end) & readmit.end < final.date & readmit.end > study.start & COVIDreadmission == F, final.date := readmit.end]
 dt.tv[is.finite(end.fu) & end.fu < final.date, final.date := end.fu]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 min.grp.col_(dt = 'dt.tv',min.var.name = 'final.date',aggregate.cols = 'final.date',id.vars = c("patient_id","end.fu"))
-
-
-dt.tv[,event :=0]
-dt.tv[COVIDpositivedate == tstop, event := 1] 
-dt.tv[emergency_readmitdate  == tstop & event != 1 & readmit.end > study.start & COVIDreadmission == F, event := 2] # Non covid emergency readmission needs to be after admission date (as cannot tell same day admission sequence)
-dt.tv[date_death_ons == tstop & event != 1, event := 3]
 
 dt.tv[, postop.covid.cohort := start>=0 & tstop <= final.date & end <= 90]
 
@@ -627,17 +639,22 @@ dt.tv[, any.op.COVID := cummax(any.op.COVID), keyby = .(patient_id, end.fu)]
 
 dt.tv[, postop.covid.cohort := start>=0 & tstop <= final.date & end <= 90 & any.op.COVID == T]
 
+dt.tv[,event :=0]
+dt.tv[COVIDpositivedate == tstop & (postop.covid.cohort), event := 1] 
+dt.tv[emergency_readmitdate  == tstop & 
+                     event != 1 & 
+                     readmit.end > study.start & 
+                     COVIDreadmission == F &
+                     (postop.covid.cohort), event := 2] # Non covid emergency readmission needs to be after admission date (as cannot tell same day admission sequence)
+dt.tv[date_death_ons == tstop & event != 1 & (postop.covid.cohort), event := 3]
+
+
 ### post COVID VTE cohort
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,final.date.VTE := VTE.end]
 dt.tv[is.finite(readmit.end) & readmit.end < final.date.VTE & COVIDreadmission == F & readmit.end > study.start, final.date.VTE := readmit.end]
 dt.tv[is.finite(end.fu) & end.fu < final.date.VTE, final.date.VTE := end.fu]
 min.grp.col_(dt = 'dt.tv',min.var.name = 'final.date.VTE',aggregate.cols = 'final.date.VTE',id.vars = c("patient_id","end.fu"))
-
-dt.tv[,event.VTE :=0]
-dt.tv[post.VTE.date == tstop, event.VTE := 1]
-dt.tv[emergency_readmitdate  == tstop & event.VTE != 1 & COVIDreadmission == F & readmit.end > study.start, event.VTE := 2]
-dt.tv[date_death_ons == tstop & event.VTE != 1, event.VTE := 3]
 
 dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE & end <= 90]
 dt.tv[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date),any.op.VTE := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
@@ -647,6 +664,13 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, any.op.VTE := cummax(any.op.VTE), keyby = .(patient_id, end.fu)]
 
 dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE & end <= 90 & any.op.VTE == T]
+
+dt.tv[,event.VTE :=0]
+dt.tv[post.VTE.date == tstop & (postcovid.VTE.cohort), event.VTE := 1]
+dt.tv[emergency_readmitdate  == tstop & event.VTE != 1 & COVIDreadmission == F & readmit.end > study.start & (postcovid.VTE.cohort), event.VTE := 2]
+dt.tv[date_death_ons == tstop & event.VTE != 1 & (postcovid.VTE.cohort), event.VTE := 3]
+
+
 
 ### Readmission cohort
 
@@ -668,11 +692,6 @@ dt.tv[COVIDreadmission == F & start > 0 & readmit.end > study.start,final.date.r
 dt.tv[is.finite(end.fu) & end.fu < final.date.readmit , final.date.readmit := end.fu]
 min.grp.col_(dt = 'dt.tv',min.var.name = 'final.date.readmit',aggregate.cols = 'final.date.readmit',id.vars = c("patient_id","end.fu"))
 
-
-dt.tv[,event.readmit :=0]
-dt.tv[emergency_readmitdate  == tstop & COVIDpositivedate != tstop & COVIDreadmission == F & readmit.end > study.start, event.readmit := 1] # COVID isn't a competing risk its an exposure for non covid readmission
-dt.tv[date_death_ons == tstop & event.readmit != 1, event.readmit := 2]
-
 dt.tv[, postop.readmit.cohort := start.readmit>=0 & tstop <= final.date.readmit & end.readmit <= 90]
 
 dt.tv[(postop.readmit.cohort) & start.readmit ==0 ,any.op.readmit := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
@@ -682,6 +701,15 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, any.op.readmit := cummax(any.op.readmit), keyby = .(patient_id, end.fu)]
 
 dt.tv[, postop.readmit.cohort := start.readmit>=0 & tstop <= final.date.readmit & end.readmit <= 90 & any.op.readmit == T]
+
+
+dt.tv[(postop.readmit.cohort),event.readmit :=0]
+dt.tv[(postop.readmit.cohort) & 
+      emergency_readmitdate  == tstop & 
+      COVIDpositivedate != tstop &  
+      COVIDreadmission == F & 
+      readmit.end > study.start, event.readmit := 1] # COVID isn't a competing risk its an exposure for non covid readmission
+dt.tv[(postop.readmit.cohort) & date_death_ons == tstop & event.readmit != 1, event.readmit := 2]
 
 
 
