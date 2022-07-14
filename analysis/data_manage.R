@@ -523,6 +523,12 @@ dt.tv[!is.finite(VTE.end), VTE.end := end.fu]
 ### Post operative Covid-19----
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 names(dt.tv)[names(dt.tv)=='date'] <- 'COVIDpositivedate'
+dt.tv[(!is.na(emergency_readmit_primary_diagnosis) & emergency_readmit_primary_diagnosis %in% c('U071','U072')) & tstop < COVIDpositivedate, COVIDpositivedate := tstop] ## Primary readmission diagnosis was COVID then count at admission time
+ data.table::setkey(dt.tv,patient_id,tstart,tstop)
+  min.grp.col_(dt = 'dt.tv',
+               min.var.name = 'COVIDpositivedate',
+               aggregate.cols = 'COVIDpositivedate',
+               id.vars = c("patient_id","end.fu"))
 dt.tv[,COVIDpositive := is.finite(COVIDpositivedate) & COVIDpositivedate == tstop]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -545,10 +551,10 @@ max.grp.col_(dt = 'dt.tv',max.var.name = 'previousCOVID',aggregate.cols = 'previ
 dt.tv[!is.finite(previousCOVID), previousCOVID := 0]
 
 ### Readmissions----
-## Label COVID readmissions if within 2 days of admission in line with Government definition
+## Label COVID readmissions if within 2 days of admission in line with Government definition or coded as a primary diagnosis as cannot tell where would occur in readmission
 dt.tv[COVIDpositivedate >= emergency_readmit_date_admitted & COVIDpositivedate <= emergency_readmit_date_admitted + 2, 
-      COVIDreadmission := is.finite(COVIDpositivedate) & is.finite(emergency_readmit_date_admitted) &
-        COVIDpositivedate >= emergency_readmit_date_admitted & COVIDpositivedate <= emergency_readmit_date_admitted + 2]
+      COVIDreadmission := (!is.na(emergency_readmit_primary_diagnosis) & emergency_readmit_primary_diagnosis %in% c('U071','U072')) | (is.finite(COVIDpositivedate) & is.finite(emergency_readmit_date_admitted) &
+        COVIDpositivedate >= emergency_readmit_date_admitted & COVIDpositivedate <= emergency_readmit_date_admitted + 2)]
 dt.tv[!is.finite(COVIDreadmission), COVIDreadmission := F]
 max.grp.col_(dt = 'dt.tv',max.var.name = 'COVIDreadmission',aggregate.cols = 'COVIDreadmission',id.vars = c("patient_id","end.fu"))
 dt.tv[,emergency_readmit  := is.finite(emergency_readmit_date_admitted) & emergency_readmit_date_admitted == tstop]
