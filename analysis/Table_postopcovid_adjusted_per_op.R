@@ -123,5 +123,5 @@ adjusted.cuminc.per.op <-  data.table::as.data.table(foreach::foreach(proc = 1:l
 
 save(post.op.covid.model.per.op,adjusted.cuminc.per.op, file = here::here("output","postopcovid_adjusted_per_op.RData"))
 
-lapply(1:length(procedures), function(p) data.table::fwrite(adjusted.cuminc.per.op[[p]], file = here::here("output",paste0("postopcovid_adjusted_per_op",procedures[p],".csv"))))
-#data.table::fwrite(data.table::rbindlist(adjusted.cuminc.per.op), file = here::here("output","postopcovid_adjusted_per_op.csv"))
+#lapply(1:length(procedures), function(p) data.table::fwrite(adjusted.cuminc.per.op[[p]], file = here::here("output",paste0("postopcovid_adjusted_per_op",procedures[p],".csv"))))
+data.table::fwrite(adjusted.cuminc.per.op, file = here::here("output","postopcovid_adjusted_per_op.csv"))
