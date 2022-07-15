@@ -99,7 +99,8 @@ demo.tab <-
                                 make.names = 'V1'),
                               data.table::transpose(
                                 cbind(1:5,
-                                      dt.tv[(postop.readmit.cohort) & final.date.readmit == tstop & event.readmit == 1,
+                                      dt.tv[(postop.readmit.cohort) & final.date.readmit == tstop & 
+                                            event.readmit == 1 & !is.na(emergency_readmit_primary_diagnosis) & COVIDreadmission == F,
                                             lapply(.SD,function(x) rnd(sum(x))),
                                             keyby = c('emergency_readmit_primary_diagnosis'), .SDcols = c(procedures)][,
                                                                                                      lapply(.SD,
