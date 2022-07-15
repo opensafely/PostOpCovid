@@ -7,7 +7,7 @@ source(here::here("analysis","Utils.R"))
 
 ###########################################################
 
-procedures <- c('Abdominal')
+procedures <- c('Cardiac')
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 
@@ -36,7 +36,7 @@ post.op.covid.model.per.op <-
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 
 
-adjusted.cuminc.per.op <-  data.table::as.data.table(foreach::foreach(proc = 1:length(procedures)) %:% foreach::foreach(predi = 1:length(covariates), .combine = 'rbind', .inorder = T) %dopar% {
+adjusted.cuminc.per.op <-  data.table::as.data.table(foreach::foreach(proc = 1:length(procedures)) %:% foreach::foreach(predi = 1:length(covariates), .combine = 'rbind', .inorder = T) %do% {
                            newdata.rows <- length(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])]))
                            
    
@@ -95,13 +95,13 @@ adjusted.cuminc.per.op <-  data.table::as.data.table(foreach::foreach(proc = 1:l
                            
                            
                            death.risk.30day <- predict(object = post.op.covid.model.per.op[[proc]][[3]], 
-                                                       newdata = newdata.pred,, type = 'expected',se.fit = T)
+                                                       newdata = newdata.pred, type = 'expected',se.fit = T)
                            
                            readmit.risk.30day <- predict(object = post.op.covid.model.per.op[[proc]][[2]], 
-                                                       newdata = newdata.pred,, type = 'expected',se.fit = T)
+                                                       newdata = newdata.pred, type = 'expected',se.fit = T)
                            
                            covid.risk.30day <- predict(object = post.op.covid.model.per.op[[proc]][[1]], 
-                                   newdata = newdata.pred,, type = 'expected',se.fit = T)
+                                   newdata = newdata.pred, type = 'expected',se.fit = T)
                            
                            cbind(matrix(paste0(round((1- exp(-covid.risk.30day$fit))*100,3),
                                                ' (', round((1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit)))*100,3),',',
