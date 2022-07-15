@@ -7,8 +7,7 @@ source(here::here("analysis","Utils.R"))
 
 ###########################################################
 
-procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular','Colectomy','Cholecystectomy',
-                'HipReplacement','KneeReplacement')
+procedures <- c('Abdominal')
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 
@@ -108,8 +107,8 @@ adjusted.cuminc.per.op <-  data.table::as.data.table(foreach::foreach(proc = 1:l
                                                ' (', round((1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit)))*100,3),',',
                                                round((1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
                            cuminc.cox(n.type.events = n.type.events,
-                                      dt = 'dt.tv[(postop.covid.cohort) & (get(procedures[[proc]])==T)]', 
-                                      model = 'post.op.covid.model.per.op[[proc]]', 
+                                      dt = paste0('dt.tv[(postop.covid.cohort) & (get(procedures[[',proc,']])==T)]'), 
+                                      model = paste0('post.op.covid.model.per.op[[',proc,']]'), 
                                       newdata = 'newdata.pred',
                                       day = 30),
                            matrix(paste0(round((1- exp(-readmit.risk.30day$fit))*100,3),
@@ -124,5 +123,5 @@ adjusted.cuminc.per.op <-  data.table::as.data.table(foreach::foreach(proc = 1:l
 
 save(post.op.covid.model.per.op,adjusted.cuminc.per.op, file = here::here("output","postopcovid_adjusted_per_op.RData"))
 
-#lapply(1:length(procedures), function(p) data.table::fwrite(adjusted.cuminc.per.op[[p]], file = here::here("output",paste0("postopcovid_adjusted_per_op",procedures[p],".csv"))))
-data.table::fwrite(data.table::rbindlist(adjusted.cuminc.per.op), file = here::here("output","postopcovid_adjusted_per_op.csv"))
+lapply(1:length(procedures), function(p) data.table::fwrite(adjusted.cuminc.per.op[[p]], file = here::here("output",paste0("postopcovid_adjusted_per_op",procedures[p],".csv"))))
+#data.table::fwrite(data.table::rbindlist(adjusted.cuminc.per.op), file = here::here("output","postopcovid_adjusted_per_op.csv"))

@@ -73,7 +73,7 @@ actions:
     outputs:
       moderately_sensitive:
         table_adjusted: output/postopcovid_adjusted_per_op.RData
-        table_adjusted_csv: output/postopcovid_adjusted_per_op.csv
+        table_adjusted_csv: output/postopcovid_adjusted_per_op*.csv
 
         
   table_postopcovid_adjusted_sub:      
