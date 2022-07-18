@@ -500,8 +500,8 @@ dt.tv[, LOS := discharge.date - admit.date]
 
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-min.grp.col_(dt = 'dt.tv',
-             min.var.name = "LOS",
+max.grp.col_(dt = 'dt.tv',
+             max.var.name = "LOS",
              aggregate.cols = 'LOS',
              id.vars = c("patient_id","end.fu"))
 dt.tv[,LOS.bin := LOS > 7]

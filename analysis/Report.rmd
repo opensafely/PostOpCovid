@@ -368,7 +368,7 @@ The adjusted cumulative risk for COVID-19 were calculated for an inpatient week 
 weekly.post.op.risk <- data.table::fread(file = here::here("output","postopcovid_tv.csv"))
 
 ggplot2::ggplot(weekly.post.op.risk) + #ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk)) + 
-  ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")), 
+  ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week","5th week")), 
                                                                       y = Risk)) +
 ggplot2::xlab("Days post discharge") + 
   ggplot2::ylab("Cumulative risk during time period") + ggplot2::ggtitle("Post operative risk of COVID-19 over time",
@@ -381,7 +381,7 @@ ggplot2::xlab("Days post discharge") +
 weekly.post.op.risk.sub <- data.table::fread(file = here::here("output","postopcovid_tv_sub.csv"))
 
 ggplot2::ggplot(weekly.post.op.risk.sub) + #ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk)) + 
- ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")), 
+ ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week","5th week")), 
                                                                       y = Risk)) +
 ggplot2::xlab("Risk Period post discharge") + 
   ggplot2::ylab("Cumulative risk during time period") + ggplot2::ggtitle("Post operative risk of COVID-19 over time",
@@ -441,7 +441,7 @@ knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4),caption = paste
 ```{r postopcovid_VTE_tv}
 weekly.post.op.VTE.risk <- data.table::fread(here::here("output","postopcovid_VTE_tv.csv"))
 ggplot2::ggplot(weekly.post.op.VTE.risk) + #ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk, group = COVID, colour = COVID)) + 
- ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")),
+ ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week","5th week")),
                                                                     y = Risk,
                               group = COVID,
                              colour = COVID,
@@ -482,7 +482,7 @@ knitr::kable(cuminc.adjusted.VTE.sub,col.names = paste0("Wave ",1:4),caption = p
 weekly.post.op.VTE.risk.sub <- data.table::fread(here::here("output","postopcovid_VTE_tv_sub.csv"))
 
 ggplot2::ggplot(weekly.post.op.VTE.risk.sub) + #ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk, group = COVID, colour = COVID)) + 
- ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week")),
+ ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week","5th week")),
                                                                     y = Risk,
                               group = COVID,
                              colour = COVID,
