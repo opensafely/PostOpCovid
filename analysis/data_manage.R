@@ -496,6 +496,16 @@ dt.tv[is.na(vaccination.status.factor), vaccination.status.factor := 0]
 ##############################
 
 ### Length of stay----
+dt.tv[, LOS := discharge.date - admit.date]
+
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+min.grp.col_(dt = 'dt.tv',
+             min.var.name = "LOS",
+             aggregate.cols = 'LOS',
+             id.vars = c("patient_id","end.fu"))
+dt.tv[,LOS.bin := LOS > 7]
+
 dt.tv[,discharged := is.finite(discharge.date) & discharge.date == tstop]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 min.grp.col_(dt = 'dt.tv',min.var.name = 'los.end',aggregate.cols = 'discharge.date',id.vars = c("patient_id","end.fu"))
@@ -504,6 +514,16 @@ dt.tv[!is.finite(los.end), los.end := end.fu]
 ### Post operative VTE----
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, anticoagulation_prescriptions_date := lapply(.SD, data.table::nafill, type = "nocb"), by = patient_id, .SDcols = 'anticoagulation_prescriptions_date']
+dt.tv[, anticoagulation_prescriptions_date := lapply(.SD, data.table::nafill, type = "locf"), by = patient_id, .SDcols = 'anticoagulation_prescriptions_date']
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+min.grp.col_(dt = 'dt.tv',
+             min.var.name = "VTE_diag_date",
+             aggregate.cols = c('VTE_GP_date','VTE_HES_date_admitted'),
+             id.vars = c("patient_id","end.fu"))
+
+dt.tv[ is.finite(anticoagulation_prescriptions_date) & 
+         is.finite(VTE_diag_date) & anticoagulation_prescriptions_date < VTE_diag_date - 15 , anticoagulation_prescriptions_date := NA ]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, post.VTE := ((is.finite(VTE_GP_date) &  

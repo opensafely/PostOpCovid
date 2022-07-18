@@ -12,13 +12,11 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-covariates <- c(procedures,'sex','age.cat','bmi.cat','imd5','wave',
-                'vaccination.status.factor','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID','region')
-
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 post.op.VTE.model <- 
-  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Abdominal + Cardiac + Obstetrics + Thoracic + Vascular + postcovid*wave  + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Abdominal + Cardiac + Obstetrics + Thoracic + Vascular + postcovid*wave  + age.cat +
+                                            sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                           data = dt.tv[(postcovid.VTE.cohort)], model = T))
 
 data.table::fwrite(broom::tidy(post.op.VTE.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodel.csv"))
@@ -45,6 +43,7 @@ new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedu
                                                 'region' = rep("East Midlands",8*length(procedures)),
                                                 'Current.Cancer' = rep(T,8*length(procedures)),
                                                 'Emergency' =   rep(F,8*length(procedures)),
+                                                'LOS.bin' =   rep(F,8*length(procedures)),
                                                 'Charl12' =  rep('Single',8*length(procedures)),
                                                 'recentCOVID' = rep(F,8*length(procedures)),
                                                 'previousCOVID' = rep(F,8*length(procedures)),

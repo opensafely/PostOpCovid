@@ -17,7 +17,7 @@ post.op.readmit.model <-
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.readmit==i) ~ Abdominal + Cardiac + Obstetrics +
                                                        Thoracic + Vascular + postcovid*wave +  sex + age.cat + 
                                                       bmi.cat + imd5 + vaccination.status.factor  + 
-                                                      Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID + region, 
+                                                      Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID + region, 
                                                     id = patient_id,
                                           data = dt.tv[(postop.readmit.cohort)], model = T))
 
@@ -44,6 +44,7 @@ new.data.postop.covid <- data.table::data.table('start.readmit' = rep(0,8*length
                                                 'region' = rep("East Midlands",8*length(procedures)),
                                                 'Current.Cancer' = rep(T,8*length(procedures)),
                                                 'Emergency' =   rep(F,8*length(procedures)),
+                                                'LOS.bin' =   rep(F,8*length(procedures)),
                                                 'Charl12' =  rep('Single',8*length(procedures)),
                                                 'recentCOVID' = rep(F,8*length(procedures)),
                                                 'previousCOVID' = rep(F,8*length(procedures)),

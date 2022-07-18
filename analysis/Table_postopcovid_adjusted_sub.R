@@ -27,7 +27,8 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(KneeReplacement) & KneeReplacement == T)]
 
 post.op.covid.model.waves.sub <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Colectomy + Cholecystectomy + KneeReplacement + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency*wave + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Colectomy + Cholecystectomy + KneeReplacement + age.cat + sex + bmi.cat + imd5 + 
+                                                      vaccination.status.factor + region + Current.Cancer + Emergency*wave + LOS.bin + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort) & sub.op == T], model = T))
 
 data.table::fwrite(broom::tidy(post.op.covid.model.waves.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelwavessub.csv"))
@@ -50,6 +51,7 @@ new.data.postop <- data.table::data.table(
   'region' = rep("East Midlands",8*length(procedures.sub)),
   'Current.Cancer' = rep(T,8*length(procedures.sub)),
   'Emergency' =  rep(c(rep(F,4),rep(T,4)), times = length(procedures.sub)),
+  'LOS.bin' = rep(F,8*length(procedures)),
   'Charl12' =  rep('Single',8*length(procedures.sub)),
   'recentCOVID' = rep(F,8*length(procedures.sub)),
   'previousCOVID' = rep(F,8*length(procedures.sub)),
@@ -89,7 +91,7 @@ post.op.covid.model.sub <-
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Colectomy + Cholecystectomy  + KneeReplacement +
                                                       age.cat + sex + bmi.cat + imd5 + 
                                                       vaccination.status.factor + region + Current.Cancer + 
-                                                      Emergency + wave + Charl12 + recentCOVID + previousCOVID, 
+                                                      Emergency + wave + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
                                                     id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort)  & sub.op == T], model = T))
 
@@ -116,6 +118,7 @@ adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:len
                                                                   'vaccination.status.factor' = rep('3',newdata.rows),
                                                                   'region' = rep("East Midlands",newdata.rows),
                                                                   'Current.Cancer' = rep(T,newdata.rows),
+                                                                  'LOS.bin' = rep(F,newdata.rows),
                                                                   'Emergency' =  rep(F,newdata.rows),
                                                                   'Charl12' =  rep('Single',newdata.rows),
                                                                   'recentCOVID' = rep(F,newdata.rows),

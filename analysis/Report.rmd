@@ -170,6 +170,7 @@ Additional covariates used within the analyses to adjust and stratify the result
   * Socioeconomic status - Defined as quintiles of the rankings of lower super output areas of home residence by the Indices of Multiple Deprivation.
   * Recent COVID-19 infection - Defined as between 7 and 42 days prior to the operation date
   * Prior COVID-19 infection - Defined as before 42 days prior to the operation date
+  * Length of stay for index admission (days) - This was included in models predicting outcomes other than length of stay and categorised into <= 7 days and > 7 days.
   
 
 ## Statistical methods

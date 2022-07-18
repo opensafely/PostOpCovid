@@ -20,7 +20,7 @@ n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event.readmit]))[-1]
 post.op.readmit.model.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.readmit==i) ~ Colectomy + Cholecystectomy + 
                                             KneeReplacement + postcovid*wave + sex +  age.cat + bmi.cat + imd5 + vaccination.status.factor + Current.Cancer + 
-                                              Emergency + Charl12 + recentCOVID + previousCOVID + region, id = patient_id,
+                                              Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID + region, id = patient_id,
                                           data = dt.tv[(postop.readmit.cohort)], model = T))
 
 data.table::fwrite(broom::tidy(post.op.readmit.model.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodelsub.csv"))
@@ -43,6 +43,7 @@ new.data.postop.covid <- data.table::data.table('start.readmit' = rep(0,8*length
                                                 'region' = rep("East Midlands",8*length(procedures)),
                                                 'Current.Cancer' = rep(T,8*length(procedures)),
                                                 'Emergency' =   rep(F,8*length(procedures)),
+                                                'LOS.bin' =   rep(F,8*length(procedures)),
                                                 'Charl12' =  rep('Single',8*length(procedures)),
                                                 'recentCOVID' = rep(F,8*length(procedures)),
                                                 'previousCOVID' = rep(F,8*length(procedures)),

@@ -18,7 +18,7 @@ dt.tv.splits[event == 3, event := 2]
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal+ Cardiac + Obstetrics +  Thoracic + Vascular + age.cat + 
-  sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency*week.post.disch  + Charl12 + recentCOVID + previousCOVID,
+  sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency*week.post.disch + LOS.bin + Charl12 + recentCOVID + previousCOVID,
    id = patient_id,
   data = dt.tv.splits[(postop.covid.cohort) & start <=end], model = T))
 
@@ -47,6 +47,7 @@ newdata.pred <- data.table::data.table('start' = c(0,7,14,21,28),
                                       'region' = rep("East Midlands",newdata.rows),
                                       'Current.Cancer' = rep(T,newdata.rows),
                                       'Emergency' =  rep(F,newdata.rows),
+                                      'LOS.bin' =  rep(F,newdata.rows),
                                       'Charl12' =  rep('Single',newdata.rows),
                                       'recentCOVID' = rep(F,newdata.rows),
                                       'previousCOVID' = rep(F,newdata.rows)
@@ -109,9 +110,9 @@ data.table::fwrite(weekly.post.op.risk, file = here::here("output","postopcovid_
 ##############
 post.op.VTE.model.split <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Abdominal + survival::strata(postcovid) +    
-                                            Cardiac + Obstetrics + Orthopaedic + Thoracic + Vascular + age.cat + 
+                                            Cardiac + Obstetrics + Thoracic + Vascular + age.cat + 
                                             sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + 
-                                            Current.Cancer + Emergency*week.post.disch + Charl12 + recentCOVID + previousCOVID, 
+                                            Current.Cancer + Emergency*week.post.disch + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
                                           id = patient_id,
                                           data = dt.tv.splits[(postcovid.VTE.cohort) & start <=end], model = T))
 
@@ -141,6 +142,7 @@ newdata.pred <- data.table::data.table('start' = rep(c(0,7,14,21,28), times = 2)
                                        'region' = rep("East Midlands",newdata.rows*2),
                                        'Current.Cancer' = rep(T,newdata.rows*2),
                                        'Emergency' =  rep(F,newdata.rows*2),
+                                       'LOS.bin' =  rep(F,newdata.rows*2),
                                        'Charl12' =  rep('Single',newdata.rows*2),
                                        'recentCOVID' = rep(F,newdata.rows*2),
                                        'previousCOVID' = rep(F,newdata.rows*2)
