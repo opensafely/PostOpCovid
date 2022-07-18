@@ -116,9 +116,9 @@ We defined the following outcomes
 
   1. Post Operative COVID-19 infection - A positive lateral flow or PCR test recorded within the SGSS from pillar 1 or 2 testing between 0 and 30 days after the operation date. Patients with a positive test in the 7 days prior to the operation date were excluded
 
-  2. Post Operative Venous Thromboembolism Events - A venous thromboemobolic event was defined as a diagnostic ICD 10 code within hospital records and/or diagnostic SNOMED code within primary care records, with a corresponding primary care prescription for ongoing anticoagulation in the community within 90 days. This definition has previously been used and validated within our team within the Clinical Practice Research Datalink.
+  2. Post Operative Venous Thromboembolism Events - A venous thromboemobolic event was defined as a diagnostic ICD 10 code within hospital records and/or diagnostic SNOMED code within primary care records, with a corresponding primary care prescription for ongoing anticoagulation in the community within 15 days before and 90 days after a VTE diagnosis and 90 days after discharge. This definition has previously been used and validated within our team within the Clinical Practice Research Datalink.
 
-  3. Post Operative Non-COVID-19 Emergency Readmission - Any emergency hospital admission defined by an admission method beginning with '2' without a corresponding COVID-19 positive result.
+  3. Post Operative Non-COVID-19 Emergency Readmission - Any emergency hospital admission defined by an admission method beginning with '2' without a corresponding COVID-19 positive result within 90 days of discharge.
 
   4. Post Operative Mortality - Any death within 90 days of the operation recorded within the Office for National Statistics death registry.
 
