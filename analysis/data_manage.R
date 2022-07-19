@@ -298,6 +298,14 @@ dt.tv[,end.fu := do.call(pmin, c(.SD, na.rm = T)),
       .SDcols = c(paste0(procedures,"_end_fu"))] ## gp.end in end_fu already
 dt.tv[!is.finite(end.fu) | end.fu!= tstop, end.fu := NA]
 
+dt.tv[,end.fu30 := do.call(pmin, c(.SD, na.rm = T)), 
+      .SDcols = c(paste0(procedures,"_end_fu30"))] ## gp.end in end_fu already
+dt.tv[!is.finite(end.fu30) | end.fu30!= tstop, end.fu30 := NA]
+
+dt.tv[,end.fu90 := do.call(pmin, c(.SD, na.rm = T)), 
+      .SDcols = c(paste0(procedures,"_end_fu90"))] ## gp.end in end_fu already
+dt.tv[!is.finite(end.fu90) | end.fu90!= tstop, end.fu90 := NA]
+
 ## Coalesce discharged date from different procedures to create continuous record, only present when valid
 dt.tv[,discharge.date := do.call(pmax, c(.SD, na.rm = T)), 
       .SDcols = paste0(procedures,"_date_discharged")]
