@@ -51,7 +51,7 @@ new.data.postop <- data.table::data.table(
   'region' = rep("East Midlands",8*length(procedures.sub)),
   'Current.Cancer' = rep(T,8*length(procedures.sub)),
   'Emergency' =  rep(c(rep(F,4),rep(T,4)), times = length(procedures.sub)),
-  'LOS.bin' = rep(F,8*length(procedures)),
+  'LOS.bin' = rep(F,8*length(procedures.sub)),
   'Charl12' =  rep('Single',8*length(procedures.sub)),
   'recentCOVID' = rep(F,8*length(procedures.sub)),
   'previousCOVID' = rep(F,8*length(procedures.sub)),
