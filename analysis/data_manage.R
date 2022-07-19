@@ -751,6 +751,6 @@ dt.tv[(postop.readmit.cohort) & date_death_ons == tstop & event.readmit != 1, ev
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-dt.tv <- dt.tv[any.op == T & start > 0 & tstop <= end.fu,] # Need to start follow up on day after operation as can't identify order when events on same day
+dt.tv <- dt.tv[any.op == T & start >= 0 & tstop <= end.fu,] # Need to start follow up on day after operation as can't identify order when events on same day
 arrow::write_feather(dt.tv, sink = here::here("output","cohort_long.feather"))
 #save(dt.tv, file = here::here("output","cohort_long.RData"))
