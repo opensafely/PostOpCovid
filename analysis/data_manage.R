@@ -532,9 +532,9 @@ min.grp.col_(dt = 'dt.tv',
              id.vars = c("patient_id","end.fu"))
 
 dt.tv[is.finite(anticoagulation_prescriptions_date) & 
-         is.finite(VTE_diag_date) &
-        (anticoagulation_prescriptions_date < VTE_diag_date - 15 |
-        anticoagulation_prescriptions_date > VTE_diag_date + 90) , post.VTE.date := NA]
+         is.finite(post.VTE.date) &
+        (anticoagulation_prescriptions_date < post.VTE.date - 15 |
+        anticoagulation_prescriptions_date > post.VTE.date + 90) , post.VTE.date := NA]
 
 #dt.tv[, post.VTE := ((is.finite(VTE_GP_date) &  
 #                        VTE_GP_date == tstop) | 
