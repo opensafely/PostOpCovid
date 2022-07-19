@@ -527,27 +527,29 @@ dt.tv[, anticoagulation_prescriptions_date := lapply(.SD, data.table::nafill, ty
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 min.grp.col_(dt = 'dt.tv',
-             min.var.name = "VTE_diag_date",
+             min.var.name = "post.VTE.date",
              aggregate.cols = c('VTE_GP_date','VTE_HES_date_admitted'),
              id.vars = c("patient_id","end.fu"))
 
-dt.tv[ is.finite(anticoagulation_prescriptions_date) & 
-         is.finite(VTE_diag_date) & anticoagulation_prescriptions_date < VTE_diag_date - 15 , anticoagulation_prescriptions_date := NA ]
+dt.tv[is.finite(anticoagulation_prescriptions_date) & 
+         is.finite(VTE_diag_date) &
+        (anticoagulation_prescriptions_date < VTE_diag_date - 15 |
+        anticoagulation_prescriptions_date > VTE_diag_date + 90) , post.VTE.date := NA]
+
+#dt.tv[, post.VTE := ((is.finite(VTE_GP_date) &  
+#                        VTE_GP_date == tstop) | 
+#                       (is.finite(VTE_HES_date_admitted) & 
+#                          VTE_HES_date_admitted == tstop)) & 
+#        is.finite(anticoagulation_prescriptions_date) &
+#        tstop <= end.fu]  # events flagged at end of episode
+dt.tv[, post.VTE := is.finite(post.VTE.date) & post.VTE.date == tstop]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[, post.VTE := ((is.finite(VTE_GP_date) &  
-                        VTE_GP_date == tstop) | 
-                       (is.finite(VTE_HES_date_admitted) & 
-                          VTE_HES_date_admitted == tstop)) & 
-        is.finite(anticoagulation_prescriptions_date) &
-        tstop <= end.fu]  # events flagged at end of episode
-dt.tv[post.VTE == T, post.VTE.date := tstop]
 min.grp.col_(dt = 'dt.tv',min.var.name = 'post.VTE.date',aggregate.cols = 'post.VTE.date',id.vars = c("patient_id","end.fu"))
 dt.tv[,postVTEany := cumsum(post.VTE), by = .(patient_id, end.fu)]
 
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-min.grp.col_(dt = 'dt.tv',min.var.name = 'VTE.end',aggregate.cols = 'post.VTE.date',id.vars = c("patient_id","end.fu"))
-dt.tv[!is.finite(VTE.end), VTE.end := end.fu]
+dt.tv[, VTE.end := post.VTE.date]
+dt.tv[!is.finite(VTE.end) | post.VTE.date > end.fu, VTE.end := end.fu]
 
 ### Post operative Covid-19----
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -703,14 +705,14 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 min.grp.col_(dt = 'dt.tv',min.var.name = 'final.date.VTE',aggregate.cols = 'final.date.VTE',id.vars = c("patient_id","end.fu"))
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[, postcovid.VTE.cohort := start>0 & tstop <= final.date.VTE]
+dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE]
 dt.tv[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date),any.op.VTE := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
 dt.tv[is.na(any.op.VTE), any.op.VTE := F]
 dt.tv[, any.op.VTE := any.op.VTE > 0]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, any.op.VTE := cummax(any.op.VTE), keyby = .(patient_id, end.fu)]
 
-dt.tv[, postcovid.VTE.cohort := start.readmit > 0 & tstop <= final.date.VTE & any.op.VTE == T]
+dt.tv[, postcovid.VTE.cohort := start > 0 & tstop <= final.date.VTE & any.op.VTE == T] #Date must be after operation date, likely to mean after discharge date as operation date is admit date
 
 dt.tv[,event.VTE :=0]
 dt.tv[post.VTE.date == tstop & (postcovid.VTE.cohort), event.VTE := 1]
@@ -749,6 +751,6 @@ dt.tv[(postop.readmit.cohort) & date_death_ons == tstop & event.readmit != 1, ev
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-dt.tv <- dt.tv[any.op == T & start >=0 & tstop <= end.fu,]
+dt.tv <- dt.tv[any.op == T & start > 0 & tstop <= end.fu,] # Need to start follow up on day after operation as can't identify order when events on same day
 arrow::write_feather(dt.tv, sink = here::here("output","cohort_long.feather"))
 #save(dt.tv, file = here::here("output","cohort_long.RData"))

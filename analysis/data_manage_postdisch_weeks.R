@@ -14,6 +14,7 @@ dt.tv[,`:=`(post.disch.wk1 = discharge.date  ,
             covid.event = event == 1,
             censor.event = event!=1)]
 
+# Identify unique date times for week boundaries per patient
 dt.tv.splits <- data.table::melt(dt.tv[is.finite(discharge.date),tail(.SD,1),
                                        .SDcols = c(paste0("post.disch.wk",1:5)),
                                        keyby = c('patient_id')], 
@@ -52,7 +53,7 @@ dt.tv.splits[, los.end := min(los.end, na.rm = T), keyby = .(patient_id, end.fu)
 
 dt.tv.splits[, `:=`(start = tstart - los.end,
                     end = tstop - los.end)]
-dt.tv.splits <- dt.tv.splits[is.finite(los.end) & start>=0 & end <=90]
+dt.tv.splits <- dt.tv.splits[is.finite(los.end) & start>0 & end <=90] # Need to start follow up day after discharge to avoid discharge diagnoses
 
 #Reset outcomes to current end times
 dt.tv.splits[,event :=0]

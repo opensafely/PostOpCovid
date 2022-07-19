@@ -13,6 +13,9 @@ procedures <- c('Colectomy','Cholecystectomy',
 dt.tv.splits <- data.table::setDT(arrow::read_feather(here::here("output","cohort_postdisch_week_splits.feather")))
 n.type.events <- 1:2 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
+# Start = 0 = day of discharge
+
+
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 
 #covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
