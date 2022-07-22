@@ -16,14 +16,20 @@ n.type.events <- 1:2 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 # Start = 0 = day of discharge
 
 
-data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 
 #covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
 #                'vaccination.status.factor','region','Current.Cancer',
 #                'Emergency','Charl12','recentCOVID','previousCOVID')
 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
+dt.tv.splits <- dt.tv.splits[,.(patient_id,Colectomy,Cholecystectomy,HipReplacement,KneeReplacement,age.cat,sex,bmi.cat,imd5,wave,vaccination.status.factor,region,Current.Cancer,Emergency,
+                                week.post.disch,week.post.op,LOS.bin,Charl12,recentCOVID,previousCOVID,postcovid,
+                                tstart,tstop,end.fu,start,end,event,postop.covid.cohort,los.end,event.VTE,postcovid.VTE.cohort,study.start)]
 
+# Start = 0 = day of operation
+dt.tv.splits[, `:=`(start = tstart - study.start,
+                    end = tstop - study.start)]
+dt.tv.splits <- dt.tv.splits[start >= 0,] # Need to start follow up on day after operation as can't identify order when events on same day
 
 
 dt.tv.splits[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
