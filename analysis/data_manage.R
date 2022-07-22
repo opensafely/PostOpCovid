@@ -692,11 +692,12 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 procedures.sub <- c('Colectomy','Cholecystectomy',
                     'HipReplacement','KneeReplacement')
 covariates <- c(procedures,procedures.sub,'sex','age.cat','bmi.cat','imd5','wave','LOS.bin',
-                'vaccination.status.factor','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID','region',
-                'emergency_readmit_primary_diagnosis','primary_diagnosis','death_underlying_cause_ons')
+                'vaccination.status.factor','Current.Cancer','Emergency','Charlson','Charl12','recentCOVID','previousCOVID','postcovid','region',
+                'emergency_readmit_primary_diagnosis','primary_diagnosis','death_underlying_cause_ons','admission_method','days_in_critical_care')
 
 drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstart','tstop','start','end','event','postop.covid.cohort','end.fu','died','gp.end','discharge.date','age',
-                                                'postop.readmit.cohort','postcovid.VTE.cohort','postop.los.cohort','event.VTE','event.readmit','date_death_ons','los.end','COVIDpositivedate','emergency_readmitdate','post.VTE.date',
+                                                'postop.readmit.cohort','postcovid.VTE.cohort','postop.los.cohort','event.VTE','event.readmit','date_death_ons',
+                                                'los.end','start.readmit','end.readmit','COVIDpositivedate','emergency_readmitdate','post.VTE.date',
                                                 'any.op','any.op.COVID','any.op.readmit','any.op.VTE','admit.date','discharged','final.date','final.date.readmit','final.date.VTE'))]
 
 dt.tv[,(drop.vars) := NULL]
