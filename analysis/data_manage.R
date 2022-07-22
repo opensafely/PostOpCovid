@@ -688,5 +688,19 @@ dt.tv[(postop.readmit.cohort) & date_death_ons == tstop & event.readmit != 1, ev
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 # Final cohort----
+
+procedures.sub <- c('Colectomy','Cholecystectomy',
+                    'HipReplacement','KneeReplacement')
+covariates <- c(procedures,procedures.sub,'sex','age.cat','bmi.cat','imd5','wave','LOS.bin',
+                'vaccination.status.factor','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID','region',
+                'emergency_readmit_primary_diagnosis','primary_diagnosis','death_underlying_cause_ons')
+
+drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstart','tstop','start','end','event','postop.covid.cohort','end.fu','died','gp.end','discharge.date','age',
+                                                'postop.readmit.cohort','postcovid.VTE.cohort','postop.los.cohort','event.VTE','event.readmit','date_death_ons','los.end','COVIDpositivedate','emergency_readmitdate','post.VTE.date',
+                                                'any.op','any.op.COVID','any.op.readmit','any.op.VTE','admit.date','discharged','final.date','final.date.readmit','final.date.VTE'))]
+
+dt.tv[,(drop.vars) := NULL]
+
+
 dt.tv <- dt.tv[any.op == T & start >= 0 & tstop <= end.fu,] # Need to start follow up on day after operation as can't identify order when events on same day
 arrow::write_feather(dt.tv, sink = here::here("output","cohort_long.feather"))
