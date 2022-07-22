@@ -243,14 +243,27 @@ load(here::here("output","postopcovid_adjusted.RData"))
 
 crude.covid.cov[, cov_level := paste0(Characteristic, Level) ]
 
-cov_coef <- data.table::data.table('cov_level' = names(post.op.covid.model[[1]]$coefficients), 
+covid_coef <- data.table::data.table('cov_level' = names(post.op.covid.model[[1]]$coefficients), 
                                    'Adjusted Hazard Ratio' = round(exp(post.op.covid.model[[1]]$coefficients),2),
                                    '95% CI' = paste0('(',round(exp(confint(post.op.covid.model[[1]])[,1]),2),',',round(exp(confint(post.op.covid.model[[1]])[,2]),2),')'))
+
+readmit_coef <- data.table::data.table('cov_level' = names(post.op.covid.model[[2]]$coefficients), 
+                                   'Adjusted Hazard Ratio' = round(exp(post.op.covid.model[[2]]$coefficients),2),
+                                   '95% CI' = paste0('(',round(exp(confint(post.op.covid.model[[2]])[,1]),2),',',round(exp(confint(post.op.covid.model[[2]])[,2]),2),')'))
+
+mortality_coef <- data.table::data.table('cov_level' = names(post.op.covid.model[[3]]$coefficients), 
+                                   'Adjusted Hazard Ratio' = round(exp(post.op.covid.model[[3]]$coefficients),2),
+                                   '95% CI' = paste0('(',round(exp(confint(post.op.covid.model[[3]])[,1]),2),',',round(exp(confint(post.op.covid.model[[3]])[,2]),2),')'))
 
 
 #knitr::kable(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
-comb_postop_covid <- cbind(merge(x = crude.covid.cov, y = cov_coef, by = 'cov_level', all = T , sort = F),adjusted.cuminc)[-(seq(1,(length(procedures)*2)-1,2)),-1]
+comb_postop_covid <- cbind(merge(x = crude.covid.cov, y = covid_coef, by = 'cov_level', all = T , sort = F),
+                           adjusted.cuminc[,1],
+                           merge(x = crude.covid.cov, y = readmit_coef, by = 'cov_level', all = T , sort = F)[,.(`Adjusted Hazard Ratio`,`95% CI`)],
+                           adjusted.cuminc[,3],
+                           merge(x = crude.covid.cov, y = mortality_coef, by = 'cov_level', all = T , sort = F)[,.(`Adjusted Hazard Ratio`,`95% CI`)],
+                           adjusted.cuminc[,c(4,2)])[-(seq(1,(length(procedures)*2)-1,2)),-1]
 
 names(comb_postop_covid) <- c("Characteristic","Level","Number at risk",
                             "Number of post operative COVID events within 30 days",
@@ -258,9 +271,11 @@ names(comb_postop_covid) <- c("Characteristic","Level","Number at risk",
                             "30 day COVID Cumulative Risk adjusted for death and emergency readmission",
                             'Adjusted Hazard Ratio for 30 day COVID','95% CI',
                             "30 day COVID Cumulative Risk adjusted for all covariates",
-                            "30 day COVID Cumulative Risk adjusted for all covariates and competing risks",
+                            'Adjusted Hazard Ratio for censoring by 30 day readmissions','95% CI',
                             "30 day Readmission Cumulative Risk adjusted for all covariates",
-                            "30 day Mortality Cumulative Risk adjusted for all covariates")
+                            'Adjusted Hazard Ratio for censoring by 30 day mortality','95% CI',
+                            "30 day Mortality Cumulative Risk adjusted for all covariates",
+                            "30 day COVID Cumulative Risk adjusted for all covariates and competing risks")
 
 comb_postop_covid[is.na(`Adjusted Hazard Ratio for 30 day COVID`),`:=`(`Adjusted Hazard Ratio for 30 day COVID` = 1, `95% CI`= "Ref")]
 
@@ -285,14 +300,28 @@ load(here::here("output","postopcovid_adjusted_sub.RData"))
 
 crude.covid.cov.sub[, cov_level := paste0(Characteristic, Level) ]
 
-cov_coef_sub <- data.table::data.table('cov_level' = names(post.op.covid.model.sub[[1]]$coefficients), 
+covid_coef_sub <- data.table::data.table('cov_level' = names(post.op.covid.model.sub[[1]]$coefficients), 
                                    'Adjusted Hazard Ratio' = round(exp(post.op.covid.model.sub[[1]]$coefficients),2),
                                    '95% CI' = paste0('(',round(exp(confint(post.op.covid.model.sub[[1]])[,1]),2),',',round(exp(confint(post.op.covid.model.sub[[1]])[,1]),2),')'))
+
+readmission_coef_sub <- data.table::data.table('cov_level' = names(post.op.covid.model.sub[[2]]$coefficients), 
+                                   'Adjusted Hazard Ratio' = round(exp(post.op.covid.model.sub[[2]]$coefficients),2),
+                                   '95% CI' = paste0('(',round(exp(confint(post.op.covid.model.sub[[2]])[,1]),2),',',round(exp(confint(post.op.covid.model.sub[[2]])[,1]),2),')'))
+
+mortality_coef_sub <- data.table::data.table('cov_level' = names(post.op.covid.model.sub[[3]]$coefficients), 
+                                   'Adjusted Hazard Ratio' = round(exp(post.op.covid.model.sub[[3]]$coefficients),2),
+                                   '95% CI' = paste0('(',round(exp(confint(post.op.covid.model.sub[[3]])[,1]),2),',',round(exp(confint(post.op.covid.model.sub[[3]])[,1]),2),')'))
+
 
 procedures.sub <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
-comb_postop_covid.sub <- cbind(merge(x = crude.covid.cov.sub, y = cov_coef_sub, by = 'cov_level', all = T , sort = F),adjusted.cuminc.sub)[-(seq(1,(length(procedures.sub)*2)-1,2)),-1]
+comb_postop_covid.sub <- cbind(merge(x = crude.covid.cov.sub, y = covid_coef_sub, by = 'cov_level', all = T , sort = F),
+                               adjusted.cuminc.sub[,1],
+                               merge(x = crude.covid.cov.sub, y = readmission_coef_sub, by = 'cov_level', all = T , sort = F)[,.(`Adjusted Hazard Ratio`,`95% CI`)],
+                               adjusted.cuminc.sub[,3],
+                               merge(x = crude.covid.cov.sub, y = mortality_coef_sub, by = 'cov_level', all = T , sort = F)[,.(`Adjusted Hazard Ratio`,`95% CI`)],
+                               adjusted.cuminc.sub[,c(4,2)])[-(seq(1,(length(procedures.sub)*2)-1,2)),-1]
 
 
 names(comb_postop_covid.sub) <- c("Characteristic","Level","Number at risk",
@@ -301,9 +330,11 @@ names(comb_postop_covid.sub) <- c("Characteristic","Level","Number at risk",
                             "30 day COVID Cumulative Risk adjusted for death and emergency readmission",
                             'Adjusted Hazard Ratio for 30 day COVID','95% CI',
                             "30 day COVID Cumulative Risk adjusted for all covariates",
-                            "30 day COVID Cumulative Risk adjusted for all covariates and competing risks",
+                            'Adjusted Hazard Ratio for censoring 30 day readmissions','95% CI',
                             "30 day Readmission Cumulative Risk adjusted for all covariates",
-                            "30 day Mortality Cumulative Risk adjusted for all covariates")
+                            'Adjusted Hazard Ratio for censoring 30 day mortality','95% CI',
+                            "30 day Mortality Cumulative Risk adjusted for all covariates",
+                            "30 day COVID Cumulative Risk adjusted for all covariates and competing risks")
 
  
 comb_postop_covid.sub[is.na(`Adjusted Hazard Ratio for 30 day COVID`),`:=`(`Adjusted Hazard Ratio for 30 day COVID` = 1, `95% CI`= "Ref")]

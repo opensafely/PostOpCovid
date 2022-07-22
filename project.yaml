@@ -20,7 +20,7 @@ actions:
         
   data_manage:
     run: r:latest analysis/data_manage.R
-    needs: [generate_study_population]
+    needs: [generate_study_population,generate_study_population_COD]
     outputs:
       highly_sensitive:
         cohort: output/cohort_long.feather

@@ -10,7 +10,6 @@ source(here::here("analysis","Utils.R"))
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
 
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
 ## start = 0 = operation / admit date , postcovid.VTE.cohort starts on days 1
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 

@@ -11,17 +11,28 @@ dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
+        (is.finite(Cholecystectomy) & Cholecystectomy == T) |
+        (is.finite(HipReplacement)  & HipReplacement == T) | 
+        (is.finite(KneeReplacement) & KneeReplacement == T)]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+max.grp.col_(dt = 'dt.tv',
+             max.var.name = 'sub.op',
+             aggregate.cols = 'sub.op',
+             id.vars = c("patient_id","end.fu"))
 
 data.table::setkey(dt.tv,patient_id,tstart)
 
-n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event.readmit]))[-1]
+n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) & sub.op == T,event.readmit]))[-1]
 
 
 post.op.readmit.model.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.readmit==i) ~ Colectomy + Cholecystectomy + 
                                             KneeReplacement + postcovid*wave + sex +  age.cat + bmi.cat + imd5 + vaccination.status.factor + Current.Cancer + 
                                               Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID + region, id = patient_id,
-                                          data = dt.tv[(postop.readmit.cohort)], model = T))
+                                          data = dt.tv[(postop.readmit.cohort) & sub.op == T], model = T))
 
 data.table::fwrite(broom::tidy(post.op.readmit.model.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodelsub.csv"))
 
@@ -50,7 +61,7 @@ new.data.postop.covid <- data.table::data.table('start.readmit' = rep(0,8*length
                                                 'patient_id' = 1:(8*length(procedures)))
 
 cuminc.adjusted.readmit.sub <- 
-  matrix(cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv[(postop.readmit.cohort)]', model = 'post.op.readmit.model.sub', newdata = 'new.data.postop.covid', day = 90), byrow = T, ncol = 4)
+  matrix(cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv[(postop.readmit.cohort) & sub.op == T]', model = 'post.op.readmit.model.sub', newdata = 'new.data.postop.covid', day = 90), byrow = T, ncol = 4)
 
 colnames(cuminc.adjusted.readmit.sub) <- paste0('Wave_',1:4)
 rownames(cuminc.adjusted.readmit.sub) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))

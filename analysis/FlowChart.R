@@ -11,7 +11,7 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 ##########################
 
 n.ops <- rnd(dt.tv[is.finite(end.fu) & start ==0 & is.finite(admit.date) & any.op == T  & admit.date <= end.fu & final.date >= tstart,tail(.SD,1), keyby = .(patient_id, end.fu)][,lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
-n.ops.VTE <- rnd(dt.tv[(postcovid.VTE.cohort) & start ==0 & final.date >= tstart , tail(.SD,1), keyby = .(patient_id, end.fu)][,lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
+n.ops.VTE <- rnd(dt.tv[(postcovid.VTE.cohort) & start ==1 & final.date >= tstart , tail(.SD,1), keyby = .(patient_id, end.fu)][,lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
 n.ops.COVID <- rnd(dt.tv[(postop.covid.cohort) & start ==0  & final.date >= tstart , tail(.SD,1), keyby = .(patient_id, end.fu)][,lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
 
 n.pats <- rnd(length(unique(dt.tv[,patient_id])))

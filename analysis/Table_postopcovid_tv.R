@@ -20,19 +20,19 @@ dt.tv.splits[event == 3, event := 2]
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal+ Cardiac + Obstetrics +  Thoracic + Vascular + age.cat + 
-  sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency*week.post.disch + LOS.bin + Charl12 + recentCOVID + previousCOVID,
+  sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency*week.post.op + LOS.bin + Charl12 + recentCOVID + previousCOVID,
    id = patient_id,
   data = dt.tv.splits[(postop.covid.cohort) & start <=end], model = T))
 
 data.table::fwrite(broom::tidy(post.op.covid.model.split[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelsplit.csv"))
 
 
-newdata.rows <- length(levels(dt.tv.splits$week.post.disch)) - 1
+newdata.rows <- length(levels(dt.tv.splits$week.post.op)) - 1
 
 newdata.pred <- data.table::data.table('start' = c(0,7,14,21,28),
                                        'end' = c(7,14,21,28,35),
                                        'event' = rep(F,newdata.rows),
-                                      'week.post.disch' = paste(0:(newdata.rows - 1)),
+                                      'week.post.op' = paste(0:(newdata.rows - 1)),
                                       'patient_id' = 1:newdata.rows,
                                       'Abdominal' = rep(T,newdata.rows),
                                       'Cardiac'= rep(F,newdata.rows),
@@ -110,6 +110,12 @@ weekly.post.op.risk  <-  data.table::data.table("Risk" = weekly.post.op.risk - c
 data.table::fwrite(weekly.post.op.risk, file = here::here("output","postopcovid_tv.csv"))
 
 ##############
+
+dt.tv.splits[, `:=`(start = tstart - los.end,
+                    end = tstop - los.end)]
+dt.tv.splits <- dt.tv.splits[is.finite(los.end) & start>0 & end <=90] # Need to start follow up day after discharge to avoid discharge diagnoses
+
+
 post.op.VTE.model.split <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Abdominal + survival::strata(postcovid) +    
                                             Cardiac + Obstetrics + Thoracic + Vascular + age.cat + 

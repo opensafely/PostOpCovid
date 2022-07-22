@@ -14,12 +14,17 @@ procedures <- c('Colectomy','Cholecystectomy',
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-
 dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(Cholecystectomy) & Cholecystectomy == T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
         (is.finite(KneeReplacement) & KneeReplacement == T)]
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+max.grp.col_(dt = 'dt.tv',
+             max.var.name = 'sub.op',
+             aggregate.cols = 'sub.op',
+             id.vars = c("patient_id","end.fu"))
+
 
 post.op.VTE.model.sub <- 
   lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Colectomy + Cholecystectomy + KneeReplacement + 

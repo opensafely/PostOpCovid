@@ -21,7 +21,11 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
         (is.finite(KneeReplacement) & KneeReplacement == T)]
 
-
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+max.grp.col_(dt = 'dt.tv',
+             max.var.name = 'sub.op',
+             aggregate.cols = 'sub.op',
+             id.vars = c("patient_id","end.fu"))
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 crude.covid.cov.sub <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[(postop.covid.cohort),

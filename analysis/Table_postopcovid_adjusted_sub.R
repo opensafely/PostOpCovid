@@ -26,6 +26,12 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
         (is.finite(KneeReplacement) & KneeReplacement == T)]
 
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+max.grp.col_(dt = 'dt.tv',
+             max.var.name = 'sub.op',
+             aggregate.cols = 'sub.op',
+             id.vars = c("patient_id","end.fu"))
+
 post.op.covid.model.waves.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Colectomy + Cholecystectomy + KneeReplacement + age.cat + sex + bmi.cat + imd5 + 
                                                       vaccination.status.factor + region + Current.Cancer + Emergency*wave + LOS.bin + Charl12 + recentCOVID + previousCOVID, id = patient_id,

@@ -21,7 +21,7 @@ dt.tv[,postCOVID30.perepisode := event == 1 &  (postop.covid.cohort) & end <= 30
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 max.grp.col_(dt = 'dt.tv',max.var.name = 'postCOVID30.perepisode',aggregate.cols = 'postCOVID30.perepisode',id.vars = c("patient_id", "end.fu"))
 dt.tv[!is.finite(postCOVID30.perepisode),postCOVID30.perepisode := 0]
-
+dt.tv[date_death_ons - discharge.date <=90, death_underlying_cause_ons := NA]
 
 n.ops <- rnd(dt.tv[start ==0  & is.finite(admit.date) & any.op == T, lapply(.SD,function(x) sum(x == T)), .SDcols = c(procedures)])
 
@@ -112,6 +112,21 @@ demo.tab <-
                                                                                                                                      digits = 1),
                                                                                                                                '%)')[order(-x)]),
                                                                                                      .SDcols = 2:(length(procedures) + 1)][1:5,]),
+                                make.names = 'V1'),
+                              data.table::transpose(
+                                cbind(1:5,
+                                      dt.tv[end.fu == tstop & !is.na(death_underlying_cause_ons) ,
+                                            lapply(.SD,function(x) rnd(sum(x))),
+                                            keyby = c('death_underlying_cause_ons'), .SDcols = c(procedures)][,
+                                                                                                                       lapply(.SD,
+                                                                                                                              function(x) paste0(death_underlying_cause_ons,
+                                                                                                                                                 ": ",
+                                                                                                                                                 x,
+                                                                                                                                                 ' (',
+                                                                                                                                                 round(100*x/sum(x,na.rm = T),
+                                                                                                                                                       digits = 1),
+                                                                                                                                                 '%)')[order(-x)]),
+                                                                                                                       .SDcols = 2:(length(procedures) + 1)][1:5,]),
                                 make.names = 'V1')
   ),
   make.names = 'procedures',
