@@ -10,12 +10,15 @@ source(here::here("analysis","Utils.R"))
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
 
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 covariates <- c(procedures,'sex','age.cat','bmi.cat','imd5','wave',
                 'vaccination.status.factor','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID','region')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
+
+drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstart','tstop','start','end','event','postop.covid.cohort','end.fu'))]
+
+dt.tv[,(drop.vars) := NULL]
 
 
 n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
