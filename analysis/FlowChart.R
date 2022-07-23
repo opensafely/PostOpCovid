@@ -116,19 +116,19 @@ p <- p + ggplot2::geom_rect(xmin =0, xmax=33, ymin=13, ymax=26, color='black',
 
 p <- p + ggplot2::geom_rect(xmin = 34, xmax=66, ymin=49, ymax=55, color='black',
                             fill='white', size=0.25) +
-  ggplot2::annotate('text', x= 50, y=52.2,label= paste0(sum(n.ops.VTE)," Procedures \n for post COVID VTE \n analysis"), size=2.5)
+  ggplot2::annotate('text', x= 50, y=52.2,label= paste0(sum(n.ops.VTE)," Procedures \n for post discharge VTE \n analysis"), size=2.5)
 
 p <- p + ggplot2::geom_rect(xmin = 34, xmax=66, ymin=41, ymax=47, color='black',
                             fill='white', size=0.25) +
-  ggplot2::annotate('text', x= 50, y=44.2,label= paste0("VTE within 90 days: \n ",n.VTE.90," events\n",round(100 * n.VTE.90/sum(n.ops.VTE), digits = 2),"%" ), size=2.5)
+  ggplot2::annotate('text', x= 50, y=44.2,label= paste0("VTE 90 days of discharge: \n ",n.VTE.90," events\n",round(100 * n.VTE.90/sum(n.ops.VTE), digits = 2),"%" ), size=2.5)
 
 p <- p + ggplot2::geom_rect(xmin = 34, xmax=66, ymin=28, ymax=39, color='black',
                             fill='white', size=0.25) +
-  ggplot2::annotate('text', x= 50, y=33.2,label= paste0("VTE within 90 days \n censored for \n readmissions: \n ",n.VTE.90.censored," events\n",round(100 * n.VTE.90.censored/sum(n.ops.VTE), digits = 2),"%" ), size=2.5)
+  ggplot2::annotate('text', x= 50, y=33.2,label= paste0("VTE 90 days of discharge\n censored for \n readmissions: \n ",n.VTE.90.censored," events\n",round(100 * n.VTE.90.censored/sum(n.ops.VTE), digits = 2),"%" ), size=2.5)
 
 p <- p + ggplot2::geom_rect(xmin =34, xmax=66, ymin=13, ymax=26, color='black',
                             fill='white', size=0.25) +
-  ggplot2::annotate('text', x= 50, y=19.2,label= paste0("VTE within 30 days \n censored for \n readmissions:  \n ",n.VTE.30.censored," events\n",round(100 * n.VTE.30.censored/sum(n.ops.VTE), digits = 2),"%" ), size=2.5)
+  ggplot2::annotate('text', x= 50, y=19.2,label= paste0("VTE 30 days of discharge\n censored for \n readmissions:  \n ",n.VTE.30.censored," events\n",round(100 * n.VTE.30.censored/sum(n.ops.VTE), digits = 2),"%" ), size=2.5)
 
 #########################################
 # VTE counts
