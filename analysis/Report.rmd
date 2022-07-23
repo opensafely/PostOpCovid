@@ -58,15 +58,9 @@ covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
 
 
-## Count variables for demographic tables
-dt.tv[,postVTE90.perepisode := max(post.VTE & end <=90,na.rm = T), keyby = .(patient_id, end.fu)]
-dt.tv[!is.finite(postVTE90.perepisode),postVTE90.perepisode := 0]
+## Count variables for demographic tables in respective R files for demo table and flowchart
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[ ,postCOVID30.perepisode := event == 1 & end <=30]
-
-dt.tv[,postCOVID30.perepisode := max(postCOVID30.perepisode,na.rm = T), keyby = .(patient_id, end.fu)]
-dt.tv[!is.finite(postCOVID30.perepisode),postCOVID30.perepisode := 0]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
