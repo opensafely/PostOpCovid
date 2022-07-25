@@ -40,7 +40,7 @@ demo.tab <-
                                                                                                                         "Age (IQR)" = median.iqr(age,dig = 0),
                                                                                                                         "BMI < 19" =  n.perc(as.numeric(bmi.cat) ==  1, dig  = 3),
                                                                                                                         "BMI 19-24" =  n.perc(as.numeric(bmi.cat) ==  2, dig  = 3),
-                                                                                                                        "BMI 15-29" =  n.perc(as.numeric(bmi.cat) ==  3, dig  = 3),
+                                                                                                                        "BMI 25-29" =  n.perc(as.numeric(bmi.cat) ==  3, dig  = 3),
                                                                                                                         "BMI > 30" =  n.perc(as.numeric(bmi.cat) ==  4, dig  = 3),
                                                                                                                         "IMD quintile 1" = n.perc(as.numeric(imd5) ==  1, dig  = 3),
                                                                                                                         "IMD quintile 2" = n.perc(as.numeric(imd5) ==  2, dig  = 3),

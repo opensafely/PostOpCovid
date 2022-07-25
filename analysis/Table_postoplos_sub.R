@@ -35,8 +35,8 @@ dt.tv[, postop.los.cohort := start>=0 & tstop <= los.end & end <= 90 & any.op ==
 
 n.type.events <- sort(unique(dt.tv[(postop.los.cohort) ,event.los]))[-1]
 
-post.op.LOS.model.sub <-  flexsurv::flexsurvreg(survival::Surv(start,end, event.los == 1) ~ Colectomy + Cholecystectomy +  KneeReplacement + 
-                                              postcovid + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + 
+post.op.LOS.model.sub <-  flexsurv::flexsurvreg(survival::Surv(start,end, event.los == 1) ~ Colectomy*wave + Cholecystectomy*wave +  KneeReplacement*wave + 
+                                              postcovid*wave + age.cat + sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + 
                                               Emergency + Charl12 + recentCOVID + previousCOVID, 
                                            data = dt.tv[(postop.los.cohort) & sub.op == T],
                                            dist = 'weibull')

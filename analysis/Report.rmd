@@ -138,12 +138,12 @@ The exposures of interest for the analysis of post operative risk of COVID-19 wa
 
 For the post operative risk the exposure of interest was the effect of a COVID-19 positive test stratified by the timing of procedure by COVID-19 wave.
 
-  *	Timing during pandemic wave 1-4 - Defined as 
-      1. February to August 2020
-      2. September 2020 to April 2021
-      3. May to December 2021
-      4. January to May 2022
-                                           
+  *	Timing during the pandemic in relation to the dominant COVID-19 viral variant as defined in the Office for National Statistics Bulletins [https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveycharacteristicsofpeopletestingpositiveforcovid19uk/] : 
+      1. Initial Wuhan variant as wave 1 - February to 1st December 2020
+      2. Alpha variant as wave 2 - 1st December 2020 to 17th May 2021
+      3. Delta variant as wave 3 - 17th May 2021 to 19th December 2021
+      4. Omicron variant as wave 4 - 19th December 2021 to present
+
 Additional covariates used within the analyses to adjust and stratify the results included:
 
   * Age - categorised into 18-49 years,50 - 69 years,70-79 years and >79 years old
@@ -164,13 +164,12 @@ Additional covariates used within the analyses to adjust and stratify the result
   * Socioeconomic status - Defined as quintiles of the rankings of lower super output areas of home residence by the Indices of Multiple Deprivation.
   * Recent COVID-19 infection - Defined as between 7 and 42 days prior to the operation date
   * Prior COVID-19 infection - Defined as before 42 days prior to the operation date
-  * Length of stay for index admission (days) - This was included in models predicting outcomes other than length of stay and categorised into <= 7 days and > 7 days.
-  
+  * Length of stay for index admission (days) - This was included in models predicting post discharge outcomes and categorised into <= 7 days and > 7 days.
 
 ## Statistical methods
 1. Using the procedure groupings we measured the 30-day risk of COVID-19 positivity following the operation date using the linked COVID-19 testing data adjusted by age, sex, region, socioeconomic status, ethnicity, timing by COVID-19 wave, malignant or benign diagnosis, emergency or elective procedure, co-morbidity and vaccination status from the linked vaccination data. Crude  30 day risks were calculated using Kaplan Meier curves stratified by the above covariates. A competing risks Cox proportional survival analysis was then be used to adjust the cumulative risk of COVID-19 infection by the competing risk of death and subsequent non COVID-19 readmissions, as well as adjusting for the covariates listed above.
 
-2. We modelled using the procedure groupings the impact of COVID-19 positivity on overall 90-day mortality, emergency readmission, and venous thromboembolism. Crude 90 day cumulative risks were calculated using Kaplan Meier curves stratified by the covariates listed above. A time varying Cox proportional hazards model was used for each outcome with COVID-19 positivity as a time varying exposure adjusted for these other patient factors. Cumulative 90 day risks were then calculated adjusted for the competing risks of mortality and non COVID-19 readmissions as appropriate. Follow up time for VTE and readmissions began on the day following disharge. 
+2. We modelled using the procedure groupings the impact of COVID-19 positivity on overall 90-day mortality, emergency readmission, and venous thromboembolism. Crude 90 day cumulative risks were calculated using Kaplan Meier curves stratified by the covariates listed above and also length of stay in the index admission. A time varying Cox proportional hazards model was used for each outcome with COVID-19 positivity as a time varying exposure adjusted for these other patient factors. Cumulative 90 day risks were then calculated adjusted for the competing risks of mortality and non COVID-19 readmissions as appropriate. Follow up time for VTE and readmissions began on the day following discharge. 
 
 ### Power calculation
 Overall, there will be more than 10 million unique procedures within England, and the analysis will be performed on strata of groups of procedures 20,000 or larger to detect a 0.2% difference in COVID-19 risk between groups (with > 90% power and two-sided alpha 0.05). This means we will have more than 90% to detect more meaningful 0.5% difference across multiple strata adjusted for >10 multiple comparisons within each stratum. This will also allow multivariate models predicting surgical outcomes within each stratum with up to 20 predictors whilst keeping over optimism < 5%. 
@@ -181,7 +180,7 @@ Our group has previously shown that the post-operative rate for colectomy of ven
 All patient counts were rounded to the nearest 10 patients to reduce the risk of disclosure. 
 
 ## Software and reproducibility
-Data management was performed using Python [3.8], with analysis carried out using R 4.02. Code for data management and analysis, as well as codelists, are archived online [https://github.com/opensafely/PostOpCovid/]. [All iterations of the pre-specified study protocol are archived with version control https://github.com/opensafely/xxxxxx/protocol].
+Data management was performed using Python [3.8], with analysis carried out using R 4.02. Code for data management and analysis, as well as codelists, are archived online [https://github.com/opensafely/PostOpCovid/]. All iterations of the pre-specified study protocol are archived with version control [https://github.com/opensafely/xxxxxx/protocol].
 
 
 ## Patient and Public involvement
