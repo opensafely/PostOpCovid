@@ -99,7 +99,14 @@ post.op.covid.model <-
 data.table::fwrite(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodel.csv"))
 
 
-adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(covariates), .combine = 'rbind', .inorder = T) %do% {
+library(doParallel)
+ncores <- parallel::detectCores(logical = F)
+cl <- parallel::makeCluster(ncores)
+doParallel::registerDoParallel(cl)
+
+adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(covariates),
+                                                               .combine = 'rbind', 
+                                                               .inorder = T) %do% {
                            newdata.rows <- length(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])]))
                            
    
@@ -153,6 +160,7 @@ adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(
                           #      rep(max.category(i.c),newdata.rows)
                           #    }
                           #  })]
+
                            
                           #  #names(newdata.pred) <- c('start','end','event', covariates,'patient_id') 
                            if(is.factor(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])])) {
@@ -167,6 +175,16 @@ adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(
                             }
                            
                            
+                           samples <- foreach::foreach(i = 1:1000, .combine = cbind, .multicombine = T, .inorder = F, .verbose = F,
+                                                       .packages = c('data.table','survival'),
+                                                       .export = c('n.type.events','dt.tv', 'post.op.covid.model','newdata.pred')) %dopar% {
+                                                       cuminc.cox(n.type.events = n.type.events,
+                                                                  dt = 'dt.tv[patient_id %in% sample(unique(patient_id), replace = T) & (postop.covid.cohort)]', 
+                                                                  model = 'post.op.covid.model', 
+                                                                  newdata = 'newdata.pred',
+                                                                  day = 30)}             
+                           t.samples <- t(apply(samples,1,quantile,c(0.25,0.5,0.75)))
+                           
                            death.risk.30day <- predict(object = post.op.covid.model[[3]], 
                                                        newdata = newdata.pred,, type = 'expected',se.fit = T)
                            
@@ -179,11 +197,7 @@ adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(
                            cbind(matrix(paste0(round((1- exp(-covid.risk.30day$fit))*100,3),
                                                ' (', round((1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit)))*100,3),',',
                                                round((1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
-                           cuminc.cox(n.type.events = n.type.events,
-                                      dt = 'dt.tv[(postop.covid.cohort)]', 
-                                      model = 'post.op.covid.model', 
-                                      newdata = 'newdata.pred',
-                                      day = 30),
+                                 apply(t.samples,1,function(x) paste0(x[2],' (',x[1],',',x[3],')')),
                            matrix(paste0(round((1- exp(-readmit.risk.30day$fit))*100,3),
                                          ' (', round((1 - exp(-(readmit.risk.30day$fit - 1.96*readmit.risk.30day$se.fit)))*100,3),',',
                                          round((1 - exp(-(readmit.risk.30day$fit + 1.96*readmit.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),

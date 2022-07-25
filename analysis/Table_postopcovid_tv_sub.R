@@ -121,11 +121,11 @@ weekly.post.op.risk.sub[!is.finite(weekly.post.op.risk.sub)] <- 0
 
 times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.haz.merge$time))) >= 0]
 
-weekly.post.op.risk.sub <- c(weekly.post.op.risk.sub[max(which(times.comb <= 7))],
-                             weekly.post.op.risk.sub[max(which(times.comb <= 14))],
-                             weekly.post.op.risk.sub[max(which(times.comb <= 21))],
-                             weekly.post.op.risk.sub[max(which(times.comb <= 28))],
-                             weekly.post.op.risk.sub[max(which(times.comb <= 35))])
+weekly.post.op.risk.sub <- c(weekly.post.op.risk.sub[max(which(times.comb < 7))],
+                             weekly.post.op.risk.sub[max(which(times.comb < 14))],
+                             weekly.post.op.risk.sub[max(which(times.comb < 21))],
+                             weekly.post.op.risk.sub[max(which(times.comb < 28))],
+                             weekly.post.op.risk.sub[max(which(times.comb < 35))])
 
 weekly.post.op.risk.sub[!is.finite(weekly.post.op.risk.sub)] <- 0
 

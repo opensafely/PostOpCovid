@@ -638,10 +638,10 @@ cuminc.km.sub <- function(x,niter)  {
   )
 }
 
-cuminc.cox <- function(n.type.events,dt, model, newdata, day) {
-  
-  EVAL('assign(x = "base.haz", value = lapply(n.type.events, function(i) { survival::basehaz(',model,'[[i]],centered = F)[] }),envir=environment())')
-  EVAL('assign(x = "base.haz", value = lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(',dt,'[ event == i ,end])),][] }),envir=environment())')
+cuminc.cox <- function(n.type.events = c(1,2),dt, model, newdata, day) {
+  n.type.events = c(1,2)
+  eval(parse(text = paste0('assign(x = "base.haz", value = lapply(n.type.events, function(i) { survival::basehaz(',model,'[[i]],centered = F)[] }),envir=environment())')))
+  eval(parse(text = paste0('assign(x = "base.haz", value = lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(',dt,'[ event == i ,end])),][] }),envir=environment())')))
   base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('time' = base.haz[[i]]$time,
                                                                          'base.haz' = base.haz[[i]][,1] - 
                                                                          c(0,head(base.haz[[i]][,1],-1)))})
@@ -652,11 +652,11 @@ cuminc.cox <- function(n.type.events,dt, model, newdata, day) {
   }
   base.haz.merge[is.na(base.haz.merge)] <- 0
   
-  EVAL('assign(x = "risk",value = lapply(n.type.events, function(i) {
+  eval(parse(text = paste0('assign(x = "risk",value = lapply(n.type.events, function(i) {
         data.table::data.table(
           "risk" = predict(object = ',model,'[[i]], 
                          type = "risk",
-                         newdata = ',newdata,')) }),envir=environment())')
+                         newdata = ',newdata,')) }),envir=environment())')))
   
   
     return(unlist(100*round(apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
