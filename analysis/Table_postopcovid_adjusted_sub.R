@@ -95,7 +95,10 @@ adjusted.waves.sub.plot <- ggplot2::ggplot(data.table::melt(data.table::data.tab
 ggplot2::ggsave(plot = adjusted.waves.sub.plot, here::here('output','adjusted_waves_sub_plot.png'),dpi = 'retina', width = 7, height = 5, units = 'in', device = 'png' )
 
 #############################################################################################
-
+library(doParallel)
+ncores <- parallel::detectCores(logical = F)
+cl <- parallel::makeCluster(ncores)
+doParallel::registerDoParallel(cl)
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 post.op.covid.model.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Colectomy + Cholecystectomy  + KneeReplacement +
@@ -173,7 +176,14 @@ adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:len
                             }
                             }
 
-                           
+                           samples <- foreach::foreach(i = 1:1000, .combine = cbind, .multicombine = T, .inorder = F, .verbose = F,
+                                                       .packages = c('data.table','survival'),
+                                                       .export = c('n.type.events','dt.tv', 'post.op.covid.model','newdata.pred')) %dopar% {
+                                                         cuminc.cox(n.type.events = n.type.events,
+                                                                    dt = 'dt.tv[patient_id %in% sample(unique(patient_id), replace = T) & (postop.covid.cohort) & sub.op == T]', 
+                                                                    model = 'post.op.covid.model.sub', 
+                                                                    newdata = 'newdata.pred',
+                                                                    day = 30)}             
                            
                            
                            death.risk.30day <- predict(object = post.op.covid.model.sub[[3]], 
@@ -188,11 +198,7 @@ adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:len
                            cbind(matrix(paste0(round((1- exp(-covid.risk.30day$fit))*100,3),
                                                ' (', round((1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit)))*100,3),',',
                                                round((1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
-                                 cuminc.cox(n.type.events = n.type.events,
-                                            dt = 'dt.tv[(postop.covid.cohort) & sub.op == T]', 
-                                            model = 'post.op.covid.model.sub', 
-                                            newdata = 'newdata.pred',
-                                            day = 30),
+                                 apply(t.samples,1,function(x) paste0(x[2],' (',x[1],',',x[3],')')),
                                  matrix(paste0(round((1- exp(-readmit.risk.30day$fit))*100,3),
                                                ' (', round((1 - exp(-(readmit.risk.30day$fit - 1.96*readmit.risk.30day$se.fit)))*100,3),',',
                                                round((1 - exp(-(readmit.risk.30day$fit + 1.96*readmit.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
