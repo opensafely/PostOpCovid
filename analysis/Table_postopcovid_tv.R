@@ -33,12 +33,13 @@ post.op.covid.model.split <-
 data.table::fwrite(broom::tidy(post.op.covid.model.split[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelsplit.csv"))
 
 
-newdata.rows <- 5 #length(levels(dt.tv.splits$week.post.op)) - 1
 
-newdata.pred <- data.table::data.table('start' = c(0,7,14,21,28),
-                                       'end' = c(7,14,21,28,35),
+newdata.rows <- 5 #length(levels(dt.tv.splits$week.post.op)) - 1#35 #
+
+newdata.pred <- data.table::data.table('start' = c(0,7,14,21,28),#'start' = 0:34,
+                                       'end' = c(7,14,21,28,35),#'end' = 1:35,
                                        'event' = rep(F,newdata.rows),
-                                      'week.post.op' = paste(1:(newdata.rows)),
+                                      'week.post.op' = paste(1:(newdata.rows)),# paste(rep(1:5,each = 7)),
                                       'patient_id' = 1:newdata.rows,
                                       'Abdominal' = rep(T,newdata.rows),
                                       'Cardiac'= rep(F,newdata.rows),
@@ -80,7 +81,7 @@ base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('tim
                                                                             base.haz = base.haz[[i]][,1] - 
                                                                               c(0,head(base.haz[[i]][,1],-1)))})
 
-lp <- lapply(n.type.events, function(i) {  data.table::data.table('time' = seq(0,28,7),
+lp <- lapply(n.type.events, function(i) {  data.table::data.table('time' = seq(0,28,7),#0:34,
                                                                     'risk' = exp(predict(object = post.op.covid.model.split[[i]],
                                                                                          type = 'lp', 
                                                                                          newdata = newdata.pred))) })
