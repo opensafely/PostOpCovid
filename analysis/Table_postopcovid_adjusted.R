@@ -19,8 +19,8 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstart','tstop','start','end','event','postop.covid.cohort','end.fu'))]
 
 dt.tv[,(drop.vars) := NULL]
-
-
+dt.tv <- dt.tv[(postop.covid.cohort)]
+gc()
 n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 post.op.covid.model.waves <- 
@@ -99,10 +99,10 @@ post.op.covid.model <-
 data.table::fwrite(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodel.csv"))
 
 
-library(doParallel)
-ncores <- parallel::detectCores(logical = F)
-cl <- parallel::makeCluster(ncores)
-doParallel::registerDoParallel(cl)
+#library(doParallel)
+#ncores <- parallel::detectCores(logical = F)
+#cl <- parallel::makeCluster(ncores)
+#doParallel::registerDoParallel(cl)
 
 adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(covariates),
                                                                .combine = 'rbind', 
@@ -184,7 +184,8 @@ adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(
                                                                   newdata = 'newdata.pred',
                                                                   day = 30)}             
                            t.samples <- t(apply(samples,1,quantile,c(0.25,0.5,0.75)))
-                           
+                           boot.IQR <-apply(t.samples,1,function(x) paste0(x[2],' (',x[1],',',x[3],')')),
+
                            death.risk.30day <- predict(object = post.op.covid.model[[3]], 
                                                        newdata = newdata.pred,, type = 'expected',se.fit = T)
                            
@@ -197,7 +198,11 @@ adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(
                            cbind(matrix(paste0(round((1- exp(-covid.risk.30day$fit))*100,3),
                                                ' (', round((1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit)))*100,3),',',
                                                round((1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
-                                 apply(t.samples,1,function(x) paste0(x[2],' (',x[1],',',x[3],')')),
+                                  cuminc.cox(n.type.events = n.type.events,
+                                                                  dt = 'dt.tv[(postop.covid.cohort)]', 
+                                                                  model = 'post.op.covid.model', 
+                                                                  newdata = 'newdata.pred',
+                                                                  day = 30),
                            matrix(paste0(round((1- exp(-readmit.risk.30day$fit))*100,3),
                                          ' (', round((1 - exp(-(readmit.risk.30day$fit - 1.96*readmit.risk.30day$se.fit)))*100,3),',',
                                          round((1 - exp(-(readmit.risk.30day$fit + 1.96*readmit.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
