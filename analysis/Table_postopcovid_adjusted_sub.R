@@ -178,7 +178,7 @@ adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:len
 
                            samples <- foreach::foreach(i = 1:1000, .combine = cbind, .multicombine = T, .inorder = F, .verbose = F,
                                                        .packages = c('data.table','survival'),
-                                                       .export = c('n.type.events','dt.tv', 'post.op.covid.model','newdata.pred')) %dopar% {
+                                                       .export = c('n.type.events','dt.tv', 'post.op.covid.model.sub','newdata.pred')) %dopar% {
                                                          cuminc.cox(n.type.events = n.type.events,
                                                                     dt = 'dt.tv[patient_id %in% sample(unique(patient_id), replace = T) & (postop.covid.cohort) & sub.op == T]', 
                                                                     model = 'post.op.covid.model.sub', 

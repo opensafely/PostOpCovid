@@ -48,7 +48,7 @@ data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Colectomy + Cholecystectomy +  
                                             KneeReplacement + age.cat + sex + bmi.cat + imd5 + wave + 
-                                            vaccination.status.factor + region + Current.Cancer + Emergency*week.post.op  +LOS.bin + Charl12 + 
+                                            vaccination.status.factor + region + Current.Cancer + Emergency*week.post.op  + Charl12 + 
                                             recentCOVID + previousCOVID,
                                           id = patient_id,
                                           data = dt.tv.splits[(postop.covid.cohort) & start <=end & sub.op == T], model = T))
@@ -56,12 +56,12 @@ post.op.covid.model.split.sub <-
 data.table::fwrite(broom::tidy(post.op.covid.model.split.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelsplitsub.csv"))
 
 
-newdata.rows <- length(levels(dt.tv.splits$week.post.op)) - 1
+newdata.rows <- 5 #length(levels(dt.tv.splits$week.post.op)) - 1
 
 newdata.pred <- data.table::data.table('start' = c(0,7,14,21,28),
                                        'end' = c(7,14,21,28,35),
                                        'event' = rep(F,newdata.rows),
-                                      'week.post.op' = paste(0:(newdata.rows - 1)),
+                                      'week.post.op' = paste(1:(newdata.rows)),
                                       'patient_id' = 1:newdata.rows,
                                       'Colectomy' =  rep(T,newdata.rows*2),
                                       'Cholecystectomy'= rep(F,newdata.rows*2),
