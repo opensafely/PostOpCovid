@@ -176,15 +176,16 @@ adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:len
                             }
                             }
 
-                           samples <- foreach::foreach(i = 1:1000, .combine = cbind, .multicombine = T, .inorder = F, .verbose = F,
-                                                       .packages = c('data.table','survival'),
-                                                       .export = c('n.type.events','dt.tv', 'post.op.covid.model.sub','newdata.pred')) %dopar% {
-                                                         cuminc.cox(n.type.events = n.type.events,
-                                                                    dt = 'dt.tv[patient_id %in% sample(unique(patient_id), replace = T) & (postop.covid.cohort) & sub.op == T]', 
-                                                                    model = 'post.op.covid.model.sub', 
-                                                                    newdata = 'newdata.pred',
-                                                                    day = 30)}             
-                           
+                          #  samples <- foreach::foreach(i = 1:1000, .combine = cbind, .multicombine = T, .inorder = F, .verbose = F,
+                          #                              .packages = c('data.table','survival'),
+                          #                              .export = c('n.type.events','dt.tv', 'post.op.covid.model.sub','newdata.pred')) %dopar% {
+                          #                                cuminc.cox(n.type.events = n.type.events,
+                          #                                           dt = 'dt.tv[patient_id %in% sample(unique(patient_id), replace = T) & (postop.covid.cohort) & sub.op == T]', 
+                          #                                           model = 'post.op.covid.model.sub', 
+                          #                                           newdata = 'newdata.pred',
+                          #                                           day = 30)}             
+                          # t.samples <- t(apply(samples,1,quantile,c(0.25,0.5,0.75)))
+                          # boot.IQR <-apply(t.samples,1,function(x) paste0(x[2],' (',x[1],',',x[3],')'))
                            
                            death.risk.30day <- predict(object = post.op.covid.model.sub[[3]], 
                                                        newdata = newdata.pred,, type = 'expected',se.fit = T)
@@ -198,8 +199,12 @@ adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:len
                            cbind(matrix(paste0(round((1- exp(-covid.risk.30day$fit))*100,3),
                                                ' (', round((1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit)))*100,3),',',
                                                round((1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
-                                 apply(t.samples,1,function(x) paste0(x[2],' (',x[1],',',x[3],')')),
-                                 matrix(paste0(round((1- exp(-readmit.risk.30day$fit))*100,3),
+                                  cuminc.cox(n.type.events = n.type.events,
+                                                                  dt = 'dt.tv[(postop.covid.cohort) & sub.op == T]', 
+                                                                  model = 'post.op.covid.model.sub', 
+                                                                  newdata = 'newdata.pred',
+                                                                  day = 30),
+                                  matrix(paste0(round((1- exp(-readmit.risk.30day$fit))*100,3),
                                                ' (', round((1 - exp(-(readmit.risk.30day$fit - 1.96*readmit.risk.30day$se.fit)))*100,3),',',
                                                round((1 - exp(-(readmit.risk.30day$fit + 1.96*readmit.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
                                  matrix(paste0(round((1- exp(-death.risk.30day$fit))*100,3),
