@@ -45,6 +45,9 @@ locf.roll_(dt = 'dt.tv.splits',
            group = 'c("patient_id","end.fu")',
            var.cols = 'c("week.post.op")')
 
+dt.tv.splits[is.na(week.post.op) & tstart >= admit.date & (!is.finite(discharge.date) | tstop <= discharge.date), week.post.op := 0 ]
+
+
 dt.tv.splits[,week.post.op := as.factor(week.post.op)]
 dt.tv.splits[, los.end := min(los.end, na.rm = T), keyby = .(patient_id, end.fu)]
 
