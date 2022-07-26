@@ -105,6 +105,17 @@ actions:
         table_tv_VTE_csv: output/postopcovid_VTE_tv.csv      
         model_COVID_tv: output/postopcovidmodelsplit.csv
 
+  table_postopcovid_tv_daily:      
+    run: r:latest analysis/Table_postopcovid_tv_continuous.R
+    needs: [generate_study_population, data_manage,data_manage_postdisch_week]
+    outputs:
+      moderately_sensitive:
+        table_tv: output/postopcovid_tv_daily.RData
+        table_tv_csv: output/daily_postopcovid_tv.csv.csv
+        plot_tv_daily: output/dailyCovidRisk.pdf
+        table_tv_VTE_csv: output/daily_postopcovid_VTE_tv.csv    
+        plot_tv_VTE_daily: output/dailyVTERisk.pdf
+
   table_postopcovid_tv_sub:      
     run: r:latest analysis/Table_postopcovid_tv_sub.R
     needs: [generate_study_population, data_manage,data_manage_postdisch_week]
