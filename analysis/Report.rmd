@@ -397,7 +397,7 @@ The adjusted cumulative risk for COVID-19 were calculated for each post operativ
 weekly.post.op.risk <- data.table::fread(file = here::here("output","postopcovid_tv.csv"))
 
 ggplot2::ggplot(weekly.post.op.risk) + #ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk)) + 
-  ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week post operation","2nd week","3rd week","4th week","5th week","6th week")), 
+  ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("1st week","2nd week","3rd week","4th week","5th week","6th week")), 
                                                                       y = Risk)) +
 ggplot2::xlab("Days post operation") + 
   ggplot2::ylab("Cumulative risk during time period") + ggplot2::ggtitle("Post operative risk of COVID-19 over time",
@@ -410,7 +410,7 @@ ggplot2::xlab("Days post operation") +
 weekly.post.op.risk.sub <- data.table::fread(file = here::here("output","postopcovid_tv_sub.csv"))
 
 ggplot2::ggplot(weekly.post.op.risk.sub) + #ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk)) + 
- ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week post operation","2nd week","3rd week","4th week","5th week","6th week")), 
+ ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("1st week","2nd week","3rd week","4th week","5th week","6th week")), 
                                                                       y = Risk)) +
 ggplot2::xlab("Risk Period post operation") + 
   ggplot2::ylab("Cumulative risk during time period") + ggplot2::ggtitle("Post operative risk of COVID-19 over time",
