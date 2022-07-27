@@ -30,9 +30,6 @@ post.op.covid.model.split <-
    id = patient_id,
   data = dt.tv.splits[(postop.covid.cohort) & start <=end], model = T))
 
-
-
-
 newdata.rows <- 35 #
 
 newdata.pred <- data.table::data.table('start'  = 0:34,
@@ -104,7 +101,7 @@ daily.post.op.risk  <-  data.table::data.table(daily.post.op.risk - c(0,daily.po
 
 data.table::fwrite(daily.post.op.risk, file = here::here("output","daily_postopcovid_tv.csv"))
 
-ggplot2::ggplot(daily.post.op.risk[`Days post discharge`< 35]) +
+ggplot2::ggplot(daily.post.op.risk[`Days post op`< 35]) +
   ggplot2::geom_line(ggplot2::aes(x = `Days post op`, y = risk)) + 
   ggplot2::geom_smooth(ggplot2::aes(x = `Days post op`, y = risk))
   ggplot2::ylab("Daily risk (%)") +

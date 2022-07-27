@@ -111,7 +111,7 @@ daily.post.op.risk.sub  <-  data.table::data.table(daily.post.op.risk.sub - c(0,
 
 data.table::fwrite(daily.post.op.risk.sub, file = here::here("output","daily_postopcovid_tv_sub.csv"))
 
-ggplot2::ggplot(daily.post.op.risk.sub[`Days post discharge`< 35]) +
+ggplot2::ggplot(daily.post.op.risk.sub[`Days post op`< 35]) +
   ggplot2::geom_line(ggplot2::aes(x = `Days post op`, y = risk)) + 
   ggplot2::geom_smooth(ggplot2::aes(x = `Days post op`, y = risk)) +
   ggplot2::ylab("Daily risk (%)") +
