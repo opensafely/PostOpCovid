@@ -77,9 +77,7 @@ samples.sub <-  foreach::foreach(
 
     newdata.rows <-
       length(unique(dt.tv[!is.na(get(covariates[predi])), get(covariates[predi])]))
-    
-    daily.post.op.VTE.risk <-rep(NA,newdata.rows)
-    
+      
     newdata.pred <-
       data.table::data.table(
         'start' = rep(0, newdata.rows),
@@ -106,7 +104,7 @@ samples.sub <-  foreach::foreach(
       )
     if (predi <= length(procedures.sub)) {
       newdata.pred[, (procedures.sub) := F]
-      newdata.pred[, (procedures.sub[predi]) := c(F, T)]
+      newdata.pred[.N, (procedures.sub[predi]) := T]
     } else {
       if (is.factor(dt.tv[!is.na(get(covariates[predi])), get(covariates[predi])])) {
         newdata.pred[, (covariates[predi]) :=  as.character(sort(unique(dt.tv[!is.na(get(covariates[predi])), get(covariates[predi])], na.rm = T)))]

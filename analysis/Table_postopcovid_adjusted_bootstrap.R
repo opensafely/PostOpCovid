@@ -98,7 +98,7 @@ samples <-  foreach::foreach(
       )
     if (predi <= length(procedures)) {
       newdata.pred[, (procedures) := F]
-      newdata.pred[, (procedures[predi]) := c(F, T)]
+      newdata.pred[.N, (procedures[predi]) := T]
     } else {
       if (is.factor(dt.tv[!is.na(get(covariates[predi])), get(covariates[predi])])) {
         newdata.pred[, (covariates[predi]) :=  as.character(sort(unique(dt.tv[!is.na(get(covariates[predi])), get(covariates[predi])], na.rm = T)))]
