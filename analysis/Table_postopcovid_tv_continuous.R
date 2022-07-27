@@ -104,8 +104,9 @@ daily.post.op.risk  <-  data.table::data.table(daily.post.op.risk - c(0,daily.po
 
 data.table::fwrite(daily.post.op.risk, file = here::here("output","daily_postopcovid_tv.csv"))
 
-ggplot2::ggplot(daily.post.op.risk) +
+ggplot2::ggplot(daily.post.op.risk[`Days post discharge`< 35]) +
   ggplot2::geom_line(ggplot2::aes(x = `Days post op`, y = risk)) + 
+  ggplot2::geom_smooth(ggplot2::aes(x = `Days post op`, y = risk))
   ggplot2::ylab("Daily risk (%)") +
   ggplot2::theme_minimal() +
   ggplot2::ggtitle("Daily risk of COVID from day of operation", subtitle = "Predicted for abdominal elective cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")
@@ -186,8 +187,9 @@ daily.post.op.VTE.risk  <-  cbind(data.table::data.table("COVID"= rep(c(F,T), ea
 "Risk" = daily.post.op.VTE.risk,
 "Days post discharge" = rep(times.comb, times = 2)))
 ######################
-ggplot2::ggplot(daily.post.op.VTE.risk) +
+ggplot2::ggplot(daily.post.op.VTE.risk[`Days post discharge`< 35]) +
   ggplot2::geom_line(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) + 
+  ggplot2::geom_smooth(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) + 
   ggplot2::ylab("Daily risk (%)") +
   ggplot2::theme_minimal() +
   ggplot2::ggtitle("Daily risk of VTE from day of discharge", subtitle = "Predicted for abdominal elective cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")

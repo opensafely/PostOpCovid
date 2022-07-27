@@ -78,6 +78,7 @@ samples.sub <-  foreach::foreach(
     newdata.rows <-
       length(unique(dt.tv[!is.na(get(covariates[predi])), get(covariates[predi])]))
     
+    daily.post.op.VTE.risk <-rep(NA,newdata.rows)
     
     newdata.pred <-
       data.table::data.table(
@@ -118,18 +119,24 @@ samples.sub <-  foreach::foreach(
       }
     }
     
-    cuminc.cox(
+    result <- try(cuminc.cox(
       n.type.events = n.type.events,
       dt = 'dt.tv',
       model = 'post.op.covid.model.sub',
       newdata = 'newdata.pred',
       day = 30
-    )
+    ), silent = T)
+
+    if(class(result)[1] == "try-error") {
+     return(rep(NA,newdata.rows))
+    } else {
+      return(result)
+    }
   
   })
 }
 
-t.samples <- t(apply(samples.sub,1,quantile,c(0.25,0.5,0.75)))
+t.samples <- t(apply(samples.sub,1,quantile,c(0.25,0.5,0.75), na.rm = T))
 boot.IQR.sub <-apply(t.samples,1,function(x) paste0(x[2],' (',x[1],',',x[3],')'))
 
 

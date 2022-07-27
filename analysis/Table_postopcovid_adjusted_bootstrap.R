@@ -1,7 +1,7 @@
 library(foreach)
 library(data.table)
 ncores <- parallel::detectCores(logical = T)
-data.table::setDTthreads(ncores)
+data.table::setDTthreads(2)
 
 source(here::here("analysis","Utils.R"))
 set.seed(23097859)
@@ -63,11 +63,9 @@ samples <-  foreach::foreach(
     .combine = 'rbind',
     .inorder = T
   ) %do% {
-
     newdata.rows <-
       length(unique(dt.tv[!is.na(get(covariates[predi])), get(covariates[predi])]))
-    
-    
+     
     newdata.pred <-
       data.table::data.table(
         'start' = rep(0, newdata.rows),
@@ -113,18 +111,24 @@ samples <-  foreach::foreach(
       }
     }
     
-    cuminc.cox(
+    result <- try(cuminc.cox(
       n.type.events = n.type.events,
       dt = 'dt.tv',
       model = 'post.op.covid.model',
       newdata = 'newdata.pred',
       day = 30
-    )
+    ), silent = T)
+
+    if(class(result)[1] == "try-error") {
+     return(rep(NA,newdata.rows))
+    } else {
+      return(result)
+    }
   
   })
 }
 
-t.samples <- t(apply(samples,1,quantile,c(0.25,0.5,0.75)))
+t.samples <- t(apply(samples,1,quantile,c(0.25,0.5,0.75), na.rm = T))
 boot.IQR <-apply(t.samples,1,function(x) paste0(x[2],' (',x[1],',',x[3],')'))
 
 
