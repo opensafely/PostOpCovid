@@ -169,9 +169,9 @@ base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('tim
                                                                             base.haz = base.haz[[i]][,1] - 
                                                                               c(0,head(base.haz[[i]][,1],-1)))})
 
-lp <- lapply(n.type.events, function(i) {  data.table::dcast(fun.aggregate = mean,
-  data.table::data.table('patient_id' = rep(1:2, each = 5),
-  'time' = rep(0:(newdata.rows - 1),each = 2),
+lp <- lapply(n.type.events, function(i) {  data.table::dcast(
+  data.table::data.table('patient_id' = rep(1:2, each = newdata.rows),
+  'time' = rep(0:(newdata.rows - 1),times = 2),
   'risk' = exp(predict(object = post.op.VTE.model.split.sub[[i]],
                         type = 'lp', 
                         newdata = newdata.pred))),time ~patient_id, value.var = 'risk')})
