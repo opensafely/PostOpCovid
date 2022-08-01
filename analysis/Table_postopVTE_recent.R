@@ -62,7 +62,7 @@ data.table::fwrite(cuminc.adjusted.recent.VTE, file = here::here("output","posto
 VTE.waves.recent.plot <- ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.recent.VTE, keep.rownames = T),
                                  id.vars = 'rn',
                                  variable.name = 'Wave',
-                                 value.name = '90 Day Cumulative VTE Incidence (%)')[, `:=`(`Recent COVID` = grepl('^Recent COVID*|^No recent COVID*',rn),
+                                 value.name = '90 Day Cumulative VTE Incidence (%)')[, `:=`(`Recent COVID` = grepl('^Recent COVID*',rn),
                                                                                             Operation = gsub('^No recent COVID|^Recent COVID', '',rn))],
                 ggplot2::aes(x = Wave, 
                              y = `90 Day Cumulative VTE Incidence (%)`, 
