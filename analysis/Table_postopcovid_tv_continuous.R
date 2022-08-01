@@ -123,10 +123,10 @@ post.op.VTE.model.split <-
                                           id = patient_id,
                                           data = dt.tv.splits[(postcovid.VTE.cohort) & start <=end], model = T))
 
-newdata.rows = 90
+newdata.rows = 35
 
-newdata.pred <- data.table::data.table('start' = rep(0:89, times = 2),
-                                       'end' = rep(1:90,times = 2),
+newdata.pred <- data.table::data.table('start' = rep(0:(newdata.rows - 1), times = 2),
+                                       'end' = rep(1:newdata.rows,times = 2),
                                        'event.VTE' = rep(F,newdata.rows*2),
                                        'week.post.disch' = paste(rep(rep(1:5, each = 7), times = 2)),
                                        'patient_id' = rep(1:2,each = newdata.rows),
@@ -160,7 +160,7 @@ base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('tim
 
 lp <- lapply(n.type.events, function(i) {  data.table::dcast(fun.aggregate = mean,
   data.table::data.table('patient_id' = rep(1:2, each = 5),
-  'time' = rep(0:89,each = 2),
+  'time' = rep(0:(newdata.rows - 1),each = 2),
                                                                     'risk' = exp(predict(object = post.op.VTE.model.split[[i]],
                                                                                          type = 'lp', 
                                                                                          newdata = newdata.pred))),time ~patient_id, value.var = 'risk')})
@@ -183,18 +183,22 @@ daily.post.op.VTE.risk <- as.vector(daily.post.op.VTE.risk - rbind(c(0,0),daily.
 daily.post.op.VTE.risk  <-  cbind(data.table::data.table("COVID"= rep(c(F,T), each = length(times.comb)),
 "Risk" = daily.post.op.VTE.risk,
 "Days post discharge" = rep(times.comb, times = 2)))
-######################
-ggplot2::ggplot(daily.post.op.VTE.risk[`Days post discharge`< 35]) +
-  ggplot2::geom_line(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) + 
-  ggplot2::geom_smooth(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) + 
-  ggplot2::ylab("Daily risk (%)") +
-  ggplot2::theme_minimal() +
-  ggplot2::ggtitle("Daily risk of VTE from day of discharge", subtitle = "Predicted for abdominal elective cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")
-ggplot2::ggsave( filename = here::here("output","dailyVTERisk.pdf"),device = "pdf",width = 8, height = 8, units = 'in',dpi = 'retina')
-
 
 ##################################
 save(daily.post.op.risk,daily.post.op.VTE.risk, file = here::here("output","postopcovid_tv_daily.RData"))
 data.table::fwrite(daily.post.op.VTE.risk, file = here::here("output","daily_postopcovid_VTE_tv.csv"))
+
+
+######################
+ggplot2::ggplot(daily.post.op.VTE.risk[`Days post discharge`< newdata.rows]) +
+  ggplot2::geom_line(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) + 
+  ggplot2::geom_smooth(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) + 
+  ggplot2::ylab("Daily risk (%)") +
+  ggplot2::theme_minimal() +
+  ggplot2::ggtitle("Daily risk of VTE from day of discharge",
+   subtitle = "Predicted for abdominal elective cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")
+ggplot2::ggsave( filename = here::here("output","dailyVTERisk.pdf"),device = "pdf",width = 8, height = 8, units = 'in',dpi = 'retina')
+
+
 
 
