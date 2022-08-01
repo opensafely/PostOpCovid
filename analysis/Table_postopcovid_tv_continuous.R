@@ -32,8 +32,8 @@ post.op.covid.model.split <-
 
 newdata.rows <- 35 #
 
-newdata.pred <- data.table::data.table('start'  = 0:34,
-                                       'end' = 1:35,
+newdata.pred <- data.table::data.table('start'  = 0:(newdata.rows - 1),
+                                       'end' = 1:newdata.rows,
                                        'event' = rep(F,newdata.rows),
                                       'week.post.op' = paste(rep(1:5,each = 7)),
                                       'patient_id' = 1:newdata.rows,
@@ -77,10 +77,10 @@ base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('tim
                                                                             base.haz = base.haz[[i]][,1] - 
                                                                               c(0,head(base.haz[[i]][,1],-1)))})
 
-lp <- lapply(n.type.events, function(i) {  data.table::data.table('time' = 0:34,
-                                                                    'risk' = exp(predict(object = post.op.covid.model.split[[i]],
-                                                                                         type = 'lp', 
-                                                                                         newdata = newdata.pred))) })
+lp <- lapply(n.type.events, function(i) {  data.table::data.table('time' = 0:(newdata.rows - 1),
+                                                        'risk' = exp(predict(object = post.op.covid.model.split[[i]],
+                                                                             type = 'lp', 
+                                                                             newdata = newdata.pred))) })
 
 base.haz.merge <- Reduce(x =base.haz.comp,f = function(x,y) merge(x,y,by = 'time', no.dups = T, suffixes = c(".x",".y"), all = T, sort = T))
 
@@ -97,13 +97,13 @@ daily.post.op.risk[!is.finite(daily.post.op.risk)] <- 0
 times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.haz.merge$time))) >= 0]
 
 daily.post.op.risk  <-  data.table::data.table(daily.post.op.risk - c(0,daily.post.op.risk[-length(daily.post.op.risk)]),
-                                                `Days post op` = times.comb)[times.comb <=35,]
+                                                `Days post op` = times.comb)[times.comb <=newdata.rows,]
 
 data.table::fwrite(daily.post.op.risk, file = here::here("output","daily_postopcovid_tv.csv"))
 
-ggplot2::ggplot(daily.post.op.risk[`Days post op`< 35]) +
+ggplot2::ggplot(daily.post.op.risk[`Days post op`< newdata.rows]) +
   ggplot2::geom_line(ggplot2::aes(x = `Days post op`, y = risk)) + 
-  ggplot2::geom_smooth(ggplot2::aes(x = `Days post op`, y = risk))
+  ggplot2::geom_smooth(ggplot2::aes(x = `Days post op`, y = risk)) +
   ggplot2::ylab("Daily risk (%)") +
   ggplot2::theme_minimal() +
   ggplot2::ggtitle("Daily risk of COVID from day of operation", subtitle = "Predicted for abdominal elective cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")
@@ -161,9 +161,9 @@ base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('tim
 lp <- lapply(n.type.events, function(i) {  data.table::dcast(fun.aggregate = mean,
   data.table::data.table('patient_id' = rep(1:2, each = 5),
   'time' = rep(0:(newdata.rows - 1),each = 2),
-                                                                    'risk' = exp(predict(object = post.op.VTE.model.split[[i]],
-                                                                                         type = 'lp', 
-                                                                                         newdata = newdata.pred))),time ~patient_id, value.var = 'risk')})
+              'risk' = exp(predict(object = post.op.VTE.model.split[[i]],
+                                   type = 'lp', 
+                                   newdata = newdata.pred))),time ~patient_id, value.var = 'risk')})
 
 base.haz.merge <- Reduce(x =base.haz.comp,f = function(x,y) merge(x,y,by = 'time', no.dups = T, suffixes = c(".x",".y"), all = T, sort = T))
 
