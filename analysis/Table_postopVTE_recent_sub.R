@@ -25,26 +25,26 @@ max.grp.col_(dt = 'dt.tv',
              aggregate.cols = 'sub.op',
              id.vars = c("patient_id","end.fu"))
 
+n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort)  & sub.op == T,event]))[-1]
 
-post.op.VTE.model.sub <- 
-  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Colectomy*wave + Cholecystectomy*wave + KneeReplacement*wave + 
-                                            postcovid*wave + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + 
+post.op.VTE.model.recentCOVID.sub <- 
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Colectomy*wave + Cholecystectomy*wave + KneeReplacement*wave + 
+                                            postcovid + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + 
                                           Emergency + LOS.bin + Charl12 + recentCOVID*wave + previousCOVID, id = patient_id,
                                           data = dt.tv[(postcovid.VTE.cohort) & sub.op == T], model = T))
 
-data.table::fwrite(broom::tidy(post.op.VTE.model.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelsub.csv"))
+data.table::fwrite(broom::tidy(post.op.VTE.model.recentCOVID.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelrecentCOVIDsub.csv"))
 
 
-n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort)  & sub.op == T,event]))[-1]
 
-new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
+new.data.postop.recent.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
                                                 'end' = rep(30,8*length(procedures)),
                                                 'event.VTE' = rep(F,8*length(procedures)),
                                                 'Colectomy' = c(rep(T,8),rep(F,24)),
                                                 'Cholecystectomy'=c(rep(F,8),rep(T,8),rep(F,16)),
                                                 'HipReplacement'=c(rep(F,16),rep(T,8),rep(F,8)),
                                                 'KneeReplacement'=c(rep(F,24),rep(T,8)),
-                                                'postcovid' = rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
+                                                'postcovid' =  rep(F,8*length(procedures)),
                                                 'age.cat' = rep('(50,70]',8*length(procedures)),
                                                 'sex' = rep('F',8*length(procedures)),
                                                 'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],8*length(procedures)),
@@ -56,29 +56,31 @@ new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedu
                                                 'Emergency' =   rep(F,8*length(procedures)),
                                                 'LOS.bin' =   rep(F,8*length(procedures)),
                                                 'Charl12' =  rep('Single',8*length(procedures)),
-                                                'recentCOVID' = rep(F,8*length(procedures)),
+                                                'recentCOVID' = rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
                                                 'previousCOVID' = rep(F,8*length(procedures)),
                                                 'patient_id' = 1:(8*length(procedures)))
 
-cuminc.adjusted.VTE.sub <- 
-  matrix(cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv[(postcovid.VTE.cohort) & sub.op == T]', model = 'post.op.VTE.model.sub', newdata = 'new.data.postop.covid', day = 90), byrow = T, ncol = 4)
+cuminc.adjusted.VTE.recent.sub <- 
+  matrix(cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv[(postcovid.VTE.cohort) & sub.op == T]', 
+                    model = 'post.op.VTE.model.recentCOVID.sub', 
+                    newdata = 'new.data.postop.recent.covid', day = 90), byrow = T, ncol = 4)
 
-colnames(cuminc.adjusted.VTE.sub) <- paste0('Wave_',1:4)
-rownames(cuminc.adjusted.VTE.sub) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
+colnames(cuminc.adjusted.VTE.recent.sub) <- paste0('Wave_',1:4)
+rownames(cuminc.adjusted.VTE.recent.sub) <- paste0(c('No recent COVID','Recent COVID'),rep(procedures, each = 2))
 
-save(post.op.VTE.model.sub,cuminc.adjusted.VTE.sub, file = here::here("output","postopVTE_sub.RData"))
-data.table::fwrite(cuminc.adjusted.VTE.sub, file = here::here("output","postopVTE_sub.csv"))
+save(post.op.VTE.model.recentCOVID.sub,cuminc.adjusted.VTE.recent.sub, file = here::here("output","postopVTErecent_sub.RData"))
+data.table::fwrite(cuminc.adjusted.VTE.recent.sub, file = here::here("output","postopVTE_recentCOVID_sub.csv"))
 
-VTE.waves.sub.plot <- ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.VTE.sub, keep.rownames = T),
+VTE.waves.recent.sub.plot <- ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.VTE.recent.sub, keep.rownames = T),
                                                        id.vars = 'rn',
                                                        variable.name = 'Wave',
-                                                       value.name = '90 Day Cumulative VTE Incidence (%)')[, `:=`(COVID = grepl('^COVID*',rn),
-                                                                                                                  Operation = gsub('^No COVID|^COVID', '',rn))],
+                                                       value.name = '90 Day Cumulative VTE Incidence (%)')[, `:=`(`Recent COVID` = grepl('^Recent COVID*|^No recent COVID*',rn),
+                                                                                                                  Operation = gsub('^No recent COVID|^Recent COVID', '',rn))],
                                       ggplot2::aes(x = Wave, 
                                                    y = `90 Day Cumulative VTE Incidence (%)`, 
                                                    group = rn,
                                                    colour = Operation,
-                                                   linetype = COVID)) +
+                                                   linetype = `Recent COVID`)) +
   ggplot2::geom_line()
 
-ggplot2::ggsave(plot = VTE.waves.sub.plot, here::here('output','VTE_waves_sub_plot.png'),dpi = 'retina', width = 7, height = 5, units = 'in', device = 'png' )
+ggplot2::ggsave(plot = VTE.waves.recent.sub.plot, here::here('output','VTE_waves_recentCOVID_sub_plot.png'),dpi = 'retina', width = 7, height = 5, units = 'in', device = 'png' )

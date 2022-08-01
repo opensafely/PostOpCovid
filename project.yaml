@@ -191,6 +191,27 @@ actions:
         table_VTE_sub_csv: output/postopVTE_sub.csv        
         model_VTE_sub: output/postopVTEmodelsub.csv
         plot_VTE_sub_waves: output/VTE_waves_sub_plot.png
+
+  table_postopVTE_recent:      
+    run: r:latest analysis/Table_postopVTE_recent.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_VTE_recent: output/postopVTErecent.RData
+        table_VTE_recent_csv: output/postopVTE_recentCOVID.csv
+        model_VTE_recent: output/postopVTEmodelrecentCOVID.csv
+        plot_VTE_recent_waves: output/VTE_waves_recentCOVID_plot.png
+        
+  table_postopVTE_recent_sub:      
+    run: r:latest analysis/Table_postopVTE_recent_sub.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_VTE_recent_sub: output/postopVTErecent_sub.RData
+        table_VTE_recent_sub_csv: output/postopVTE_recentCOVID_sub.csv       
+        model_VTE_recent_sub: output/postopVTEmodelrecentCOVIDsub.csv
+        plot_VTE_recent_sub_waves: output/VTE_waves_recentCOVID_sub_plot.png
+       
        
   table_postopmortality:      
     run: r:latest analysis/Table_postopmortality.R
