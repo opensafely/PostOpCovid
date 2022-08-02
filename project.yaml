@@ -212,7 +212,6 @@ actions:
         model_VTE_recent_sub: output/postopVTEmodelrecentCOVIDsub.csv
         plot_VTE_recent_sub_waves: output/VTE_waves_recentCOVID_sub_plot.png
        
-       
   table_postopmortality:      
     run: r:latest analysis/Table_postopmortality.R
     needs: [generate_study_population, data_manage]

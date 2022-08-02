@@ -61,7 +61,7 @@ newdata.rows <- 5 #length(levels(dt.tv.splits$week.post.op)) - 1
 newdata.pred <- data.table::data.table('start' = c(0,7,14,21,28),
                                        'end' = c(7,14,21,28,35),
                                        'event' = rep(F,newdata.rows),
-                                      'week.post.op' = paste(0:(newdata.rows - 1)),
+                                      'week.post.op' = paste(1:newdata.rows),
                                       'patient_id' = 1:newdata.rows,
                                       'Colectomy' =  rep(T,newdata.rows*2),
                                       'Cholecystectomy'= rep(F,newdata.rows*2),

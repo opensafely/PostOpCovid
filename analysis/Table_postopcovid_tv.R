@@ -34,12 +34,12 @@ data.table::fwrite(broom::tidy(post.op.covid.model.split[[1]], exponentiate= T, 
 
 
 
-newdata.rows <- 5 #length(levels(dt.tv.splits$week.post.op)) - 1#35 #
+newdata.rows <- 5
 
-newdata.pred <- data.table::data.table('start' = c(0,7,14,21,28),#'start' = 0:34,
-                                       'end' = c(7,14,21,28,35),#'end' = 1:35,
+newdata.pred <- data.table::data.table('start' = c(0,7,14,21,28),
+                                       'end' = c(7,14,21,28,35),
                                        'event' = rep(F,newdata.rows),
-                                      'week.post.op' = paste(0:(newdata.rows - 1)),# paste(rep(1:5,each = 7)),
+                                      'week.post.op' = paste(1:newdata.rows),
                                       'patient_id' = 1:newdata.rows,
                                       'Abdominal' = rep(T,newdata.rows),
                                       'Cardiac'= rep(F,newdata.rows),
