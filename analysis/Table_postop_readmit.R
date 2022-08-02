@@ -34,12 +34,12 @@ data.table::fwrite(broom::tidy(post.op.readmit.model[[1]], exponentiate= T, conf
 new.data.postop.covid <- data.table::data.table('start.readmit' = rep(0,8*length(procedures)),
                                                 'end.readmit' = rep(30,8*length(procedures)),
                                                 'event.readmit' = rep(F,8*length(procedures)),
-                                                'Abdominal' = c(rep(T,8),rep(F,40)),
-                                                'Cardiac'=c(rep(F,8),rep(T,8),rep(F,32)),
-                                                'Obstetrics'=c(rep(F,16),rep(T,8),rep(F,24)),
-                                                'Orthopaedic'=c(rep(F,24),rep(T,8),rep(F,16)),
-                                                'Thoracic'=c(rep(F,32),rep(T,8),rep(F,8)),
-                                                'Vascular'=c(rep(F,40),rep(T,8)),
+                                                'Abdominal' = c(rep(T,8),rep(F,8*length(procedures)-8)),
+                                                'Cardiac'=c(rep(F,8*length(procedures) -4*8),rep(T,8),rep(F,8*length(procedures) -2*8)),
+                                                'Obstetrics'=c(rep(F,8*length(procedures) -3*8),rep(T,8),rep(F,8*length(procedures) -3*8)),
+                                                'Orthopaedic'=c(rep(F,8*length(procedures) -2*8),rep(T,8),rep(F,8*length(procedures) -4*8)),
+                                             #   'Thoracic'=c(rep(F,32),rep(T,8),rep(F,8)),
+                                                'Vascular'=c(rep(F,32),rep(T,8)),
                                                 'postcovid' = rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
                                                 'age.cat' = rep('(50,70]',8*length(procedures)),
                                                 'sex' = rep('F',8*length(procedures)),
@@ -63,7 +63,7 @@ cuminc.adjusted.readmit <-
    newdata = 'new.data.postop.covid', day = 90), byrow = T, ncol = 4)
 
 colnames(cuminc.adjusted.readmit) <- paste0('Wave_',1:4)
-rownames(cuminc.adjusted.readmit) <- paste0(c('No COVID','COVID'),rep(procedures, each = 2))
+rownames(cuminc.adjusted.readmit) <-  
 
 save(post.op.readmit.model,cuminc.adjusted.readmit, file = here::here("output","postopreadmit.RData"))
 data.table::fwrite(cuminc.adjusted.readmit, file = here::here("output","postopreadmit.csv"))
