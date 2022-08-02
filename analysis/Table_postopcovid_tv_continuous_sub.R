@@ -117,7 +117,7 @@ ggplot2::ggplot(daily.post.op.risk.sub[`Days post op`< 35]) +
   ggplot2::ylab("Daily risk (%)") +
   ggplot2::theme_minimal() +
   ggplot2::ggtitle("Daily risk of COVID from day of operation",
-                   subtitle = "Predicted for abdominal elective cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")
+                   subtitle = "Predicted for  elective colectomy cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")
 ggplot2::ggsave( filename = here::here("output","dailyCovidRiskSub.pdf"),device = "pdf",width = 8, height = 8, units = 'in',dpi = 'retina')
 
 ##############
@@ -206,7 +206,7 @@ ggplot2::ggplot(daily.post.op.VTE.risk.sub[`Days post discharge`< newdata.rows])
   ggplot2::ylab("Daily risk (%)") +
   ggplot2::theme_minimal() +
   ggplot2::ggtitle("Daily risk of VTE from day of discharge", 
-  subtitle = "Predicted for abdominal elective cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")
+  subtitle = "Predicted for elective colectomy cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")
 ggplot2::ggsave( filename = here::here("output","dailyVTERiskSub.pdf"),device = "pdf",width = 8, height = 8, units = 'in',dpi = 'retina')
 
 
