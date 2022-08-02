@@ -463,7 +463,8 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, anticoagulation_prescriptions_date := lapply(.SD, data.table::nafill, type = "nocb"), by = patient_id, .SDcols = 'anticoagulation_prescriptions_date']
 dt.tv[, anticoagulation_prescriptions_date := lapply(.SD, data.table::nafill, type = "locf"), by = patient_id, .SDcols = 'anticoagulation_prescriptions_date']
 
-dt.tv[is.finite(death_underlying_cause_ons) & death_underlying_cause_ons %in% c('O225','O873','G08','I636','I676','I80','I801','I802','I803','O223','O871','I820','I26','I260','I269','O082','O882','I81','I823','I808','I809','I82','I821','I828','I829','I822'), VTE_death := date_death_ons]
+dt.tv[is.finite(death_underlying_cause_ons) & death_underlying_cause_ons %in% c('O225','O873','G08','I636','I676','I80','I801','I802','I803','O223','O871','I820',
+'I26','I260','I269','O082','O882','I81','I823','I808','I809','I82','I821','I828','I829','I822'), VTE_death := date_death_ons]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 min.grp.col_(dt = 'dt.tv',
@@ -522,10 +523,16 @@ max.grp.col_(dt = 'dt.tv',max.var.name = 'previousCOVID',aggregate.cols = 'previ
 dt.tv[!is.finite(previousCOVID), previousCOVID := 0]
 
 ## Readmissions----
+## Ensure readmissions are not mistaken as the initial admission. Discharged date already rolled across end.fu so can do this across all records immediately
+dt.tv[emergency_readmit_date_admitted <= discharge.date, `:=`(emergency_readmit_date_admitted = NA,
+                                                               emergency_readmit_primary_diagnosis = NA) ]
+
 ## Label COVID readmissions if within 2 days of admission in line with Government definition or coded as a primary diagnosis as cannot tell where would occur in readmission
 dt.tv[,COVIDreadmission := (!is.na(emergency_readmit_primary_diagnosis) & 
-      emergency_readmit_primary_diagnosis %in% c('U071','U072')) | 
-      (is.finite(COVIDpositivedate) & is.finite(emergency_readmit_date_admitted) &
+      emergency_readmit_primary_diagnosis %in% c('U071','U072') & emergency_readmit_date_admitted > discharge.date) | 
+      (is.finite(COVIDpositivedate) & 
+      is.finite(emergency_readmit_date_admitted) & 
+      emergency_readmit_date_admitted > discharge.date &
         COVIDpositivedate >= emergency_readmit_date_admitted & 
         COVIDpositivedate <= emergency_readmit_date_admitted + 2)]
 

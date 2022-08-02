@@ -131,6 +131,10 @@ demo.tab <-
   ),
   make.names = 'procedures',
   keep.names = 'Characteristics')
+
+demo.tab[, ]
+
+
 data.table::fwrite(demo.tab, file = here::here("output","table_demo.csv"))
 
 
