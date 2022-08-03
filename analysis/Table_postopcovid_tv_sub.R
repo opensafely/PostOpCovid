@@ -112,9 +112,9 @@ lp <- lapply(n.type.events, function(i) {  data.table::data.table('time' = seq(0
                                                                                          newdata = newdata.pred))) })
 
 weekly.post.op.risk.sub <- 
-  unlist(round(100*apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
+  unlist(round(100*apply(exp(apply(-Reduce('+',lapply(n.type.events, function(i) {
     lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)] 
-  }))),2,cumsum))*
+  })),2,cumsum))*
     lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)],2,cumsum ), digits = 3))
 
 weekly.post.op.risk.sub[!is.finite(weekly.post.op.risk.sub)] <- 0
@@ -198,9 +198,9 @@ base.haz.merge <- Reduce(x =base.haz.comp,f = function(x,y) merge(x,y,by = 'time
 for (j in 1:ncol(base.haz.merge)) set(base.haz.merge, which(!is.finite(base.haz.merge[,(j)])), j, 0)
 
 weekly.post.op.VTE.risk.sub <- 
-  unlist(round(100*apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
+  unlist(round(100*apply(exp(apply(-Reduce('+',lapply(n.type.events, function(i) {
     lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)] 
-  }))),2,cumsum))*
+  })),2,cumsum))*
     lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)], 2, cumsum ), digits = 3))
 
 weekly.post.op.VTE.risk.sub[!is.finite(weekly.post.op.VTE.risk.sub)] <- 0
