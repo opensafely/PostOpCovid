@@ -45,7 +45,7 @@ new.data.postop.covid <- data.table::data.table('start.readmit' = rep(0,8*length
                                                 'Cardiac'=c(rep(F,8*length(procedures) -5*8),rep(T,8),rep(F,8*length(procedures) -2*8)),
                                                 'Obstetrics'=c(rep(F,8*length(procedures) -4*8),rep(T,8),rep(F,8*length(procedures) -3*8)),
                                                 'Orthopaedic'=c(rep(F,8*length(procedures) -3*8),rep(T,8),rep(F,8*length(procedures) -4*8)),
-                                               'Thoracic'=c(rep(F,8*length(procedures) - 2*8)),rep(T,8),rep(F,8*length(procedures) -5*8)),
+                                               'Thoracic'=c(rep(F,8*length(procedures) - 2*8),rep(T,8),rep(F,8*length(procedures) -5*8)),
                                                'Vascular'=c(rep(F,8*length(procedures) - 8),rep(T,8)),
                                                 'postcovid' = rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
                                                 'age.cat' = rep('(50,70]',8*length(procedures)),
