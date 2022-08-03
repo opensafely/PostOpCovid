@@ -684,7 +684,7 @@ dt.tv[, any.op.readmit := cummax(any.op.readmit), keyby = .(patient_id, end.fu)]
 dt.tv[, postop.readmit.cohort := start.readmit> 0 & tstop <= final.date.readmit & end.readmit <= 90 & any.op.readmit == T]
 
 
-dt.tv[(postop.readmit.cohort),event.readmit :=0]
+dt.tv[,event.readmit :=0]
 dt.tv[(postop.readmit.cohort) & 
       emergency_readmitdate  == tstop & 
       COVIDpositivedate != tstop &  

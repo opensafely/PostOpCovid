@@ -658,9 +658,9 @@ cuminc.cox <- function(n.type.events = c(1,2),dt, model, newdata, day) {
                          newdata = ',newdata,')) }),envir=environment())')))
   
   
-    return(unlist(100*round(apply(exp(apply(safelog(1 - Reduce('+',lapply(n.type.events, function(i) {
-      outer(unlist(base.haz.merge[,.SD,.SDcols = (i+1)]) ,unlist(risk[[i]]),'*')}))),2,cumsum)) *
-        outer(unlist(base.haz.merge[,2]),unlist(risk[[1]]),'*'),2,cumsum), digits = 4))[max(which(base.haz.merge[,1] <= day)),])
+    return(matrix(100*round(apply(exp(-apply(Reduce('+',lapply(n.type.events, function(i) {
+      outer(unlist(base.haz.merge[,.SD,.SDcols = (i+1)]) ,unlist(risk[[i]]),'*')})),2,cumsum)) *
+        outer(unlist(base.haz.merge[,2]),unlist(risk[[1]]),'*'),2,cumsum), digits = 4), ncol = nrow(get(newdata)))[max(which(base.haz.merge[,1] <= day)),])
 
 }
 
