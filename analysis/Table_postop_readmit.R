@@ -13,7 +13,7 @@ procedures <- c('Abdominal',
 'Obstetrics','Orthopaedic')#,
               #'Thoracic', 
           #    'Vascular')
-dt.tv[(postop.readmit.cohort),.N ,keyby = .(wave, Abdominal, Cardiac, Obstetrics, Orthopaedic, Thoracic, Vascular, event.readmit]
+dt.tv[(postop.readmit.cohort),.N ,keyby = .(wave, Abdominal, Cardiac, Obstetrics, Orthopaedic, Thoracic, Vascular, event.readmit)]
 
 dt.tv <- dt.tv[Abdominal == T | Obstetrics == T | Orthopaedic == T,]
 
