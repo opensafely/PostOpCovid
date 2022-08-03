@@ -9,10 +9,10 @@ source(here::here("analysis","Utils.R"))
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 procedures <- c('Abdominal',
-#'Cardiac',
-'Obstetrics','Orthopaedic')#,
-              #'Thoracic', 
-          #    'Vascular')
+'Cardiac',
+'Obstetrics','Orthopaedic',
+              'Thoracic', 
+              'Vascular')
 dt.tv[(postop.readmit.cohort),.N ,keyby = .(wave, Abdominal, Cardiac, Obstetrics, Orthopaedic, Thoracic, Vascular, event.readmit)]
 
 dt.tv <- dt.tv[Abdominal == T | Obstetrics == T | Orthopaedic == T,]
