@@ -239,7 +239,10 @@ actions:
       moderately_sensitive:
         table_readmit: output/postopreadmit.RData
         table_readmit_csv: output/postopreadmit.csv
-        model_readmit: output/postopreadmitmodel.csv
+        model_readmit1: output/postopreadmitmodel1.csv
+        model_readmit2: output/postopreadmitmodel2.csv
+        model_readmit_summary1: output/postopreadmitmodelsummary1.csv
+        model_readmit_summary2: output/postopreadmitmodelsummary2.csv
         plot_readmit: output/readmit_waves_plot.png        
         
   table_postopreadmit_sub:      
