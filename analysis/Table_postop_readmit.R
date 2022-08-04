@@ -27,7 +27,7 @@ for(v in procedures) {
 #dt.tv <- dt.tv[Abdominal == T | Obstetrics == T | Orthopaedic == T,]
 
 data.table::setkey(dt.tv, patient_id, tstart)
-n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event.readmit]))[-1]
+n.type.events <- 1 #sort(unique(dt.tv[(postop.readmit.cohort) ,event.readmit]))[-1]
 
 
 
@@ -45,10 +45,10 @@ post.op.readmit.model <-
                                                     id = patient_id,
                                           data = dt.tv[(postop.readmit.cohort)], model = T))
 
-data.table::fwrite(broom::tidy(post.op.readmit.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodel.csv"))
-data.table::fwrite(broom::glance(post.op.readmit.model[[1]]), file = here::here("output","postopreadmitmodelsummary.csv"))
-data.table::fwrite(broom::tidy(post.op.readmit.model[[2]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodel2.csv"))
-data.table::fwrite(broom::glance(post.op.readmit.model[[2]]), file = here::here("output","postopreadmitmodelsummary2.csv"))
+data.table::fwrite(broom::tidy(post.op.readmit.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodel1.csv"))
+data.table::fwrite(broom::glance(post.op.readmit.model[[1]]), file = here::here("output","postopreadmitmodelsummary1.csv"))
+#data.table::fwrite(broom::tidy(post.op.readmit.model[[2]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodel2.csv"))
+#data.table::fwrite(broom::glance(post.op.readmit.model[[2]]), file = here::here("output","postopreadmitmodelsummary2.csv"))
 
 
 new.data.postop.covid <- data.table::data.table('start.readmit' = rep(0,8*length(procedures)),
