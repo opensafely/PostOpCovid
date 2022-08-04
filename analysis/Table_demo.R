@@ -58,6 +58,7 @@ demo.tab <-
                                                                                                                         "Emergency" = n.perc(substr(admission_method,1,1) == "2",dig = 3),
                                                                                                                         "Charlson index" = median.iqr(Charlson, dig = 1),
                                                                                                                         "Length of stay (IQR)" =  median.iqr(discharge.date - admit.date,dig = 0),
+                                                                                                                        "90 day emergency readmission (%)" = n.perc(date.90.day(x = emergency_readmitdate, ref.dat = discharge.date), dig = 3),
                                                                                                                         "90 day mortality (%)" =n.perc(date.90.day(x = date_death_ons, ref.dat = admit.date),dig = 4),
                                                                                                                         "30 day post operative COVID-19 (%)" = n.perc(postCOVID30.perepisode, dig = 3),
                                                                                                                         "Critical care on index admission (%)" = n.perc(is.finite(days_in_critical_care) & days_in_critical_care > 0, dig = 3),
