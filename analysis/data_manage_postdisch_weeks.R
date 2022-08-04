@@ -112,8 +112,14 @@ locf.roll_(dt = 'dt.tv.splits',
 
 dt.tv.splits[, `:=`(start.readmit = tstart - discharge.date.locf,
              end.readmit = tstop - discharge.date.locf)]
-
+# VTE events
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
+dt.tv.splits[, VTE.end := post.VTE.date]
+dt.tv.splits[!is.finite(VTE.end) | post.VTE.date > end.fu, VTE.end := end.fu]
+
+dt.tv.splits[, readmit.end := emergency_readmitdate]
+dt.tv.splits[!is.finite(readmit.end) | post.VTE.date > end.fu, readmit.end := end.fu]
+
 dt.tv.splits[,final.date.VTE := VTE.end]
 dt.tv.splits[is.finite(readmit.end) & readmit.end < final.date.VTE & COVIDreadmission == F & readmit.end > study.start, final.date.VTE := readmit.end]
 dt.tv.splits[is.finite(end.fu) & end.fu < final.date.VTE, final.date.VTE := end.fu]
@@ -123,7 +129,7 @@ min.grp.col_(dt = 'dt.tv.splits',min.var.name = 'final.date.VTE',aggregate.cols 
 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE]
-dt.tv.splits[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date),any.op.VTE := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
+dt.tv.splits[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date),any.op.VTE := rowSums(.SD,na.rm =T)  > 0, .SDcols = c(procedures)]
 dt.tv.splits[is.na(any.op.VTE), any.op.VTE := F]
 dt.tv.splits[, any.op.VTE := any.op.VTE > 0]
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
@@ -146,7 +152,7 @@ min.grp.col_(dt = 'dt.tv.splits',min.var.name = 'final.date.readmit',aggregate.c
 
 dt.tv.splits[, postop.readmit.cohort := start.readmit >= 0 & tstop <= final.date.readmit & end.readmit <= 90]
 
-dt.tv.splits[(postop.readmit.cohort) & start.readmit ==0 ,any.op.readmit := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
+dt.tv.splits[(postop.readmit.cohort) & start.readmit ==0 ,any.op.readmit := rowSums(.SD,na.rm =T) > 0, .SDcols = c(procedures)]
 dt.tv.splits[is.na(any.op.readmit), any.op.readmit := F]
 dt.tv.splits[, any.op.readmit := any.op.readmit > 0]
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
