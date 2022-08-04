@@ -27,17 +27,17 @@ for(v in procedures) {
 #dt.tv <- dt.tv[Abdominal == T | Obstetrics == T | Orthopaedic == T,]
 
 data.table::setkey(dt.tv, patient_id, tstart)
-n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event.readmit]))[-1]
+n.type.events <- 1 #sort(unique(dt.tv[(postop.readmit.cohort) ,event.readmit]))[-1]
 
 
 
 
 post.op.readmit.model <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.readmit==i) ~ Abdominal*wave + 
-                                                     Cardiac*wave +
-                                                     Obstetrics*wave  +
-                                                       Thoracic*wave  + 
-                                                     Vascular*wave  +
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.readmit==i) ~ Abdominal + 
+                                                     Cardiac +
+                                                     Obstetrics  +
+                                                       Thoracic  + 
+                                                     Vascular  +
                                                       postcovid*wave +  
                                                        sex + age.cat + 
                                                       bmi.cat + imd5 + vaccination.status.factor  + 
