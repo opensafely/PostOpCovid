@@ -409,7 +409,7 @@ This plot shows the daily risk of COVID-19 for a a 50-70 year old female with a 
 ```{r postopcovid_daily_tv}
 daily.post.op.risk <- data.table::fread(file = here::here("output","daily_postopcovid_tv.csv"))
 
-ggplot2::ggplot(daily.post.op.risk[`Days post op`< newdata.rows]) +
+ggplot2::ggplot(daily.post.op.risk[`Days post op`<= 35]) +
   ggplot2::geom_line(ggplot2::aes(x = `Days post op`, y = risk)) + 
   ggplot2::geom_smooth(ggplot2::aes(x = `Days post op`, y = risk)) +
   ggplot2::ylab("Daily risk (%)") +
@@ -435,7 +435,7 @@ ggplot2::xlab("Risk Period post operation") +
 ```{r postopcovid_daily_sub_tv}
 daily.post.op.risk.sub <- data.table::fread(file = here::here("output","daily_postopcovid_tv_sub.csv"))
 
-ggplot2::ggplot(daily.post.op.risk.sub[`Days post op`< 35]) +
+ggplot2::ggplot(daily.post.op.risk.sub[`Days post op`<= 35]) +
   ggplot2::geom_line(ggplot2::aes(x = `Days post op`, y = risk)) + 
   ggplot2::geom_smooth(ggplot2::aes(x = `Days post op`, y = risk)) +
   ggplot2::ylab("Daily risk (%)") +
@@ -542,7 +542,7 @@ This plot shows the daily risk of VTE by post operative COVID infection for a a 
 ```{r postopcovid_daily_VTE_tv}
 daily.post.op.VTE.risk <- data.table::fread(file = here::here("output","daily_postopcovid_VTE_tv.csv"))
 
-ggplot2::ggplot(daily.post.op.VTE.risk[`Days post discharge`< newdata.rows]) +
+ggplot2::ggplot(daily.post.op.VTE.risk[`Days post discharge`<= 90]) +
   ggplot2::geom_line(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) + 
   ggplot2::geom_smooth(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) + 
   ggplot2::ylab("Daily risk (%)") +
@@ -623,7 +623,7 @@ ggplot2::xlab("Risk Period post discharge") +
 ```{r postopcovid_daily_sub_VTE_tv}
 daily.post.op.VTE.risk.sub <- data.table::fread(file = here::here("output","daily_postopcovid_VTE_tv_sub.csv"))
 
-ggplot2::ggplot(daily.post.op.VTE.risk.sub[`Days post discharge`< newdata.rows]) +
+ggplot2::ggplot(daily.post.op.VTE.risk.sub[`Days post discharge`<= 35]) +
   ggplot2::geom_line(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) + 
   ggplot2::geom_smooth(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) + 
   ggplot2::ylab("Daily risk (%)") +
