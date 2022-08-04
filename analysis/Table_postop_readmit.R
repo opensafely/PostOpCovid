@@ -36,7 +36,7 @@ post.op.readmit.model <-
 
 data.table::fwrite(broom::tidy(post.op.readmit.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodel1.csv"))
 data.table::fwrite(broom::glance(post.op.readmit.model[[1]]), file = here::here("output","postopreadmitmodelsummary1.csv"))
-data.table::fwrite(broom::tidy(post.op.readmit.model[2]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodel2.csv"))
+data.table::fwrite(broom::tidy(post.op.readmit.model[[2]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodel2.csv"))
 data.table::fwrite(broom::glance(post.op.readmit.model[[2]]), file = here::here("output","postopreadmitmodelsummary2.csv"))
 
 
