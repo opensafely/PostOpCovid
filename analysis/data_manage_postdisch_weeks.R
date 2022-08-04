@@ -148,6 +148,8 @@ dt.tv.splits[date_death_ons == tstop & event.VTE != 1 & (postcovid.VTE.cohort), 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits[COVIDreadmission == F & start.readmit > 0 & readmit.end > study.start,final.date.readmit := readmit.end] # Readmission defined as after discharge date in study definition, but if readmitted same day as operation we do not have times to ensure sequence is correct
 dt.tv.splits[is.finite(end.fu) & end.fu < final.date.readmit , final.date.readmit := end.fu]
+data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
+
 min.grp.col_(dt = 'dt.tv.splits',min.var.name = 'final.date.readmit',aggregate.cols = 'final.date.readmit',id.vars = c("patient_id","end.fu"))
 
 dt.tv.splits[, postop.readmit.cohort := start.readmit >= 0 & tstop <= final.date.readmit & end.readmit <= 90]

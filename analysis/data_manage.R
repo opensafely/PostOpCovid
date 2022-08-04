@@ -707,6 +707,7 @@ dt.tv[date_death_ons == tstop & event.VTE != 1 & (postcovid.VTE.cohort), event.V
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[COVIDreadmission == F & start.readmit > 0 & readmit.end > study.start,final.date.readmit := readmit.end] # Readmission defined as after discharge date in study definition, but if readmitted same day as operation we do not have times to ensure sequence is correct
 dt.tv[is.finite(end.fu) & end.fu < final.date.readmit , final.date.readmit := end.fu]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
 min.grp.col_(dt = 'dt.tv',min.var.name = 'final.date.readmit',aggregate.cols = 'final.date.readmit',id.vars = c("patient_id","end.fu"))
 
 dt.tv[, postop.readmit.cohort := start.readmit >= 0 & tstop <= final.date.readmit & end.readmit <= 90]

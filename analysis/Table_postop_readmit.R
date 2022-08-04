@@ -38,7 +38,7 @@ post.op.readmit.model <-
                                                      Obstetrics  +
                                                        Thoracic  + 
                                                      Vascular  +
-                                                      postcovid*wave +  
+                                                      postcovid + wave +  
                                                        sex + age.cat + 
                                                       bmi.cat + imd5 + vaccination.status.factor  + 
                                                        Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID + region, 
