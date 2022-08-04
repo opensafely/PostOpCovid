@@ -159,21 +159,42 @@ dt[,gp.end := as.numeric(gp.end)]
 
 # Variable for earliest of 90 days post discharge or death for maximum end of follow up time
 ## 90 days Post discharge ----
-dt[,(paste0(procedures,"_end_fu")) := lapply(.SD, function(x) data.table::fifelse(is.finite(date_death_ons) & x+90 > date_death_ons, date_death_ons,x+90)),
+dt[,(paste0(procedures,"_end_fu")) := lapply(.SD, 
+                                             function(x) data.table::fifelse(is.finite(date_death_ons) & x+90 > date_death_ons, 
+                                                                             date_death_ons,
+                                                                             x+90)),
    .SDcols = paste0(procedures, '_date_discharged')]
-dt[,(paste0(procedures,"_end_fu")) := lapply(.SD, function(x) data.table::fifelse(is.finite(gp.end) & x > gp.end, gp.end,x)),
+
+dt[,(paste0(procedures,"_end_fu")) := lapply(.SD,
+                                             function(x) data.table::fifelse(is.finite(gp.end) & x > gp.end,
+                                                                             gp.end,
+                                                                             x)),
    .SDcols = paste0(procedures, '_end_fu')]
 
 ## 90 days Post operative to ensure time break to allow censoring here  ----
-dt[,(paste0(procedures,"_end_fu90")) := lapply(.SD, function(x) data.table::fifelse(is.finite(date_death_ons) & x+90 > date_death_ons, date_death_ons,x+90)),
+dt[,(paste0(procedures,"_end_fu90")) := lapply(.SD, 
+                                               function(x) data.table::fifelse(is.finite(date_death_ons) & x+90 > date_death_ons, 
+                                                                               date_death_ons,
+                                                                               x+90)),
    .SDcols = paste0(procedures, '_date_admitted')]
-dt[,(paste0(procedures,"_end_fu90")) := lapply(.SD, function(x) data.table::fifelse(is.finite(gp.end) & x > gp.end, gp.end,x)),
+
+dt[,(paste0(procedures,"_end_fu90")) := lapply(.SD, 
+                                               function(x) data.table::fifelse(is.finite(gp.end) & x > gp.end, 
+                                                                               gp.end,
+                                                                               x)),
    .SDcols = paste0(procedures, '_end_fu90')]
 
 ## 30 days Post operative to ensure time break to allow censoring here ----
-dt[,(paste0(procedures,"_end_fu30")) := lapply(.SD, function(x) data.table::fifelse(is.finite(date_death_ons) & x+30 > date_death_ons, date_death_ons,x+30)),
+dt[,(paste0(procedures,"_end_fu30")) := lapply(.SD, 
+                                               function(x) data.table::fifelse(is.finite(date_death_ons) & x+30 > date_death_ons,
+                                                                               date_death_ons,
+                                                                               x+30)),
    .SDcols = paste0(procedures, '_date_admitted')]
-dt[,(paste0(procedures,"_end_fu30")) := lapply(.SD, function(x) data.table::fifelse(is.finite(gp.end) & x > gp.end, gp.end,x)),
+
+dt[,(paste0(procedures,"_end_fu30")) := lapply(.SD,
+                                               function(x) data.table::fifelse(is.finite(gp.end) & x > gp.end,
+                                                                               gp.end,
+                                                                               x)),
    .SDcols = paste0(procedures, '_end_fu30')]
 
 
@@ -283,6 +304,20 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 ####
 ## Operation spell periods ----
 ####
+
+
+## Next admission period / procedure censor end of each spell
+data.table::setkey(dt.tv,patient_id, tstart, tstop)
+dt.tv[,next.admit.date := data.table::shift(admit.date, n = 1L, type =  'lead'), by = .(patient_id)]
+nocb.roll_(dt = 'dt.tv', ID = 'patient_id', 
+           start.DTTM = 'tstart', group = 'c("patient_id")',
+           var.cols = 'c("next.admit.date")')
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+dt.tv[next.admit.date < end.fu, end.fu := next.admit.date]
+dt.tv[next.admit.date < end.fu30, end.fu30 := next.admit.date]
+dt.tv[next.admit.date < end.fu90, end.fu90 := next.admit.date]
+
 ## Roll end of period dates backwards to end of previous episodes to define each post procedure period ----
 data.table::setkey(dt.tv,patient_id, tstart, tstop)
 nocb.roll_(dt = 'dt.tv', ID = 'patient_id', 
@@ -303,6 +338,7 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 locf.roll_(dt = 'dt.tv', ID = 'patient_id', 
            start.DTTM = 'tstart', group = 'c("patient_id")',
            var.cols = 'c(admission.dates)')
+
 
 ## Remove admit & discharge dates from outside admission period. Study start and endfu define total exposure for each observation period.
 dt.tv[admit.date > discharge.date | is.na(admit.date) | admit.date > tstart | discharge.date < tstop, c('admit.date','discharge.date') := NA]
