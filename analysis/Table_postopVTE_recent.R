@@ -13,6 +13,8 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
 ## start = 0 = operation / admit date , postcovid.VTE.cohort starts on days 1
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
+# Not enough deaths to treat separately from emergency readmissions
+dt.tv[event.VTE == 3, event.VTE := 2]
 n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort) ,event]))[-1]
 
 post.op.VTE.model.recentCOVID <- 

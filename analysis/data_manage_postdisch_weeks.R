@@ -136,7 +136,7 @@ dt.tv.splits[, any.op.VTE := any.op.VTE > 0]
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits[, any.op.VTE := cummax(any.op.VTE), keyby = .(patient_id, end.fu)]
 
-dt.tv.splits[, postcovid.VTE.cohort := start > 0 & tstop <= final.date.VTE & any.op.VTE == T] #Date must be after operation date, likely to mean after discharge date as operation date is admit date
+dt.tv.splits[, postcovid.VTE.cohort := start.readmit > 0 & tstop <= final.date.VTE & any.op.VTE == T] #Date must be after operation date, likely to mean after discharge date as operation date is admit date
 
 dt.tv.splits[,event.VTE :=0]
 dt.tv.splits[post.VTE.date == tstop & (postcovid.VTE.cohort), event.VTE := 1]

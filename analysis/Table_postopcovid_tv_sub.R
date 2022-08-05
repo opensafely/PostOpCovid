@@ -11,7 +11,10 @@ source(here::here("analysis","Utils.R"))
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 dt.tv.splits <- data.table::setDT(arrow::read_feather(here::here("output","cohort_postdisch_week_splits.feather")))
-n.type.events <- 1:2 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
+
+# Not enough deaths to treat separately from emergency readmissions
+dt.tv.splits[event == 3, event := 2]
+n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 # Start = 0 = day of discharge
 
@@ -43,7 +46,6 @@ max.grp.col_(dt = 'dt.tv.splits',
              aggregate.cols = 'sub.op',
              id.vars = c("patient_id","end.fu"))
 
-dt.tv.splits[event == 3, event := 2]
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Colectomy + Cholecystectomy +  
@@ -136,6 +138,8 @@ data.table::fwrite(weekly.post.op.risk.sub, file = here::here("output","postopco
 
 
 ##############
+# Not enough deaths to treat separately from emergency readmissions
+dt.tv.splits[event.VTE == 3, event.VTE := 2]
 
 dt.tv.splits[, `:=`(start = tstart - los.end,
                     end = tstop - los.end)]

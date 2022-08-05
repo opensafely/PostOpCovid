@@ -29,11 +29,12 @@ max.grp.col_(dt = 'dt.tv.splits',
              max.var.name = 'sub.op',
              aggregate.cols = 'sub.op',
              id.vars = c("patient_id","end.fu"))
-n.type.events <- 1:2 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
+
+dt.tv.splits[event == 3, event := 2]
+n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 
-dt.tv.splits[event == 3, event := 2]
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Colectomy + Cholecystectomy +  
@@ -121,6 +122,8 @@ ggplot2::ggplot(daily.post.op.risk.sub[`Days post op`< 35]) +
 ggplot2::ggsave( filename = here::here("output","dailyCovidRiskSub.pdf"),device = "pdf",width = 8, height = 8, units = 'in',dpi = 'retina')
 
 ##############
+# Not enough deaths to treat separately from emergency readmissions
+dt.tv.splits[event.VTE == 3, event.VTE := 2]
 
 dt.tv.splits[, `:=`(start = tstart - los.end,
                     end = tstop - los.end)]

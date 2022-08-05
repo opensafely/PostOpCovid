@@ -18,11 +18,13 @@ dt.tv.splits[, `:=`(start = tstart - study.start,
                     end = tstop - study.start)]
 dt.tv.splits <- dt.tv.splits[start >= 0,] # Need to start follow up on day after operation as can't identify order when events on same day
 
-n.type.events <- 1:2 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
+# Not enough deaths to treat separately from emergency readmissions
+dt.tv.splits[event == 3, event := 2]
+n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 
-dt.tv.splits[event == 3, event := 2]
+
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 post.op.covid.model.split <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal + Cardiac + Obstetrics +  Thoracic + Vascular + age.cat + 
@@ -117,6 +119,9 @@ weekly.post.op.risk  <-  data.table::data.table("Risk" = weekly.post.op.risk - c
 data.table::fwrite(weekly.post.op.risk, file = here::here("output","postopcovid_tv.csv"))
 
 ##############
+
+# Not enough deaths to treat separately from emergency readmissions
+dt.tv.splits[event.VTE == 3, event.VTE := 2]
 
 dt.tv.splits[, `:=`(start = tstart - los.end,
                     end = tstop - los.end)]
