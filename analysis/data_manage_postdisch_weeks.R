@@ -2,6 +2,7 @@ library(data.table)
 ncores <- parallel::detectCores(logical = T)
 data.table::setDTthreads(ncores)
 source(here::here("analysis","Utils.R"))
+procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 #load(file = here::here("output","cohort_long.RData"))
