@@ -31,7 +31,7 @@ max.grp.col_(dt = 'dt.tv.splits',
              id.vars = c("patient_id","end.fu"))
 
 dt.tv.splits[event == 3, event := 2]
-n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
+n.type.events <- sort(unique(dt.tv.splits[(postop.covid.cohort) ,event]))[-1]
 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 

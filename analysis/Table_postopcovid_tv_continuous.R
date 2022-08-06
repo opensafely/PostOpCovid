@@ -19,7 +19,7 @@ dt.tv.splits[, `:=`(start = tstart - study.start,
 dt.tv.splits <- dt.tv.splits[start >= 0,] # Need to start follow up on day after operation as can't identify order when events on same day
 
 dt.tv.splits[event == 3, event := 2]
-n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
+n.type.events <- sort(unique(dt.tv.splits[(postop.covid.cohort) ,event]))[-1]
 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 

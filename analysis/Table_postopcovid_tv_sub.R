@@ -14,7 +14,7 @@ dt.tv.splits <- data.table::setDT(arrow::read_feather(here::here("output","cohor
 
 # Not enough deaths to treat separately from emergency readmissions
 dt.tv.splits[event == 3, event := 2]
-n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
+n.type.events <- sort(unique(dt.tv.splits[(postop.covid.cohort) ,event]))[-1]
 
 # Start = 0 = day of discharge
 
