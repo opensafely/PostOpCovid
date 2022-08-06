@@ -538,9 +538,9 @@ emergency_readmit_primary_diagnosis %in% c('U071','U072')) &
                aggregate.cols = 'COVIDpositivedate',
                id.vars = c("patient_id","end.fu"))
 dt.tv[,COVIDpositive := is.finite(COVIDpositivedate) & COVIDpositivedate == tstop]
-
+dt.tv[ !is.finite(COVIDpositive), COVIDpositive  := F]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[,postcovid := cumsum(COVIDpositive), by = .(patient_id, end.fu)]
+dt.tv[order(tstart),postcovid := cummax(COVIDpositive), by = .(patient_id, end.fu)]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, covid.end := COVIDpositivedate]

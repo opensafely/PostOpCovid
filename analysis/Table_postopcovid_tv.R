@@ -129,7 +129,7 @@ dt.tv.splits <- dt.tv.splits[is.finite(los.end) & start>0 & end <=90] # Need to 
 
 
 post.op.VTE.model.split <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Abdominal + survival::strata(postcovid) +    
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Abdominal + postcovid +    
                                             Cardiac + Obstetrics + Thoracic + Vascular + age.cat + 
                                             sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + 
                                             Current.Cancer + Emergency*week.post.disch + LOS.bin + Charl12 + recentCOVID + previousCOVID, 

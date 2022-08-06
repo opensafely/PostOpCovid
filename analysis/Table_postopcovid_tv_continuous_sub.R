@@ -134,7 +134,7 @@ post.op.VTE.model.split.sub <-
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Colectomy + survival::strata(postcovid) +    
                                                       Cholecystectomy + KneeReplacement + age.cat + 
                                             sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + 
-                                            Current.Cancer + Emergency*week.post.disch + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
+                                            Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
                                           id = patient_id,
                                           data = dt.tv.splits[(postcovid.VTE.cohort) & start <=end], model = T))
 
