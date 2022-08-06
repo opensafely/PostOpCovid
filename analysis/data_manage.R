@@ -547,16 +547,18 @@ dt.tv[, covid.end := COVIDpositivedate]
 dt.tv[!is.finite(covid.end), covid.end := end.fu]
 
 names(dt.tv)[names(dt.tv)=='recent_date'] <- 'recentCOVIDpositivedate'
-dt.tv[,recentCOVID := is.finite(recentCOVIDpositivedate) ]
+dt.tv[,recentCOVID := as.numeric(is.finite(recentCOVIDpositivedate)) ]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 max.grp.col_(dt = 'dt.tv',max.var.name = 'recentCOVID',aggregate.cols = 'recentCOVID',id.vars = c("patient_id","end.fu"))
-dt.tv[!is.finite(recentCOVID), recentCOVID := 0]
+dt.tv[, recentCOVID := recentCOVID==1]
+dt.tv[!is.finite(recentCOVID), recentCOVID := F]
 
 names(dt.tv)[names(dt.tv)=='previous_date'] <- 'previousCOVIDpositivedate'
-dt.tv[,previousCOVID := is.finite(previousCOVIDpositivedate) ]
+dt.tv[,previousCOVID := as.numeric(is.finite(previousCOVIDpositivedate)) ]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 max.grp.col_(dt = 'dt.tv',max.var.name = 'previousCOVID',aggregate.cols = 'previousCOVID',id.vars = c("patient_id","end.fu"))
-dt.tv[!is.finite(previousCOVID), previousCOVID := 0]
+dt.tv[, previousCOVID := previousCOVID==1]
+dt.tv[!is.finite(previousCOVID), previousCOVID := F]
 
 ## Readmissions----
 ## Ensure readmissions are not mistaken as the initial admission. Discharged date already rolled across end.fu so can do this across all records immediately
@@ -667,11 +669,8 @@ dt.tv[date_death_ons == tstop & event != 1 & (postop.covid.cohort), event := 3]
 dt.tv[,discharge.date.locf:= discharge.date]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-locf.roll_(dt = 'dt.tv',
-           ID = 'patient_id',
-           start.DTTM = 'tstart',
-           group = 'c("patient_id","end.fu")',
-           var.cols = paste0('c("discharge.date.locf")'))
+
+min.grp.col_(dt = 'dt.tv',min.var.name = 'discharge.date.locf',aggregate.cols = 'discharge.date.locf',id.vars = c("patient_id","end.fu"))
 
 
 dt.tv[, `:=`(start.readmit = tstart - discharge.date.locf,

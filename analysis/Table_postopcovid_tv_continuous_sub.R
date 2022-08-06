@@ -31,7 +31,7 @@ max.grp.col_(dt = 'dt.tv.splits',
              id.vars = c("patient_id","end.fu"))
 
 dt.tv.splits[event == 3, event := 2]
-n.type.events <- sort(unique(dt.tv.splits[(postop.covid.cohort) ,event]))[-1]
+n.type.events <- sort(unique(dt.tv.splits[(postop.covid.cohort) & sub.op == T,event]))[-1]
 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 
@@ -124,6 +124,7 @@ ggplot2::ggsave( filename = here::here("output","dailyCovidRiskSub.pdf"),device 
 ##############
 # Not enough deaths to treat separately from emergency readmissions
 dt.tv.splits[event.VTE == 3, event.VTE := 2]
+n.type.events <- sort(unique(dt.tv.splits[(postcovid.VTE.cohort) & sub.op == T,event.VTE]))[-1]
 
 dt.tv.splits[, `:=`(start = tstart - los.end,
                     end = tstop - los.end)]

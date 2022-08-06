@@ -122,6 +122,8 @@ data.table::fwrite(weekly.post.op.risk, file = here::here("output","postopcovid_
 
 # Not enough deaths to treat separately from emergency readmissions
 dt.tv.splits[event.VTE == 3, event.VTE := 2]
+n.type.events <- sort(unique(dt.tv.splits[(postcovid.VTE.cohort),event.VTE]))[-1]
+
 
 dt.tv.splits[, `:=`(start = tstart - los.end,
                     end = tstop - los.end)]
