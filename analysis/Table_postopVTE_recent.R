@@ -15,7 +15,7 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 # Not enough deaths to treat separately from emergency readmissions
 dt.tv[event.VTE == 3, event.VTE := 2]
-n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort) ,event.VTE]))[-1]
+n.type.events <- 1 #sort(unique(dt.tv[(postcovid.VTE.cohort) ,event.VTE]))[-1]
 
 post.op.VTE.model.recentCOVID <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Abdominal*wave + Cardiac*wave + Obstetrics*wave + Thoracic*wave + Vascular*wave + postcovid  + age.cat +
