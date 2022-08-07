@@ -13,15 +13,17 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
 ## start = 0 = operation / admit date , postcovid.VTE.cohort starts on days 1
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
+# Not enough deaths to treat separately from emergency readmissions
+dt.tv[event.VTE == 3, event.VTE := 2]
+n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort) ,event.VTE]))[-1]
+
 post.op.VTE.model <- 
-  lapply(1:3, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Abdominal*wave + Cardiac*wave + Obstetrics*wave + Thoracic*wave + Vascular*wave + postcovid*wave  + age.cat +
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Abdominal*wave + Cardiac*wave + Obstetrics*wave + Thoracic*wave + Vascular*wave + postcovid*wave  + age.cat +
                                             sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                           data = dt.tv[(postcovid.VTE.cohort)], model = T))
 
 data.table::fwrite(broom::tidy(post.op.VTE.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodel.csv"))
 
-
-n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort) ,event]))[-1]
 
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
                                                 'end' = rep(30,8*length(procedures)),
