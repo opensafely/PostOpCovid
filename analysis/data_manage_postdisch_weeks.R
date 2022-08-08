@@ -156,8 +156,10 @@ data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits[, VTE.end := post.VTE.date]
 dt.tv.splits[!is.finite(VTE.end) | post.VTE.date > end.fu, VTE.end := end.fu]
 
-dt.tv.splits[, readmit.end := emergency_readmitdate]
-dt.tv.splits[!is.finite(readmit.end) | post.VTE.date > end.fu, readmit.end := end.fu]
+min.grp.col_(dt = 'dt.tv.splits',
+   min.var.name = 'readmit.end',
+   aggregate.cols = 'emergency_readmitdate',
+   id.vars = c("patient_id","end.fu"))
 
 dt.tv.splits[,final.date.VTE := VTE.end]
 dt.tv.splits[is.finite(readmit.end) & readmit.end < final.date.VTE & COVIDreadmission == F & readmit.end > study.start, final.date.VTE := readmit.end]
@@ -178,14 +180,14 @@ dt.tv.splits[, postcovid.VTE.cohort := start.readmit > 0 & tstop <= final.date.V
 
 dt.tv.splits[,event.VTE :=0]
 dt.tv.splits[post.VTE.date == tstop & (postcovid.VTE.cohort), event.VTE := 1]
-dt.tv.splits[emergency_readmitdate  == tstop & event.VTE != 1 & COVIDreadmission == F & readmit.end > study.start & (postcovid.VTE.cohort), event.VTE := 2]
+dt.tv.splits[emergency_readmitdate  == tstop & event.VTE != 1 & COVIDreadmission == F & is.finite(readmit.end) & readmit.end > study.start & (postcovid.VTE.cohort), event.VTE := 2]
 dt.tv.splits[date_death_ons == tstop & event.VTE != 1 & (postcovid.VTE.cohort), event.VTE := 3]
 
 
 ## Readmission cohort ----
 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
-dt.tv.splits[COVIDreadmission == F & start.readmit > 0 & readmit.end > study.start,final.date.readmit := readmit.end] # Readmission defined as after discharge date in study definition, but if readmitted same day as operation we do not have times to ensure sequence is correct
+dt.tv.splits[COVIDreadmission == F & start.readmit > 0 & is.finite(readmit.end) & readmit.end > study.start,final.date.readmit := readmit.end] # Readmission defined as after discharge date in study definition, but if readmitted same day as operation we do not have times to ensure sequence is correct
 dt.tv.splits[is.finite(end.fu) & end.fu < final.date.readmit , final.date.readmit := end.fu]
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 
@@ -207,7 +209,7 @@ dt.tv.splits[(postop.readmit.cohort) &
       emergency_readmitdate  == tstop & 
       COVIDpositivedate != tstop &  
       COVIDreadmission == F & 
-      readmit.end > study.start, event.readmit := 1] # COVID isn't a competing risk its an exposure for non covid readmission
+      readmit.end > study.start & is.finite(readmit.end), event.readmit := 1] # COVID isn't a competing risk its an exposure for non covid readmission
 dt.tv.splits[(postop.readmit.cohort) & date_death_ons == tstop & event.readmit != 1, event.readmit := 2]
 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)

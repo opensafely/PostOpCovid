@@ -18,7 +18,7 @@ dt.tv[event.VTE == 3, event.VTE := 2]
 n.type.events <- 1 #sort(unique(dt.tv[(postcovid.VTE.cohort) ,event.VTE]))[-1]
 
 post.op.VTE.model.recentCOVID <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.VTE==i) ~ Abdominal*wave + Cardiac*wave + Obstetrics*wave + Thoracic*wave + Vascular*wave + postcovid  + age.cat +
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.VTE==i) ~ Abdominal*wave + Cardiac*wave + Obstetrics*wave + Thoracic*wave + Vascular*wave + postcovid*wave   + age.cat +
                                             sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID*wave + previousCOVID , id = patient_id,
                                           data = dt.tv[(postcovid.VTE.cohort)], model = T))
 
