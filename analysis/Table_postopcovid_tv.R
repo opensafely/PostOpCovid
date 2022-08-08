@@ -9,7 +9,7 @@ source(here::here("analysis","Utils.R"))
 
 dt.tv.splits <- data.table::setDT(arrow::read_feather(here::here("output","cohort_postdisch_week_splits.feather")))
 dt.tv.splits <- dt.tv.splits[,.(patient_id,Abdominal,Cardiac,Obstetrics,Thoracic,Vascular,age.cat,sex,bmi.cat,imd5,wave,vaccination.status.factor,region,Current.Cancer,Emergency,
-                                week.post.disch,week.post.op,LOS.bin,Charl12,recentCOVID,previousCOVID,postcovid,
+                                week.post.disch,week.post.op,LOS.bin,Charl12,recentCOVID,previousCOVID,postcovid,start.readmit,end.readmit,
                                 tstart,tstop,end.fu,start,end,event,postop.covid.cohort,los.end,event.VTE,postcovid.VTE.cohort,study.start)]
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
 
@@ -125,13 +125,11 @@ dt.tv.splits[event.VTE == 3, event.VTE := 2]
 n.type.events <- sort(unique(dt.tv.splits[(postcovid.VTE.cohort),event.VTE]))[-1]
 
 
-dt.tv.splits[, `:=`(start = tstart - los.end,
-                    end = tstop - los.end)]
-dt.tv.splits <- dt.tv.splits[is.finite(los.end) & start>0 & end <=90] # Need to start follow up day after discharge to avoid discharge diagnoses
+dt.tv.splits <- dt.tv.splits[start.readmit>0 & end.readmit <=90] # Need to start follow up day after discharge to avoid discharge diagnoses
 
 
 post.op.VTE.model.split <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Abdominal + postcovid +    
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.VTE==i) ~  Abdominal + postcovid +    
                                             Cardiac + Obstetrics + Thoracic + Vascular + age.cat + 
                                             sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + 
                                             Current.Cancer + Emergency*week.post.disch + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
@@ -143,8 +141,8 @@ data.table::fwrite(broom::tidy(post.op.VTE.model.split[[1]], exponentiate= T, co
 
 newdata.rows <- length(levels(dt.tv.splits$week.post.disch)) - 1
 
-newdata.pred <- data.table::data.table('start' = rep(c(0,7,14,21,28), times = 2),
-                                       'end' = rep(c(7,14,21,28,35),times = 2),
+newdata.pred <- data.table::data.table('start.readmit' = rep(c(0,7,14,21,28), times = 2),
+                                       'end.readmit' = rep(c(7,14,21,28,35),times = 2),
                                        'event.VTE' = rep(F,newdata.rows*2),
                                        'week.post.disch' = rep(paste(0:(newdata.rows - 1)), times = 2),
                                        'patient_id' = rep(1:2,each = newdata.rows),

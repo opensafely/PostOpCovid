@@ -30,7 +30,7 @@ dt.tv[event.VTE == 3, event.VTE := 2]
 n.type.events <- 1 # sort(unique(dt.tv[(postcovid.VTE.cohort)  & sub.op == T,event.VTE]))[-1]
 
 post.op.VTE.model.recentCOVID.sub <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Colectomy*wave + Cholecystectomy*wave + KneeReplacement*wave + 
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.VTE==i) ~ Colectomy*wave + Cholecystectomy*wave + KneeReplacement*wave + 
                                             postcovid + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + 
                                           Emergency + LOS.bin + Charl12 + wave*recentCOVID + previousCOVID, id = patient_id,
                                           data = dt.tv[(postcovid.VTE.cohort) & sub.op == T], model = T))
@@ -39,8 +39,8 @@ data.table::fwrite(broom::tidy(post.op.VTE.model.recentCOVID.sub[[1]], exponenti
 
 
 
-new.data.postop.recent.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
-                                                'end' = rep(30,8*length(procedures)),
+new.data.postop.recent.covid <- data.table::data.table('start.readmit' = rep(0,8*length(procedures)),
+                                                'end.readmit' = rep(30,8*length(procedures)),
                                                 'event.VTE' = rep(F,8*length(procedures)),
                                                 'Colectomy' = c(rep(T,8),rep(F,24)),
                                                 'Cholecystectomy'=c(rep(F,8),rep(T,8),rep(F,16)),

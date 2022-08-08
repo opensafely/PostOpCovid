@@ -33,7 +33,7 @@ n.type.events <- 1 #sort(unique(dt.tv[(postop.readmit.cohort) ,event.readmit]))[
 
 
 post.op.readmit.model <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.readmit==i) ~ Abdominal*wave + 
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.readmit==i) ~ Abdominal*wave + 
                                                      Cardiac*wave +
                                                      Obstetrics*wave  +
                                                        Thoracic*wave  + 

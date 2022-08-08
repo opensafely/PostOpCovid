@@ -142,13 +142,11 @@ data.table::fwrite(weekly.post.op.risk.sub, file = here::here("output","postopco
 dt.tv.splits[event.VTE == 3, event.VTE := 2]
 n.type.events <- sort(unique(dt.tv.splits[(postcovid.VTE.cohort)  & sub.op == T,event.VTE]))[-1]
 
-dt.tv.splits[, `:=`(start = tstart - los.end,
-                    end = tstop - los.end)]
-dt.tv.splits <- dt.tv.splits[is.finite(los.end) & start>0 & end <=90] # Need to start follow up day after discharge to avoid discharge diagnoses
+dt.tv.splits <- dt.tv.splits[start.readmit>0 & end.readmit <=90] # Need to start follow up day after discharge to avoid discharge diagnoses
 
 
 post.op.VTE.model.split.sub <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Colectomy + postcovid +  
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.VTE==i) ~  Colectomy + postcovid +  
                                             Cholecystectomy + KneeReplacement + age.cat + 
                                             sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + 
                                             Current.Cancer + Emergency*week.post.disch + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
@@ -160,8 +158,8 @@ data.table::fwrite(broom::tidy(post.op.VTE.model.split.sub[[1]], exponentiate= T
 
 newdata.rows <- length(levels(dt.tv.splits$week.post.disch)) - 1
 
-newdata.pred <- data.table::data.table('start' = rep(c(0,7,14,21,28), times = 2),
-                                       'end' = rep(c(7,14,21,28,35),times = 2),
+newdata.pred <- data.table::data.table('start.readmit' = rep(c(0,7,14,21,28), times = 2),
+                                       'end.readmit' = rep(c(7,14,21,28,35),times = 2),
                                        'event.VTE' = rep(F,newdata.rows*2),
                                        'week.post.disch' = rep(paste(0:(newdata.rows - 1)), times = 2),
                                        'patient_id' = rep(1:2,each = newdata.rows),
