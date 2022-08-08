@@ -162,6 +162,7 @@ actions:
         table_los: output/postoplos.RData
         table_los_csv: output/postoplos.csv
         model_los: output/postopLOSmodel.csv
+        plot_los: output/LOSplot.png
         
   table_postopLOS_sub:      
     run: r:latest analysis/Table_postoplos_sub.R
@@ -171,6 +172,7 @@ actions:
         table_los_sub: output/postoplos_sub.RData
         table_los_sub_csv: output/postoplos_sub.csv
         model_los_sub: output/postopLOSmodel_sub.csv
+        plot_los_sub: output/LOSplotsub.png        
         
   table_postopVTE:      
     run: r:latest analysis/Table_postopVTE.R

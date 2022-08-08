@@ -7,34 +7,41 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 #load(file = here::here("output","cohort_long.RData"))
 
-dt.tv[,`:=`(post.op.wk1 = tstart  ,
-            post.op.wk2 = tstart + 7 ,
-            post.op.wk3 = tstart + 14 ,
-            post.op.wk4 = tstart + 21 ,
-            post.op.wk5 = tstart + 28,
+dt.tv[,`:=`(post.op.wk1 = study.start  ,
+            post.op.wk2 = study.start + 7 ,
+            post.op.wk3 = study.start + 14 ,
+            post.op.wk4 = study.start + 21 ,
+            post.op.wk5 = study.start + 28,
             covid.event = event == 1,
             censor.event = event!=1)]
+
 # Identify unique date times for week boundaries per patient
-dt.tv.splits <- data.table::melt(dt.tv[is.finite(discharge.date),tail(.SD,1),
+dt.tv.splits <- data.table::melt(dt.tv[is.finite(end.fu),tail(.SD,1),
                                        .SDcols = c(paste0("post.op.wk",1:5)),
-                                       keyby = c('patient_id')], 
-                                 id.vars = c('patient_id'),
+                                       keyby = c('patient_id','end.fu')], 
+                                 id.vars = c('patient_id','end.fu'),
                                  value.name = "post.op.wk",
                                  variable.name = "week.post.op" )[
-                                   order(patient_id, week.post.op),][,
+                                   order(patient_id,end.fu, week.post.op),][,
                                                                         `:=` (tstart = post.op.wk,
                                                                               week.post.op = as.numeric(gsub(".*?([0-9]+).*",
                                                                                                                 '\\1',
                                                                                                              week.post.op)))][
-                                                                                                                  ,.(patient_id, week.post.op,tstart)]
+                                                                                                                  ,.(patient_id, end.fu, week.post.op,tstart)]
 dt.tv[,week.post.op := NA]
-dt.tv.splits <- unique(data.table::rbindlist(list(dt.tv.splits,dt.tv[,.(patient_id, week.post.op, tstart)])))
+dt.tv.splits <- unique(data.table::rbindlist(list(dt.tv.splits,dt.tv[,.(patient_id, end.fu, week.post.op, tstart)])))
 dt.tv.splits[,post.op.wk := tstart]
-data.table::setkey(dt.tv.splits,patient_id, tstart)
+data.table::setkey(dt.tv.splits,patient_id, end.fu, tstart)
 dt.tv[,week.post.op := NULL]
-dt.tv.splits <- dt.tv[dt.tv.splits,,roll = Inf, on = .(patient_id,tstart)]
+dt.tv.splits <- dt.tv[dt.tv.splits,,roll = Inf, on = .(patient_id, end.fu,tstart)]
 
 dates.expand.start.align_(dt = 'dt.tv.splits',
+                          start.DTTM = 'tstart',
+                          end.DTTM = 'tstop',
+                          ID = 'patient_id',
+                          merged.DTTM = 'post.op.wk')
+
+dates.expand.end.align_(dt = 'dt.tv.splits',
                           start.DTTM = 'tstart',
                           end.DTTM = 'tstop',
                           ID = 'patient_id',
@@ -64,22 +71,22 @@ dt.tv.splits[,`:=`(post.disch.wk1 = discharge.date  ,
 # Identify unique date times for week boundaries per patient
 dt.tv.splits2 <- data.table::melt(dt.tv.splits[is.finite(discharge.date),tail(.SD,1),
                                        .SDcols = c(paste0("post.disch.wk",1:5)),
-                                       keyby = c('patient_id')], 
-                                 id.vars = c('patient_id'),
+                                       keyby = c('patient_id', 'end.fu')], 
+                                 id.vars = c('patient_id', 'end.fu'),
                                  value.name = "post.disch.wk",
                                  variable.name = "week.post.disch" )[
-                                   order(patient_id, week.post.disch),][,
+                                   order(patient_id, end.fu, week.post.disch),][,
                                                                         `:=` (tstart = post.disch.wk,
                                                                               week.post.disch = as.numeric(gsub(".*?([0-9]+).*",
                                                                                                                 '\\1',
                                                                                                                 week.post.disch)))][
-                                                                                                                  ,.(patient_id, week.post.disch,tstart)]
+                                                                                                                  ,.(patient_id, end.fu, week.post.disch,tstart)]
 dt.tv.splits[,week.post.disch := NA]
-dt.tv.splits2 <- unique(data.table::rbindlist(list(dt.tv.splits2,dt.tv.splits[,.(patient_id, week.post.disch, tstart)])))
+dt.tv.splits2 <- unique(data.table::rbindlist(list(dt.tv.splits2,dt.tv.splits[,.(patient_id, end.fu, week.post.disch, tstart)])))
 dt.tv.splits2[,post.disch.wk := tstart]
-data.table::setkey(dt.tv.splits2,patient_id, tstart)
+data.table::setkey(dt.tv.splits2,patient_id, end.fu, tstart)
 dt.tv.splits[,week.post.disch := NULL]
-dt.tv.splits <- dt.tv.splits[dt.tv.splits2,,roll = Inf, on = .(patient_id,tstart)]
+dt.tv.splits <- dt.tv.splits[dt.tv.splits2,,roll = Inf, on = .(patient_id, end.fu,tstart)]
 rm(dt.tv.splits2)
 dates.expand.start.align_(dt = 'dt.tv.splits',
                           start.DTTM = 'tstart',
@@ -99,6 +106,37 @@ dt.tv.splits[,week.post.disch := as.factor(week.post.disch)]
 dt.tv.splits[, los.end := min(los.end, na.rm = T), keyby = .(patient_id, end.fu)]
 
 #Reset outcomes to current end times
+
+
+## post op COVID cohort----
+data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
+dt.tv.splits[,final.date := covid.end]
+dt.tv.splits[is.finite(readmit.end) & readmit.end < final.date & readmit.end > study.start & COVIDreadmission == F, final.date := readmit.end]
+dt.tv.splits[is.finite(end.fu) & end.fu < final.date, final.date := end.fu]
+data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
+min.grp.col_(dt = 'dt.tv.splits',min.var.name = 'final.date',aggregate.cols = 'final.date',id.vars = c("patient_id","end.fu"))
+
+dt.tv.splits[, postop.covid.cohort := start>=0 & tstop <= final.date & end <= 90]
+
+dt.tv.splits[(postop.covid.cohort) & start ==0  & is.finite(admit.date),any.op.COVID := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
+dt.tv.splits[is.na(any.op.COVID), any.op.COVID := F]
+dt.tv.splits[, any.op.COVID := any.op.COVID > 0]
+data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
+dt.tv.splits[, any.op.COVID := cummax(any.op.COVID), keyby = .(patient_id, end.fu)]
+
+dt.tv.splits[, postop.covid.cohort := start>=0 & tstop <= final.date & end <= 90 & any.op.COVID == T]
+
+dt.tv.splits[,event :=0]
+dt.tv.splits[COVIDpositivedate == tstop & (postop.covid.cohort), event := 1] 
+dt.tv.splits[emergency_readmitdate  == tstop & 
+                     event != 1 & 
+                     readmit.end > study.start & 
+                     COVIDreadmission == F &
+                     (postop.covid.cohort), event := 2] # Non covid emergency readmission needs to be after admission date (as cannot tell same day admission sequence)
+dt.tv.splits[date_death_ons == tstop & event != 1 & (postop.covid.cohort), event := 3]
+
+
+#### Post discharge events
 
 
 dt.tv.splits[,discharge.date.locf:= discharge.date]

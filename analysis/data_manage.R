@@ -75,41 +75,6 @@ dt[,(paste("admit.wave.",procedures, sep ="")) := lapply(.SD, function(x) cut(as
                                                                               ordered = T)), 
                                                          .SDcols = c(paste0(procedures,"_date_admitted"))]
 
-## Table to check numbers before reshaping for debugging only- not run now
-#dt[, (paste0(x,"post.VTE")) := ((!is.na(.SD[,3]) &  
-#                        .SD[,3] <= .SD[,1] + 90 & .SD[,3] >= .SD[,1]) | 
-#                       ((!is.na(.SD[,4]) &  
-#                           .SD[,4] <= .SD[,1] + 90 & .SD[,4] >= .SD[,1]))) & 
-#        (!is.na(.SD[,5]) &  
-#           .SD[,5] <= .SD[,1] + 90 & .SD[,5] >= .SD[,1]), 
-#   .SDcols = paste0(x,c("_date_admitted","_date_discharged","_VTE_GP_date","_VTE_HES_date_admitted","_anticoagulation_prescriptions_date"))]  # events flagged at end of episode
-#}
-
-# demo.waves.tab <- lapply(procedures, function(proc) { 
-#   t(data.table::rbindlist((lapply(paste0("Wave_",1:4), function(x)  {
-#     cbind(dt[is.finite(get(paste0(proc,'_date_admitted'))) & get(paste0('admit.wave.',proc)) == x,.("Procedures" = .N,
-#                                  "Patients" = length(unique(patient_id)),
-#                                  "Male" = round(mean(sex=='M'),digits = 2),
-#                                  "Age (IQR)" = paste(round(quantile(as.numeric(get(paste0(proc,'_date_admitted')) - as.numeric(dateofbirth))/365.25,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-#                                  "BMI (IQR)" = paste(round(quantile(bmi,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-#                                  "IMD (IQR)" = paste(round(quantile(imd,c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-#                                  "1st Vaccination" = round(mean(is.finite(covid_vaccine_dates_1) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_1 >= 14),digits = 2),
-#                                  "2nd Vaccination" = round(mean(is.finite(covid_vaccine_dates_2) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_2 >= 14),digits = 2),
-#                                  "3rd Vaccination" = round(mean(is.finite(covid_vaccine_dates_3) & get(paste0(proc,'_date_admitted'))  - covid_vaccine_dates_3 >= 14),digits = 2),
-#                                  "Current Cancer"  = round(mean(substr(get(paste0(proc,'_primary_diagnosis')),1,1) =='C'), digits = 2),
-#                                  "Emergency" = round(mean(substr(get(paste0(proc,'_admission_method')),1,1) == "2"),digits = 2),
-#                                  "Length of stay (IQR)" =  paste(round(quantile((get(paste0(proc,'_date_discharged')) - get(paste0(proc,'_date_admitted'))),c(0.25,0.5,0.75),na.rm = T),digits = 2),collapse = ","),
-#                                  "90 day mortality" = round(mean(is.finite(date_death_ons) & date_death_ons - get(paste0(proc,'_date_admitted')) <= 90),digits = 2),
-#                                  "90 day COVID-19" = round(mean(is.finite(get(paste0(proc,'_date'))) & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) <= 90  & get(paste0(proc,'_date')) - get(paste0(proc,'_date_admitted')) >=0),digits = 2),
-#                                  "90 day VTE" = round(mean(get(paste0(proc,'post.VTE')), na.rm = T),digits = 2))],
-#                                t(dt[is.finite(get(paste0(proc,'_date_admitted'))) & get(paste0('admit.wave.',proc)) == x,.N, keyby = region][, do.call(paste,c(.SD, sep = ": "))]),
-#                                t(dt[get(paste0('admit.wave.',proc)) == x,.N, by = .(.grp = eval(parse(text = paste0(proc,'_primary_diagnosis'))))][order(-N), do.call(paste,c(.SD, sep = ": "))][1:5])                              
-#                                )})), fill = T))})
-# 
-# demo.waves.tab
-# 
-# for(i in 1:length(procedures)) print(xtable::xtable(demo.waves.tab[[i]]), type = 'html', here::here("output",paste0("table1",procedures[i],".html")))
-# rm(demo.waves.tab)
 
 ####
 # Reshape data to long time varying cohort per procedure ----
@@ -547,14 +512,14 @@ dt.tv[, covid.end := COVIDpositivedate]
 dt.tv[!is.finite(covid.end), covid.end := end.fu]
 
 names(dt.tv)[names(dt.tv)=='recent_date'] <- 'recentCOVIDpositivedate'
-dt.tv[,recentCOVID := as.numeric(is.finite(recentCOVIDpositivedate)) ]
+dt.tv[,recentCOVID := as.numeric(is.finite(recentCOVIDpositivedate)) & admit.date - recentCOVIDpositivedate %between% c(42,8)  ]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 max.grp.col_(dt = 'dt.tv',max.var.name = 'recentCOVID',aggregate.cols = 'recentCOVID',id.vars = c("patient_id","end.fu"))
 dt.tv[, recentCOVID := recentCOVID==1]
 dt.tv[!is.finite(recentCOVID), recentCOVID := F]
 
 names(dt.tv)[names(dt.tv)=='previous_date'] <- 'previousCOVIDpositivedate'
-dt.tv[,previousCOVID := as.numeric(is.finite(previousCOVIDpositivedate)) ]
+dt.tv[,previousCOVID := as.numeric(is.finite(previousCOVIDpositivedate)) & admit.date - recentCOVIDpositivedate > 42 ]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 max.grp.col_(dt = 'dt.tv',max.var.name = 'previousCOVID',aggregate.cols = 'previousCOVID',id.vars = c("patient_id","end.fu"))
 dt.tv[, previousCOVID := previousCOVID==1]
@@ -684,6 +649,7 @@ dt.tv[is.finite(end.fu) & end.fu < final.date.VTE, final.date.VTE := end.fu]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 min.grp.col_(dt = 'dt.tv',min.var.name = 'final.date.VTE',aggregate.cols = 'final.date.VTE',id.vars = c("patient_id","end.fu"))
 
+# Readmission period definitely following an admission with an operation
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE]
 dt.tv[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date),any.op.VTE := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]

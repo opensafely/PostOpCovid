@@ -26,7 +26,7 @@ n.type.events <- sort(unique(dt.tv.splits[(postop.covid.cohort) ,event]))[-1]
 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits <- dt.tv.splits[,.(patient_id,Colectomy,Cholecystectomy,HipReplacement,KneeReplacement,age.cat,sex,bmi.cat,imd5,wave,vaccination.status.factor,region,Current.Cancer,Emergency,
-                                week.post.disch,week.post.op,LOS.bin,Charl12,recentCOVID,previousCOVID,postcovid,
+                                week.post.disch,week.post.op,LOS.bin,Charl12,recentCOVID,previousCOVID,postcovid,start.readmit, end.readmit,
                                 tstart,tstop,end.fu,start,end,event,postop.covid.cohort,los.end,event.VTE,postcovid.VTE.cohort,study.start)]
 
 # Start = 0 = day of operation

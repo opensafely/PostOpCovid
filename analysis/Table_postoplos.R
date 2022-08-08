@@ -34,6 +34,10 @@ post.op.LOS.model <-  flexsurv::flexsurvreg(survival::Surv(start,end, event.los 
 #data.table::fwrite(broom::tidy(post.op.LOS.model, exponentiate= T, conf.int = T), file = here::here("output","post.op.LOS.model.csv"))
 write.table(tidy.flexsurvreg(post.op.LOS.model), here::here("output","postopLOSmodel.csv"), sep = ",",quote = F, row.names = F)
 
+png(filename = here::here("output","LOSplot.png"), res = 300, width = 6, height = 4, units = 'in')
+plot(post.op.LOS.model, main = "Mean survival curve for length of stay model for broad procedure categories")
+dev.off()
+
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
                                                 'end' = rep(30,8*length(procedures)),
                                                 'event' = rep(F,8*length(procedures)),
