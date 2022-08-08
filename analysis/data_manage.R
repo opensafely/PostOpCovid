@@ -606,13 +606,14 @@ max.grp.col_(dt = 'dt.tv',max.var.name = 'any.op',aggregate.cols = 'any.op',id.v
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,final.date := covid.end]
 dt.tv[is.finite(readmit.end) & readmit.end < final.date & readmit.end > study.start & COVIDreadmission == F, final.date := readmit.end]
-dt.tv[is.finite(end.fu) & end.fu < final.date, final.date := end.fu]
+dt.tv[is.finite(end.fu) & (end.fu < final.date | !is.finite(end.fu)), final.date := end.fu]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 min.grp.col_(dt = 'dt.tv',min.var.name = 'final.date',aggregate.cols = 'final.date',id.vars = c("patient_id","end.fu"))
 
 dt.tv[, postop.covid.cohort := start>=0 & tstop <= final.date & end <= 90]
 
-dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date),any.op.COVID := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
+dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date),
+        any.op.COVID := rowSums(.SD,na.rm =T), .SDcols = c(procedures)]
 dt.tv[is.na(any.op.COVID), any.op.COVID := F]
 dt.tv[, any.op.COVID := any.op.COVID > 0]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -645,7 +646,7 @@ dt.tv[, `:=`(start.readmit = tstart - discharge.date.locf,
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[,final.date.VTE := VTE.end]
 dt.tv[is.finite(readmit.end) & readmit.end < final.date.VTE & COVIDreadmission == F & readmit.end > study.start, final.date.VTE := readmit.end]
-dt.tv[is.finite(end.fu) & end.fu < final.date.VTE, final.date.VTE := end.fu]
+dt.tv[is.finite(end.fu) & & (end.fu < final.date.VTE | !is.finite(end.fu)), final.date.VTE := end.fu]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 min.grp.col_(dt = 'dt.tv',min.var.name = 'final.date.VTE',aggregate.cols = 'final.date.VTE',id.vars = c("patient_id","end.fu"))
@@ -672,7 +673,7 @@ dt.tv[date_death_ons == tstop & event.VTE != 1 & (postcovid.VTE.cohort), event.V
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[COVIDreadmission == F & start.readmit > 0 & is.finite(readmit.end) & readmit.end > study.start,final.date.readmit := readmit.end] # Readmission defined as after discharge date in study definition, but if readmitted same day as operation we do not have times to ensure sequence is correct
-dt.tv[is.finite(end.fu) & end.fu < final.date.readmit , final.date.readmit := end.fu]
+dt.tv[is.finite(end.fu) & (end.fu < final.date.readmit | !is.finite(end.fu)) , final.date.readmit := end.fu]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 min.grp.col_(dt = 'dt.tv',min.var.name = 'final.date.readmit',aggregate.cols = 'final.date.readmit',id.vars = c("patient_id","end.fu"))
 
