@@ -34,7 +34,8 @@ dt.tv.splits[,post.op.wk := tstart]
 data.table::setkey(dt.tv.splits,patient_id, end.fu, tstart)
 dt.tv[,week.post.op := NULL]
 dt.tv.splits <- dt.tv[dt.tv.splits,,roll = Inf, on = .(patient_id, end.fu,tstart)]
-
+rm(dt.tv)
+gc()
 dates.expand.start.align_(dt = 'dt.tv.splits',
                           start.DTTM = 'tstart',
                           end.DTTM = 'tstop',
@@ -105,11 +106,21 @@ dt.tv.splits[tstart >= admit.date & (!is.finite(discharge.date) | tstop <= disch
 dt.tv.splits[,week.post.disch := as.factor(week.post.disch)]
 dt.tv.splits[, los.end := min(los.end, na.rm = T), keyby = .(patient_id, end.fu)]
 
-#Reset outcomes to current end times
+#Reset outcomes and timings to expanded date times
+dt.tv.splits[, `:=`(start = tstart - study.start,
+             end = tstop - study.start)]
+
+
+dt.tv.splits[,discharge.date.locf:= discharge.date]
+data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 min.grp.col_(dt = 'dt.tv.splits',
    min.var.name = 'readmit.end',
    aggregate.cols = 'emergency_readmitdate',
    id.vars = c("patient_id","end.fu"))
+
+dt.tv.splits[, `:=`(start.readmit = tstart - discharge.date.locf,
+             end.readmit = tstop - discharge.date.locf)]
+
 
 ## post op COVID cohort----
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
@@ -141,23 +152,10 @@ dt.tv.splits[date_death_ons == tstop & event != 1 & (postop.covid.cohort), event
 
 #### Post discharge events
 
-
-dt.tv.splits[,discharge.date.locf:= discharge.date]
-
-data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
-locf.roll_(dt = 'dt.tv.splits',
-           ID = 'patient_id',
-           start.DTTM = 'tstart',
-           group = 'c("patient_id","end.fu")',
-           var.cols = paste0('c("discharge.date.locf")'))
-
-
-dt.tv.splits[, `:=`(start.readmit = tstart - discharge.date.locf,
-             end.readmit = tstop - discharge.date.locf)]
 # VTE events
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits[, VTE.end := post.VTE.date]
-dt.tv.splits[!is.finite(VTE.end) & (end.fu < post.VTE.date | !is.finite(post.VTE.date)) , VTE.end := end.fu]
+dt.tv.splits[!is.finite(VTE.end) & (end.fu < post.VTE.date | !is.finite(VTE.end)) , VTE.end := end.fu]
 
 dt.tv.splits[,final.date.VTE := VTE.end]
 dt.tv.splits[is.finite(readmit.end) & readmit.end < final.date.VTE & COVIDreadmission == F & readmit.end > study.start, final.date.VTE := readmit.end]
