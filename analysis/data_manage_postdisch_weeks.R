@@ -106,7 +106,10 @@ dt.tv.splits[,week.post.disch := as.factor(week.post.disch)]
 dt.tv.splits[, los.end := min(los.end, na.rm = T), keyby = .(patient_id, end.fu)]
 
 #Reset outcomes to current end times
-
+min.grp.col_(dt = 'dt.tv.splits',
+   min.var.name = 'readmit.end',
+   aggregate.cols = 'emergency_readmitdate',
+   id.vars = c("patient_id","end.fu"))
 
 ## post op COVID cohort----
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
@@ -155,11 +158,6 @@ dt.tv.splits[, `:=`(start.readmit = tstart - discharge.date.locf,
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits[, VTE.end := post.VTE.date]
 dt.tv.splits[!is.finite(VTE.end) | post.VTE.date > end.fu, VTE.end := end.fu]
-
-min.grp.col_(dt = 'dt.tv.splits',
-   min.var.name = 'readmit.end',
-   aggregate.cols = 'emergency_readmitdate',
-   id.vars = c("patient_id","end.fu"))
 
 dt.tv.splits[,final.date.VTE := VTE.end]
 dt.tv.splits[is.finite(readmit.end) & readmit.end < final.date.VTE & COVIDreadmission == F & readmit.end > study.start, final.date.VTE := readmit.end]
