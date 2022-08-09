@@ -10,26 +10,26 @@ dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.
 
 #dt.tv.splits <- data.table::setDT(arrow::read_feather(here::here("output","cohort_postdisch_week_splits.feather")))
 #dt.tv.splits <- dt.tv.splits[,.(patient_id,Colectomy,Cholecystectomy,HipReplacement,KneeReplacement,age.cat,sex,bmi.cat,imd5,wave,vaccination.status.factor,region,Current.Cancer,Emergency,
-                                week.post.disch,week.post.op,LOS.bin,Charl12,recentCOVID,previousCOVID,postcovid,start.readmit,end.readmit,
-                                tstart,tstop,end.fu,start,end,event,postop.covid.cohort,los.end,event.VTE,postcovid.VTE.cohort,study.start)]
+                                #week.post.disch,week.post.op,LOS.bin,Charl12,recentCOVID,previousCOVID,postcovid,start.readmit,end.readmit,
+                               # tstart,tstop,end.fu,start,end,event,postop.covid.cohort,los.end,event.VTE,postcovid.VTE.cohort,study.start)]
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
 # Start = 0 = day of operation
 #dt.tv.splits[, `:=`(start = tstart - study.start,
-                    end = tstop - study.start)]
+                    #end = tstop - study.start)]
 #dt.tv.splits <- dt.tv.splits[start >= 0,] # Need to start follow up on day after operation as can't identify order when events on same day
 
-#dt.tv.splits[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
-#               (is.finite(Cholecystectomy) & Cholecystectomy == T) |
-#               (is.finite(HipReplacement)  & HipReplacement == T) | 
-#               (is.finite(KneeReplacement) & KneeReplacement == T)]
+dt.tv.splits[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
+               (is.finite(Cholecystectomy) & Cholecystectomy == T) |
+               (is.finite(HipReplacement)  & HipReplacement == T) | 
+               (is.finite(KneeReplacement) & KneeReplacement == T)]
 
-#data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
-#max.grp.col_(dt = 'dt.tv.splits',
-#             max.var.name = 'sub.op',
-#             aggregate.cols = 'sub.op',
-#             id.vars = c("patient_id","end.fu"))
+data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
+max.grp.col_(dt = 'dt.tv.splits',
+             max.var.name = 'sub.op',
+             aggregate.cols = 'sub.op',
+             id.vars = c("patient_id","end.fu"))
 
 #dt.tv.splits[event == 3, event := 2]
 n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) & sub.op == T,event]))[-1]
@@ -40,7 +40,7 @@ data.table::setkey(dt.tv, patient_id, end.fu, start)
 post.op.covid.model.split.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Colectomy + Cholecystectomy +  
                                                       KneeReplacement + age.cat + 
-  sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency*week.post.op +  Charl12 + recentCOVID + previousCOVID,
+  sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency +  Charl12 + recentCOVID + previousCOVID,
    id = patient_id,
   data = dt.tv[(postop.covid.cohort) & start <=end & sub.op == T], model = T))
 

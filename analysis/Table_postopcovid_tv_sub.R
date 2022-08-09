@@ -36,16 +36,16 @@ n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 #dt.tv <- dt.tv[start >= 0,] # Need to start follow up on day after operation as can't identify order when events on same day
 
 
-#dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
-#        (is.finite(Cholecystectomy) & Cholecystectomy == T) |
-#        (is.finite(HipReplacement)  & HipReplacement == T) | 
-#        (is.finite(KneeReplacement) & KneeReplacement == T)]
+dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
+        (is.finite(Cholecystectomy) & Cholecystectomy == T) |
+        (is.finite(HipReplacement)  & HipReplacement == T) | 
+       (is.finite(KneeReplacement) & KneeReplacement == T)]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-#max.grp.col_(dt = 'dt.tv',
-#             max.var.name = 'sub.op',
-#             aggregate.cols = 'sub.op',
-#             id.vars = c("patient_id","end.fu"))
+max.grp.col_(dt = 'dt.tv',
+             max.var.name = 'sub.op',
+             aggregate.cols = 'sub.op',
+            id.vars = c("patient_id","end.fu"))
 
 data.table::setkey(dt.tv, patient_id, end.fu, start)
 post.op.covid.model.split.sub <- 
