@@ -120,9 +120,8 @@ newdata.pred <- data.table::data.table('start' = c(0),
 #   })),2,cumsum))*
 #     lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)],2,cumsum ), digits = 3))
 
-weekly.post.op.risk <- cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv[(postop.covid.cohort) & start <=end & sub.op == T]', model = 'post.op.covid.model.split.sub', newdata = 'newdata.pred', day = 1:35)
+weekly.post.op.risk.sub <- cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv[(postop.covid.cohort) & start <=end & sub.op == T]', model = 'post.op.covid.model.split.sub', newdata = 'newdata.pred', day = 1:35)
 
-weekly.post.op.risk[!is.finite(weekly.post.op.risk)] <- 0
 
 times.comb <-sort(unique(dt.tv[(postop.covid.cohort) & start <=end & sub.op == T][ event %in% n.type.events ,end]))
 
