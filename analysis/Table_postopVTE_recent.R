@@ -15,15 +15,17 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 # Not enough deaths to treat separately from emergency readmissions
 dt.tv[event.VTE == 3, event.VTE := 2]
-n.type.events <- 1 #sort(unique(dt.tv[(postcovid.VTE.cohort) ,event.VTE]))[-1]
+n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort) ,event.VTE]))[-1]
 
 post.op.VTE.model.recentCOVID <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.VTE==i) ~ Abdominal*wave + Cardiac*wave + Obstetrics*wave + Thoracic*wave + Vascular*wave + postcovid*wave   + age.cat +
                                             sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID*wave + previousCOVID , id = patient_id,
                                           data = dt.tv[(postcovid.VTE.cohort)], model = T))
 
-data.table::fwrite(broom::tidy(post.op.VTE.model.recentCOVID[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelrecentCOVID.csv"))
+#data.table::fwrite(broom::tidy(post.op.VTE.model.recentCOVID[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelrecentCOVID.csv"))
 
+names(post.op.VTE.model.recentCOVID) <- c('Post discharge VTE','Non COVID-19 emergency readmission or mortality')[n.type.events]
+modelsummary::modelsummary(post.op.VTE.model.recentCOVID,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, conf_level = .95, exponentiate = TRUE, output = here::here("output","postopVTEmodelrecentCOVID.html"))
 
 
 new.data.postop.recent.covid <- data.table::data.table('start.readmit' = rep(0,8*length(procedures)),

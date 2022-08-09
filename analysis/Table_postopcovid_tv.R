@@ -33,10 +33,9 @@ post.op.covid.model.split <-
    id = patient_id,
   data = dt.tv[(postop.covid.cohort) & start <=end], model = T))
 
-data.table::fwrite(broom::tidy(post.op.covid.model.split[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelsplit.csv"))
-
-
-
+#data.table::fwrite(broom::tidy(post.op.covid.model.split[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelsplit.csv"))
+names(post.op.covid.model.split) <- c('COVID-19','Non COVID-19 emergency readmission','Mortality')[n.type.events]
+modelsummary::modelsummary(post.op.covid.model.split,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, conf_level = .95, exponentiate = TRUE, output = here::here("output","postopcovidmodelsplit.html"))
 newdata.rows <- 1
 
 newdata.pred <- data.table::data.table('start' = c(0),
@@ -142,7 +141,9 @@ post.op.VTE.model.split <-
                                           id = patient_id,
                                           data = dt.tv[(postcovid.VTE.cohort) & start <=end], model = T))
 
-data.table::fwrite(broom::tidy(post.op.VTE.model.split[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelsplit.csv"))
+#data.table::fwrite(broom::tidy(post.op.VTE.model.split[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelsplit.csv"))
+names(post.op.VTE.model.split) <- c('Post discharge VTE','Non COVID-19 emergency readmission','Mortality')[n.type.events]
+modelsummary::modelsummary(post.op.VTE.model.split,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, conf_level = .95, exponentiate = TRUE, output = here::here("output","postopVTEmodelsplit.html"))
 
 
 newdata.rows <- 1 #length(levels(dt.tv$week.post.disch)) - 1

@@ -32,10 +32,14 @@ n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort) & sub.op == T,event.VT
 post.op.VTE.model.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Colectomy*wave + Cholecystectomy*wave + KneeReplacement*wave + 
                                             postcovid*wave + age.cat + sex + bmi.cat + imd5 + vaccination.status.factor + region + Current.Cancer + 
-                                          Emergency + LOS.bin + Charl12 + recentCOVID*wave + previousCOVID, id = patient_id,
+                                          Emergency + LOS.bin + Charl12 + wave + previousCOVID, id = patient_id,
                                           data = dt.tv[(postcovid.VTE.cohort) & sub.op == T], model = T))
 
-data.table::fwrite(broom::tidy(post.op.VTE.model.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelsub.csv"))
+#data.table::fwrite(broom::tidy(post.op.VTE.model.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelsub.csv"))
+
+names(post.op.VTE.model.sub) <- c('Post discharge VTE','Non COVID-19 emergency readmission or mortality')[n.type.events]
+modelsummary::modelsummary(post.op.VTE.model.sub,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, conf_level = .95, exponentiate = TRUE, output = here::here("output","postopVTEmodelsub.html"))
+
 
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
                                                 'end' = rep(30,8*length(procedures)),

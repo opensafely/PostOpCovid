@@ -19,7 +19,10 @@ post.op.died.model <-
                          postcovid*wave + age.cat + sex + bmi.cat + imd5  + vaccination.status.factor + region + Current.Cancer +
                          Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                        data = dt.tv[start >=0 & any.op == T], model = T))
-data.table::fwrite(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopdiedmodel.csv"))
+#data.table::fwrite(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopdiedmodel.csv"))
+
+names(post.op.died.model) <- c('Mortality')
+modelsummary::modelsummary(post.op.died.model,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, conf_level = .95, exponentiate = TRUE, output = here::here("output","postopdiedmodel.html"))
 
 
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
