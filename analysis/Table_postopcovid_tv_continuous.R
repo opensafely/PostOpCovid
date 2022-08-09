@@ -121,7 +121,7 @@ ggplot2::ggplot(daily.post.op.risk[`Days post op`<= days.limit]) +
 ggplot2::ggsave( filename = here::here("output","dailyCovidRisk.pdf"),device = "pdf",width = 8, height = 8, units = 'in',dpi = 'retina')
 ##############
 # Not enough deaths to treat separately from emergency readmissions
-#dt.tv[event.VTE == 3, event.VTE := 2]
+dt.tv[event.VTE == 3, event.VTE := 2]
 n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort),event.VTE]))[-1]
 
 post.op.VTE.model.split <- 

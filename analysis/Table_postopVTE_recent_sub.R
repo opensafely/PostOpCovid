@@ -29,7 +29,7 @@ max.grp.col_(dt = 'dt.tv',
 
 # Not enough deaths to treat separately from emergency readmissions
 dt.tv[event.VTE == 3, event.VTE := 2]
-n.type.events <- 1 # sort(unique(dt.tv[(postcovid.VTE.cohort)  & sub.op == T,event.VTE]))[-1]
+n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort)  & sub.op == T,event.VTE]))[-1]
 
 post.op.VTE.model.recentCOVID.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.VTE==i) ~ Colectomy*wave + Cholecystectomy*wave + KneeReplacement*wave + 

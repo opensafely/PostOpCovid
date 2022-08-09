@@ -133,7 +133,7 @@ ggplot2::ggsave( filename = here::here("output","dailyCovidRiskSub.pdf"),device 
 
 ##############
 # Not enough deaths to treat separately from emergency readmissions
-#dt.tv.splits[event.VTE == 3, event.VTE := 2]
+dt.tv.splits[event.VTE == 3, event.VTE := 2]
 n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort) & sub.op == T,event.VTE]))[-1]
 
 
