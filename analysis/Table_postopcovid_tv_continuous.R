@@ -205,7 +205,7 @@ data.table::fwrite(daily.post.op.VTE.risk, file = here::here("output","daily_pos
 
 
 ######################
-ggplot2::ggplot(daily.post.op.VTE.risk[`Days post discharge`<= newdata.rows]) +
+ggplot2::ggplot(daily.post.op.VTE.risk[`Days post discharge`<= days.limit]) +
   ggplot2::geom_line(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) + 
   ggplot2::geom_smooth(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) + 
   ggplot2::ylab("Daily risk (%)") +

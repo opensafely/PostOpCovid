@@ -128,11 +128,11 @@ actions:
       moderately_sensitive:
         table_tv_daily: output/postopcovid_tv_daily.RData
         table_tv_csv_daily: output/daily_postopcovid_tv.csv
-        model_tv_daily: postopcovidmodeldaily.html
+        model_tv_daily: output/postopcovidmodeldaily.html
         plot_tv_daily: output/dailyCovidRisk.pdf
         table_tv_VTE_csv_daily: output/daily_postopcovid_VTE_tv.csv    
         plot_tv_VTE_daily: output/dailyVTERisk.pdf
-        model_tv_VTE_daily: postopVTEmodeldaily.html
+        model_tv_VTE_daily: output/postopVTEmodeldaily.html
 
 
   table_postopcovid_tv_sub:      
@@ -153,11 +153,11 @@ actions:
       moderately_sensitive:
         table_tv_daily_sub: output/postopcovid_tv_daily_sub.RData
         table_tv_csv_daily_sub: output/daily_postopcovid_tv_sub.csv
-        model_tv_daily_sub: postopcovidmodeldailysub.html
+        model_tv_daily_sub: output/postopcovidmodeldailysub.html
         plot_tv_daily_sub: output/dailyCovidRiskSub.pdf
         table_tv_VTE_csv_daily_sub: output/daily_postopcovid_VTE_tv_sub.csv    
         plot_tv_VTE_daily_sub: output/dailyVTERiskSub.pdf        
-        model_tv_VTE_daily_sub: postopVTEmodeldailysub.html
+        model_tv_VTE_daily_sub: output/postopVTEmodeldailysub.html
         
   table_postopLOS:      
     run: r:latest analysis/Table_postoplos.R

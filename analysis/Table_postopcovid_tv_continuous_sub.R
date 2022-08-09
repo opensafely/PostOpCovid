@@ -133,7 +133,7 @@ ggplot2::ggsave( filename = here::here("output","dailyCovidRiskSub.pdf"),device 
 
 ##############
 # Not enough deaths to treat separately from emergency readmissions
-dt.tv.splits[event.VTE == 3, event.VTE := 2]
+dt.tv[event.VTE == 3, event.VTE := 2]
 n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort) & sub.op == T,event.VTE]))[-1]
 
 
@@ -217,7 +217,7 @@ save(daily.post.op.risk.sub,daily.post.op.VTE.risk.sub, file = here::here("outpu
 data.table::fwrite(daily.post.op.VTE.risk.sub, file = here::here("output","daily_postopcovid_VTE_tv_sub.csv"))
 
 ######################
-ggplot2::ggplot(daily.post.op.VTE.risk.sub[`Days post discharge`<= newdata.rows]) +
+ggplot2::ggplot(daily.post.op.VTE.risk.sub[`Days post discharge`<= days.limit]) +
   ggplot2::geom_line(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) + 
   ggplot2::geom_smooth(ggplot2::aes(x = `Days post discharge`, y = Risk, colour = COVID)) +
   ggplot2::ylab("Daily risk (%)") +
