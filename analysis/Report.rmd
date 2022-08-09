@@ -16,6 +16,7 @@ library(foreach)
 library(data.table)
 library(kableExtra)
 library(survival)
+library(modelsummary)
 
 # This alters kableExtra function to print black text in tables when Rstudio is in dark mode
 print.kableExtra <- function (x, ...) {
