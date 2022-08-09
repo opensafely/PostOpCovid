@@ -37,10 +37,10 @@ data.table::fwrite(broom::tidy(post.op.covid.model.split[[1]], exponentiate= T, 
 
 
 
-newdata.rows <- 5
+newdata.rows <- 1
 
-newdata.pred <- data.table::data.table('start' = c(0,7,14,21,28),
-                                       'end' = c(7,14,21,28,35),
+newdata.pred <- data.table::data.table('start' = c(0),
+                                       'end' = c(35),
                                        'event' = rep(F,newdata.rows),
                                       'week.post.op' = paste(1:newdata.rows),
                                       'patient_id' = 1:newdata.rows,
@@ -78,30 +78,35 @@ newdata.pred <- data.table::data.table('start' = c(0,7,14,21,28),
 #   }
 # })]
 
-base.haz <- lapply(n.type.events, function(i) survival::basehaz(post.op.covid.model.split[[i]],centered = F))
+# base.haz <- lapply(n.type.events, function(i) survival::basehaz(post.op.covid.model.split[[i]],centered = F))
+# 
+# base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('time' = base.haz[[i]]$time,
+#                                                                             base.haz = base.haz[[i]][,1] - 
+#                                                                               c(0,head(base.haz[[i]][,1],-1)))})
+# 
+# lp <- lapply(n.type.events, function(i) {  data.table::data.table('time' = seq(0,28,7),#0:34,
+#                                                                     'risk' = exp(predict(object = post.op.covid.model.split[[i]],
+#                                                                                          type = 'lp', 
+#                                                                                          newdata = newdata.pred))) })
+# 
+# base.haz.merge <- Reduce(x =base.haz.comp,f = function(x,y) merge(x,y,by = 'time', no.dups = T, suffixes = c(".x",".y"), all = T, sort = T))
+# 
+# for (j in 1:ncol(base.haz.merge)) set(base.haz.merge, which(!is.finite(base.haz.merge[[j]])), j, 0)
+# 
+# weekly.post.op.risk <- 
+#   unlist(round(100*apply(exp(apply(-Reduce('+',lapply(n.type.events, function(i) {
+#     lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)] 
+#   })),2,cumsum))*
+#     lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)] ,2,cumsum), digits = 3))
+# 
 
-base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('time' = base.haz[[i]]$time,
-                                                                            base.haz = base.haz[[i]][,1] - 
-                                                                              c(0,head(base.haz[[i]][,1],-1)))})
-
-lp <- lapply(n.type.events, function(i) {  data.table::data.table('time' = seq(0,28,7),#0:34,
-                                                                    'risk' = exp(predict(object = post.op.covid.model.split[[i]],
-                                                                                         type = 'lp', 
-                                                                                         newdata = newdata.pred))) })
-
-base.haz.merge <- Reduce(x =base.haz.comp,f = function(x,y) merge(x,y,by = 'time', no.dups = T, suffixes = c(".x",".y"), all = T, sort = T))
-
-for (j in 1:ncol(base.haz.merge)) set(base.haz.merge, which(!is.finite(base.haz.merge[[j]])), j, 0)
-
-weekly.post.op.risk <- 
-  unlist(round(100*apply(exp(apply(-Reduce('+',lapply(n.type.events, function(i) {
-    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)] 
-  })),2,cumsum))*
-    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,2]),.SDcols = c(2:3)] ,2,cumsum), digits = 3))
+weekly.post.op.risk <- cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv[(postop.covid.cohort) & start <=end]', model = 'post.op.covid.model.split', newdata = 'newdata.pred', day = 1:35)
 
 weekly.post.op.risk[!is.finite(weekly.post.op.risk)] <- 0
 
-times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.haz.merge$time))) >= 0]
+times.comb <-sort(unique(dt.tv[(postop.covid.cohort) & start <=end][ event %in% n.type.events ,end]))
+
+#times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.haz.merge$time))) >= 0]
 
 weekly.post.op.risk <- c(weekly.post.op.risk[max(which(times.comb < 7))],
                         weekly.post.op.risk[max(which(times.comb < 14))],
@@ -140,10 +145,10 @@ post.op.VTE.model.split <-
 data.table::fwrite(broom::tidy(post.op.VTE.model.split[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelsplit.csv"))
 
 
-newdata.rows <- 5 #length(levels(dt.tv$week.post.disch)) - 1
+newdata.rows <- 1 #length(levels(dt.tv$week.post.disch)) - 1
 
-newdata.pred <- data.table::data.table('start.readmit' = rep(c(0,7,14,21,28), times = 2),
-                                       'end.readmit' = rep(c(7,14,21,28,35),times = 2),
+newdata.pred <- data.table::data.table('start.readmit' = rep(c(0), times = 2),
+                                       'end.readmit' = rep(c(35),times = 2),
                                        'event.VTE' = rep(F,newdata.rows*2),
                                        'week.post.disch' = rep(paste(0:(newdata.rows - 1)), times = 2),
                                        'patient_id' = rep(1:2,each = newdata.rows),
@@ -169,32 +174,36 @@ newdata.pred <- data.table::data.table('start.readmit' = rep(c(0,7,14,21,28), ti
                                        'previousCOVID' = rep(F,newdata.rows*2)
 )
 
-base.haz <- lapply(n.type.events, function(i) survival::basehaz(post.op.VTE.model.split[[i]],centered = F))
+# base.haz <- lapply(n.type.events, function(i) survival::basehaz(post.op.VTE.model.split[[i]],centered = F))
+# 
+# base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('time' = base.haz[[i]]$time,
+#                                                                             base.haz = base.haz[[i]][,1] - 
+#                                                                               c(0,head(base.haz[[i]][,1],-1)))})
+# 
+# 
+# lp <- lapply(n.type.events, function(i) {  data.table::dcast(data.table::data.table('patient_id' = rep(1:2, each = 5),
+#   'time' = rep(seq(0,28,7),2),
+#                                                                     'risk' = exp(predict(object = post.op.VTE.model.split[[i]],
+#                                                                                          type = 'lp', 
+#                                                                                          newdata = newdata.pred))),time ~patient_id, value.var = 'risk')})
+# 
+# base.haz.merge <- Reduce(x =base.haz.comp,f = function(x,y) merge(x,y,by = 'time', no.dups = T, suffixes = c(".x",".y"), all = T, sort = T))
+# 
+# for (j in 1:ncol(base.haz.merge)) set(base.haz.merge, which(!is.finite(base.haz.merge[,(j)])), j, 0)
+# 
 
-base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('time' = base.haz[[i]]$time,
-                                                                            base.haz = base.haz[[i]][,1] - 
-                                                                              c(0,head(base.haz[[i]][,1],-1)))})
+weekly.post.op.VTE.risk <- cuminc.cox(n.type.events = n.type.events,dt = 'dt.tv[(postcovid.VTE.cohort) & start <=end]', model = 'post.op.VTE.model.split', newdata = 'newdata.pred', day = 1:35)
 
 
-lp <- lapply(n.type.events, function(i) {  data.table::dcast(data.table::data.table('patient_id' = rep(1:2, each = 5),
-  'time' = rep(seq(0,28,7),2),
-                                                                    'risk' = exp(predict(object = post.op.VTE.model.split[[i]],
-                                                                                         type = 'lp', 
-                                                                                         newdata = newdata.pred))),time ~patient_id, value.var = 'risk')})
-
-base.haz.merge <- Reduce(x =base.haz.comp,f = function(x,y) merge(x,y,by = 'time', no.dups = T, suffixes = c(".x",".y"), all = T, sort = T))
-
-for (j in 1:ncol(base.haz.merge)) set(base.haz.merge, which(!is.finite(base.haz.merge[,(j)])), j, 0)
-
-weekly.post.op.VTE.risk <- 
-  unlist(round(100*apply(exp(apply(-Reduce('+',lapply(n.type.events, function(i) {
-    lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)] 
-  })),2,cumsum))*
-    lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)], 2, cumsum ), digits = 3))
+  # unlist(round(100*apply(exp(apply(-Reduce('+',lapply(n.type.events, function(i) {
+  #   lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)] 
+  # })),2,cumsum))*
+  #   lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)], 2, cumsum ), digits = 3))
 
 weekly.post.op.VTE.risk[!is.finite(weekly.post.op.VTE.risk)] <- 0
 
-times.comb <- unique(sort(unlist(base.haz.merge$time)))[unique(sort(unlist(base.haz.merge$time))) >= 0]
+times.comb <-sort(unique(dt.tv[(postcovid.VTE.cohort) & start <=end][ event.VTE %in% n.type.events ,end]))
+
 
 weekly.post.op.VTE.risk <- rbind(weekly.post.op.VTE.risk[max(which(times.comb < 7)),],
                             weekly.post.op.VTE.risk[max(which(times.comb < 14)),],

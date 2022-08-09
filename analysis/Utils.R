@@ -640,7 +640,7 @@ cuminc.km.sub <- function(x,niter)  {
 
 cuminc.cox <- function(n.type.events = c(1,2),dt, model, newdata, day) {
   eval(parse(text = paste0('assign(x = "base.haz", value = lapply(n.type.events, function(i) { survival::basehaz(',model,'[[i]],centered = F)[] }),envir=environment())')))
-  eval(parse(text = paste0('assign(x = "base.haz", value = lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(',dt,'[ event == i ,end])),][] }),envir=environment())')))
+  eval(parse(text = paste0('assign(x = "base.haz", value = lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(',dt,'[get(all.vars(get(model)[[i]]$call)[[3]])== i ,end])),][] }),envir=environment())')))
   base.haz.comp <- lapply(n.type.events, function(i) { data.table::data.table('time' = base.haz[[i]]$time,
                                                                          'base.haz' = base.haz[[i]][,1] - 
                                                                          c(0,head(base.haz[[i]][,1],-1)))})
@@ -657,10 +657,15 @@ cuminc.cox <- function(n.type.events = c(1,2),dt, model, newdata, day) {
                          type = "risk",
                          newdata = ',newdata,')) }),envir=environment())')))
   
+  days.in.data <- day
+    
+  if(sum(day %in% unlist(base.haz.merge[,1]))==0) {
+    days.in.data <- max(which(base.haz.merge[,1] <= day))
+  }
   
     return(matrix(100*round(apply(exp(-apply(Reduce('+',lapply(n.type.events, function(i) {
       outer(unlist(base.haz.merge[,.SD,.SDcols = (i+1)]) ,unlist(risk[[i]]),'*')})),2,cumsum)) *
-        outer(unlist(base.haz.merge[,2]),unlist(risk[[1]]),'*'),2,cumsum), digits = 4), ncol = nrow(get(newdata)))[max(which(base.haz.merge[,1] <= day)),])
+        outer(unlist(base.haz.merge[,2]),unlist(risk[[1]]),'*'),2,cumsum), digits = 4), ncol = nrow(get(newdata)))[which(unlist(base.haz.merge[,1]) %in% days.in.data),])
 
 }
 
