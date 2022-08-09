@@ -6,15 +6,16 @@ data.table::setDTthreads(ncores)
 source(here::here("analysis","Utils.R"))
 
 ###########################################################
+dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 
 #load(file = here::here("output","cohort_postdisch_week_splits.RData"))
 procedures <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
-dt.tv.splits <- data.table::setDT(arrow::read_feather(here::here("output","cohort_postdisch_week_splits.feather")))
+#dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_postdisch_week_splits.feather")))
 
 # Not enough deaths to treat separately from emergency readmissions
-dt.tv.splits[event == 3, event := 2]
-n.type.events <- sort(unique(dt.tv.splits[(postop.covid.cohort) ,event]))[-1]
+#dt.tv[event == 3, event := 2]
+n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 # Start = 0 = day of discharge
 
@@ -24,41 +25,41 @@ n.type.events <- sort(unique(dt.tv.splits[(postop.covid.cohort) ,event]))[-1]
 #                'vaccination.status.factor','region','Current.Cancer',
 #                'Emergency','Charl12','recentCOVID','previousCOVID')
 
-data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
-dt.tv.splits <- dt.tv.splits[,.(patient_id,Colectomy,Cholecystectomy,HipReplacement,KneeReplacement,age.cat,sex,bmi.cat,imd5,wave,vaccination.status.factor,region,Current.Cancer,Emergency,
-                                week.post.disch,week.post.op,LOS.bin,Charl12,recentCOVID,previousCOVID,postcovid,start.readmit, end.readmit,
-                                tstart,tstop,end.fu,start,end,event,postop.covid.cohort,los.end,event.VTE,postcovid.VTE.cohort,study.start)]
+#data.table::setkey(dt.tv,patient_id,tstart,tstop)
+#dt.tv <- dt.tv[,.(patient_id,Colectomy,Cholecystectomy,HipReplacement,KneeReplacement,age.cat,sex,bmi.cat,imd5,wave,vaccination.status.factor,region,Current.Cancer,Emergency,
+#                                week.post.disch,week.post.op,LOS.bin,Charl12,recentCOVID,previousCOVID,postcovid,start.readmit, end.readmit,
+#                                tstart,tstop,end.fu,start,end,event,postop.covid.cohort,los.end,event.VTE,postcovid.VTE.cohort,study.start)]
 
 # Start = 0 = day of operation
-dt.tv.splits[, `:=`(start = tstart - study.start,
-                    end = tstop - study.start)]
-dt.tv.splits <- dt.tv.splits[start >= 0,] # Need to start follow up on day after operation as can't identify order when events on same day
+#dt.tv[, `:=`(start = tstart - study.start,
+#                    end = tstop - study.start)]
+#dt.tv <- dt.tv[start >= 0,] # Need to start follow up on day after operation as can't identify order when events on same day
 
 
-dt.tv.splits[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
-        (is.finite(Cholecystectomy) & Cholecystectomy == T) |
-        (is.finite(HipReplacement)  & HipReplacement == T) | 
-        (is.finite(KneeReplacement) & KneeReplacement == T)]
+#dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
+#        (is.finite(Cholecystectomy) & Cholecystectomy == T) |
+#        (is.finite(HipReplacement)  & HipReplacement == T) | 
+#        (is.finite(KneeReplacement) & KneeReplacement == T)]
 
-data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
-max.grp.col_(dt = 'dt.tv.splits',
-             max.var.name = 'sub.op',
-             aggregate.cols = 'sub.op',
-             id.vars = c("patient_id","end.fu"))
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+#max.grp.col_(dt = 'dt.tv',
+#             max.var.name = 'sub.op',
+#             aggregate.cols = 'sub.op',
+#             id.vars = c("patient_id","end.fu"))
 
-data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
+data.table::setkey(dt.tv, patient_id, end.fu, start)
 post.op.covid.model.split.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Colectomy + Cholecystectomy +  
                                             KneeReplacement + age.cat + sex + bmi.cat + imd5 + wave + 
-                                            vaccination.status.factor + region + Current.Cancer + Emergency*week.post.op  + Charl12 + 
+                                            vaccination.status.factor + region + Current.Cancer + Emergency  + Charl12 + 
                                             recentCOVID + previousCOVID,
                                           id = patient_id,
-                                          data = dt.tv.splits[(postop.covid.cohort) & start <=end & sub.op == T], model = T))
+                                          data = dt.tv[(postop.covid.cohort) & start <=end & sub.op == T], model = T))
 
 data.table::fwrite(broom::tidy(post.op.covid.model.split.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelsplitsub.csv"))
 
 
-newdata.rows <- 5 #length(levels(dt.tv.splits$week.post.op)) - 1
+newdata.rows <- 5 #length(levels(dt.tv$week.post.op)) - 1
 
 newdata.pred <- data.table::data.table('start' = c(0,7,14,21,28),
                                        'end' = c(7,14,21,28,35),
@@ -71,8 +72,8 @@ newdata.pred <- data.table::data.table('start' = c(0,7,14,21,28),
                                       'KneeReplacement'= rep(F,newdata.rows*2),
                                       'age.cat' = rep('(50,70]',newdata.rows),
                                       'sex' = rep('F',newdata.rows),
-                                      'bmi.cat' = rep(levels(dt.tv.splits$bmi.cat)[2],newdata.rows),
-                                      'imd5' = rep(levels(dt.tv.splits$imd5)[3], newdata.rows),
+                                      'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows),
+                                      'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows),
                                       'wave' = rep(paste0('Wave_',3),times = newdata.rows),
                                       'vaccination.status.factor' = rep('3',newdata.rows),
                                       'region' = rep("East Midlands",newdata.rows),
@@ -139,24 +140,24 @@ data.table::fwrite(weekly.post.op.risk.sub, file = here::here("output","postopco
 
 ##############
 # Not enough deaths to treat separately from emergency readmissions
-dt.tv.splits[event.VTE == 3, event.VTE := 2]
-n.type.events <- sort(unique(dt.tv.splits[(postcovid.VTE.cohort)  & sub.op == T,event.VTE]))[-1]
+#dt.tv[event.VTE == 3, event.VTE := 2]
+n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort)  & sub.op == T,event.VTE]))[-1]
 
-dt.tv.splits <- dt.tv.splits[start.readmit>0 & end.readmit <=90] # Need to start follow up day after discharge to avoid discharge diagnoses
+dt.tv <- dt.tv[start.readmit>0 & end.readmit <=90] # Need to start follow up day after discharge to avoid discharge diagnoses
 
 
 post.op.VTE.model.split.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.VTE==i) ~  Colectomy + postcovid +  
                                             Cholecystectomy + KneeReplacement + age.cat + 
                                             sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + 
-                                            Current.Cancer + Emergency*week.post.disch + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
+                                            Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
                                           id = patient_id,
-                                          data = dt.tv.splits[(postcovid.VTE.cohort) & start <=end & sub.op == T], model = T))
+                                          data = dt.tv[(postcovid.VTE.cohort) & start <=end & sub.op == T], model = T))
 
 data.table::fwrite(broom::tidy(post.op.VTE.model.split.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelsplitsub.csv"))
 
 
-newdata.rows <- length(levels(dt.tv.splits$week.post.disch)) - 1
+newdata.rows <- 5
 
 newdata.pred <- data.table::data.table('start.readmit' = rep(c(0,7,14,21,28), times = 2),
                                        'end.readmit' = rep(c(7,14,21,28,35),times = 2),
@@ -170,8 +171,8 @@ newdata.pred <- data.table::data.table('start.readmit' = rep(c(0,7,14,21,28), ti
                                        'postcovid'=rep(c(0,1), each = newdata.rows),
                                        'age.cat' = rep('(50,70]',newdata.rows*2),
                                        'sex' = rep('F',newdata.rows*2),
-                                       'bmi.cat' = rep(levels(dt.tv.splits$bmi.cat)[2],newdata.rows*2),
-                                       'imd5' = rep(levels(dt.tv.splits$imd5)[3], newdata.rows*2),
+                                       'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows*2),
+                                       'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows*2),
                                        'wave' = rep(paste0('Wave_',3),times = newdata.rows*2),
                                        'vaccination.status.factor' = rep('3',newdata.rows*2),
                                        'region' = rep("East Midlands",newdata.rows*2),
