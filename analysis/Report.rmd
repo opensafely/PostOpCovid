@@ -301,15 +301,15 @@ crude.covid.cov.sub[, cov_level := paste0(Characteristic, Level) ]
 
 covid_coef_sub <- data.table::data.table('cov_level' = names(post.op.covid.model.sub[[1]]$coefficients), 
                                    'Adjusted Hazard Ratio' = round(exp(post.op.covid.model.sub[[1]]$coefficients),2),
-                                   '95% CI' = paste0('(',round(exp(confint(post.op.covid.model.sub[[1]])[,1]),2),',',round(exp(confint(post.op.covid.model.sub[[1]])[,1]),2),')'))
+                                   '95% CI' = paste0('(',round(exp(confint(post.op.covid.model.sub[[1]])[,1]),2),',',round(exp(confint(post.op.covid.model.sub[[1]])[,2]),2),')'))
 
 readmission_coef_sub <- data.table::data.table('cov_level' = names(post.op.covid.model.sub[[2]]$coefficients), 
                                    'Adjusted Hazard Ratio' = round(exp(post.op.covid.model.sub[[2]]$coefficients),2),
-                                   '95% CI' = paste0('(',round(exp(confint(post.op.covid.model.sub[[2]])[,1]),2),',',round(exp(confint(post.op.covid.model.sub[[2]])[,1]),2),')'))
+                                   '95% CI' = paste0('(',round(exp(confint(post.op.covid.model.sub[[2]])[,1]),2),',',round(exp(confint(post.op.covid.model.sub[[2]])[,2]),2),')'))
 
 mortality_coef_sub <- data.table::data.table('cov_level' = names(post.op.covid.model.sub[[3]]$coefficients), 
                                    'Adjusted Hazard Ratio' = round(exp(post.op.covid.model.sub[[3]]$coefficients),2),
-                                   '95% CI' = paste0('(',round(exp(confint(post.op.covid.model.sub[[3]])[,1]),2),',',round(exp(confint(post.op.covid.model.sub[[3]])[,1]),2),')'))
+                                   '95% CI' = paste0('(',round(exp(confint(post.op.covid.model.sub[[3]])[,1]),2),',',round(exp(confint(post.op.covid.model.sub[[3]])[,2]),2),')'))
 
 
 procedures.sub <- c('Colectomy','Cholecystectomy',
