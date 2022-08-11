@@ -97,7 +97,7 @@ demo.tab <-
                                                                                                                                      digits = 1),
                                                                                                                                '%)')[order(-x)]),
                                                                                                      .SDcols = 2:(length(procedures) + 1)][1:5,]),
-                                make.names = 'V1'),
+                                make.names = 'V1')#,
                               # data.table::transpose(
                               #   cbind(paste0("Emergency readmission diagnosis ICD 10 code excluding COVID - ",1:5),
                               #         dt.tv[(postop.readmit.cohort)  & start.readmit > 0 &
