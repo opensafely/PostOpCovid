@@ -27,7 +27,9 @@ post.op.VTE.model <-
 #data.table::fwrite(broom::tidy(post.op.VTE.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodel.csv"))
 
 names(post.op.VTE.model) <- c('Post discharge VTE','Non COVID-19 emergency readmission or mortality')[n.type.events]
-modelsummary::modelsummary(post.op.VTE.model,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, conf_level = .95, exponentiate = TRUE, output = here::here("output","postopVTEmodel.html"))
+modelsummary::modelsummary(post.op.VTE.model,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", 
+                           statistic = NULL, gof_omit = "Num.Obs.|n|nevent",
+                           conf_level = .95, exponentiate = TRUE, output = here::here("output","postopVTEmodel.html"))
 
 
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),

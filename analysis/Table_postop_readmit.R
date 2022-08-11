@@ -49,7 +49,7 @@ post.op.readmit.model <-
                                           data = dt.tv[(postop.readmit.cohort)], model = T))
 
 names(post.op.readmit.model) <- c('Emergency Readmission','Mortality')[n.type.events]
-modelsummary::modelsummary(post.op.readmit.model,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, conf_level = .95, exponentiate = TRUE, output = here::here("output","postopreadmitmodel.html"))
+modelsummary::modelsummary(post.op.readmit.model,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, gof_omit = "Num.Obs.|n|nevent", conf_level = .95, exponentiate = TRUE, output = here::here("output","postopreadmitmodel.html"))
 
 
 #data.table::fwrite(broom::tidy(post.op.readmit.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodel1.csv"))

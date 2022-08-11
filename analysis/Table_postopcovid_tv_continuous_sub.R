@@ -48,7 +48,7 @@ post.op.covid.model.split.sub <-
   data = dt.tv[(postop.covid.cohort) & start <=end & sub.op == T], model = T))
 
 names(post.op.covid.model.split.sub) <- c('COVID-19','Non COVID-19 emergency readmission','Mortality')[n.type.events]
-modelsummary::modelsummary(post.op.covid.model.split.sub,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, conf_level = .95, exponentiate = TRUE, output = here::here("output","postopcovidmodeldailysub.html"))
+modelsummary::modelsummary(post.op.covid.model.split.sub,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, gof_omit = "Num.Obs.|n|nevent", conf_level = .95, exponentiate = TRUE, output = here::here("output","postopcovidmodeldailysub.html"))
 
 newdata.rows <- 1 #
 
