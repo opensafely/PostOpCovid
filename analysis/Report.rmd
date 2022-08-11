@@ -353,9 +353,9 @@ knitr::kable(comb_postop_covid.sub,
 
 ### Post operative COVID-19 risk by COVID-19 waves and operation category
 
-The  adjusted cumulative risk estimates were calculated for each COVID-19 wave stratified by operation category in table 3.
 
-```{r postopcovid_waves}
+
+```{r postopcovid_waves,fig.cap="The adjusted cumulative risk estimates were calculated for each COVID-19 wave stratified by broad operation category in table 2."}
 
 # kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 #knitr::kable(cuminc.adjusted.waves,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 30 day post operative COVID of patients by procedure #type stratified by COVID-19 wave."), row.names = T, digits = 2)
@@ -376,7 +376,7 @@ ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.waves, k
 
 #### Selected procedures
 
-```{r postopcovid_waves_sub}
+```{r postopcovid_waves_sub,fig.cap="The adjusted cumulative risk estimates were calculated for each COVID-19 wave stratified by selected operation category in table 3."}
 
 # kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 #knitr::kable(cuminc.adjusted.waves.sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 30 day post operative COVID of patients by selected procedures type stratified by COVID-19 wave."), row.names = T, digits = 2)
@@ -414,7 +414,7 @@ ggplot2::xlab("Days post operation") +
 
 ```   
 
-This plot shows the daily risk of COVID-19 for a a 50-70 year old female with a single morbidity with a bmi of 20, for an abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation. This showed the risk peaked in the first week after operation before falling to a level baseline.
+<!-- This plot shows the daily risk of COVID-19 for a a 50-70 year old female with a single morbidity with a bmi of 20, for an abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation. This showed the risk peaked in the first week after operation before falling to a level baseline. -->
 
 ```{r postopcovid_daily_tv, eval = F}
 
@@ -436,7 +436,7 @@ ggplot2::ggplot(daily.post.op.risk[`Days post op`<= 35]) +
 The adjusted cumulative risk for COVID-19 were calculated for each post operative week in figure 1 stratified by emergency or elective, for a 50-70 year old female with a single morbidity with a bmi of 20, for an colectomy cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation. This showed the risk peaked in the first week after operation before falling to a level baseline.
 
 ```{r postopcovid_tv_sub}
-htmltools::includeHTML(here::here('output','postopcovidmodelsplitsub.html'))
+#htmltools::includeHTML(here::here('output','postopcovidmodelsplitsub.html'))
 
 weekly.post.op.risk.sub <- data.table::fread(file = here::here("output","postopcovid_tv_sub.csv"))
 
@@ -463,9 +463,9 @@ ggplot2::ggplot(daily.post.op.risk.sub[`Days post op`<= 35]) +
                    subtitle = "Predicted for  elective colectomy cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")
 ```   
 
-## COVID impact on post operative length of stay
+<!-- ## COVID impact on post operative length of stay -->
 
-An accelerated failure survival model was fitted to directly estimate the effect of post operative COVID-19  as a time varying covariate on post operative length of stay. Predicted length of stay was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation.
+<!-- An accelerated failure survival model was fitted to directly estimate the effect of post operative COVID-19  as a time varying covariate on post operative length of stay. Predicted length of stay was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation. -->
 
 ```{r postopLOS, eval = F}
 
@@ -477,7 +477,7 @@ knitr::kable(mean.adjusted.los,col.names = paste0("Wave ",1:4),caption = paste0(
 )
 ```
 
-#### Selected procedures
+<!-- #### Selected procedures -->
 
 ```{r postopLOS_sub, eval = F}
 
@@ -494,7 +494,7 @@ knitr::kable(mean.adjusted.los.sub,col.names = paste0("Wave ",1:4),caption = pas
 
 Adjusted Cox proportional hazards survival models were fitted to estimate the effect of post operative COVID-19  as a time varying covariate on post discharge VTE, and cumulative incidence functions calculated to adjust for competing risks of readmission and death. Predicted VTE risk was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation.
 
-This plot shows the changing effect of post operative COVID infection on VTE riskin the initial, alpha, delta and omicron waves.
+
 
 ```{r postopVTE, results='asis'}
 load(file = here::here("output","postopVTE.RData"))
@@ -503,10 +503,12 @@ load(file = here::here("output","postopVTE.RData"))
 htmltools::includeHTML(here::here('output','postopVTEmodel.html'))
 
 
- kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
-knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
- )
+# kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
+#knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and #COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
+# )
+```
  
+```{r postopVTE_plot,fig.cap="This plot shows the changing effect of post operative COVID infection on VTE riskin the initial, alpha, delta and omicron waves."}
  ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.VTE, keep.rownames = T),
                                  id.vars = 'rn',
                                  variable.name = 'Wave',
@@ -522,18 +524,18 @@ knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4),caption = paste
 ```
 
 
-This plot shows the changing effect of recent pre-operative COVID infection on VTE risk in the initial, alpha, delta and omicron waves.
 
-```{r postopVTErecentcovid, results='asis'}
+
+```{r postopVTErecentcovid, results='asis', fig.cap="This plot shows the changing effect of recent pre-operative COVID infection on VTE risk in the initial, alpha, delta and omicron waves."}
 load(file = here::here("output","postopVTErecent.RData"))
 
 #knitr::kable(broom::tidy(post.op.VTE.model.recentCOVID[[1]], exponentiate= T, conf.int = T),digits = 2)
 #htmltools::includeHTML(here::here('output','postopVTEmodelrecentCOVID.html'))
 
 
- kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
-knitr::kable(cuminc.adjusted.recent.VTE,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and recent COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
- )
+# kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
+#knitr::kable(cuminc.adjusted.recent.VTE,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and recent COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
+# )
  
 ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.recent.VTE, keep.rownames = T),
                                  id.vars = 'rn',
@@ -549,11 +551,11 @@ ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.recent.V
 
 ```
 
-This plot shows the weekly additional risk of VTE by post operative COVID infection for a 50-70 year old female with a single morbidity with a bmi of 20, for an abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation. This showed the risk peaked in the first week after operation before falling to a level baseline.
 
 
-```{r postopcovid_VTE_tv}
-#weekly.post.op.VTE.risk <- data.table::fread(here::here("output","postopcovid_VTE_tv.csv"))
+
+```{r postopcovid_VTE_tv, fig.cap ="This plot shows the weekly additional risk of VTE by post operative COVID infection for a 50-70 year old female with a single morbidity with a bmi of 20, for an abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation. This showed the risk peaked in the first week after operation before falling to a level baseline."}
+weekly.post.op.VTE.risk <- data.table::fread(here::here("output","postopcovid_VTE_tv.csv"))
 
 #htmltools::includeHTML(here::here('output','postopVTEmodelsplit.html'))
 
@@ -570,7 +572,7 @@ ggplot2::xlab("Risk Period post discharge") +
 
 ``` 
 
-This plot shows the daily additional risk of VTE by post operative COVID infection for a 50-70 year old female with a single morbidity with a bmi of 20, for an abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation. This showed the risk peaked in the first week after operation before falling to a level baseline.
+<!-- This plot shows the daily additional risk of VTE by post operative COVID infection for a 50-70 year old female with a single morbidity with a bmi of 20, for an abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation. This showed the risk peaked in the first week after operation before falling to a level baseline. -->
 
 
 ```{r postopcovid_daily_VTE_tv, eval = F}
@@ -603,10 +605,11 @@ knitr::kable(cuminc.adjusted.VTE.sub,col.names = paste0("Wave ",1:4),caption = p
 
 ```
 
-This plot shows the changing effect of post operative COVID infection on VTE risk in the initial, alpha, delta and omicron waves for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation..
 
-```{r postopVTE_sub_plot}
- 
+
+```{r postopVTE_sub_plot, fig.cap = "This plot shows the changing effect of post operative COVID infection on VTE risk in the initial, alpha, delta and omicron waves for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation."}
+ load(file = here::here("output","postopVTE_sub.RData"))
+
  ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.VTE.sub, keep.rownames = T),
                                  id.vars = 'rn',
                                  variable.name = 'Wave',
@@ -621,26 +624,27 @@ This plot shows the changing effect of post operative COVID infection on VTE ris
  
 ```
 
-This shows the changing effect of recent pre operative COVID infection on VTE risk in the initial, alpha, delta and omicron waves for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation..
+
 
 
 ```{r postopVTErecentcovid_sub, results='asis', eval = F}
 load(file = here::here("output","postopVTErecent_sub.RData"))
 
 #knitr::kable(broom::tidy(post.op.VTE.model.recentCOVID.sub[[1]], exponentiate= T, conf.int = T),digits = 2)
- htmltools::includeHTML(here::here('output','postopVTEmodelrecentCOVIDsub.html'))
+# htmltools::includeHTML(here::here('output','postopVTEmodelrecentCOVIDsub.html'))
 
 
- kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
-knitr::kable(cuminc.adjusted.VTE.recent.sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and recent COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
- )
+# kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
+#knitr::kable(cuminc.adjusted.VTE.recent.sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and recent COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
+# )
  
 ```
 
- This plot shows the changing effect of recent pre operative COVID infection on VTE risk in the initial, alpha, delta and omicron waves for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation..
 
 
-```{r postopVTErecentcovid_sub_plot}
+```{r postopVTErecentcovid_sub_plot,fig.cap = "This shows the changing effect of recent pre operative COVID infection on VTE risk in the initial, alpha, delta and omicron waves for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation."}
+load(file = here::here("output","postopVTErecent_sub.RData"))
+
 ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.VTE.recent.sub, keep.rownames = T),
                                  id.vars = 'rn',
                                  variable.name = 'Wave',
@@ -655,13 +659,13 @@ ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.VTE.rece
 
 ```
 
- This plot shows the effect of post operative COVID infection on each week's additional VTE risk in first month after discharge for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation..
+ 
 
 
-```{r postopcovid_VTE_tv_sub}
+```{r postopcovid_VTE_tv_sub, fig.cap="This plot shows the effect of post operative COVID infection on each week's additional VTE risk in first month after discharge for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation."}
 weekly.post.op.VTE.risk.sub <- data.table::fread(here::here("output","postopcovid_VTE_tv_sub.csv"))
  
-htmltools::includeHTML(here::here('output','postopVTEmodelsplitsub.html'))
+#htmltools::includeHTML(here::here('output','postopVTEmodelsplitsub.html'))
 
 ggplot2::ggplot(weekly.post.op.VTE.risk.sub) +
  ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week","5th week")),
@@ -676,7 +680,7 @@ ggplot2::xlab("Risk Period post discharge") +
 
 ``` 
 
- This plot shows the effect of post operative COVID infection on each day's additional VTE risk in first month after discharge for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation..
+ <!-- This plot shows the effect of post operative COVID infection on each day's additional VTE risk in first month after discharge for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation.. -->
 
 
 ```{r postopcovid_daily_sub_VTE_tv, eval = F}
@@ -695,7 +699,7 @@ ggplot2::ggplot(daily.post.op.VTE.risk.sub[`Days post discharge`<= 35]) +
 
 ## COVID impact on post operative Mortality
 
-Adjusted Cox proportional hazards survival models were fitted to estimate the effect of post operative COVID-19 as a time varying covariate on mortality, and cumulative incidence functions calculated to adjust for competing risks of readmission. Predicted mortality was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation.
+Adjusted Cox proportional hazards survival models were fitted to estimate the effect of post operative COVID-19 as a time varying covariate on mortality, and cumulative incidence functions calculated to adjust for competing risks of readmission. 
 
 ```{r postopmortality}
 load(file = here::here("output","postopmortality.RData"))
@@ -703,11 +707,13 @@ load(file = here::here("output","postopmortality.RData"))
 #knitr::kable(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 htmltools::includeHTML(here::here('output','postopdiedmodel.html'))
 
- kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
-knitr::kable(cuminc.adjusted.mortality,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative mortality risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
- )
+# kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
+#knitr::kable(cuminc.adjusted.mortality,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative mortality risk by procedure #type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
+# )
  
- 
+```
+
+```{r, postopmortality_fig, fig.cap = "Predicted mortality was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation."}
  
  ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.mortality, keep.rownames = T),
                                  id.vars = 'rn',
@@ -731,10 +737,12 @@ load(file = here::here("output","postopmortality_sub.RData"))
 #knitr::kable(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 htmltools::includeHTML(here::here('output','postopdiedmodelsub.html'))
 
- kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
-knitr::kable(cuminc.adjusted.mortality.sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative mortality risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
- )
- 
+# kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
+#knitr::kable(cuminc.adjusted.mortality.sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative mortality risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
+# )
+```
+
+```{r, postopmortality_sub_fig, fig.cap = "Predicted mortality was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective colectomy cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation."} 
   
  ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.mortality.sub, keep.rownames = T),
                                  id.vars = 'rn',
@@ -749,9 +757,9 @@ knitr::kable(cuminc.adjusted.mortality.sub,col.names = paste0("Wave ",1:4),capti
   ggplot2::geom_line()
 ```
 
-## COVID impact on Emergency Readmission
+<!-- ## COVID impact on Emergency Readmission -->
 
-Adjusted Cox proportional hazards survival models were fitted to estimate the effect of post operative COVID-19  as a time varying covariate on post discharge emergency readmission, and cumulative incidence functions calculated to adjust for competing risks of death. Predicted emergency readmission was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation.
+<!-- Adjusted Cox proportional hazards survival models were fitted to estimate the effect of post operative COVID-19  as a time varying covariate on post discharge emergency readmission, and cumulative incidence functions calculated to adjust for competing risks of death. Predicted emergency readmission was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation. -->
 
 ```{r postopreadmit, eval = F}
 load(file = here::here("output","postopreadmit.RData"))
@@ -775,7 +783,7 @@ knitr::kable(cuminc.adjusted.readmit,col.names = paste0("Wave ",1:4),caption = p
   ggplot2::geom_line()
 ```
 
-#### Selected procedures
+<!-- #### Selected procedures -->
 
 
 ```{r postopreadmit_sub, eval = F}
