@@ -592,19 +592,18 @@ ggplot2::ggplot(daily.post.op.VTE.risk[`Days post discharge`<= 90]) +
 
 #### Selected procedures 
 
-```{r postopVTE_sub, results='asis', eval = F}
-load(file = here::here("output","postopVTE_sub.RData"))
+```{r postopVTE_sub, results='asis', eval = T}
+#load(file = here::here("output","postopVTE_sub.RData"))
 
 #knitr::kable(broom::tidy(post.op.VTE.model[[1]], exponentiate= T, conf.int = T),digits = 2)
-htmltools::includeHTML(here::here('output','postopVTEmodelsplitsub.html'))
+htmltools::includeHTML(here::here('output','postopVTEmodelsub.html'))
 
 
- kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
-knitr::kable(cuminc.adjusted.VTE.sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
- )
+# kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
+#knitr::kable(cuminc.adjusted.VTE.sub,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
+# )
 
 ```
-
 
 
 ```{r postopVTE_sub_plot, fig.cap = "This plot shows the changing effect of post operative COVID infection on VTE risk in the initial, alpha, delta and omicron waves for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation."}
