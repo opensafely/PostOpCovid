@@ -434,6 +434,10 @@ dt.tv[is.na(Emergency), Emergency := F]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 max.grp.col_(dt = 'dt.tv',max.var.name = 'Emergency',aggregate.cols = 'Emergency',id.vars = c("patient_id","end.fu"))
 
+## Primary diagnosis for admission----
+
+dt.tv[, Prim.admit.cat := ICD_COD_categories(primary_diagnosis)]
+
 ## Vaccination status - 14 days post date as effective----
 dt.tv[, vaccination.status := is.finite(covid_vaccine_dates_1) + is.finite(covid_vaccine_dates_2) + is.finite(covid_vaccine_dates_3)]
 dt.tv[,vaccination.status.factor := factor(vaccination.status,  ordered = F)]
@@ -563,6 +567,8 @@ min.grp.col_(dt = 'dt.tv',
 
 names(dt.tv)[names(dt.tv)=='emergency_readmit_date_admitted'] <- 'emergency_readmitdate'
 
+dt.tv[, Readmit.cat := ICD_COD_categories(emergency_readmit_primary_diagnosis)]
+
 ## Mortality----
 ## date_death_ons part of definition of end_fu so will be end of final row when in follow up period
 dt.tv[,died := is.finite(date_death_ons) & tstop == date_death_ons]
@@ -572,6 +578,8 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 dt.tv <- dt.tv[!(tstart < study.start | tstop > end.fu) & !is.na(age.cat),]
 dt.tv[, year := data.table::year(data.table::as.IDate(admit.date))]
+
+dt.tv[, COD.cat := ICD_COD_categories(death_underlying_cause_ons)]
 
 ## Waves Redefine in long table from ONS reports:  ----
 #https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveycharacteristicsofpeopletestingpositiveforcovid19uk/latest
@@ -704,7 +712,8 @@ procedures.sub <- c('Colectomy','Cholecystectomy',
                     'HipReplacement','KneeReplacement')
 covariates <- c(procedures,procedures.sub,'sex','age.cat','bmi.cat','imd5','wave','LOS.bin',
                 'vaccination.status.factor','Current.Cancer','Emergency','Charlson','Charl12','recentCOVID','previousCOVID','postcovid','region',
-                'emergency_readmit_primary_diagnosis','primary_diagnosis','death_underlying_cause_ons','admission_method','days_in_critical_care')
+                'emergency_readmit_primary_diagnosis','primary_diagnosis','death_underlying_cause_ons','admission_method','days_in_critical_care',
+                'Prim.admit.cat','COD.cat','Readmit.cat')
 
 drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstart','tstop','start','end','event','study.start','postop.covid.cohort','end.fu','died','gp.end',
                                               'discharge.date','age',
