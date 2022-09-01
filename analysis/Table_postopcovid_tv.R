@@ -14,7 +14,7 @@ dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.
 #dt.tv <- dt.tv[,.(patient_id,Abdominal,Cardiac,Obstetrics,Thoracic,Vascular,age.cat,sex,bmi.cat,imd5,wave,vaccination.status.factor,region,Current.Cancer,Emergency,
 #                                week.post.disch,week.post.op,LOS.bin,Charl12,recentCOVID,previousCOVID,postcovid,start.readmit,end.readmit,
 #                                tstart,tstop,end.fu,start,end,event,postop.covid.cohort,los.end,event.VTE,postcovid.VTE.cohort,study.start)]
-procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
+procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 
 # Start = 0 = day of operation
 #dt.tv[, `:=`(start = tstart - study.start,
@@ -30,7 +30,7 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 data.table::setkey(dt.tv, patient_id, end.fu, start)
 post.op.covid.model.split <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal + Cardiac + Obstetrics +  Thoracic + Vascular + age.cat + 
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal  + Obstetrics +  CardioThoracicVascular + age.cat + 
   sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency +  Charl12 + recentCOVID + previousCOVID,
    id = patient_id,
   data = dt.tv[(postop.covid.cohort) & start <=end], model = T))
@@ -46,11 +46,11 @@ newdata.pred <- data.table::data.table('start' = c(0),
                                       'week.post.op' = paste(1:newdata.rows),
                                       'patient_id' = 1:newdata.rows,
                                       'Abdominal' = rep(T,newdata.rows),
-                                      'Cardiac'= rep(F,newdata.rows),
+                                    #  'Cardiac'= rep(F,newdata.rows),
                                       'Obstetrics'=rep(F,newdata.rows),
                                       'Orthopaedic'=rep(F,newdata.rows),
-                                      'Thoracic'=rep(F,newdata.rows),
-                                      'Vascular'=rep(F,newdata.rows),
+                                     # 'Thoracic'=rep(F,newdata.rows),
+                                      'CardioThoracicVascular'=rep(F,newdata.rows),
                                       'age.cat' = rep('(50,70]',newdata.rows),
                                       'sex' = rep('F',newdata.rows),
                                       'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows),
@@ -137,7 +137,7 @@ dt.tv <- dt.tv[start.readmit>0 & end.readmit <=90] # Need to start follow up day
 
 post.op.VTE.model.split <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.VTE==i) ~  Abdominal + postcovid +    
-                                            Cardiac + Obstetrics + Thoracic + Vascular + age.cat + 
+                                         Obstetrics + CardioThoracicVascular+ age.cat + 
                                             sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + 
                                             Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
                                           id = patient_id,
@@ -156,12 +156,12 @@ newdata.pred <- data.table::data.table('start.readmit' = rep(c(0), times = 2),
                                        'week.post.disch' = rep(paste(0:(newdata.rows - 1)), times = 2),
                                        'patient_id' = rep(1:2,each = newdata.rows),
                                        'Abdominal' = rep(T,newdata.rows*2),
-                                       'Cardiac'= rep(F,newdata.rows*2),
+                                   #    'Cardiac'= rep(F,newdata.rows*2),
                                        'Obstetrics'=rep(F,newdata.rows*2),
                                        'Orthopaedic'=rep(F,newdata.rows*2),
-                                       'Thoracic'=rep(F,newdata.rows*2),
+                                       'CardioThoracicVascular'=rep(F,newdata.rows*2),
+                                    #   'Thoracic'=rep(F,newdata.rows*2),
                                        'postcovid'=rep(c(0,1), each = newdata.rows),
-                                       'Vascular'=rep(F,newdata.rows*2),
                                        'age.cat' = rep('(50,70]',newdata.rows*2),
                                        'sex' = rep('F',newdata.rows*2),
                                        'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows*2),

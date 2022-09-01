@@ -53,7 +53,7 @@ max.category <- function(predi) {unique(dt.tv[!is.na(get(covariates[predi])),get
 source(here::here("analysis","Utils.R"))
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
-procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
+procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
 
@@ -251,7 +251,7 @@ mortality_coef <- data.table::data.table('cov_level' = names(post.op.covid.model
 
 
 #knitr::kable(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T),digits = 2)
-procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
+procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 comb_postop_covid <- cbind(merge(x = crude.covid.cov, y = covid_coef, by = 'cov_level', all = T , sort = F),
                            adjusted.cuminc[,1],
                            merge(x = crude.covid.cov, y = readmit_coef, by = 'cov_level', all = T , sort = F)[,.(`Adjusted Hazard Ratio`,`95% CI`)],

@@ -14,7 +14,7 @@ dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.
 #dt.tv <- dt.tv[,.(patient_id,Abdominal,Cardiac,Obstetrics,Thoracic,Vascular,age.cat,sex,bmi.cat,imd5,wave,vaccination.status.factor,region,Current.Cancer,Emergency,
 #                                week.post.disch,week.post.op,LOS.bin,Charl12,recentCOVID,previousCOVID,postcovid,start.readmit, end.readmit,
 #                                tstart,tstop,end.fu,start,end,event,postop.covid.cohort,los.end,event.VTE,postcovid.VTE.cohort,study.start)]
-procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
+procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 days.limit <- 35
 # Start = 0 = day of operation
 #dt.tv[, `:=`(start = tstart - study.start,
@@ -29,7 +29,7 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 data.table::setkey(dt.tv, patient_id, end.fu, start)
 post.op.covid.model.split <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal + Cardiac + Obstetrics +  Thoracic + Vascular + age.cat + 
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal +  Obstetrics +  CardioThoracicVascular + age.cat + 
   sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency +  Charl12 + recentCOVID + previousCOVID,
    id = patient_id,
   data = dt.tv[(postop.covid.cohort) & start <=end], model = T))

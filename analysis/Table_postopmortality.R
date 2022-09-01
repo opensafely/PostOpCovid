@@ -10,14 +10,12 @@ source(here::here("analysis","Utils.R"))
 ###########################################################
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
-procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
-
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
+procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 post.op.died.model <- 
-  list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal + Cardiac + Obstetrics + Thoracic + Vascular + 
+  list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal  + Obstetrics + CardioThoracicVascular+ 
                          postcovid*wave + age.cat + sex + bmi.cat + imd5  + vaccination.status.factor + region + Current.Cancer +
                          Emergency + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                        data = dt.tv[start >=0 & any.op == T], model = T))
@@ -30,12 +28,12 @@ modelsummary::modelsummary(post.op.died.model,estimate  = "{estimate} [{conf.low
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
                                                 'end' = rep(30,8*length(procedures)),
                                                 'event' = rep(F,8*length(procedures)),
-                                                'Abdominal' = c(rep(T,8),rep(F,40)),
-                                                'Cardiac'=c(rep(F,8),rep(T,8),rep(F,32)),
-                                                'Obstetrics'=c(rep(F,16),rep(T,8),rep(F,24)),
-                                                'Orthopaedic'=c(rep(F,24),rep(T,8),rep(F,16)),
-                                                'Thoracic'=c(rep(F,32),rep(T,8),rep(F,8)),
-                                                'Vascular'=c(rep(F,40),rep(T,8)),
+                                                'Abdominal' = c(rep(T,8),rep(F,24)),
+                                          #      'Cardiac'=c(rep(F,8),rep(T,8),rep(F,32)),
+                                                'Obstetrics'=c(rep(F,8),rep(T,8),rep(F,16)),
+                                                'Orthopaedic'=c(rep(F,16),rep(T,8),rep(F,8)),
+                                           #     'Thoracic'=c(rep(F,32),rep(T,8),rep(F,8)),
+                                                'CardioThoracicVascular'=c(rep(F,24),rep(T,8)),
                                                 'postcovid' = rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
                                                 'age.cat' = rep('(50,70]',8*length(procedures)),
                                                 'sex' = rep('F',8*length(procedures)),

@@ -270,40 +270,61 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 ## Operation spell periods ----
 ####
 
-
-## Next admission period / procedure censor end of each spell
-data.table::setkey(dt.tv,patient_id, tstart, tstop)
-dt.tv[,next.admit.date := data.table::shift(admit.date, n = 1L, type =  'lead'), by = .(patient_id)]
-nocb.roll_(dt = 'dt.tv', ID = 'patient_id', 
-           start.DTTM = 'tstart', group = 'c("patient_id")',
-           var.cols = 'c("next.admit.date")')
-
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-dt.tv[next.admit.date < end.fu, end.fu := next.admit.date]
-dt.tv[next.admit.date < end.fu30, end.fu30 := next.admit.date]
-dt.tv[next.admit.date < end.fu90, end.fu90 := next.admit.date]
-
 ## Roll end of period dates backwards to end of previous episodes to define each post procedure period ----
 data.table::setkey(dt.tv,patient_id, tstart, tstop)
-nocb.roll_(dt = 'dt.tv', ID = 'patient_id', 
-           start.DTTM = 'tstart', group = 'c("patient_id")',
-           var.cols = 'c("discharge.date","end.fu")')
+nocb.roll_(dt = 'dt.tv', 
+           ID = 'patient_id', 
+           start.DTTM = 'tstart', 
+           group = 'c("patient_id")',
+           var.cols = 'c("discharge.date","end.fu","end.fu90")')
 
 dt.tv[discharge.date > end.fu, discharge.date := NA]
 dt.tv[tstart >= discharge.date, discharge.date := NA]
 
 ## Start of follow up (each enter study) per patient and procedure
 data.table::setkey(dt.tv,patient_id, tstart, tstop)
-min.grp.col_(dt = 'dt.tv',min.var.name = 'study.start',
-             aggregate.cols = 'admit.date',id.vars = c("patient_id","end.fu"))
+min.grp.col_(dt = 'dt.tv',
+             min.var.name = 'study.start',
+             aggregate.cols = 'admit.date',
+             id.vars = c("patient_id","end.fu"))
 dt.tv[!is.finite(study.start), study.start := NA]
 
 ## Roll start of procedure periods forward to define beginning of each post procedure period. Include discharge dates and end of fu dates to work out data to drop later ----
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 locf.roll_(dt = 'dt.tv', ID = 'patient_id', 
            start.DTTM = 'tstart', group = 'c("patient_id")',
-           var.cols = 'c(admission.dates)')
+           var.cols = 'c(admission.dates,"end.fu90")')
 
+
+
+## Don't use next admission period / procedure censor end of each spell
+## Take first procedure within each 90 day spell as exposure and repeat procedures as a consequence of first procedure
+data.table::setkey(dt.tv,patient_id, tstart, tstop)
+dt.tv[,prior.end.date := data.table::shift(end.fu90, n = 1L, type =  'lag'), by = .(patient_id)]
+locf.roll_(dt = 'dt.tv', ID = 'patient_id', 
+           start.DTTM = 'tstart', group = 'c("patient_id")',
+           var.cols = 'c("prior.end.date")')
+
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+per.proc.variables <- c(proc.tval.cols,proc.time.cols.start,proc.time.cols.end,
+                        paste0(procedures,'_end_fu'),
+                        paste0(procedures,'_end_fu30'),
+                        paste0(procedures,'_end_fu90'),
+                        'admit.date','discharge.date','end.fu',
+                        'end.fu30','end.fu90')
+
+## Redefine episodes without procedures within 90 days of prior procedure 
+dt.tv[is.finite(prior.end.date) & prior.end.date > admit.date, (per.proc.variables) := NA]
+locf.roll_(dt = 'dt.tv', ID = 'patient_id', 
+           start.DTTM = 'tstart', group = 'c("patient_id")',
+           var.cols = 'c("end.fu")')
+dt.tv <- dt.tv[is.finite(end.fu)]
+
+## extend prior procedures variables over repeat procedure if within 90 days of prior procedure 
+dt.tv[prior.end.date > admit.date, (per.proc.variables) := NA]
+locf.roll_(dt = 'dt.tv', ID = 'patient_id', 
+           start.DTTM = 'tstart', group = 'c("patient_id","end.fu")',
+           var.cols = "per.proc.variables")
 
 ## Remove admit & discharge dates from outside admission period. Study start and endfu define total exposure for each observation period.
 dt.tv[admit.date > discharge.date | is.na(admit.date) | admit.date > tstart | discharge.date < tstop, c('admit.date','discharge.date') := NA]
@@ -705,6 +726,18 @@ dt.tv[(postop.readmit.cohort) &
 dt.tv[(postop.readmit.cohort) & date_death_ons == tstop & event.readmit != 1, event.readmit := 2]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
+
+# Ensure baseline factors copied across patient episode----
+
+
+locf.roll_(dt = 'dt.tv', ID = 'patient_id', start.DTTM = 'tstart', group = 'c("patient_id")', var.cols = "fixed")
+nocb.roll_(dt = 'dt.tv', ID = 'patient_id', start.DTTM = 'tstart', group = 'c("patient_id")', var.cols = "fixed")
+
+
+# Combined vascular, thoracic, cardiac procedures
+
+dt.tv[, CardioThoracicVascular := Cardiac == 1 | Vascular == 1 | Thoracic == 1]
+
 
 # Final cohort----
 

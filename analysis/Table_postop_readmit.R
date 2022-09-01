@@ -10,12 +10,9 @@ source(here::here("analysis","Utils.R"))
 ###########################################################
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
-procedures <- c('Abdominal',
-'Cardiac',
-'Obstetrics','Orthopaedic',
-              'Thoracic', 
-              'Vascular')
-dt.tv[(postop.readmit.cohort),.N ,keyby = .(wave, Abdominal, Cardiac, Obstetrics, Orthopaedic, Thoracic, Vascular, event.readmit)]
+procedures <- c('Abdominal','Orthopaedic',
+'Obstetrics','CardioThoracicVascular')
+dt.tv[(postop.readmit.cohort),.N ,keyby = .(wave, Abdominal, Obstetrics, Orthopaedic, CardioThoracicVascular, event.readmit)]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
@@ -36,10 +33,10 @@ n.type.events <- sort(unique(dt.tv[(postop.readmit.cohort) ,event.readmit]))[-1]
 
 post.op.readmit.model <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.readmit==i) ~ Abdominal*wave + 
-                                                     Cardiac*wave +
+                                                   #  Cardiac*wave +
                                                      Obstetrics*wave  +
-                                                       Thoracic*wave  + 
-                                                     Vascular*wave  +
+                                                    #   Thoracic*wave  + 
+                                                     CardioThoracicVascular*wave  +
                                                       postcovid*wave +  
                                                        sex + age.cat + 
                                                       bmi.cat + imd5 +
@@ -62,11 +59,11 @@ new.data.postop.covid <- data.table::data.table('start.readmit' = rep(0,8*length
                                                 'end.readmit' = rep(30,8*length(procedures)),
                                                 'event.readmit' = rep(F,8*length(procedures)),
                                                 'Abdominal' = c(rep(T,8),rep(F,8*length(procedures) - 8)),
-                                                'Cardiac'=c(rep(F,8*length(procedures) -5*8),rep(T,8),rep(F,8*length(procedures) -2*8)),
-                                                'Obstetrics'=c(rep(F,8*length(procedures) -4*8),rep(T,8),rep(F,8*length(procedures) -3*8)),
-                                                'Orthopaedic'=c(rep(F,8*length(procedures) -3*8),rep(T,8),rep(F,8*length(procedures) -4*8)),
-                                               'Thoracic'=c(rep(F,8*length(procedures) - 2*8),rep(T,8),rep(F,8*length(procedures) -5*8)),
-                                               'Vascular'=c(rep(F,8*length(procedures) - 8),rep(T,8)),
+                                            #    'Cardiac'=c(rep(F,8*length(procedures) -5*8),rep(T,8),rep(F,8*length(procedures) -2*8)),
+                                                'Obstetrics'=c(rep(F,8*length(procedures) -3*8),rep(T,8),rep(F,8*length(procedures) -2*8)),
+                                                'Orthopaedic'=c(rep(F,8*length(procedures) -2*8),rep(T,8),rep(F,8*length(procedures) -3*8)),
+                                             #  'Thoracic'=c(rep(F,8*length(procedures) - 2*8),rep(T,8),rep(F,8*length(procedures) -5*8)),
+                                               'CardioThoracicVascular'=c(rep(F,8*length(procedures) - 8),rep(T,8)),
                                                 'postcovid' = rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
                                                 'age.cat' = rep('(50,70]',8*length(procedures)),
                                                 'sex' = rep('F',8*length(procedures)),
