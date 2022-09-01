@@ -8,7 +8,7 @@ source(here::here("analysis","Utils.R"))
 ###########################################################
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
-procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
+procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 
 
 covariates <- c(procedures,'sex','age.cat','bmi.cat','imd5','wave',
@@ -24,7 +24,7 @@ gc()
 n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 post.op.covid.model.waves <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal*wave + Cardiac*wave + Obstetrics*wave + Thoracic*wave + Vascular*wave + age.cat + sex + bmi.cat + imd5 +
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal*wave +  Obstetrics*wave + CardioThoracicVascular*wave + age.cat + sex + bmi.cat + imd5 +
                                                       vaccination.status.factor + region + Current.Cancer + Emergency*wave + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort)], model = T))
 
@@ -35,12 +35,12 @@ new.data.postop <- data.table::data.table(
   'start' = rep(0,8*length(procedures)),
   'end' = rep(30,8*length(procedures)),
   'event' = rep(F,8*length(procedures)),
-  'Abdominal' = c(rep(T,8),rep(F,40)),
-  'Cardiac'=c(rep(F,8),rep(T,8),rep(F,32)),
-  'Obstetrics'=c(rep(F,16),rep(T,8),rep(F,24)),
-  'Orthopaedic'=c(rep(F,24),rep(T,8),rep(F,16)),
-  'Thoracic'=c(rep(F,32),rep(T,8),rep(F,8)),
-  'Vascular'=c(rep(F,40),rep(T,8)),
+  'Abdominal' = c(rep(T,8),rep(F,24)),
+ # 'Cardiac'=c(rep(F,8),rep(T,8),rep(F,32)),
+  'Obstetrics'=c(rep(F,8),rep(T,8),rep(F,16)),
+  'Orthopaedic'=c(rep(F,16),rep(T,8),rep(F,8)),
+  #'Thoracic'=c(rep(F,32),rep(T,8),rep(F,8)),
+  'CardioThoracicVascular'=c(rep(F,24),rep(T,8)),
   'age.cat' = rep('(50,70]',8*length(procedures)),
   'sex' = rep('F',8*length(procedures)),
   'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],8*length(procedures)),
@@ -88,8 +88,8 @@ ggplot2::ggsave(plot = adjusted.waves.plot, here::here('output','adjusted_waves_
 
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 post.op.covid.model <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal + Cardiac + 
-                                                      Obstetrics + Thoracic + Vascular + 
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal  + 
+                                                      Obstetrics + CardioThoracicVascular + 
                                                       age.cat + sex + bmi.cat + imd5 + 
                                                       vaccination.status.factor + region + Current.Cancer + 
                                                       Emergency + LOS.bin + wave + Charl12 + recentCOVID + previousCOVID, 
@@ -115,11 +115,11 @@ adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(
                                                                   'event' = rep(F,newdata.rows),
                                                                   'patient_id' = 1:newdata.rows,
                                                                   'Abdominal' = rep(T,newdata.rows),
-                                                                  'Cardiac'= rep(F,newdata.rows),
+                                                               #   'Cardiac'= rep(F,newdata.rows),
                                                                   'Obstetrics'=rep(F,newdata.rows),
                                                                   'Orthopaedic'=rep(F,newdata.rows),
-                                                                  'Thoracic'=rep(F,newdata.rows),
-                                                                  'Vascular'=rep(F,newdata.rows),
+                                                                #  'Thoracic'=rep(F,newdata.rows),
+                                                                  'CardioThoracicVascular'=rep(F,newdata.rows),
                                                                   'age.cat' = rep('(50,70]',newdata.rows),
                                                                   'sex' = rep('F',newdata.rows),
                                                                   'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows),
