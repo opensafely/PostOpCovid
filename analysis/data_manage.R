@@ -301,9 +301,7 @@ locf.roll_(dt = 'dt.tv', ID = 'patient_id',
 ## Take first procedure within each 90 day spell as exposure and repeat procedures as a consequence of first procedure
 data.table::setkey(dt.tv,patient_id, tstart, tstop)
 dt.tv[,prior.end.date := data.table::shift(end.fu90, n = 1L, type =  'lag'), by = .(patient_id)]
-locf.roll_(dt = 'dt.tv', ID = 'patient_id', 
-           start.DTTM = 'tstart', group = 'c("patient_id")',
-           var.cols = 'c("prior.end.date")')
+min.grp.col_(dt = 'dt.tv',min.var.name = 'prior.end.date',aggregate.cols = 'prior.end.date',id.vars = c('patient_id','end.fu'))
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 per.proc.variables <- c(proc.tval.cols,proc.time.cols.start,proc.time.cols.end,
@@ -314,14 +312,15 @@ per.proc.variables <- c(proc.tval.cols,proc.time.cols.start,proc.time.cols.end,
                         'end.fu30','end.fu90')
 
 ## Redefine episodes without procedures within 90 days of prior procedure 
-dt.tv[is.finite(prior.end.date) & prior.end.date > admit.date, (per.proc.variables) := NA]
+dt.tv[is.finite(prior.end.date) & prior.end.date > admit.date & prior.end.date > end.fu90, (per.proc.variables) := NA]
 locf.roll_(dt = 'dt.tv', ID = 'patient_id', 
            start.DTTM = 'tstart', group = 'c("patient_id")',
            var.cols = 'c("end.fu")')
-dt.tv <- dt.tv[is.finite(end.fu)]
+
+i <- which(dt.tv[,is.finite(end.fu) & is.finite(patient_id)])
+del_rows(dt.tv,-i) ## Should only be an issue in simulated data 
 
 ## extend prior procedures variables over repeat procedure if within 90 days of prior procedure 
-dt.tv[prior.end.date > admit.date, (per.proc.variables) := NA]
 locf.roll_(dt = 'dt.tv', ID = 'patient_id', 
            start.DTTM = 'tstart', group = 'c("patient_id","end.fu")',
            var.cols = "per.proc.variables")
@@ -743,7 +742,7 @@ dt.tv[, CardioThoracicVascular := Cardiac == 1 | Vascular == 1 | Thoracic == 1]
 
 procedures.sub <- c('Colectomy','Cholecystectomy',
                     'HipReplacement','KneeReplacement')
-covariates <- c(procedures,procedures.sub,'sex','age.cat','bmi.cat','imd5','wave','LOS.bin',
+covariates <- c(procedures,procedures.sub,'CardioThoracicVascular','sex','age.cat','bmi.cat','imd5','wave','LOS.bin',
                 'vaccination.status.factor','Current.Cancer','Emergency','Charlson','Charl12','recentCOVID','previousCOVID','postcovid','region',
                 'emergency_readmit_primary_diagnosis','primary_diagnosis','death_underlying_cause_ons','admission_method','days_in_critical_care',
                 'Prim.admit.cat','COD.cat','Readmit.cat')

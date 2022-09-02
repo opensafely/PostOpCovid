@@ -17,7 +17,7 @@
 #'
 #' @return Nothing in itself, it constructs and evaluates a command in the parent environment
 #'
-EVAL <- function(...)eval(parse(text = paste0(...)),envir = pos.to.env(1))
+EVAL <- function(...)eval(parse(text = paste0(...)), envir = .GlobalEnv)
 
 #' Maximum by in place roll
 #'
@@ -31,7 +31,7 @@ EVAL <- function(...)eval(parse(text = paste0(...)),envir = pos.to.env(1))
 #'
 #' @return  assign.dt assigned into parent frame
 #'
-max.roll_ <- function(dt,aggregate.var,max.var,group)  EVAL(dt,"[,",max.var, ":=",dt,"[",dt,"[,.I[which.max(",aggregate.var,")], keyby = ",group,"]$V1,c(",group,",'",aggregate.var,"')][",dt,"[,",group,"],",aggregate.var,", on = ",group,"]]")#, envir = .GlobalEnv)
+max.roll_ <- function(dt,aggregate.var,max.var,group)  EVAL(dt,"[,",max.var, ":=",dt,"[",dt,"[,.I[which.max(",aggregate.var,")], keyby = ",group,"]$V1,c(",group,",'",aggregate.var,"')][",dt,"[,",group,"],",aggregate.var,", on = ",group,"]]")
 
 
 #' Minimum by in place roll
