@@ -296,7 +296,6 @@ locf.roll_(dt = 'dt.tv', ID = 'patient_id',
            var.cols = 'c(admission.dates,"end.fu90")')
 
 
-
 ## Don't use next admission period / procedure censor end of each spell
 ## Take first procedure within each 90 day spell as exposure and repeat procedures as a consequence of first procedure
 data.table::setkey(dt.tv,patient_id, tstart, tstop)
@@ -304,7 +303,8 @@ dt.tv[,prior.end.date := data.table::shift(end.fu90, n = 1L, type =  'lag'), by 
 min.grp.col_(dt = 'dt.tv',min.var.name = 'prior.end.date',aggregate.cols = 'prior.end.date',id.vars = c('patient_id','end.fu'))
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-per.proc.variables <- c(proc.tval.cols,proc.time.cols.start,proc.time.cols.end,
+per.proc.variables <- c(proc.tval.cols,proc.time.cols.start,
+                        paste0(procedures,c('_date_discharged')),
                         paste0(procedures,'_end_fu'),
                         paste0(procedures,'_end_fu30'),
                         paste0(procedures,'_end_fu90'),
@@ -312,7 +312,21 @@ per.proc.variables <- c(proc.tval.cols,proc.time.cols.start,proc.time.cols.end,
                         'end.fu30','end.fu90')
 
 ## Redefine episodes without procedures within 90 days of prior procedure 
+
+
+for (proc in procedures) {
+  dt.tv[is.finite(prior.end.date) & 
+          prior.end.date > get(paste0(proc, "_date_admitted")) & 
+          prior.end.date > end.fu90 & 
+          substr(as.character(get(paste0(proc,"_admission_method"))),1,1) == "2", (c(paste0(proc,'_emergency_readmit_date_admitted'),
+                                                                                 paste0(proc,'_emergency_readmit_primary_diagnosis'))) := .(get(paste0(proc,'_date_admitted')),get(paste0(proc,'_primary_diagnosis')))]
+  
+  
+}
+
+
 dt.tv[is.finite(prior.end.date) & prior.end.date > admit.date & prior.end.date > end.fu90, (per.proc.variables) := NA]
+
 locf.roll_(dt = 'dt.tv', ID = 'patient_id', 
            start.DTTM = 'tstart', group = 'c("patient_id")',
            var.cols = 'c("end.fu")')
