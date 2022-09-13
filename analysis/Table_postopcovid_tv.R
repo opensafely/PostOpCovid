@@ -31,7 +31,7 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 data.table::setkey(dt.tv, patient_id, end.fu, start)
 post.op.covid.model.split <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Abdominal  + Obstetrics +  CardioThoracicVascular + age.cat + 
-  sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + Current.Cancer + Emergency +  Charl12 + recentCOVID + previousCOVID,
+  sex  + imd5 + bmi.cat+ wave + vaccination.status.factor  + Current.Cancer + Emergency +  Charl12 + recentCOVID + previousCOVID,
    id = patient_id,
   data = dt.tv[(postop.covid.cohort) & start <=end], model = T))
 
@@ -138,7 +138,7 @@ dt.tv <- dt.tv[start.readmit>0 & end.readmit <=90] # Need to start follow up day
 post.op.VTE.model.split <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.VTE==i) ~  Abdominal + postcovid +    
                                          Obstetrics + CardioThoracicVascular+ age.cat + 
-                                            sex + bmi.cat + imd5 + wave + vaccination.status.factor + region + 
+                                            sex + imd5 + bmi.cat + wave + vaccination.status.factor  + 
                                             Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
                                           id = patient_id,
                                           data = dt.tv[(postcovid.VTE.cohort) & start <=end], model = T))

@@ -41,7 +41,7 @@ post.op.readmit.model <-
                                                        sex + age.cat + 
                                                       bmi.cat + imd5 +
                                                       vaccination.status.factor  + 
-                                                       Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID + region, 
+                                                       Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
                                                     id = patient_id,
                                           data = dt.tv[(postop.readmit.cohort)], model = T))
 

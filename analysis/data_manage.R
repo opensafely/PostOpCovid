@@ -169,6 +169,9 @@ max.grp.col_(dt = 'dt', max.var.name = 'max.date', aggregate.cols = paste0(proce
 min.grp.col_(dt = 'dt', min.var.name = 'min.date', aggregate.cols = c(time.cols,proc.time.cols.start,proc.time.cols.end), id.vars = 'patient_id') 
 
 
+# maximum date of follow up in data 
+max.date.fu <- max(dt$max.date, na.rm = T)
+
 dt[is.finite(gp.end) & max.date > gp.end, max.date := gp.end]
 dt[!is.finite(max.date), max.date := as.numeric(data.table::as.IDate('2022-02-01'))]
 dt[,tstart := do.call(pmin, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
@@ -421,7 +424,7 @@ if(sum(is.na(dt.tv$imd5))!=0) {
   dt.tv[is.na(imd5) , imd5 := "Missing"]
 }
 
-dt.tv[, bmi.cat := cut(bmi, breaks = c(0,18,24,29,100),  include.lowest = T, ordered_result = F)]
+dt.tv[, bmi.cat := cut(bmi, breaks = c(1,18,24,29,100),  include.lowest = F, ordered_result = F)]
 if(sum(is.na(dt.tv$bmi.cat))!=0) {
   levels(dt.tv$bmi.cat) <- c(levels(dt.tv$bmi.cat),"Missing")
   dt.tv[is.na(bmi.cat) , bmi.cat := "Missing"]
@@ -753,6 +756,10 @@ dt.tv[, CardioThoracicVascular := Cardiac == 1 | Vascular == 1 | Thoracic == 1]
 
 
 # Final cohort----
+
+# Drop admissions without 90 days followup before max.date
+
+dt.tv <- dt.tv[admit.date <= (max.date.fu - 90),]
 
 procedures.sub <- c('Colectomy','Cholecystectomy',
                     'HipReplacement','KneeReplacement')

@@ -11,7 +11,7 @@ dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.
 procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 
 
-covariates <- c(procedures,'sex','age.cat','bmi.cat','imd5','wave',
+covariates <- c(procedures,'sex','age.cat','bmi.cat','imd5','wave','bmi.cat',
                 'vaccination.status.factor','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID','region')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -24,8 +24,8 @@ gc()
 n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 post.op.covid.model.waves <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal*wave +  Obstetrics*wave + CardioThoracicVascular*wave + age.cat + sex + bmi.cat + imd5 +
-                                                      vaccination.status.factor + region + Current.Cancer + Emergency*wave + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal*wave +  Obstetrics*wave + CardioThoracicVascular*wave + age.cat + sex + imd5 +
+                                                      vaccination.status.factor + bmi.cat + Current.Cancer + Emergency*wave + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort)], model = T))
 
 data.table::fwrite(broom::tidy(post.op.covid.model.waves[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelwaves.csv"))
@@ -90,8 +90,8 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 post.op.covid.model <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal  + 
                                                       Obstetrics + CardioThoracicVascular + 
-                                                      age.cat + sex + bmi.cat + imd5 + 
-                                                      vaccination.status.factor + region + Current.Cancer + 
+                                                      age.cat + sex  + imd5 + bmi.cat +
+                                                      vaccination.status.factor  + Current.Cancer + 
                                                       Emergency + LOS.bin + wave + Charl12 + recentCOVID + previousCOVID, 
                                                     id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort)], model = T))
