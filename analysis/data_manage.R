@@ -29,7 +29,7 @@ dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
 dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
 dt[, imd := as.numeric(imd)]
 dt[, imd5 := cut(imd, breaks = seq(-1,33000,33000/5),  include.lowest = T, ordered_result = F)]
-
+summary(dt)
 ####
 # Multiple operations per row. Reshape to long format ----
 ####
@@ -425,16 +425,19 @@ if(sum(is.na(dt.tv$imd5))!=0) {
 }
 
 dt.tv[, bmi.cat := cut(bmi, breaks = c(1,18,24,29,100),  include.lowest = F, ordered_result = F)]
-if(sum(is.na(dt.tv$bmi.cat))!=0) {
+#if(sum(is.na(dt.tv$bmi.cat))!=0) {
   levels(dt.tv$bmi.cat) <- c(levels(dt.tv$bmi.cat),"Missing")
   dt.tv[is.na(bmi.cat) , bmi.cat := "Missing"]
-}
+#}
+table(dt.tv$bmi.cat)
 
 dt.tv[, region := as.factor(region)]
-if(sum(is.na(dt.tv$region))!=0) {
+#if(sum(is.na(dt.tv$region))!=0) {
   levels(dt.tv$region) <- c(levels(dt.tv$region),"Missing")
-  dt.tv[is.na(region) , region := "Missing"]
-}
+  dt.tv[is.na(region) | region == '' , region := "Missing"]
+#}
+
+table(dt.tv$region)
 
 ## Charlson index at time of operation----
 
