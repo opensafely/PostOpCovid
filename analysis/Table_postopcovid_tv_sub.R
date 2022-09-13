@@ -52,7 +52,7 @@ max.grp.col_(dt = 'dt.tv',
 data.table::setkey(dt.tv, patient_id, end.fu, start)
 post.op.covid.model.split.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~  Colectomy + Cholecystectomy +  
-                                            KneeReplacement + age.cat + sex + bmi.cat + imd5 + wave + 
+                                            KneeReplacement + age.cat + sex + imd5 + wave + 
                                             vaccination.status.factor  + Current.Cancer + Emergency  + Charl12 + 
                                             recentCOVID + previousCOVID,
                                           id = patient_id,
@@ -159,7 +159,7 @@ dt.tv <- dt.tv[start.readmit>0 & end.readmit <=90] # Need to start follow up day
 post.op.VTE.model.split.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.VTE==i) ~  Colectomy + postcovid +  
                                             Cholecystectomy + KneeReplacement + age.cat + 
-                                            sex + bmi.cat + imd5 + wave + vaccination.status.factor + 
+                                            sex + imd5 + wave + vaccination.status.factor + 
                                             Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
                                           id = patient_id,
                                           data = dt.tv[(postcovid.VTE.cohort) & start <=end & sub.op == T], model = T))

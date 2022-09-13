@@ -170,12 +170,15 @@ min.grp.col_(dt = 'dt', min.var.name = 'min.date', aggregate.cols = c(time.cols,
 
 
 # maximum date of follow up in data 
-max.date.fu <- max(dt$max.date, na.rm = T)
+max.date.fu <- max(as.numeric(data.table::as.IDate(dt$max.date)), na.rm = T)
 
 dt[is.finite(gp.end) & max.date > gp.end, max.date := gp.end]
 dt[!is.finite(max.date), max.date := as.numeric(data.table::as.IDate('2022-02-01'))]
 dt[,tstart := do.call(pmin, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
 dt[op.number == 1 ,tstart:= min.date]
+
+# maximum date of follow up in data 
+max.date.fu <- max(as.numeric(dt$max.date), na.rm = T)
 
 
 ## All times for long cohort table ----
@@ -761,8 +764,8 @@ dt.tv[, CardioThoracicVascular := Cardiac == 1 | Vascular == 1 | Thoracic == 1]
 # Final cohort----
 
 # Drop admissions without 90 days followup before max.date
-
-dt.tv <- dt.tv[admit.date <= (max.date.fu - 90),]
+max.date.fu
+dt.tv <- dt.tv[as.numeric(data.table::as.IDate(admit.date)) <= (max.date.fu - 90),]
 
 procedures.sub <- c('Colectomy','Cholecystectomy',
                     'HipReplacement','KneeReplacement')

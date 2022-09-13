@@ -12,7 +12,7 @@ procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
+covariates <- c(procedures,'age.cat','sex','imd5','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -23,7 +23,8 @@ dt.tv[, postop.los.cohort := start>=0 & tstop <= los.end & end <= 90 & any.op ==
 
 n.type.events <- sort(unique(dt.tv[(postop.los.cohort) ,event.los]))[-1]
 
-post.op.LOS.model <-  flexsurv::flexsurvreg(survival::Surv(start,end, event.los == 1) ~ Abdominal*wave + Obstetrics*wave + CardioThoracicVascular*wave + postcovid*wave +  sex + age.cat + bmi.cat+ imd5 + wave + vaccination.status.factor + 
+post.op.LOS.model <-  flexsurv::flexsurvreg(survival::Surv(start,end, event.los == 1) ~ Abdominal*wave + Obstetrics*wave + CardioThoracicVascular*wave + 
+postcovid*wave +  sex + age.cat + imd5 + wave + vaccination.status.factor + 
                                               Current.Cancer + Emergency + Charl12 + recentCOVID + previousCOVID , 
                                            data = dt.tv[(postop.los.cohort)],
                                            dist = 'weibull')

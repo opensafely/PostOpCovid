@@ -39,7 +39,7 @@ post.op.readmit.model <-
                                                      CardioThoracicVascular*wave  +
                                                       postcovid*wave +  
                                                        sex + age.cat + 
-                                                      bmi.cat + imd5 +
+                                                       imd5 +
                                                       vaccination.status.factor  + 
                                                        Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
                                                     id = patient_id,

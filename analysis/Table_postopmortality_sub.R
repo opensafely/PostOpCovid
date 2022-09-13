@@ -31,7 +31,7 @@ max.grp.col_(dt = 'dt.tv',
 
 post.op.died.model.sub <- 
   list(survival::coxph(survival::Surv(start,end,died) ~ Colectomy + Cholecystectomy + KneeReplacement + 
-                         postcovid*wave*Emergency + age.cat + sex  + bmi.cat+ imd5 + vaccination.status.factor + Current.Cancer +
+                         postcovid*wave + Emergency*wave + age.cat + sex  + imd5 + vaccination.status.factor + Current.Cancer +
                          Charl12 + recentCOVID + previousCOVID, id = patient_id,
                        data = dt.tv[start >=0 & sub.op == T & any.op == T], model = T))
 #data.table::fwrite(broom::tidy(post.op.died.model.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopdiedmodelsub.csv"))

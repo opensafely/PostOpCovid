@@ -16,7 +16,7 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 post.op.died.model <- 
   list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal  + Obstetrics + CardioThoracicVascular+ 
-                         postcovid*wave*Emergency + age.cat + sex + imd5 + bmi.cat + vaccination.status.factor + Current.Cancer +
+                         postcovid*wave + Emergency*wave + age.cat + sex + imd5  + vaccination.status.factor + Current.Cancer +
                         Charl12 + recentCOVID + previousCOVID, id = patient_id,
                        data = dt.tv[start >=0 & any.op == T], model = T))
 #data.table::fwrite(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopdiedmodel.csv"))
