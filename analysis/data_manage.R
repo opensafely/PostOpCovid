@@ -765,7 +765,7 @@ dt.tv[, CardioThoracicVascular := Cardiac == 1 | Vascular == 1 | Thoracic == 1]
 
 # Drop admissions without 90 days followup before max.date
 max.date.fu
-dt.tv <- dt.tv[as.numeric(data.table::as.IDate(admit.date)) <= (max.date.fu - 90),]
+dt.tv <- dt.tv[!(is.finite(admit.date) & as.numeric(data.table::as.IDate(admit.date)) > (max.date.fu - 90)),]
 
 procedures.sub <- c('Colectomy','Cholecystectomy',
                     'HipReplacement','KneeReplacement')
