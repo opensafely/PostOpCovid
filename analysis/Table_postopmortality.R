@@ -15,7 +15,7 @@ procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
 post.op.died.model <- 
-  list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal  + Obstetrics + CardioThoracicVascular+ 
+  list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal*wave  + Obstetrics*wave + CardioThoracicVascular*wave + 
                          postcovid*wave + Emergency*wave + age.cat + sex + imd5  + vaccination.status.factor + Current.Cancer +
                         Charl12 + recentCOVID + previousCOVID, id = patient_id,
                        data = dt.tv[start >=0 & any.op == T], model = T))
@@ -84,7 +84,7 @@ mortality.waves.plot <- ggplot2::ggplot(cuminc.long.labelled[order(Emergency, Op
                              colour = Operation
                               )) + 
   ggplot2::geom_line() +
-  ggplot2::facet_wrap(~Emergency) +
+  ggplot2::facet_wrap(~Emergency, scales = 'free') +
   ggplot2::ylab('90 Day Cumulative Mortality Risk (%)') +
   ggplot2::xlab('COVID-19 wave') 
 

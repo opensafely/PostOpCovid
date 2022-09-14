@@ -30,7 +30,7 @@ max.grp.col_(dt = 'dt.tv',
              id.vars = c("patient_id","end.fu"))
 
 post.op.died.model.sub <- 
-  list(survival::coxph(survival::Surv(start,end,died) ~ Colectomy + Cholecystectomy + KneeReplacement + 
+  list(survival::coxph(survival::Surv(start,end,died) ~ Colectomy*wave + Cholecystectomy*wave + KneeReplacement*wave + 
                          postcovid*wave + Emergency*wave + age.cat + sex  + imd5 + vaccination.status.factor + Current.Cancer +
                          Charl12 + recentCOVID + previousCOVID, id = patient_id,
                        data = dt.tv[start >=0 & sub.op == T & any.op == T], model = T))
@@ -91,12 +91,12 @@ mortality.waves.sub.plot <- ggplot2::ggplot(cuminc.long.labelled.sub[order(Emerg
                                                       #   value.name = '90 Day Cumulative Mortality Risk (%)')[, `:=`(COVID = grepl('^COVID*',rn),
                                                        #                                                          Operation = gsub('^No COVID|^COVID', '',rn))],
                                             ggplot2::aes(x = wave, 
-                                                         y = cuminc.adjusted.mortality.long, 
+                                                         y = cuminc.adjusted.mortality.sub.long, 
                                                          linetype = postcovid,
                                                          colour = Operation
                                             )) + 
   ggplot2::geom_line() +
-  ggplot2::facet_wrap(~Emergency) +
+  ggplot2::facet_wrap(~Emergency, scales = 'free') +
   ggplot2::ylab('90 Day Cumulative Mortality Risk (%)') +
   ggplot2::xlab('COVID-19 wave') 
 
