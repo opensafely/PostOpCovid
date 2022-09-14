@@ -772,7 +772,7 @@ dt.tv <- dt.tv[!is.finite(admit.date) | !(is.finite(admit.date) & as.numeric(dat
 
 procedures.sub <- c('Colectomy','Cholecystectomy',
                     'HipReplacement','KneeReplacement')
-covariates <- c(procedures,procedures.sub,'CardioThoracicVascular','sex','age.cat','imd5','wave','LOS.bin',
+covariates <- c(procedures,procedures.sub,'CardioThoracicVascular','sex','age.cat','bmi.cat','region','imd5','wave','LOS.bin',
                 'vaccination.status.factor','Current.Cancer','Emergency','Charlson','Charl12','recentCOVID','previousCOVID','postcovid',
                 'emergency_readmit_primary_diagnosis','primary_diagnosis','death_underlying_cause_ons','admission_method','days_in_critical_care',
                 'Prim.admit.cat','COD.cat','Readmit.cat')
