@@ -10,8 +10,8 @@ source(here::here("analysis","Utils.R"))
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 procedures.sub <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
-covariates <- c(procedures.sub,'sex','age.cat','bmi.cat','imd5','wave','LOS.bin',
-                'vaccination.status.factor','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID','region')
+covariates <- c(procedures.sub,'age.cat','sex','bmi.cat','imd5','wave',
+                'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
 drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstart','tstop','start','end','event','postop.covid.cohort','end.fu'))]
 

@@ -55,7 +55,7 @@ source(here::here("analysis","Utils.R"))
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
-                'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID')
+                'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
 
 ## Count variables for demographic tables in respective R files for demo table and flowchart
@@ -71,6 +71,7 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
  start.date <- dt.tv[(postop.covid.cohort) & start ==0 & is.finite(admit.date) & any.op == T, min(as.Date(as.integer(admit.date), origin = as.Date('1970-01-01')))]
  
  last.date <-  dt.tv[(postop.covid.cohort) & start ==0  & is.finite(admit.date) & any.op == T, max(as.Date(as.integer(admit.date), origin = as.Date('1970-01-01')))]
+
 
 ```
 
@@ -716,17 +717,27 @@ htmltools::includeHTML(here::here('output','postopdiedmodel.html'))
 
 ```{r, postopmortality_fig, fig.cap = "Predicted mortality was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation."}
  
- ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.mortality, keep.rownames = T),
-                                 id.vars = 'rn',
-                                 variable.name = 'Wave',
-                                 value.name = '90 Day Cumulative Mortality Risk')[, `:=`(COVID = grepl('^COVID*',rn),
-                                                        Operation = gsub('^No COVID|^COVID', '',rn))],
-                ggplot2::aes(x = Wave, 
-                             y = `90 Day Cumulative Mortality Risk`, 
-                             group = rn,
-                             colour = Operation,
-                             linetype = COVID)) +
-  ggplot2::geom_line()
+
+cuminc.long.labelled <-cbind(new.data.postop.covid,cuminc.adjusted.mortality.long, c(rep('Abdominal',16), rep('Obstetrics',16), rep('Orthopaedic',16), rep('CardioThoracicVascular',16))) 
+cuminc.long.labelled[,wave := readr::parse_number(wave)]
+cuminc.long.labelled[,Emergency := factor(Emergency, levels = c(F,T), labels = c('Elective','Emergency'))]
+names(cuminc.long.labelled)[names(cuminc.long.labelled)=='V3'] <- 'Operation'
+
+
+mortality.waves.plot <- ggplot2::ggplot(cuminc.long.labelled[order(Emergency, Operation, postcovid,wave)], #data.table::melt(data.table::data.table(cuminc.adjusted.mortality, keep.rownames = T),
+                                 #id.vars = 'rn',
+                                 #variable.name = 'Wave',
+                                 #value.name = '90 Day Cumulative Mortality Risk (%)')[, `:=`(COVID = grepl('^COVID*',rn),
+                                  #                                                       Operation = gsub('^No COVID|^COVID', '',rn))],
+                ggplot2::aes(x = wave, 
+                             y = cuminc.adjusted.mortality.long, 
+                             linetype = postcovid,
+                             colour = Operation
+                              )) + 
+  ggplot2::geom_line() +
+  ggplot2::facet_wrap(~Emergency, scales = 'free') +
+  ggplot2::ylab('90 Day Cumulative Mortality Risk (%)') +
+  ggplot2::xlab('COVID-19 wave') 
 ```
 
 #### Selected procedures
@@ -745,17 +756,28 @@ htmltools::includeHTML(here::here('output','postopdiedmodelsub.html'))
 
 ```{r, postopmortality_sub_fig, fig.cap = "Predicted mortality was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective colectomy cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation."} 
   
- ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.mortality.sub, keep.rownames = T),
-                                 id.vars = 'rn',
-                                 variable.name = 'Wave',
-                                 value.name = '90 Day Cumulative Mortality Risk')[, `:=`(COVID = grepl('^COVID*',rn),
-                                                        Operation = gsub('^No COVID|^COVID', '',rn))],
-                ggplot2::aes(x = Wave, 
-                             y = `90 Day Cumulative Mortality Risk`, 
-                             group = rn,
-                             colour = Operation,
-                             linetype = COVID)) +
-  ggplot2::geom_line()
+
+cuminc.long.labelled.sub <-cbind(new.data.postop.covid,cuminc.adjusted.mortality.sub.long, c(rep('Colectomy',16), rep('Cholecystectomy',16), rep('HipReplacement',16), rep('KneeReplacement',16))) 
+cuminc.long.labelled.sub[,wave := readr::parse_number(wave)]
+cuminc.long.labelled.sub[,Emergency := factor(Emergency, levels = c(F,T), labels = c('Elective','Emergency'))]
+names(cuminc.long.labelled.sub)[names(cuminc.long.labelled.sub)=='V3'] <- 'Operation'
+
+
+mortality.waves.sub.plot <- ggplot2::ggplot(cuminc.long.labelled.sub[order(Emergency, Operation, postcovid,wave),], #data.table::melt(data.table::data.table(cuminc.adjusted.mortality.sub, keep.rownames = T),
+                                                    #     id.vars = 'rn',
+                                                     #    variable.name = 'Wave',
+                                                      #   value.name = '90 Day Cumulative Mortality Risk (%)')[, `:=`(COVID = grepl('^COVID*',rn),
+                                                       #                                                          Operation = gsub('^No COVID|^COVID', '',rn))],
+                                            ggplot2::aes(x = wave, 
+                                                         y = cuminc.adjusted.mortality.sub.long, 
+                                                         linetype = postcovid,
+                                                         colour = Operation
+                                            )) + 
+  ggplot2::geom_line() +
+  ggplot2::facet_wrap(~Emergency, scales = 'free') +
+  ggplot2::ylab('90 Day Cumulative Mortality Risk (%)') +
+  ggplot2::xlab('COVID-19 wave') 
+
 ```
 
 <!-- ## COVID impact on Emergency Readmission -->

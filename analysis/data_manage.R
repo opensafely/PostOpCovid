@@ -29,6 +29,9 @@ dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
 dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
 dt[, imd := as.numeric(imd)]
 dt[, imd5 := cut(imd, breaks = seq(-1,33000,33000/5),  include.lowest = T, ordered_result = F)]
+
+table(as.factor(dt$region))
+
 summary(dt)
 ####
 # Multiple operations per row. Reshape to long format ----
@@ -765,12 +768,12 @@ dt.tv[, CardioThoracicVascular := Cardiac == 1 | Vascular == 1 | Thoracic == 1]
 
 # Drop admissions without 90 days followup before max.date
 max.date.fu
-dt.tv <- dt.tv[!(is.finite(admit.date) & as.numeric(data.table::as.IDate(admit.date)) > (max.date.fu - 90)),]
+dt.tv <- dt.tv[!is.finite(admit.date) | !(is.finite(admit.date) & as.numeric(data.table::as.IDate(admit.date)) > (max.date.fu - 90)),]
 
 procedures.sub <- c('Colectomy','Cholecystectomy',
                     'HipReplacement','KneeReplacement')
-covariates <- c(procedures,procedures.sub,'CardioThoracicVascular','sex','age.cat','bmi.cat','imd5','wave','LOS.bin',
-                'vaccination.status.factor','Current.Cancer','Emergency','Charlson','Charl12','recentCOVID','previousCOVID','postcovid','region',
+covariates <- c(procedures,procedures.sub,'CardioThoracicVascular','sex','age.cat','imd5','wave','LOS.bin',
+                'vaccination.status.factor','Current.Cancer','Emergency','Charlson','Charl12','recentCOVID','previousCOVID','postcovid',
                 'emergency_readmit_primary_diagnosis','primary_diagnosis','death_underlying_cause_ons','admission_method','days_in_critical_care',
                 'Prim.admit.cat','COD.cat','Readmit.cat')
 

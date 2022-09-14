@@ -13,8 +13,8 @@ procedures.sub <- c('Colectomy','Cholecystectomy',
 
 dt.tv[,(procedures.sub) := lapply(.SD,function(x) x==1), .SDcols = (procedures.sub)]
 
-covariates <- c(procedures.sub,'sex','age.cat','bmi.cat','imd5','wave',
-                'vaccination.status.factor','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID','region')
+covariates <- c(procedures.sub,'age.cat','sex','bmi.cat','imd5','wave',
+                'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
 dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(Cholecystectomy) & Cholecystectomy == T) |
