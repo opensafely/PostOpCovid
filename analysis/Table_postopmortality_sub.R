@@ -30,7 +30,7 @@ max.grp.col_(dt = 'dt.tv',
              id.vars = c("patient_id","end.fu"))
 
 post.op.died.model.sub <- 
-  list(survival::coxph(survival::Surv(start,end,died) ~ Colectomy*wave + Cholecystectomy*wave + KneeReplacement*wave + 
+  list(survival::coxph(survival::Surv(start,end,died) ~ Colectomy + Cholecystectomy + KneeReplacement + 
                          postcovid*wave +
                          Emergency*wave + 
                           age.cat + sex  + imd5 + vaccination.status.factor + Current.Cancer +
