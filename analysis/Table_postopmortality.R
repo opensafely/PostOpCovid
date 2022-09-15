@@ -17,7 +17,6 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 post.op.died.model <- 
   list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal*wave  + Obstetrics*wave + CardioThoracicVascular*wave + 
                          postcovid*wave + 
-                         Abdominal*Emergency + Obstetrics*Emergency + CardioThoracicVascular*Emergency + 
                          age.cat + sex + imd5  + vaccination.status.factor + Current.Cancer +
                         Charl12 + recentCOVID + previousCOVID, id = patient_id,
                        data = dt.tv[start >=0 & any.op == T], model = T))
@@ -66,7 +65,7 @@ cuminc.adjusted.mortality <-   matrix(cuminc.adjusted.mortality.long, byrow = T,
 colnames(cuminc.adjusted.mortality) <- paste0('Wave_',1:4)
 rownames(cuminc.adjusted.mortality) <- paste0(rep(rep(c(' No COVID post ',' COVID post '),each = 2),times = 4),paste0(rep(c('Elective ','Emergency '), times = 8),rep(procedures, each = 4)))
 
-save(post.op.died.model,cuminc.adjusted.mortality, file = here::here("output","postopmortality.RData"))
+save((new.data.postop.covid,cuminc.adjusted.mortality.long,post.op.died.model,cuminc.adjusted.mortality, file = here::here("output","postopmortality.RData"))
 data.table::fwrite(cuminc.adjusted.mortality, file = here::here("output","postopmortality.csv"))
 
 cuminc.long.labelled <-cbind(new.data.postop.covid,cuminc.adjusted.mortality.long, c(rep('Abdominal',16), rep('Obstetrics',16), rep('Orthopaedic',16), rep('CardioThoracicVascular',16))) 

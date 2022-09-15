@@ -10,6 +10,7 @@ data.table::setDTthreads(ncores)
 source(here::here("analysis","Utils.R"))
 
 index_date <- data.table::as.IDate("2020-02-01")
+last_date <- data.table::as.IDate("2021-12-31")
 
 dt <- data.table::fread(here::here("output", "input.csv"))
 dt.COD <- data.table::fread(here::here("output", "input_COD.csv"))
@@ -41,7 +42,7 @@ summary(dt)
 op.admit.vars <- sort(paste0(outer(procedures,paste0("_",1:5),paste0),'_date_admitted'))
 op.discharge.vars <- sort(paste0(outer(procedures,paste0("_",1:5),paste0),'_date_discharged'))
 for (i in 1:length(op.admit.vars)) {
-  dt[get(op.admit.vars[i])>get(op.discharge.vars[i]), 
+  dt[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i])) > last_date, 
      (names(dt)[grepl(pattern = paste0(gsub(x =op.admit.vars[i],
                                             pattern = '_date_admitted',
                                             replacement = ""),'*'),
@@ -176,7 +177,7 @@ min.grp.col_(dt = 'dt', min.var.name = 'min.date', aggregate.cols = c(time.cols,
 max.date.fu <- max(as.numeric(data.table::as.IDate(dt$max.date)), na.rm = T)
 
 dt[is.finite(gp.end) & max.date > gp.end, max.date := gp.end]
-dt[!is.finite(max.date), max.date := as.numeric(data.table::as.IDate('2022-02-01'))]
+dt[!is.finite(max.date), max.date := as.numeric(data.table::as.IDate('2022-03-01'))]
 dt[,tstart := do.call(pmin, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
 dt[op.number == 1 ,tstart:= min.date]
 
@@ -767,8 +768,8 @@ dt.tv[, CardioThoracicVascular := Cardiac == 1 | Vascular == 1 | Thoracic == 1]
 # Final cohort----
 
 # Drop admissions without 90 days followup before max.date
-max.date.fu
-dt.tv <- dt.tv[!is.finite(admit.date) | !(is.finite(admit.date) & as.numeric(data.table::as.IDate(admit.date)) > (max.date.fu - 90)),]
+#max.date.fu
+#dt.tv <- dt.tv[!is.finite(admit.date) | !(is.finite(admit.date) & as.numeric(data.table::as.IDate(admit.date)) > (max.date.fu - 90)),]
 
 procedures.sub <- c('Colectomy','Cholecystectomy',
                     'HipReplacement','KneeReplacement')

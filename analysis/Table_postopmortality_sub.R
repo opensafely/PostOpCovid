@@ -32,7 +32,6 @@ max.grp.col_(dt = 'dt.tv',
 post.op.died.model.sub <- 
   list(survival::coxph(survival::Surv(start,end,died) ~ Colectomy*wave + Cholecystectomy*wave + KneeReplacement*wave + 
                          postcovid*wave +
-                         Colectomy*Emergency + Cholecystectomy*Emergency + KneeReplacement*Emergency + 
                           age.cat + sex  + imd5 + vaccination.status.factor + Current.Cancer +
                          Charl12 + recentCOVID + previousCOVID, id = patient_id,
                        data = dt.tv[start >=0 & sub.op == T & any.op == T], model = T))
@@ -77,7 +76,7 @@ cuminc.adjusted.mortality.sub <-   matrix(cuminc.adjusted.mortality.sub.long, by
 colnames(cuminc.adjusted.mortality.sub) <- paste0('Wave_',1:4)
 rownames(cuminc.adjusted.mortality.sub) <- paste0(rep(rep(c(' No COVID post ',' COVID post '),each = 2),times = 4),paste0(rep(c('Elective ','Emergency '), times = 8),rep(procedures, each = 4)))
 
-save(post.op.died.model.sub,cuminc.adjusted.mortality.sub, file = here::here("output","postopmortality_sub.RData"))
+save(post.op.died.model.sub,cuminc.adjusted.mortality.sub,cuminc.adjusted.mortality.sub.long,new.data.postop.covid, file = here::here("output","postopmortality_sub.RData"))
 data.table::fwrite(cuminc.adjusted.mortality.sub, file = here::here("output","postopmortality_sub.csv"))
 
 
