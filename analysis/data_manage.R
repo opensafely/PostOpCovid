@@ -10,7 +10,7 @@ data.table::setDTthreads(ncores)
 source(here::here("analysis","Utils.R"))
 
 index_date <- data.table::as.IDate("2020-02-01")
-last_date <- data.table::as.IDate("2021-12-31")
+last_date <- data.table::as.IDate("2021-11-01")
 
 dt <- data.table::fread(here::here("output", "input.csv"))
 dt.COD <- data.table::fread(here::here("output", "input_COD.csv"))
@@ -433,7 +433,7 @@ if(sum(is.na(dt.tv$imd5))!=0) {
 
 dt.tv[, bmi.cat := cut(bmi, breaks = c(1,18,24,29,100),  include.lowest = F, ordered_result = F)]
 #if(sum(is.na(dt.tv$bmi.cat))!=0) {
-  levels(dt.tv$bmi.cat)[levels(dt.tv$bmi.cat)] <- c(levels(dt.tv$bmi.cat),"Missing")
+  levels(dt.tv$bmi.cat) <- c(levels(dt.tv$bmi.cat),"Missing")
   dt.tv[is.na(bmi.cat) , bmi.cat := "Missing"]
 #}
 table(dt.tv$bmi.cat)
