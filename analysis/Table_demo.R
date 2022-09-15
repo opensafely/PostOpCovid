@@ -40,15 +40,17 @@ demo.tab <-
                                                                                                                         "Patients" = rnd(length(unique(patient_id))),
                                                                                                                         "Female" = n.perc(sex=='F',dig = 3),
                                                                                                                         "Age (IQR)" = median.iqr(age,dig = 0),
-                                                                                                                        "BMI < 19" =  n.perc(as.numeric(bmi.cat) ==  1, dig  = 3),
-                                                                                                                        "BMI 19-24" =  n.perc(as.numeric(bmi.cat) ==  2, dig  = 3),
-                                                                                                                        "BMI 25-29" =  n.perc(as.numeric(bmi.cat) ==  3, dig  = 3),
-                                                                                                                        "BMI > 30" =  n.perc(as.numeric(bmi.cat) ==  4, dig  = 3),
+                                                                                                                        "BMI < 19" =  n.perc(bmi.cat ==  '(1,18]', dig  = 3),
+                                                                                                                        "BMI 19-24" =  n.perc(bmi.cat ==  '(18,24]', dig  = 3),
+                                                                                                                        "BMI 25-29" =  n.perc(bmi.cat ==  '(24,29]', dig  = 3),
+                                                                                                                        "BMI > 30" =  n.perc(bmi.cat ==  '(29,100]', dig  = 3),
+                                                                                                                        "BMI missing" = n.perc(bmi.cat ==  'Missing', dig  = 3),
                                                                                                                         "IMD quintile 1" = n.perc(as.numeric(imd5) ==  1, dig  = 3),
                                                                                                                         "IMD quintile 2" = n.perc(as.numeric(imd5) ==  2, dig  = 3),
                                                                                                                         "IMD quintile 3" = n.perc(as.numeric(imd5) ==  3, dig  = 3),
                                                                                                                         "IMD quintile 4" = n.perc(as.numeric(imd5) ==  4, dig  = 3),
                                                                                                                         "IMD quintile 5" = n.perc(as.numeric(imd5) ==  5, dig  = 3),
+                                                                                                                        "IMD quintile Missing" = n.perc(imd5 == 'Missing', dig  = 3),
                                                                                                                         "Wave 1" = n.perc(wave == 'Wave_1', dig = 3),
                                                                                                                         "Wave 2" = n.perc(wave == 'Wave_2', dig = 3),
                                                                                                                         "Wave 3" = n.perc(wave == 'Wave_3', dig = 3),
@@ -66,25 +68,25 @@ demo.tab <-
                                                                                                                         "Critical care on index admission (%)" = n.perc(is.finite(days_in_critical_care) & days_in_critical_care > 0, dig = 3),
                                                                                                                         "Recent 7 to 42 days COVID-19 (%)" = n.perc(recentCOVID, dig = 3),
                                                                                                                         "Previous > 42 COVID-19 (%)" = n.perc(previousCOVID, dig = 3),
-                                                                                                                        "90 day VTE post discharge (%)" = n.perc(postVTE90.perepisode, dig = 4))]),
-  #                             data.table::transpose(
-  #                               cbind(
-  #                                 data.table::transpose(
-  #                                   dt.tv[(postop.covid.cohort) & start ==0,
-  #                                         lapply(.SD,function(x) rnd(sum(x))),
-  #                                         keyby = region, .SDcols = c(procedures)],
-  #                                   keep.names = "procedure",make.names = "region")[,
-  #                                                                                   lapply(.SD,
-  #                                                                                          function(x) paste0(x,
-  #                                                                                                             ' (',
-  #                                                                                                             round(100*x/sum(x,na.rm = T),
-  #                                                                                                                   digits = 1),
-  #                                                                                                             '%)')
-  #                                                                                   ),
-  #                                                                                   .SDcols = 2:(length(procedures)+ 1)],
-  #                                 sort(unique(dt.tv$region))
-  #                               ),
-  #                               make.names = "V2"),
+                                                                                                                        "90 day VTE post discharge (%)" = n.perc(postVTE90.perepisode, dig = 4))],
+                              data.table::transpose(
+                                cbind(
+                                  data.table::transpose(
+                                    dt.tv[(postop.covid.cohort) & start ==0,
+                                          lapply(.SD,function(x) rnd(sum(x))),
+                                          keyby = region, .SDcols = c(procedures)],
+                                    keep.names = "procedure",make.names = "region")[,
+                                                                                    lapply(.SD,
+                                                                                           function(x) paste0(x,
+                                                                                                              ' (',
+                                                                                                              round(100*x/sum(x,na.rm = T),
+                                                                                                                    digits = 1),
+                                                                                                              '%)')
+                                                                                    ),
+                                                                                    .SDcols = 2:(length(procedures)+ 1)],
+                                  sort(unique(dt.tv$region))
+                                ),
+                                make.names = "V2")
   #                             data.table::transpose(
   #                               cbind(paste0("Primary admission diagnosis category - ",1:5),
   #                                     dt.tv[(postop.covid.cohort) & start ==0,
@@ -131,7 +133,7 @@ demo.tab <-
   #                                                                                                                                                '%)')[order(-x)]),
   #                                                                                                                      .SDcols = 2:(length(procedures) + 1)][1:5,]),
   #                               make.names = 'V1')
-  # ),
+   ),
   make.names = 'procedures',
   keep.names = 'Characteristics')
 

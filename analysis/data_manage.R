@@ -432,15 +432,15 @@ if(sum(is.na(dt.tv$imd5))!=0) {
 
 dt.tv[, bmi.cat := cut(bmi, breaks = c(1,18,24,29,100),  include.lowest = F, ordered_result = F)]
 #if(sum(is.na(dt.tv$bmi.cat))!=0) {
-  levels(dt.tv$bmi.cat) <- c(levels(dt.tv$bmi.cat),"Missing")
+  levels(dt.tv$bmi.cat)[levels(dt.tv$bmi.cat)] <- c(levels(dt.tv$bmi.cat),"Missing")
   dt.tv[is.na(bmi.cat) , bmi.cat := "Missing"]
 #}
 table(dt.tv$bmi.cat)
 
 dt.tv[, region := as.factor(region)]
 #if(sum(is.na(dt.tv$region))!=0) {
-  levels(dt.tv$region) <- c(levels(dt.tv$region),"Missing")
-  dt.tv[is.na(region) | region == '' , region := "Missing"]
+  levels(dt.tv$region)[levels(dt.tv$region) == ''] <- "Missing"
+#  dt.tv[is.na(region) | region == '' , region := "Missing"]
 #}
 
 table(dt.tv$region)
