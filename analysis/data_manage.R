@@ -10,7 +10,7 @@ data.table::setDTthreads(ncores)
 source(here::here("analysis","Utils.R"))
 
 index_date <- data.table::as.IDate("2020-02-01")
-last_date <- data.table::as.IDate("2021-11-01")
+last_date <- data.table::as.IDate("2022-03-01")
 
 dt <- data.table::fread(here::here("output", "input.csv"))
 dt.COD <- data.table::fread(here::here("output", "input_COD.csv"))
@@ -32,6 +32,8 @@ dt[, imd := as.numeric(imd)]
 dt[, imd5 := cut(imd, breaks = seq(-1,33000,33000/5),  include.lowest = T, ordered_result = F)]
 
 table(as.factor(dt$region))
+
+dt <- dt[region !='']
 
 summary(dt)
 ####
