@@ -24,7 +24,7 @@ gc()
 n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 post.op.covid.model.waves <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal*wave +  Obstetrics*wave + CardioThoracicVascular*wave + age.cat + sex + imd5 +
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal*wave +  Obstetrics*wave + CardioThoracicVascular*wave + age.cat + sex + bmi.cat + imd5 + region + 
                                                       vaccination.status.factor + Current.Cancer + Emergency*wave + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort)], model = T))
 
@@ -90,9 +90,9 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 post.op.covid.model <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal  + 
                                                       Obstetrics + CardioThoracicVascular + 
-                                                      age.cat + sex  + imd5 + 
-                                                      vaccination.status.factor  + Current.Cancer + 
-                                                      Emergency + LOS.bin + wave + Charl12 + recentCOVID + previousCOVID, 
+                                                      age.cat + sex  + bmi.cat + imd5 +  wave +  
+                                                      vaccination.status.factor  + region +  Current.Cancer + 
+                                                      Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
                                                     id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort)], model = T))
 

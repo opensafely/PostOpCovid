@@ -102,9 +102,9 @@ doParallel::registerDoParallel(cl)
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 post.op.covid.model.sub <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Colectomy + Cholecystectomy  + KneeReplacement +
-                                                      age.cat + sex + bmi.cat + imd5 + 
-                                                      vaccination.status.factor + region + Current.Cancer + 
-                                                      Emergency + wave + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
+                                                      age.cat + sex  + bmi.cat + imd5 +  wave +  
+                                                      vaccination.status.factor  + region +  Current.Cancer + 
+                                                      Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID,  
                                                     id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort)  & sub.op == T], model = T))
 

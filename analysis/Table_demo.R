@@ -56,6 +56,15 @@ demo.tab <-
                                                                                                                         "IMD quintile 4" = n.perc(as.numeric(imd5) ==  4, dig  = 3),
                                                                                                                         "IMD quintile 5" = n.perc(as.numeric(imd5) ==  5, dig  = 3),
                                                                                                                         "IMD quintile Missing" = n.perc(imd5 == 'Missing', dig  = 3),
+                                                                                                                        "Region: East" = n.perc(region ==  'East', dig  = 3),
+                                                                                                                        "Region: East Midlands" = n.perc(region ==  'East Midlands', dig  = 3),
+                                                                                                                        "Region: London" = n.perc(region ==  'London', dig  = 3),
+                                                                                                                        "Region: North East" = n.perc(region ==  'North East', dig  = 3),
+                                                                                                                        "Region: North West" = n.perc(region ==  'North West', dig  = 3),
+                                                                                                                        "Region: South East" = n.perc(region == 'South East', dig  = 3),
+                                                                                                                        "Region: South West" = n.perc(region == 'South West', dig  = 3),
+                                                                                                                        "Region: West Midlands" = n.perc(region == 'West Midlands', dig  = 3),
+                                                                                                                        "Region: Yorkshire and The Humber" = n.perc(region == 'Yorkshire and The Humber', dig  = 3),
                                                                                                                         "Wave 1" = n.perc(wave == 'Wave_1', dig = 3),
                                                                                                                         "Wave 2" = n.perc(wave == 'Wave_2', dig = 3),
                                                                                                                         "Wave 3" = n.perc(wave == 'Wave_3', dig = 3),
@@ -73,25 +82,7 @@ demo.tab <-
                                                                                                                         "Critical care on index admission (%)" = n.perc(is.finite(days_in_critical_care) & days_in_critical_care > 0, dig = 3),
                                                                                                                         "Recent 7 to 42 days COVID-19 (%)" = n.perc(recentCOVID, dig = 3),
                                                                                                                         "Previous > 42 COVID-19 (%)" = n.perc(previousCOVID, dig = 3),
-                                                                                                                        "90 day VTE post discharge (%)" = n.perc(postVTE90.perepisode, dig = 4))],
-                              data.table::transpose(
-                                cbind(
-                                  data.table::transpose(
-                                    dt.tv[(postop.covid.cohort) & start ==0,
-                                          lapply(.SD,function(x) rnd(sum(x))),
-                                          keyby = region, .SDcols = c(procedures)],
-                                    keep.names = "procedure",make.names = "region")[,
-                                                                                    lapply(.SD,
-                                                                                           function(x) paste0(x,
-                                                                                                              ' (',
-                                                                                                              round(100*x/sum(x,na.rm = T),
-                                                                                                                    digits = 1),
-                                                                                                              '%)')
-                                                                                    ),
-                                                                                    .SDcols = 2:(length(procedures))], #+ 1)],
-                                  sort(unique(dt.tv$region))
-                                ),
-                                make.names = "V2")
+                                                                                                                        "90 day VTE post discharge (%)" = n.perc(postVTE90.perepisode, dig = 4))]
   #                             data.table::transpose(
   #                               cbind(paste0("Primary admission diagnosis category - ",1:5),
   #                                     dt.tv[(postop.covid.cohort) & start ==0,
