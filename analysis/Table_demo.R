@@ -35,7 +35,12 @@ demo.tab <-
   data.table::transpose(
     cbind(
     data.table::data.table("procedures" = procedures),
-                              foreach::foreach(i = 1:length(procedures), .combine = 'rbind', .inorder = T) %do% dt.tv[start ==0 & final.date >= tstart  & final.date >= tstop & end <= 90 & any.op == T & get(paste0(procedures[i])) == T,head(.SD,1),keyby = .(patient_id,end.fu)][,
+                              foreach::foreach(i = 1:length(procedures), .combine = 'rbind', .inorder = T) %do% dt.tv[start ==0 & 
+                              final.date >= tstart  & 
+                              final.date >= tstop &
+                               end <= 90 & 
+                               any.op == T &
+                                get(paste0(procedures[i])) == T,head(.SD,1),keyby = .(patient_id,end.fu)][,
                                                                                                                       .("Procedures" = rnd(.N),
                                                                                                                         "Patients" = rnd(length(unique(patient_id))),
                                                                                                                         "Female" = n.perc(sex=='F',dig = 3),
@@ -83,7 +88,7 @@ demo.tab <-
                                                                                                                     digits = 1),
                                                                                                               '%)')
                                                                                     ),
-                                                                                    .SDcols = 2:(length(procedures)+ 1)],
+                                                                                    .SDcols = 2:(length(procedures))], #+ 1)],
                                   sort(unique(dt.tv$region))
                                 ),
                                 make.names = "V2")
