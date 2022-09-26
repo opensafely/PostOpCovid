@@ -171,15 +171,15 @@ dt[,(paste0(procedures,"_end_fu30")) := lapply(.SD,
 
 ## Final date for per patient taking into account final patient in GP database and currrent study end date ----
 
-max.grp.col_(dt = 'dt', max.var.name = 'max.date', aggregate.cols = paste0(procedures,"_end_fu"), id.vars = 'patient_id') 
-min.grp.col_(dt = 'dt', min.var.name = 'min.date', aggregate.cols = c(time.cols,proc.time.cols.start,proc.time.cols.end), id.vars = 'patient_id') 
+max.grp.col_(dt = 'dt', max.var.name = 'max.date', aggregate.cols = paste0(procedures,"_end_fu"), id.vars = c('patient_id')) 
+min.grp.col_(dt = 'dt', min.var.name = 'min.date', aggregate.cols = c(time.cols,proc.time.cols.start,proc.time.cols.end), id.vars = c('patient_id')) 
 
 
 # maximum date of follow up in data 
 max.date.fu <- max(as.numeric(data.table::as.IDate(dt$max.date)), na.rm = T)
 
 dt[is.finite(gp.end) & max.date > gp.end, max.date := gp.end]
-dt[!is.finite(max.date), max.date := as.numeric(data.table::as.IDate('2022-03-01'))]
+dt[!is.finite(max.date), max.date := as.numeric(data.table::as.IDate('2022-03-01') + 90)]
 dt[,tstart := do.call(pmin, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
 dt[op.number == 1 ,tstart:= min.date]
 

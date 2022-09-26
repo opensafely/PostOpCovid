@@ -60,7 +60,8 @@ min.roll_ <- function(dt,aggregate.var,min.var,group) EVAL(dt,"[,",min.var, ":="
 #' @return  assign.dt assigned into parent frame
 #'
 max.grp.col_ <- function(dt, max.var.name, aggregate.cols, id.vars) { 
-  EVAL(dt,'[,',max.var.name,' := data.table::melt(',dt,'[,c("',paste(c(id.vars,aggregate.cols),collapse = '","'),'"), with = F], na.rm = T, id.vars=c("'
+  EVAL(dt,'[,',max.var.name,' := data.table::melt(',
+       dt,'[,c("',paste(c(id.vars,aggregate.cols),collapse = '","'),'"), with = F], na.rm = T, id.vars=c("'
        ,paste(c(id.vars),collapse = '","'),'"))[order(',paste(c(id.vars),collapse = ','),',-value),.SD[1], keyby = .(',paste(c(id.vars),collapse = ','),')][J(',dt,'[,.(',paste(c(id.vars),collapse = ','),')]),.(value)]]') }
 
 #' Minimum by in place sort and roll across columns
