@@ -158,7 +158,7 @@ def admitdates(key,i):
 
 
 study = StudyDefinition(
-    index_date = "2021-11-01",
+    index_date = "2020-02-01",
 
     default_expectations={
         "date": {"earliest": "index_date" , "latest": "index_date + 3 years"},
