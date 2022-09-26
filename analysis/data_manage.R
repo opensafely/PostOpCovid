@@ -211,9 +211,17 @@ dt.tv <- dt[dt.dates.long,,rollends = c(T,T), roll = Inf, on = c('patient_id','t
 rm(dt)
 data.table::setkey(dt.tv,patient_id, tstart)
 
+# Roll in additional outcomes from update September 2022
+dt.tv.update <- arrow::read_feather(here::here("output","cohort_long_update.feather"))
+dt.tv <- unique(dt.tv.update[dt.tv,, rollends = c(T,T), roll = Inf, on = c('patient_id','tstart'), mult = 'all'])
+rm(dt.tv.update)
+
 # Set date end for each period
 dt.tv[,tstop := c(tstart[-1],NA)] 
 dt.tv[c(F,patient_id[c(-1,-.N)] != patient_id[c(-1,-2)],T), tstop:=max.date]
+
+
+
 
 ####
 # Align time index across all records within patient and procedure----
