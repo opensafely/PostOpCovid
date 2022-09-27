@@ -63,6 +63,7 @@ aggregate_operations <- data.table::melt(dt, id.var = 'patient_id',
 dt <- dt[,non.op.vars, with = F][aggregate_operations, on = "patient_id"]
 rm(aggregate_operations)
 
+
 dt[, keep := F]
 dt[!is.na(dereg_date), dereg_date := data.table::as.IDate(paste0(dereg_date,"-30"), format = "%Y-%m-%d")]
 for (x in paste0(procedures,"_date_admitted")) { dt[is.na(dereg_date) | x <= dereg_date, keep := T] }
@@ -121,6 +122,9 @@ proc.time.stubs.end <- c('_date_discharged',
                            '_VTE_GP_date',
                          '_anticoagulation_prescriptions_date')
 proc.time.cols.end <- paste(rep(procedures,each = length(proc.time.stubs.end)),proc.time.stubs.end, sep ="")
+
+## Remove updated columns from this dataset
+dt.tv.update <- arrow::read_feather(here::here("output","cohort_long_update.feather"))
 
 # Set dates as numeric to avoid any problems with comparisons (was an issue for tmerge, probably not important with rolling dates)
 dt[,(c(proc.time.cols.start,proc.time.cols.end)) := lapply(.SD,as.numeric), .SDcols = c(proc.time.cols.start,proc.time.cols.end)]
@@ -181,7 +185,9 @@ max.date.fu <- max(as.numeric(data.table::as.IDate(dt$max.date)), na.rm = T)
 dt[is.finite(gp.end) & max.date > gp.end, max.date := gp.end]
 dt[!is.finite(max.date), max.date := as.numeric(data.table::as.IDate('2022-03-01') + 90)]
 dt[,tstart := do.call(pmin, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
-dt[op.number == 1 ,tstart:= min.date]
+
+data.table::setkey(data.table::setDT(dt),patient_id, tstart)
+dt[!duplicated(patient_id) ,tstart:= min.date]
 
 # maximum date of follow up in data 
 max.date.fu <- max(as.numeric(dt$max.date), na.rm = T)
@@ -191,8 +197,8 @@ max.date.fu <- max(as.numeric(dt$max.date), na.rm = T)
 dt.dates.wide <- dt[,.SD, .SDcols = c('patient_id',
                                  time.cols,
                                  'gp.end',
-                                 proc.time.cols.start, 
-                                 proc.time.cols.end,
+                                 proc.time.cols.start[!(proc.time.cols.start %in% names(dt.tv.update))], 
+                                 proc.time.cols.end[!(proc.time.cols.end %in% names(dt.tv.update))],
                                  paste(procedures,"_end_fu",sep = ""),
                                  paste(procedures,"_end_fu30",sep = ""),
                                  paste(procedures,"_end_fu90",sep = ""))]
@@ -207,21 +213,18 @@ data.table::setkey(data.table::setDT(dt),patient_id, tstart)
 data.table::setkey(dt.dates.long, patient_id, tstart)
 
 # Roll dates into data with locf for all variables, (and nocb for any earlier times)
+dt <- dt[,(names(dt.tv.update)[!(names(dt.tv.update) %in% c('patient_id','tstart'))]) := NULL]
 dt.tv <- dt[dt.dates.long,,rollends = c(T,T), roll = Inf, on = c('patient_id','tstart'), mult = 'all']
 rm(dt)
 data.table::setkey(dt.tv,patient_id, tstart)
 
 # Roll in additional outcomes from update September 2022
-dt.tv.update <- arrow::read_feather(here::here("output","cohort_long_update.feather"))
 dt.tv <- unique(dt.tv.update[dt.tv,, rollends = c(T,T), roll = Inf, on = c('patient_id','tstart'), mult = 'all'])
 rm(dt.tv.update)
 
 # Set date end for each period
 dt.tv[,tstop := c(tstart[-1],NA)] 
 dt.tv[c(F,patient_id[c(-1,-.N)] != patient_id[c(-1,-2)],T), tstop:=max.date]
-
-
-
 
 ####
 # Align time index across all records within patient and procedure----
@@ -796,6 +799,6 @@ drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstar
 
 dt.tv[,(drop.vars) := NULL]
 
-
+data.table::setkey(dt.tv,patient_id, tstart)
 dt.tv <- dt.tv[any.op == T & start >= 0 & tstop <= end.fu,] # Need to start follow up on day after operation as can't identify order when events on same day
 arrow::write_feather(dt.tv, sink = here::here("output","cohort_long.feather"))

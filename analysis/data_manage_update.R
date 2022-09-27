@@ -75,10 +75,11 @@ min.grp.col_(dt = 'dt.update', min.var.name = 'min.date', aggregate.cols = c(pro
 # maximum date of follow up in data 
 max.date.fu <- max(as.numeric(data.table::as.IDate(dt.update$max.date)), na.rm = T)
 
-dt.update[, max.date := do.call(pmax, c(.SD, na.rm = T)), .SDcols = proc.time.cols.end]
 dt.update[!is.finite(max.date), max.date := as.numeric(data.table::as.IDate('2022-03-01') + 90)]
 dt.update[,tstart := do.call(pmin, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
-dt.update[op.number == 1 ,tstart:= min.date]
+
+data.table::setkey(data.table::setDT(dt.update),patient_id, tstart)
+dt.update[!duplicated(patient_id) ,tstart:= min.date]
 
 # maximum date of follow up in data 
 max.date.fu <- max(as.numeric(dt.update$max.date), na.rm = T)
@@ -106,7 +107,13 @@ dt.tv.update <- dt.update[dt.dates.long,,
                           roll = Inf, 
                           on = c('patient_id','tstart'),
                           mult = 'all'][,
-                          c('max.date','min.date',"op.number") := NULL]
+                          c('max.date','min.date',"op.number",paste0(procedures,"_date_admitted")) := NULL]
+
+# If multiple procedures coded on one day will have same outcome data so just keep one - possibly only occurring with random pseudo data and might not be an issue in main data
+data.table::setkey(dt.tv.update, patient_id, tstart)
+for (x in names(dt.tv.update)) max.grp.col_(dt = 'dt.tv.update', max.var.name = x, aggregate.cols = x, id.vars = c('patient_id','tstart')) 
+data.table::setkey(dt.tv.update, patient_id, tstart)
+dt.tv.update <- dt.tv.update[, head(.SD,1), keyby = .(patient_id, tstart)]
 
 arrow::write_feather(dt.tv.update, sink = here::here("output","cohort_long_update.feather"))
 
