@@ -12,6 +12,9 @@ source(here::here("analysis","Utils.R"))
 index_date <- data.table::as.IDate("2020-02-01")
 last_date <- data.table::as.IDate("2022-03-01")
 
+procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
+procs <- paste0(rep(procedures,each = 5),"_",1:5)
+
 dt <- data.table::fread(here::here("output", "input.csv"))
 dt.COD <- data.table::fread(here::here("output", "input_COD.csv"))
 dt.update <- Reduce(function(...) {
@@ -43,8 +46,7 @@ dt <- dt.COD[,.(patient_id, death_underlying_cause_ons)][dt,]
 ####
 # Basic counts and descriptions----
 ####
-procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
-procs <- paste0(rep(procedures,each = 5),"_",1:5)
+
 
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
 dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
