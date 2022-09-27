@@ -28,8 +28,8 @@ dt.update <- Reduce(function(...) {
                                                                                                                                                 'bmi','imd','died') := NULL]))
 data.table::setkey(dt,patient_id)
 data.table::setkey(dt.update,patient_id)
-
-update.names <- names(dt.update)[-1]
+ 
+update.names <- names(dt.update)[-(names(dt.update) == 'patient_id')]
 dt[dt.update, on=.(patient_id), (update.names) := lapply(update.names, function(x) get(paste0('i.',x))) ]
 rm(dt.update)
 
