@@ -579,9 +579,9 @@ dt.tv[!is.finite(VTE.end) | post.VTE.date > end.fu, VTE.end := end.fu]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 names(dt.tv)[names(dt.tv)=='date'] <- 'COVIDpositivedate'
-
-
+names(dt.tv)[names(dt.tv)=='recent_date'] <- 'recentCOVIDpositivedate'
 names(dt.tv)[names(dt.tv)=='previous_date'] <- 'previousCOVIDpositivedate'
+
 dt.tv[,previousCOVID := as.numeric(is.finite(previousCOVIDpositivedate)) & admit.date - previousCOVIDpositivedate > 42 ]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 max.grp.col_(dt = 'dt.tv',max.var.name = 'previousCOVID',aggregate.cols = 'previousCOVID',id.vars = c("patient_id","end.fu"))
@@ -590,7 +590,6 @@ dt.tv[!is.finite(previousCOVID), previousCOVID := F]
 
 dt.tv[as.numeric(recentCOVIDpositivedate) - as.numeric(previousCOVIDpositivedate) < 90, recentCOVIDpositivedate := NA]
 
-names(dt.tv)[names(dt.tv)=='recent_date'] <- 'recentCOVIDpositivedate'
 dt.tv[,recentCOVID := as.numeric(is.finite(recentCOVIDpositivedate)) & admit.date - recentCOVIDpositivedate %between% c(42,8)  ]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 max.grp.col_(dt = 'dt.tv',max.var.name = 'recentCOVID',aggregate.cols = 'recentCOVID',id.vars = c("patient_id","end.fu"))
