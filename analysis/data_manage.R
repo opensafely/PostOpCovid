@@ -575,9 +575,34 @@ dt.tv[, VTE.end := post.VTE.date]
 dt.tv[!is.finite(VTE.end) | post.VTE.date > end.fu, VTE.end := end.fu]
 
 ## Covid-19----
+# Repeat positive tests within 90 days to be excluded
+
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 names(dt.tv)[names(dt.tv)=='date'] <- 'COVIDpositivedate'
 
+
+names(dt.tv)[names(dt.tv)=='previous_date'] <- 'previousCOVIDpositivedate'
+dt.tv[,previousCOVID := as.numeric(is.finite(previousCOVIDpositivedate)) & admit.date - previousCOVIDpositivedate > 42 ]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+max.grp.col_(dt = 'dt.tv',max.var.name = 'previousCOVID',aggregate.cols = 'previousCOVID',id.vars = c("patient_id","end.fu"))
+dt.tv[, previousCOVID := previousCOVID==1]
+dt.tv[!is.finite(previousCOVID), previousCOVID := F]
+
+dt.tv[as.numeric(recentCOVIDpositivedate) - as.numeric(previousCOVIDpositivedate) < 90, recentCOVIDpositivedate := NA]
+
+names(dt.tv)[names(dt.tv)=='recent_date'] <- 'recentCOVIDpositivedate'
+dt.tv[,recentCOVID := as.numeric(is.finite(recentCOVIDpositivedate)) & admit.date - recentCOVIDpositivedate %between% c(42,8)  ]
+data.table::setkey(dt.tv,patient_id,tstart,tstop)
+max.grp.col_(dt = 'dt.tv',max.var.name = 'recentCOVID',aggregate.cols = 'recentCOVID',id.vars = c("patient_id","end.fu"))
+dt.tv[, recentCOVID := recentCOVID==1]
+dt.tv[!is.finite(recentCOVID), recentCOVID := F]
+
+## If recent COVID then positive retest unlikely to be new infection
+dt.tv[as.numeric(COVIDpositivedate) - as.numeric(recentCOVIDpositivedate) < 90, COVIDpositivedate := NA]
+dt.tv[as.numeric(COVIDpositivedate) - as.numeric(previousCOVIDpositivedate) < 90, COVIDpositivedate := NA]
+
+
+# If emergency admission or death from COVID then count as COVID outcome
 dt.tv[is.na(COVIDpositivedate) & death_underlying_cause_ons %in% c('U071','U072'), COVIDpositivedate := date_death_ons]
 
 dt.tv[(!is.na(emergency_readmit_primary_diagnosis) & 
@@ -597,20 +622,6 @@ dt.tv[order(tstart),postcovid := cummax(COVIDpositive), by = .(patient_id, end.f
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 dt.tv[, covid.end := COVIDpositivedate]
 dt.tv[!is.finite(covid.end), covid.end := end.fu]
-
-names(dt.tv)[names(dt.tv)=='recent_date'] <- 'recentCOVIDpositivedate'
-dt.tv[,recentCOVID := as.numeric(is.finite(recentCOVIDpositivedate)) & admit.date - recentCOVIDpositivedate %between% c(42,8)  ]
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-max.grp.col_(dt = 'dt.tv',max.var.name = 'recentCOVID',aggregate.cols = 'recentCOVID',id.vars = c("patient_id","end.fu"))
-dt.tv[, recentCOVID := recentCOVID==1]
-dt.tv[!is.finite(recentCOVID), recentCOVID := F]
-
-names(dt.tv)[names(dt.tv)=='previous_date'] <- 'previousCOVIDpositivedate'
-dt.tv[,previousCOVID := as.numeric(is.finite(previousCOVIDpositivedate)) & admit.date - previousCOVIDpositivedate > 42 ]
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
-max.grp.col_(dt = 'dt.tv',max.var.name = 'previousCOVID',aggregate.cols = 'previousCOVID',id.vars = c("patient_id","end.fu"))
-dt.tv[, previousCOVID := previousCOVID==1]
-dt.tv[!is.finite(previousCOVID), previousCOVID := F]
 
 ## Readmissions----
 ## Ensure readmissions are not mistaken as the initial admission. Discharged date already rolled across end.fu so can do this across all records immediately
