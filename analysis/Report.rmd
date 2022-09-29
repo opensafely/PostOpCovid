@@ -91,7 +91,7 @@ This project will use national linked primary and secondary health data to provi
 # Methods
 
 ## Study design
-All identified all adult patients as the study population who underwent at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. Patients were followed up from the admission for the operation to 90 days following discharge, and  outcomes of COVID-19 positive tests, first subsequent emergency hospital readmission, venous thromboembolism events, and all cause mortality.  
+We identified all adult patients as the study population who underwent at least one procedure whilst registered to a general practitioner within an English region using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. Patients were followed up from the admission for the operation to 90 days following discharge, and  outcomes of COVID-19 positive tests, first subsequent emergency hospital readmission, venous thromboembolism events, and all cause mortality.  
 
 ## Date sharing
 Access to the underlying identifiable and potentially re-identifiable pseudonymised electronic health record data is tightly governed by various legislative and regulatory frameworks, and restricted by best practice. The data in OpenSAFELY is drawn from General Practice data across England where TPP is the data processor.
