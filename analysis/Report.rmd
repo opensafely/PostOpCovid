@@ -564,12 +564,13 @@ weekly.post.op.VTE.risk <- data.table::fread(here::here("output","postopcovid_VT
 
 
 ggplot2::ggplot(weekly.post.op.VTE.risk) + #ggplot2::geom_line(ggplot2::aes(x = Days.post.discharge, y = Risk.risk, group = COVID, colour = COVID)) + 
- ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week","5th week")),
+ ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week in hospital","1st post discharge week","2nd week","3rd week","4th week","5th week"),
+                                           labels = c("Inpatient","1st post \n discharge week","2nd week","3rd week","4th week","5th week")),
                                                                     y = Risk,
                               group = COVID,
                              colour = COVID,
                             fill = COVID), position = "dodge") +
-ggplot2::xlab("Risk Period post discharge") + 
+ggplot2::xlab("Weekly Risk Periods pre and post discharge") + 
   ggplot2::ylab("Cumulative risk during time period") + ggplot2::ggtitle("Post operative risk of VTE over time stratified by COVID-19 infection",
                                                                          subtitle = "Adjusted for age, sex, SES, BMI, co-morbidity, vaccination,\n operation category, emergency, previous COVID-19, \n COVID_19 wave, and competing risks of death and readmission")
 
@@ -670,12 +671,13 @@ weekly.post.op.VTE.risk.sub <- data.table::fread(here::here("output","postopcovi
 #htmltools::includeHTML(here::here('output','postopVTEmodelsplitsub.html'))
 
 ggplot2::ggplot(weekly.post.op.VTE.risk.sub) +
- ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week pre discharge","1st week","2nd week","3rd week","4th week","5th week")),
+ ggplot2::geom_col(ggplot2::aes(x = factor(`Risk period`, level = c("Week in hospital","1st post discharge week","2nd week","3rd week","4th week","5th week"),
+                                           labels = c("Inpatient","1st post \n discharge week","2nd week","3rd week","4th week","5th week")),
                                                                     y = Risk,
                               group = COVID,
                              colour = COVID,
                             fill = COVID), position = "dodge") +
-ggplot2::xlab("Risk Period post discharge") + 
+ggplot2::xlab("Weekly Risk Periods pre and post discharge") + 
   ggplot2::ylab("Cumulative risk during time period") + 
   ggplot2::ggtitle("Post operative risk of VTE over time stratified by COVID-19 infection",
                                                                          subtitle = "Adjusted for age, sex, SES, BMI, co-morbidity, vaccination,\n operation category, emergency, previous COVID-19, \n COVID_19 wave, and competing risks of death and readmission")
