@@ -61,7 +61,8 @@ dt.tv.splits[,week.post.op := as.factor(week.post.op)]
 dt.tv.splits[, los.end := min(los.end, na.rm = T), keyby = .(patient_id, end.fu)]
 
 ###################### Post discharge
-dt.tv.splits[,`:=`(post.disch.wk1 = discharge.date  ,
+dt.tv.splits[,`:=`(post.disch.wk0 = admit.date,
+            post.disch.wk1 = discharge.date  ,
             post.disch.wk2 = discharge.date + 7 ,
             post.disch.wk3 = discharge.date + 14 ,
             post.disch.wk4 = discharge.date + 21 ,
@@ -71,7 +72,7 @@ dt.tv.splits[,`:=`(post.disch.wk1 = discharge.date  ,
 
 # Identify unique date times for week boundaries per patient
 dt.tv.splits2 <- data.table::melt(dt.tv.splits[is.finite(discharge.date),tail(.SD,1),
-                                       .SDcols = c(paste0("post.disch.wk",1:5)),
+                                       .SDcols = c(paste0("post.disch.wk",0:5)),
                                        keyby = c('patient_id', 'end.fu')], 
                                  id.vars = c('patient_id', 'end.fu'),
                                  value.name = "post.disch.wk",
@@ -172,7 +173,7 @@ dt.tv.splits[, any.op.VTE := any.op.VTE > 0]
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits[, any.op.VTE := cummax(any.op.VTE), keyby = .(patient_id, end.fu)]
 
-dt.tv.splits[, postcovid.VTE.cohort := start.readmit > 0 & tstop <= final.date.VTE & any.op.VTE == T] #Date must be after operation date, likely to mean after discharge date as operation date is admit date
+dt.tv.splits[, postcovid.VTE.cohort := start > 0 & tstop <= final.date.VTE & any.op.VTE == T] #Date must be after operation date, likely to mean after discharge date as operation date is admit date
 
 dt.tv.splits[,event.VTE :=0]
 dt.tv.splits[post.VTE.date == tstop & (postcovid.VTE.cohort), event.VTE := 1]
@@ -210,6 +211,7 @@ dt.tv.splits[(postop.readmit.cohort) & date_death_ons == tstop & event.readmit !
 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 
+dt.tv.splits[, CardioThoracicVascular := Cardiac == 1 | Vascular == 1 | Thoracic == 1]
 
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 arrow::write_feather(dt.tv.splits, sink = here::here("output","cohort_postdisch_week_splits.feather"))
