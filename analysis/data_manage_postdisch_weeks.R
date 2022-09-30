@@ -32,6 +32,8 @@ dt.tv[,week.post.op := NA]
 dt.tv.splits <- unique(data.table::rbindlist(list(dt.tv.splits,dt.tv[,.(patient_id, end.fu, week.post.op, tstart)])))
 dt.tv.splits[,post.op.wk := tstart]
 data.table::setkey(dt.tv.splits,patient_id, end.fu, tstart)
+locf.roll_(dt = 'dt.tv.splits',ID = 'patient_id',start.DTTM = 'tstart',group = 'c("patient_id","end.fu")', var.cols = 'c("week.post.op")')
+dt.tv.splits <- unique(dt.tv.splits)
 dt.tv[,week.post.op := NULL]
 dt.tv.splits <- dt.tv[dt.tv.splits,,roll = Inf, on = .(patient_id, end.fu,tstart)]
 rm(dt.tv)
@@ -86,7 +88,20 @@ dt.tv.splits2 <- data.table::melt(dt.tv.splits[is.finite(discharge.date),tail(.S
 dt.tv.splits[,week.post.disch := NA]
 dt.tv.splits2 <- unique(data.table::rbindlist(list(dt.tv.splits2,dt.tv.splits[,.(patient_id, end.fu, week.post.disch, tstart)])))
 dt.tv.splits2[,post.disch.wk := tstart]
-data.table::setkey(dt.tv.splits2,patient_id, end.fu, tstart)
+
+locf.roll_(dt = 'dt.tv.splits2',
+                  ID = 'patient_id',
+                  start.DTTM = 'tstart',
+                  group = 'c("patient_id","end.fu")',
+                  var.cols = 'c("week.post.disch")')
+nocb.roll_(dt = 'dt.tv.splits2',
+           ID = 'patient_id',
+           start.DTTM = 'tstart',
+           group = 'c("patient_id","end.fu")',
+           var.cols = 'c("week.post.disch")')
+
+dt.tv.splits2 <- unique(dt.tv.splits2)
+
 dt.tv.splits[,week.post.disch := NULL]
 dt.tv.splits <- dt.tv.splits[dt.tv.splits2,,roll = Inf, on = .(patient_id, end.fu,tstart)]
 rm(dt.tv.splits2)
@@ -113,6 +128,11 @@ dt.tv.splits[, `:=`(start = tstart - study.start,
 
 
 dt.tv.splits[,discharge.date.locf:= discharge.date]
+data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
+
+min.grp.col_(dt = 'dt.tv.splits',min.var.name = 'discharge.date.locf',
+             aggregate.cols = 'discharge.date.locf',id.vars = c("patient_id","end.fu"))
+
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 min.grp.col_(dt = 'dt.tv.splits',
    min.var.name = 'readmit.end',

@@ -151,20 +151,26 @@ data.table::fwrite(weekly.post.op.risk.sub, file = here::here("output","postopco
 
 
 ##############
+dt.tv.splits<-arrow::read_feather(here::here("output","cohort_postdisch_week_splits.feather"))
+
+dt.tv.splits[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
+        (is.finite(Cholecystectomy) & Cholecystectomy == T) |
+        (is.finite(HipReplacement)  & HipReplacement == T) | 
+        (is.finite(KneeReplacement) & KneeReplacement == T)]
 # Not enough deaths to treat separately from emergency readmissions
 #dt.tv[event.VTE == 3, event.VTE := 2]
-n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort)  & sub.op == T,event.VTE]))[-1]
+n.type.events <- sort(unique(dt.tv.splits[(postcovid.VTE.cohort)  & sub.op == T,event.VTE]))[-1]
 
-dt.tv <- dt.tv[start>0 & end.readmit <=90] # Need to start follow up day after discharge to avoid discharge diagnoses
+dt.tv.splits <- dt.tv.splits[start>0 & end.readmit <=90] # Need to start follow up day after discharge to avoid discharge diagnoses
 
 
 post.op.VTE.model.split.sub <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start.readmit,end.readmit,event.VTE==i) ~  Colectomy + postcovid +  
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Colectomy + postcovid*week.post.disch +  
                                             Cholecystectomy + KneeReplacement + age.cat + 
                                             sex + imd5 + wave + vaccination.status.factor + 
-                                            Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
+                                            Current.Cancer + Emergency  + Charl12 + recentCOVID + previousCOVID, 
                                           id = patient_id,
-                                          data = dt.tv[(postcovid.VTE.cohort) & start <=end & sub.op == T], model = T))
+                                          data = dt.tv.splits[(postcovid.VTE.cohort) & start <=end & sub.op == T], model = T))
 
 #data.table::fwrite(broom::tidy(post.op.VTE.model.split.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelsplitsub.csv"))
 names(post.op.VTE.model.split.sub) <- c('Post discharge VTE','Non COVID-19 emergency readmission','Mortality')[n.type.events]
@@ -173,8 +179,8 @@ modelsummary::modelsummary(post.op.VTE.model.split.sub,estimate  = "{estimate} [
 
 newdata.rows <- 1
 
-newdata.pred <- data.table::data.table('start.readmit' = rep(c(-7), times = 2),
-                                       'end.readmit' = rep(c(35),times = 2),
+newdata.pred <- data.table::data.table('start.readmit' = rep(seq(-7,28,7), times = 2),
+                                       'end.readmit' = rep(seq(0,35,7),times = 2),
                                        'event.VTE' = rep(F,newdata.rows*2),
                                        'week.post.disch' = rep(paste(0:(newdata.rows - 1)), times = 2),
                                        'patient_id' = rep(1:2,each = newdata.rows),
@@ -185,8 +191,8 @@ newdata.pred <- data.table::data.table('start.readmit' = rep(c(-7), times = 2),
                                        'postcovid'=rep(c(0,1), each = newdata.rows),
                                        'age.cat' = rep('(50,70]',newdata.rows*2),
                                        'sex' = rep('F',newdata.rows*2),
-                                       'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows*2),
-                                       'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows*2),
+                                       'bmi.cat' = rep(levels(dt.tv.splits$bmi.cat)[2],newdata.rows*2),
+                                       'imd5' = rep(levels(dt.tv.splits$imd5)[3], newdata.rows*2),
                                        'wave' = rep(paste0('Wave_',3),times = newdata.rows*2),
                                        'vaccination.status.factor' = rep('3',newdata.rows*2),
                                        'region' = rep("East Midlands",newdata.rows*2),
@@ -222,24 +228,24 @@ newdata.pred <- data.table::data.table('start.readmit' = rep(c(-7), times = 2),
 #     lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)], 2, cumsum ), digits = 3))
 
 weekly.post.op.VTE.risk.sub <- cuminc.cox(n.type.events = n.type.events,
-                                          dt = 'dt.tv[(postcovid.VTE.cohort) & start <=end  & sub.op == T]',
-                                          model = 'post.op.VTE.model.split.sub', newdata = 'newdata.pred', day = -7:35)
+                                          dt = 'dt.tv.splits[(postcovid.VTE.cohort) & start <=end  & sub.op == T]',
+                                          model = 'post.op.VTE.model.split.sub', newdata = 'newdata.pred', day = 7)
 
+
+# weekly.post.op.VTE.risk.sub[!is.finite(weekly.post.op.VTE.risk.sub)] <- 0
+# 
+# times.comb <-sort(unique(dt.tv.splits[(postcovid.VTE.cohort) & start <=end & sub.op == T][ event.VTE %in% n.type.events ,end]))
+# 
+# weekly.post.op.VTE.risk.sub <- rbind(weekly.post.op.VTE.risk.sub[max(which(times.comb <= 0)),],
+#                                      weekly.post.op.VTE.risk.sub[max(which(times.comb <= 7)),],
+#                                      weekly.post.op.VTE.risk.sub[max(which(times.comb <= 14)),],
+#                                      weekly.post.op.VTE.risk.sub[max(which(times.comb <= 21)),],
+#                                      weekly.post.op.VTE.risk.sub[max(which(times.comb <= 28)),],
+#                                      weekly.post.op.VTE.risk.sub[max(which(times.comb <= 35)),])
 
 weekly.post.op.VTE.risk.sub[!is.finite(weekly.post.op.VTE.risk.sub)] <- 0
 
-times.comb <-sort(unique(dt.tv[(postcovid.VTE.cohort) & start <=end & sub.op == T][ event.VTE %in% n.type.events ,end]))
-
-weekly.post.op.VTE.risk.sub <- rbind(weekly.post.op.VTE.risk.sub[max(which(times.comb <= 0)),],
-                                     weekly.post.op.VTE.risk.sub[max(which(times.comb <= 7)),],
-                                     weekly.post.op.VTE.risk.sub[max(which(times.comb <= 14)),],
-                                     weekly.post.op.VTE.risk.sub[max(which(times.comb <= 21)),],
-                                     weekly.post.op.VTE.risk.sub[max(which(times.comb <= 28)),],
-                                     weekly.post.op.VTE.risk.sub[max(which(times.comb <= 35)),])
-
-weekly.post.op.VTE.risk.sub[!is.finite(weekly.post.op.VTE.risk.sub)] <- 0
-
-weekly.post.op.VTE.risk.sub <- as.vector(weekly.post.op.VTE.risk.sub - rbind(c(0,0),weekly.post.op.VTE.risk.sub[1:5,]))
+#weekly.post.op.VTE.risk.sub <- as.vector(weekly.post.op.VTE.risk.sub - rbind(c(0,0),weekly.post.op.VTE.risk.sub[1:5,]))
 weekly.post.op.VTE.risk.sub  <-  cbind(data.table::data.table("COVID"= rep(c(F,T), each = 6),
 "Risk" = weekly.post.op.VTE.risk.sub,
 "Risk period" = c("Week in hospital","1st post discharge week","2nd week","3rd week","4th week","5th week")))

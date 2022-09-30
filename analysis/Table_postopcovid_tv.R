@@ -141,7 +141,7 @@ post.op.VTE.model.split <-
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~  Abdominal + postcovid*week.post.disch +    
                                          Obstetrics + CardioThoracicVascular+ age.cat + 
                                             sex + imd5 + wave + vaccination.status.factor  + 
-                                            Current.Cancer + Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
+                                            Current.Cancer + Emergency  + Charl12 + recentCOVID + previousCOVID, 
                                           id = patient_id,
                                           data = dt.tv.splits[(postcovid.VTE.cohort) & start <=end & 
                                                                 tstop <= final.date.VTE], model = T))
@@ -200,7 +200,7 @@ newdata.pred <- data.table::data.table('start.readmit' = rep(seq(-7,28,7), times
 
 weekly.post.op.VTE.risk <- cuminc.cox(n.type.events = n.type.events,
                                       dt = 'dt.tv.splits[(postcovid.VTE.cohort) & start <=end]', 
-                                      model = 'post.op.VTE.model.split', newdata = 'newdata.pred', day = 0:35)
+                                      model = 'post.op.VTE.model.split', newdata = 'newdata.pred', day = 7)
 
 
   # unlist(round(100*apply(exp(apply(-Reduce('+',lapply(n.type.events, function(i) {
@@ -208,21 +208,21 @@ weekly.post.op.VTE.risk <- cuminc.cox(n.type.events = n.type.events,
   # })),2,cumsum))*
   #   lp[[1]][base.haz.merge[order(time),.SD,.SDcols = c(1,2)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)], 2, cumsum ), digits = 3))
 
+# weekly.post.op.VTE.risk[!is.finite(weekly.post.op.VTE.risk)] <- 0
+# 
+# times.comb <-sort(unique(dt.tv.splits[(postcovid.VTE.cohort) & start <=end][ event.VTE %in% n.type.events ,end]))
+# 
+# 
+# weekly.post.op.VTE.risk <- rbind(weekly.post.op.VTE.risk[max(which(times.comb <= 0)),],
+#                                  weekly.post.op.VTE.risk[max(which(times.comb <= 7)),],
+#                             weekly.post.op.VTE.risk[max(which(times.comb <= 14)),],
+#                             weekly.post.op.VTE.risk[max(which(times.comb <= 21)),],
+#                         weekly.post.op.VTE.risk[max(which(times.comb <= 28)),],
+#                         weekly.post.op.VTE.risk[max(which(times.comb <= 35)),])
+
 weekly.post.op.VTE.risk[!is.finite(weekly.post.op.VTE.risk)] <- 0
 
-times.comb <-sort(unique(dt.tv.splits[(postcovid.VTE.cohort) & start <=end][ event.VTE %in% n.type.events ,end]))
-
-
-weekly.post.op.VTE.risk <- rbind(weekly.post.op.VTE.risk[max(which(times.comb <= 0)),],
-                                 weekly.post.op.VTE.risk[max(which(times.comb <= 7)),],
-                            weekly.post.op.VTE.risk[max(which(times.comb <= 14)),],
-                            weekly.post.op.VTE.risk[max(which(times.comb <= 21)),],
-                        weekly.post.op.VTE.risk[max(which(times.comb <= 28)),],
-                        weekly.post.op.VTE.risk[max(which(times.comb <= 35)),])
-
-weekly.post.op.VTE.risk[!is.finite(weekly.post.op.VTE.risk)] <- 0
-
-weekly.post.op.VTE.risk <- as.vector(weekly.post.op.VTE.risk - rbind(c(0,0),weekly.post.op.VTE.risk[1:5,]))
+#weekly.post.op.VTE.risk <- as.vector(weekly.post.op.VTE.risk - rbind(c(0,0),weekly.post.op.VTE.risk[1:5,]))
 weekly.post.op.VTE.risk  <-  cbind(data.table::data.table("COVID"= rep(c(F,T), each = 6),
 "Risk" = weekly.post.op.VTE.risk,
 "Risk period" = c("Week in hospital","1st post discharge week","2nd week","3rd week","4th week","5th week")))
