@@ -174,6 +174,7 @@ dt.tv.splits[date_death_ons == tstop & event != 1 & (postop.covid.cohort), event
 #### Post discharge events
 
 # VTE events
+
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits[, VTE.end := post.VTE.date]
 dt.tv.splits[!is.finite(VTE.end) & (end.fu < post.VTE.date | !is.finite(VTE.end)) , VTE.end := end.fu]
@@ -187,17 +188,21 @@ min.grp.col_(dt = 'dt.tv.splits',min.var.name = 'final.date.VTE',aggregate.cols 
 
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits[, postcovid.VTE.cohort := start>=0 & tstop <= final.date.VTE]
-dt.tv.splits[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date),any.op.VTE := rowSums(.SD,na.rm =T)  > 0, .SDcols = c(procedures)]
+dt.tv.splits[(postcovid.VTE.cohort) & start ==0  & is.finite(admit.date),
+                        any.op.VTE := rowSums(.SD,na.rm =T)  > 0, .SDcols = c(procedures)]
 dt.tv.splits[is.na(any.op.VTE), any.op.VTE := F]
 dt.tv.splits[, any.op.VTE := any.op.VTE > 0]
 data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 dt.tv.splits[, any.op.VTE := cummax(any.op.VTE), keyby = .(patient_id, end.fu)]
 
-dt.tv.splits[, postcovid.VTE.cohort := start > 0 & tstop <= final.date.VTE & any.op.VTE == T] #Date must be after operation date, likely to mean after discharge date as operation date is admit date
+dt.tv.splits[, postcovid.VTE.cohort := start > 0 &
+                              tstop <= final.date.VTE & any.op.VTE == T] #Date must be after operation date, likely to mean after discharge date as operation date is admit date
 
 dt.tv.splits[,event.VTE :=0]
 dt.tv.splits[post.VTE.date == tstop & (postcovid.VTE.cohort), event.VTE := 1]
-dt.tv.splits[emergency_readmitdate  == tstop & event.VTE != 1 & COVIDreadmission == F & is.finite(readmit.end) & readmit.end > study.start & (postcovid.VTE.cohort), event.VTE := 2]
+dt.tv.splits[emergency_readmitdate  == tstop & event.VTE != 1 & 
+                              COVIDreadmission == F & is.finite(readmit.end) & 
+                                          readmit.end > study.start & (postcovid.VTE.cohort), event.VTE := 2]
 dt.tv.splits[date_death_ons == tstop & event.VTE != 1 & (postcovid.VTE.cohort), event.VTE := 3]
 
 

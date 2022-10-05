@@ -134,7 +134,7 @@ dt.tv.splits[, `:=`(start = tstart - study.start,
 n.type.events <- sort(unique(dt.tv.splits[(postcovid.VTE.cohort),event.VTE]))[-1]
 
 
-dt.tv.splits <- dt.tv.splits[start>0 & end.readmit <=90] # Need to start follow up day after discharge to avoid discharge diagnoses
+dt.tv.splits <- dt.tv.splits[start>0 & tstop <= final.date.VTE] # Need to start follow up day after discharge to avoid discharge diagnoses
 
 
 post.op.VTE.model.split <- 
@@ -153,8 +153,8 @@ modelsummary::modelsummary(post.op.VTE.model.split,estimate  = "{estimate} [{con
 
 newdata.rows <- length(levels(dt.tv.splits$week.post.disch)) 
 
-newdata.pred <- data.table::data.table('start.readmit' = rep(seq(-7,28,7), times = 2),
-                                       'end.readmit' = rep(seq(0,35,7),times = 2),
+newdata.pred <- data.table::data.table('start.readmit' = rep(seq(0,35,7), times = 2),
+                                       'end.readmit' = rep(seq(7,42,7),times = 2),
                                        'event.VTE' = rep(F,newdata.rows*2),
                                        'week.post.disch' = rep(paste(0:(newdata.rows - 1)), times = 2),
                                        'patient_id' = rep(1:2,each = newdata.rows),
