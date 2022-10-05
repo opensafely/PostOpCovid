@@ -233,6 +233,8 @@ data.table::setkey(dt.tv.splits,patient_id,tstart,tstop)
 
 dt.tv.splits[, CardioThoracicVascular := Cardiac == 1 | Vascular == 1 | Thoracic == 1]
 
+table(dt.tv.splits$week.post.disch)
+
 data.table::setkey(dt.tv.splits, patient_id, end.fu, start)
 arrow::write_feather(dt.tv.splits, sink = here::here("output","cohort_postdisch_week_splits.feather"))
 #save(dt.tv.splits, file = here::here("output","cohort_postdisch_week_splits.RData"))
