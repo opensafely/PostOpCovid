@@ -200,8 +200,14 @@ newdata.pred <- data.table::data.table('start.readmit' = rep(seq(0,35,7), times 
 
 weekly.post.op.VTE.risk <- cuminc.cox(n.type.events = n.type.events,
                                       dt = 'dt.tv.splits[(postcovid.VTE.cohort) & start <=end]', 
-                                      model = 'post.op.VTE.model.split', newdata = 'newdata.pred', day = 7)
+                                      model = 'post.op.VTE.model.split', newdata = 'newdata.pred', day = seq(7,42,7))
 
+weekly.post.op.VTE.risk <- c(vapply(1:(newdata.rows), FUN.VALUE = 1.0, FUN = function(i) ifelse(i==1, 
+                                            weekly.post.op.VTE.risk[i,i],
+                                            weekly.post.op.VTE.risk[i,i] - weekly.post.op.VTE.risk[i-1,i])),
+vapply(1:(newdata.rows), FUN.VALUE = 1.0, FUN = function(i) ifelse(i==1, 
+                                                                   weekly.post.op.VTE.risk[i,i+newdata.rows],
+                                                                   weekly.post.op.VTE.risk[i,i+newdata.rows] - weekly.post.op.VTE.risk[i-1,i+newdata.rows])))
 
   # unlist(round(100*apply(exp(apply(-Reduce('+',lapply(n.type.events, function(i) {
   #   lp[[i]][base.haz.merge[order(time),.SD,.SDcols = c(1,i+1)],,roll =Inf,on = 'time', rollends = c(T,T)][time >= 0][order(time),.(.SD[,1]*.SD[,3], .SD[,2]*.SD[,3]),.SDcols = c(2:4)] 

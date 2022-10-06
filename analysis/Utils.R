@@ -658,11 +658,10 @@ cuminc.cox <- function(n.type.events = c(1,2),dt, model, newdata, day) {
                          type = "risk",
                          newdata = ',newdata,')) }),envir=environment())')))
   
-  days.in.data <- day
-    
-  if(sum(day %in% unlist(base.haz.merge[,1]))==0) {
-    days.in.data <- max(which(base.haz.merge[,1] <= day))
-  }
+  days.in.data <- vapply(1:length(days.in.data), FUN.VALUE = 1, FUN = function(i)  {
+    ifelse(day[i] %in% unlist(base.haz.merge[,1]) == T,day[i],
+     unlist(base.haz.merge[,1][max(which(base.haz.merge[,1] <= day[i])),1]))
+  })
   
     return(matrix(100*round(apply(exp(-apply(Reduce('+',lapply(n.type.events, function(i) {
       outer(unlist(base.haz.merge[,.SD,.SDcols = (i+1)]) ,unlist(risk[[i]]),'*')})),2,cumsum)) *

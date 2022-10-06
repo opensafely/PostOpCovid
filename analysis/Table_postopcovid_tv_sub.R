@@ -231,9 +231,15 @@ newdata.pred <- data.table::data.table('start.readmit' = rep(seq(0,35,7), times 
 
 weekly.post.op.VTE.risk.sub <- cuminc.cox(n.type.events = n.type.events,
                                           dt = 'dt.tv.splits[(postcovid.VTE.cohort) & start <=end  & sub.op == T]',
-                                          model = 'post.op.VTE.model.split.sub', newdata = 'newdata.pred', day = 7)
+                                          model = 'post.op.VTE.model.split.sub', newdata = 'newdata.pred', day = seq(7,42,7))
 
 
+weekly.post.op.VTE.risk.sub <- c(vapply(1:(newdata.rows), FUN.VALUE = 1.0, FUN = function(i) ifelse(i==1, 
+                                                                                                    weekly.post.op.VTE.risk.sub[i,i],
+                                                                                                    weekly.post.op.VTE.risk.sub[i,i] - weekly.post.op.VTE.risk.sub[i-1,i])),
+                             vapply(1:(newdata.rows), FUN.VALUE = 1.0, FUN = function(i) ifelse(i==1, 
+                                                                                                weekly.post.op.VTE.risk.sub[i,i+newdata.rows],
+                                                                                                weekly.post.op.VTE.risk.sub[i,i+newdata.rows] - weekly.post.op.VTE.risk.sub[i-1,i+newdata.rows])))
 # weekly.post.op.VTE.risk.sub[!is.finite(weekly.post.op.VTE.risk.sub)] <- 0
 # 
 # times.comb <-sort(unique(dt.tv.splits[(postcovid.VTE.cohort) & start <=end & sub.op == T][ event.VTE %in% n.type.events ,end]))
