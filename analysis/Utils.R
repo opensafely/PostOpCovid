@@ -658,7 +658,7 @@ cuminc.cox <- function(n.type.events = c(1,2),dt, model, newdata, day) {
                          type = "risk",
                          newdata = ',newdata,')) }),envir=environment())')))
   
-  days.in.data <- vapply(1:length(days.in.data), FUN.VALUE = 1, FUN = function(i)  {
+  days.in.data <- vapply(1:length(day), FUN.VALUE = 1, FUN = function(i)  {
     ifelse(day[i] %in% unlist(base.haz.merge[,1]) == T,day[i],
      unlist(base.haz.merge[,1][max(which(base.haz.merge[,1] <= day[i])),1]))
   })
