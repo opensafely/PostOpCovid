@@ -179,7 +179,7 @@ names(post.op.VTE.model.split.sub) <- c('Post discharge VTE','Non COVID-19 emerg
 modelsummary::modelsummary(post.op.VTE.model.split.sub,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, conf_level = .95, exponentiate = TRUE, output = here::here("output","postopVTEmodelsplitsub.html"))
 
 
-newdata.rows <- 1
+newdata.rows <-  length(levels(dt.tv.splits$week.post.disch)) 
 
 newdata.pred <- data.table::data.table('start.readmit' = rep(seq(0,35,7), times = 2),
                                        'end.readmit' = rep(seq(7,42,7),times = 2),
