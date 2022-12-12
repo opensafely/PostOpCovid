@@ -27,6 +27,14 @@ thoracic_codes = filter_codes_by_category(any_proc,"Thoracic"  )
     
 vascular_codes = filter_codes_by_category(any_proc,"Vascular")
 
+
+major_codes = filter_codes_by_category(codelist_from_csv(
+    "codelists/user-colincrooks-procedurecategory.csv",
+    system="opcs4",
+    column="Major",
+    category_column="Major"
+    ),'Major')        
+
 ############## Colectomy codes
 
 

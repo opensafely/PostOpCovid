@@ -1,25 +1,28 @@
 from cohortextractor import StudyDefinition, patients, codelist, codelist_from_csv  
 from codelists import *
 
-def with_sub_procedures(majorminor_list,code_list_dict, returning, return_expectations):
-    def with_these_procedures(subkey,majorminorcodes,key,admission_date, admission90_date,returning,return_expectations,i):
+n_op =  params["n_op"]
+name_op = params["name_op"]
+op_date_admit_name = name_op+"_"+n_op+"_date_admitted"
+op_date_discharge_name = name_op+"_"+n_op+"_date_discharged"
+
+
+def with_sub_procedures(major_codes, key, i,returning, return_expectations):
+    def with_these_procedures(major_codes,key, i,admission_date, discharge_date,returning,return_expectations):
         return {
-            f"{key}_{i}_{subkey}_HES_{returning}": (
+            f"{key}_{i}_Major_HES_{returning}": (
                 patients.admitted_to_hospital(
-                    with_these_procedures = majorminorcodes,
+                    with_these_procedures = major_codes,
                     find_first_match_in_period=True,
                     returning = returning,
                     date_format="YYYY-MM-DD",
-                    between=[admission_date, admission90_date],
+                    between=[admission_date, discharge_date],
                     return_expectations = return_expectations,
                 )
             )
         }
     variables = {}
-    for key,codes in code_list_dict.items():
-      for i in range(1,n_op + 1):
-        for majorminorkey,majorminorcodes in majorminor_list.items():
-          variables.update(with_these_procedures(majorminorkey,majorminorcodes,key,f"{key}_{i}_date_admitted",f"{key}_{i}_date_admitted",returning,return_expectations,i))
+        variables.update(with_these_procedures(major_codes,key,i,admission_date = f"{key}_{i}_date_admitted",discharge_date = f"{key}_{i}_date_discharged",returning,return_expectations))
     return variables
 
 
@@ -48,6 +51,6 @@ study = StudyDefinition(
           returning=op_date_discharge_name,
           returning_type="date"),
     
-    **with_sub_procedures(majorminor_list=majormino_dict,code_list_dict=list_dict, returning="binary_flag", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
+    **with_sub_procedures(major_codes=major_codes,key = name_op, i = n_op, returning="binary_flag", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
 
 )
