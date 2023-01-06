@@ -33,7 +33,7 @@ modelsummary::modelsummary(post.op.VTE.model,estimate  = "{estimate} [{conf.low}
 
 
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
-                                                'end' = rep(30,8*length(procedures)),
+                                                'end' = rep(90,8*length(procedures)),
                                                 'event.VTE' = rep(F,8*length(procedures)),
                                                 'Abdominal' = c(rep(T,8),rep(F,24)),
                                             #    'Cardiac'=c(rep(F,8),rep(T,8),rep(F,32)),

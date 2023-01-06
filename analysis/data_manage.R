@@ -36,6 +36,27 @@ update.names <- names(dt.update)[-(names(dt.update) == 'patient_id')]
 dt[dt.update, on=.(patient_id), (update.names) := lapply(update.names, function(x) get(paste0('i.',x))) ]
 rm(dt.update)
 
+
+dt.major <- Reduce(function(...) {
+  merge(..., by = c('patient_id'), all = T)
+},lapply(procs, 
+         function(x) data.table::fread(here::here('output',
+                                                  paste0('input_',x,'_majorminor.csv')))[dt$region !='',][, #,(paste0(x,'_date_admitted')) := date_admitted][,
+                                                                                                         #                                               (paste0(x,'_date_discharged')) := date_discharged][
+                                                                                                         c('date_admitted','date_discharged',
+                                                                                                           'dob','bmi_date_measured',
+                                                                                                           'date_death_ons',
+                                                                                                           'date_death_cpns',
+                                                                                                           'age','region','sex',
+                                                                                                           'bmi','imd','died') := NULL]))
+
+data.table::setkey(dt,patient_id)
+data.table::setkey(dt.major,patient_id)
+
+update.names <- names(dt.major)[-(names(dt.major) == 'patient_id')]
+dt[dt.major, on=.(patient_id), (update.names) := lapply(update.names, function(x) get(paste0('i.',x))) ]
+rm(dt.major)
+
 data.table::setkey(dt,patient_id)
 data.table::setkey(dt.COD,patient_id)
 
@@ -126,7 +147,8 @@ proc.tval.stubs <- c('_admission_method',
                      '_HipReplacement_HES_binary_flag',
                      '_KneeReplacement_HES_binary_flag',
                      '_Cholecystectomy_HES_binary_flag',
-                     '_Colectomy_HES_binary_flag')
+                     '_Colectomy_HES_binary_flag',
+                     '_Major_HES_binary_flag')
 proc.tval.cols <- paste(rep(procedures,each = length(proc.tval.stubs)),proc.tval.stubs, sep ="")
 
 ## Start dates of exposures associated with each admission: needs to start from beginning of row time period ----
@@ -819,7 +841,7 @@ dt.tv[, CardioThoracicVascular := Cardiac == 1 | Vascular == 1 | Thoracic == 1]
 procedures.sub <- c('Colectomy','Cholecystectomy',
                     'HipReplacement','KneeReplacement')
 covariates <- c(procedures,procedures.sub,'CardioThoracicVascular','sex','age.cat','bmi.cat','region','imd5','wave','LOS.bin',
-                'vaccination.status.factor','Current.Cancer','Emergency','Charlson','Charl12','recentCOVID','previousCOVID','postcovid',
+                'vaccination.status.factor','Current.Cancer','Emergency','Charlson','Charl12','recentCOVID','previousCOVID','postcovid','Major',
                 'emergency_readmit_primary_diagnosis','primary_diagnosis','death_underlying_cause_ons','admission_method','days_in_critical_care',
                 'Prim.admit.cat','COD.cat','Readmit.cat')
 
@@ -829,7 +851,15 @@ drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstar
                                                 'covid.end','los.end','start.readmit','end.readmit','COVIDpositivedate','COVIDreadmission','emergency_readmitdate','post.VTE.date',
                                                 'any.op','any.op.COVID','any.op.readmit','any.op.VTE','admit.date','discharged','final.date','final.date.readmit','final.date.VTE'))]
 
+dates <- c('end.fu','gp.end','tstart','tstop',
+           'discharge.date','date_death_ons',
+           'covid.end','los.end','start.readmit','end.readmit','COVIDpositivedate','emergency_readmitdate','post.VTE.date',
+           'admit.date','final.date','final.date.readmit','final.date.VTE')
+dt.tv[,(dates) := lapply(.SD, as.integer), .SDcols = dates]
+
 dt.tv[,(drop.vars) := NULL]
+dt.tv[,Major.op := Major == 1]
+dt.tv[,Intermediate.or.Minor.op := Major == 0]
 
 data.table::setkey(dt.tv,patient_id, tstart)
 dt.tv <- dt.tv[any.op == T & start >= 0 & tstop <= end.fu,] # Need to start follow up on day after operation as can't identify order when events on same day

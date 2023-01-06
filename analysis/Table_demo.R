@@ -8,8 +8,8 @@ source(here::here("analysis","Utils.R"))
 ###########################################################
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
-procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular', 'Colectomy','Cholecystectomy',
-                'HipReplacement','KneeReplacement')
+procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular', 'Colectomy','Cholecystectomy',
+                'HipReplacement','KneeReplacement','Major.op','Intermediate.or.Minor.op')
 
 ## Count variables for demographic tables
 dt.tv[,postVTE90.perepisode := event.VTE == 1 & (postcovid.VTE.cohort)]
