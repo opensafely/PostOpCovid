@@ -41,14 +41,7 @@ dt.major <- Reduce(function(...) {
   merge(..., by = c('patient_id'), all = T)
 },lapply(procs, 
          function(x) data.table::fread(here::here('output',
-                                                  paste0('input_',x,'_majorminor.csv')))[dt$region !='',][, #,(paste0(x,'_date_admitted')) := date_admitted][,
-                                                                                                         #                                               (paste0(x,'_date_discharged')) := date_discharged][
-                                                                                                         c('date_admitted','date_discharged',
-                                                                                                           'dob','bmi_date_measured',
-                                                                                                           'date_death_ons',
-                                                                                                           'date_death_cpns',
-                                                                                                           'age','region','sex',
-                                                                                                           'bmi','imd','died') := NULL]))
+                                                  paste0('input_',x,'_majorminor.csv')))[,c('date_admitted','date_discharged') := NULL]))
 
 data.table::setkey(dt,patient_id)
 data.table::setkey(dt.major,patient_id)
@@ -60,7 +53,7 @@ rm(dt.major)
 data.table::setkey(dt,patient_id)
 data.table::setkey(dt.COD,patient_id)
 
-dt <- dt.COD[,.(patient_id, death_underlying_cause_ons)][dt,]
+dt <- dt.COD[,.(patient_id, death_underlying_cause_ons)][dt[region!=''],]
 
 
 
