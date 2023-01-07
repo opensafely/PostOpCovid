@@ -40,8 +40,12 @@ rm(dt.update)
 dt.major <- Reduce(function(...) {
   merge(..., by = c('patient_id'), all = T)
 },lapply(procs, 
-         function(x) data.table::fread(here::here('output',
-                                                  paste0('input_',x,'_majorminor.csv')))[,c('date_admitted','date_discharged') := NULL]))
+         function(x) trycatch(data.table::fread(here::here('output',
+                                                  paste0('input_',x,'_majorminor.csv')))[,
+                                                  c('date_admitted','date_discharged') := NULL], 
+                                                  error = function(e) dt[,.(patient_id,
+                                                  paste0('input_',x,'_majorminor.csv') = NA)])
+                                                  ))
 
 data.table::setkey(dt,patient_id)
 data.table::setkey(dt.major,patient_id)
