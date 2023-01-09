@@ -9,7 +9,7 @@ source(here::here("analysis","Utils.R"))
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 procedures.sub <- c('Colectomy','Cholecystectomy',
-                'HipReplacement','KneeReplacement')
+                'HipReplacement','KneeReplacement','Major.op')
 
 dt.tv[,(procedures.sub) := lapply(.SD,function(x) x==1), .SDcols = (procedures.sub)]
 

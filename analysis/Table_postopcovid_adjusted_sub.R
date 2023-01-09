@@ -9,7 +9,7 @@ source(here::here("analysis","Utils.R"))
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 procedures.sub <- c('Colectomy','Cholecystectomy',
-                'HipReplacement','KneeReplacement')
+                'HipReplacement','KneeReplacement','Major.op')
 covariates <- c(procedures.sub,'age.cat','sex','bmi.cat','imd5','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
