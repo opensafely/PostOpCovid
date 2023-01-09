@@ -48,6 +48,8 @@ dt.major <- Reduce(function(...) {
                                                                                   x,"_Major_HES_binary_flag'  = NA)]")))
                                                   ))
 
+summary(dt.major)
+
 data.table::setkey(dt,patient_id)
 data.table::setkey(dt.major,patient_id)
 
@@ -855,10 +857,12 @@ dates <- c('end.fu','gp.end','tstart','tstop','event','event.readmit','event.VTE
            'admit.date','final.date','final.date.readmit','final.date.VTE')
 dt.tv[,(dates) := lapply(.SD, as.integer), .SDcols = dates]
 
+table(dt.tv$Major)
+
 dt.tv[,(drop.vars) := NULL]
 dt.tv[,Major.op := Major == 1]
 dt.tv[,Intermediate.or.Minor.op := Major == 0]
-
+table(dt.tv[,Major.op])
 data.table::setkey(dt.tv,patient_id, tstart)
 dt.tv <- dt.tv[any.op == T & start >= 0 & tstop <= end.fu,] # Need to start follow up on day after operation as can't identify order when events on same day
 arrow::write_feather(dt.tv, sink = here::here("output","cohort_long.feather"))
