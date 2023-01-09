@@ -849,7 +849,7 @@ drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstar
                                                 'covid.end','los.end','start.readmit','end.readmit','COVIDpositivedate','COVIDreadmission','emergency_readmitdate','post.VTE.date',
                                                 'any.op','any.op.COVID','any.op.readmit','any.op.VTE','admit.date','discharged','final.date','final.date.readmit','final.date.VTE'))]
 
-dates <- c('end.fu','gp.end','tstart','tstop',
+dates <- c('end.fu','gp.end','tstart','tstop','event','event.readmit','event.VTE',
            'discharge.date','date_death_ons',
            'covid.end','los.end','start.readmit','end.readmit','COVIDpositivedate','emergency_readmitdate','post.VTE.date',
            'admit.date','final.date','final.date.readmit','final.date.VTE')
