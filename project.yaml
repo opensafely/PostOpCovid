@@ -239,6 +239,39 @@ actions:
         model_mortality_sub: output/postopdiedmodelsub.html
         plot_mortality_sub: output/mortality_waves_sub_plot.png
   
+  table_postopmort_crude:      
+    run: r:latest analysis/Table_postopcovid_mort_crude.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_crudemort: output/postopmort_crude.RData
+        table_crudemort_csv: output/postopmort_crude.csv
+        
+  table_postopmort_crude_sub:      
+    run: r:latest analysis/Table_postopcovid_mort_crude_sub.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_crudemort: output/postopmort_crude_sub.RData
+        table_crudemort_csv: output/postopmort_crude_sub.csv
+       
+  table_postopmort_adjusted:      
+    run: r:latest analysis/Table_postopcovid_mort_adjusted.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_adjustedmort: output/postopmort_adjusted.RData
+        table_adjustedmort_csv: output/postopmort_adjusted.csv
+
+       
+  table_postopmort_adjusted_sub:      
+    run: r:latest analysis/Table_postopcovid_mort_adjusted_sub.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_adjustedmort_sub: output/postopmort_adjusted_sub.RData
+        table_adjustedmort_sub_csv: output/postopmort_adjusted_sub.csv
+        
   table_postopreadmit:      
     run: r:latest analysis/Table_postop_readmit.R
     needs: [generate_study_population, data_manage]
@@ -281,6 +314,10 @@ actions:
     table_postopVTE_sub,
     table_postopVTE_recent_sub,
     table_postopmortality_sub,
+    table_postopmort_crude,
+    table_postopmort_adjusted,    
+    table_postopmort_crude_sub,
+    table_postopmort_adjusted_sub,    
     table_postopreadmit_sub]
     outputs:
       moderately_sensitive:

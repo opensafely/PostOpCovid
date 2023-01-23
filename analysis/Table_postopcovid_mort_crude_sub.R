@@ -13,16 +13,16 @@ procedures.sub <- c('Colectomy','Cholecystectomy',
 
 dt.tv[,(procedures.sub) := lapply(.SD,function(x) x==1), .SDcols = (procedures.sub)]
 
-covariates <- c(procedures.sub,'age.cat','sex','bmi.cat','imd5','wave',
+covariates <- c(procedures.sub,'age.cat','sex','bmi.cat','imd5','postcovid','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
 
 dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(Cholecystectomy) & Cholecystectomy == T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
-        (is.finite(KneeReplacement) & KneeReplacement == T) |
-        (is.finite(Major.op) & Major.op == T) ]
+        (is.finite(KneeReplacement) & KneeReplacement == T)  ]
 
+dt.tv[,died := event == 3]
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 max.grp.col_(dt = 'dt.tv',
              max.var.name = 'sub.op',
@@ -30,14 +30,14 @@ max.grp.col_(dt = 'dt.tv',
              id.vars = c("patient_id","end.fu"))
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-crude.covid.cov.sub <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[(postop.covid.cohort),
+crude.mort.cov.sub <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[start >=0 & sub.op == T ,
                                                                                                                               as.factor(get(covariates[i]))]))), 
-                                                                                        levels(dt.tv[(postop.covid.cohort),as.factor(get(covariates[i]))]),
-                                                                                        cuminc.km.sub(covariates[i], niter = 2)[,2:5])))
+                                                                                        levels(dt.tv[start >=0 & sub.op == T ,as.factor(get(covariates[i]))]),
+                                                                                        cuminc.km.sub(covariates[i], niter = 2)[,2:4])))
 
-names(crude.covid.cov.sub) <- c("Characteristic","Level","Number at risk",
-                            "Number of events","30 day Cumulative Risk adjusted for censoring","30 day Cumulative Risk adjusted for death and emergency readmission")
+names(crude.mort.cov.sub) <- c("Characteristic","Level","Number at risk",
+                            "Number of events","30 day Cumulative Risk adjusted for censoring")
 
-data.table::fwrite(crude.covid.cov.sub, file = here::here("output","postopcovid_crude_sub.csv"))
+data.table::fwrite(crude.mort.cov.sub, file = here::here("output","postopmort_crude_sub.csv"))
 
-save(crude.covid.cov.sub, file = here::here("output","postopcovid_crude_sub.RData"))
+save(crude.mort.cov.sub, file = here::here("output","postopmort_crude_sub.RData"))
