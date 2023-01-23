@@ -814,7 +814,7 @@ comb_postop_mort_sub[is.na(`Adjusted Hazard Ratio for censoring by 30 day mortal
 
  kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(comb_postop_mort_sub, 
-             caption = paste0("Table : Cumulative incidence of 30 day post operative mortality of patients by procedure type with counts rounded to nearest 10. Adjusted predictions set for 50-70 year old female with a single morbidity with a bmi of 20, for an elective major colectomy cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation")
+             caption = paste0("Table : Cumulative incidence of 30 day post operative mortality of patients by procedure type with counts rounded to nearest 10. Adjusted predictions set for 50-70 year old female with a single morbidity with a bmi of 20, for an elective colectomy cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation")
              #at their most frequent population values:\n procedure = ", procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])], Reduce(lapply(which(covariates == 'age.cat'):which(covariates == 'previousCOVID'), function(i) paste0(covariates[i] ,' = ',max.category(which(covariates == covariates[i])))), f =function(x,y) paste(x,y, collapse = ", ")))
              ) %>% kableExtra::add_header_above(c(" " = 4,"Crude KM analysis" = 2, "Adjusted Cox model analysis" = 3))
 )

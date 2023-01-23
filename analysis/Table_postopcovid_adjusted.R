@@ -11,7 +11,7 @@ dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.
 procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 
 
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave',
+covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave','Major.op',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -25,7 +25,7 @@ n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 post.op.covid.model.waves <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal*wave +  Obstetrics*wave + CardioThoracicVascular*wave + age.cat + sex + bmi.cat + imd5 + region + 
-                                                      vaccination.status.factor + Current.Cancer + Emergency*wave + Charl12 + recentCOVID + previousCOVID, id = patient_id,
+                                                    Major.op +  vaccination.status.factor + Current.Cancer + Emergency*wave + Charl12 + recentCOVID + previousCOVID, id = patient_id,
                                                     data = dt.tv[(postop.covid.cohort)], model = T))
 
 data.table::fwrite(broom::tidy(post.op.covid.model.waves[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelwaves.csv"))
@@ -46,6 +46,7 @@ new.data.postop <- data.table::data.table(
   'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],8*length(procedures)),
   'imd5' = rep(levels(dt.tv$imd5)[3], 8*length(procedures)),
   'wave' = rep(paste0('Wave_',1:4),times = 2*length(procedures)),
+ 'Major.op' = rep(T,8*length(procedures)),
   'vaccination.status.factor' = rep('3',8*length(procedures)),
   'region' = rep("East Midlands",8*length(procedures)),
   'Current.Cancer' = rep(T,8*length(procedures)),
@@ -90,7 +91,7 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 post.op.covid.model <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal  + 
                                                       Obstetrics + CardioThoracicVascular + 
-                                                      age.cat + sex  + bmi.cat + imd5 +  wave +  
+                                                      age.cat + sex  + bmi.cat + imd5 +  wave +  Major.op +
                                                       vaccination.status.factor  + region +  Current.Cancer + 
                                                       Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
                                                     id = patient_id,
@@ -125,6 +126,7 @@ adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(
                                                                   'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows),
                                                                   'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows),
                                                                   'wave' = rep(paste0('Wave_',3),times = newdata.rows),
+                                                                  'Major.op'= rep(T,newdata.rows),
                                                                   'vaccination.status.factor' = rep('3',newdata.rows),
                                                                   'region' = rep("East Midlands",newdata.rows),
                                                                   'Current.Cancer' = rep(T,newdata.rows),

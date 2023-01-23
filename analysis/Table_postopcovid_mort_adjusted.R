@@ -11,7 +11,7 @@ dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.
 procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 
 
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','postcovid','wave',
+covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','postcovid','wave','Major.op',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
@@ -31,7 +31,7 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 post.op.mort.model <- 
  survival::coxph(survival::Surv(start,end,died) ~ Abdominal  + 
                                                       Obstetrics + CardioThoracicVascular + 
-                                                      age.cat + sex  + bmi.cat + imd5 + postcovid +  wave +  
+                                                      age.cat + sex  + bmi.cat + imd5 + postcovid +  wave +  Major.op + 
                                                       vaccination.status.factor  + region +  Current.Cancer + 
                                                       Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
                                                     id = patient_id,
@@ -60,6 +60,7 @@ adjusted.mort.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:le
                                                                   'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows),
                                                                   'postcovid' = rep(F,newdata.rows),
                                                                   'wave' = rep(paste0('Wave_',3),times = newdata.rows),
+                                                                  'Major.op' = rep('T',newdata.rows),
                                                                   'vaccination.status.factor' = rep('3',newdata.rows),
                                                                   'region' = rep("East Midlands",newdata.rows),
                                                                   'Current.Cancer' = rep(T,newdata.rows),

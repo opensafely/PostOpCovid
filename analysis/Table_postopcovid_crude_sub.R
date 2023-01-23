@@ -9,7 +9,7 @@ source(here::here("analysis","Utils.R"))
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 procedures.sub <- c('Colectomy','Cholecystectomy',
-                'HipReplacement','KneeReplacement','Major.op')
+                'HipReplacement','KneeReplacement')
 
 dt.tv[,(procedures.sub) := lapply(.SD,function(x) x==1), .SDcols = (procedures.sub)]
 
@@ -20,8 +20,7 @@ covariates <- c(procedures.sub,'age.cat','sex','bmi.cat','imd5','wave',
 dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(Cholecystectomy) & Cholecystectomy == T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
-        (is.finite(KneeReplacement) & KneeReplacement == T) |
-        (is.finite(Major.op) & Major.op == T) ]
+        (is.finite(KneeReplacement) & KneeReplacement == T) ]
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 max.grp.col_(dt = 'dt.tv',

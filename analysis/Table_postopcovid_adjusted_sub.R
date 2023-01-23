@@ -9,7 +9,7 @@ source(here::here("analysis","Utils.R"))
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 procedures.sub <- c('Colectomy','Cholecystectomy',
-                'HipReplacement','KneeReplacement','Major.op')
+                'HipReplacement','KneeReplacement')
 covariates <- c(procedures.sub,'age.cat','sex','bmi.cat','imd5','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
@@ -104,11 +104,10 @@ data.table::setkey(dt.tv,"patient_id","tstart","tstop")
 dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(Cholecystectomy) & Cholecystectomy == T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
-        (is.finite(KneeReplacement) & KneeReplacement == T) |
-        (is.finite(Major.op) & Major.op == T) ]
+        (is.finite(KneeReplacement) & KneeReplacement == T)]
 
 post.op.covid.model.sub <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Colectomy + Cholecystectomy  + KneeReplacement + Major.op +
+  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Colectomy + Cholecystectomy  + KneeReplacement  +
                                                       age.cat + sex  + bmi.cat + imd5 +  wave +  
                                                       vaccination.status.factor  + region +  Current.Cancer + 
                                                       Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID,  
@@ -130,7 +129,6 @@ adjusted.cuminc.sub <-  data.table::as.data.table(foreach::foreach(predi = 1:len
                                                                   'Cholecystectomy'=c(rep(F,newdata.rows)),
                                                                   'HipReplacement'=c(rep(F,newdata.rows)),
                                                                   'KneeReplacement'=c(rep(F,newdata.rows)),
-                                                                  'Major.op'=c(rep(T,newdata.rows)),
                                                                   'age.cat' = rep('(50,70]',newdata.rows),
                                                                   'sex' = rep('F',newdata.rows),
                                                                   'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows),

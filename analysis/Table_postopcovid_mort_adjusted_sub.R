@@ -9,7 +9,7 @@ source(here::here("analysis","Utils.R"))
 
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 procedures.sub <- c('Colectomy','Cholecystectomy',
-                'HipReplacement','KneeReplacement','Major.op')
+                'HipReplacement','KneeReplacement')
 covariates <- c(procedures.sub,'age.cat','sex','bmi.cat','imd5','postcovid','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
@@ -49,7 +49,7 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(KneeReplacement) & KneeReplacement == T) ]
 dt.tv[,died := event == 3]
 post.op.mort.model.sub <- 
- survival::coxph(survival::Surv(start,end,died) ~ Colectomy + Cholecystectomy  + KneeReplacement + Major.op +
+ survival::coxph(survival::Surv(start,end,died) ~ Colectomy + Cholecystectomy  + KneeReplacement +
                                                       age.cat + sex  + bmi.cat + imd5 + postcovid + postcovid + wave +  
                                                       vaccination.status.factor  + region +  Current.Cancer + 
                                                       Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID,  
@@ -68,7 +68,6 @@ adjusted.cuminc.mort.sub <-  data.table::as.data.table(foreach::foreach(predi = 
                                                                   'Cholecystectomy'=c(rep(F,newdata.rows)),
                                                                   'HipReplacement'=c(rep(F,newdata.rows)),
                                                                   'KneeReplacement'=c(rep(F,newdata.rows)),
-                                                                  'Major.op'=c(rep(T,newdata.rows)),
                                                                   'age.cat' = rep('(50,70]',newdata.rows),
                                                                   'sex' = rep('F',newdata.rows),
                                                                   'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows),

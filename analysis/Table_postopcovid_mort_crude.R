@@ -12,7 +12,7 @@ procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','postcovid','wave',
+covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','postcovid','wave','Major.op',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
