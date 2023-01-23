@@ -21,6 +21,7 @@ drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstar
 dt.tv[,(drop.vars) := NULL]
 dt.tv <- dt.tv[start >=0 & any.op == T]
 dt.tv[,died := event == 3]
+dt.tv[!is.finite(Major.op), Major.op := F]
 gc()
 n.type.events <- 1 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 

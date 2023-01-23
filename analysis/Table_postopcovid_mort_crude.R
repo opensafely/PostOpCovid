@@ -32,5 +32,5 @@ crude.mort.cov <- data.table::rbindlist(lapply(1:length(covariates), function(i)
 names(crude.mort.cov) <- c("Characteristic","Level","Number at risk",
                             "Number of events","30 day Cumulative Risk adjusted for censoring")
 
-data.table::fwrite(crude.mort.cov, file = here::here("output","postopcovid_mort_crude.csv"))
-save(crude.mort.cov, file = here::here("output","postopcovid_mort_crude.RData"))
+data.table::fwrite(crude.mort.cov, file = here::here("output","postopmort_crude.csv"))
+save(crude.mort.cov, file = here::here("output","postopmort_crude.RData"))

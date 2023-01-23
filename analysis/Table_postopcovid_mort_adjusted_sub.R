@@ -48,6 +48,8 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
         (is.finite(KneeReplacement) & KneeReplacement == T) ]
 dt.tv[,died := event == 3]
+dt.tv[!is.finite(Major.op), Major.op := F]
+
 post.op.mort.model.sub <- 
  survival::coxph(survival::Surv(start,end,died) ~ Colectomy + Cholecystectomy  + KneeReplacement +
                                                       age.cat + sex  + bmi.cat + imd5 + postcovid + postcovid + wave +  
