@@ -1,5 +1,6 @@
 library(foreach)
 library(data.table)
+library(survival)
 ncores <- parallel::detectCores(logical = T)
 data.table::setDTthreads(ncores)
 
@@ -13,7 +14,7 @@ procedures.sub <- c('Colectomy','Cholecystectomy',
 covariates <- c(procedures.sub,'age.cat','sex','bmi.cat','imd5','postcovid','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
-drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstart','tstop','start','end','event','postop.covid.cohort','end.fu'))]
+drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstart','tstop','start','end','event','postop.covid.cohort','end.fu','died'))]
 
 dt.tv[,(drop.vars) := NULL]
 
@@ -23,7 +24,7 @@ dt.tv[,(procedures.sub) := lapply(.SD,function(x) x==1), .SDcols = (procedures.s
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
+n.type.events <- 1#sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
 dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
       (is.finite(Cholecystectomy) & Cholecystectomy == T) |
@@ -47,11 +48,10 @@ dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(Cholecystectomy) & Cholecystectomy == T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
         (is.finite(KneeReplacement) & KneeReplacement == T) ]
-dt.tv[,died := event == 3]
-dt.tv[!is.finite(Major.op), Major.op := F]
+dt.tv[,postcovid := postcovid == 1]
 
-post.op.mort.model.sub <- 
- survival::coxph(survival::Surv(start,end,died) ~ Colectomy + Cholecystectomy  + KneeReplacement +
+post.op.mort.model.sub <- list()
+post.op.mort.model.sub[[1]] <-  coxph(Surv(start,end,died) ~ Colectomy + Cholecystectomy  + KneeReplacement +
                                                       age.cat + sex  + bmi.cat + imd5 + postcovid + postcovid + wave +  
                                                       vaccination.status.factor  + region +  Current.Cancer + 
                                                       Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID,  
@@ -135,16 +135,13 @@ adjusted.cuminc.mort.sub <-  data.table::as.data.table(foreach::foreach(predi = 
                           # t.samples <- t(apply(samples,1,quantile,c(0.25,0.5,0.75)))
                           # boot.IQR <-apply(t.samples,1,function(x) paste0(x[2],' (',x[1],',',x[3],')'))
                            
-                           death.risk.30day <- predict(object = post.op.mort.model.sub, 
-                                                       newdata = newdata.pred,, type = 'expected',se.fit = T)
+                           death.risk.30day <- predict(object = post.op.mort.model.sub[[1]], 
+                                                       newdata = newdata.pred, type = 'expected',se.fit = T)
 
                            
-                           cbind(matrix(paste0(round((1- exp(-covid.risk.30day$fit))*100,3),
-                                               ' (', round((1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit)))*100,3),',',
-                                               round((1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
-                                  cuminc.cox(n.type.events = n.type.events,
+                           cbind(cuminc.cox(n.type.events = n.type.events,
                                                                   dt = 'dt.tv[start >=0 & sub.op == T]', 
-                                                                  model = 'post.op.covid.model.sub', 
+                                                                  model = 'post.op.mort.model.sub', 
                                                                   newdata = 'newdata.pred',
                                                                   day = 30),
                                  matrix(paste0(round((1- exp(-death.risk.30day$fit))*100,3),

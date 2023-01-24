@@ -16,13 +16,14 @@ dt.tv[,(procedures.sub) := lapply(.SD,function(x) x==1), .SDcols = (procedures.s
 covariates <- c(procedures.sub,'age.cat','sex','bmi.cat','imd5','postcovid','wave',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
+dt.tv[,postcovid := postcovid == 1]
 
 dt.tv[, sub.op := (is.finite(Colectomy) & Colectomy ==T) |
         (is.finite(Cholecystectomy) & Cholecystectomy == T) |
         (is.finite(HipReplacement)  & HipReplacement == T) | 
         (is.finite(KneeReplacement) & KneeReplacement == T)  ]
 
-dt.tv[,died := event == 3]
+
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 max.grp.col_(dt = 'dt.tv',
              max.var.name = 'sub.op',

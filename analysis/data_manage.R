@@ -862,7 +862,10 @@ table(dt.tv$Major)
 
 dt.tv[,(drop.vars) := NULL]
 dt.tv[,Major.op := Major == 1]
+dt.tv[!is.finite(Major.op), Major.op := F]
+
 dt.tv[,Intermediate.or.Minor.op := Major == 0]
+
 table(dt.tv[,Major.op])
 data.table::setkey(dt.tv,patient_id, tstart)
 dt.tv <- dt.tv[any.op == T & start >= 0 & tstop <= end.fu,] # Need to start follow up on day after operation as can't identify order when events on same day

@@ -710,15 +710,14 @@ Adjusted Cox proportional hazards survival models were fitted to estimate the ef
 ################################
 # Post operative COVID risk model----
 ##################################
-load(here::here("output","postopcovid_mort_crude.RData"))
+load(here::here("output","postopmort_crude.RData"))
 load(here::here("output","postopmort_adjusted.RData"))
-
 crude.mort.cov[, cov_level := paste0(Characteristic, Level) ]
 
-mort_coef <- data.table::data.table('cov_level' = names(post.op.mort.model$coefficients), 
-                                   'Adjusted Hazard Ratio' = round(exp(post.op.mort.model$coefficients),2),
-                                   '95% CI' = paste0('(',round(exp(confint(post.op.mort.model)[,1]),2),',',
-                                                     round(exp(confint(post.op.mort.model)[,2]),2),')'))
+mort_coef <- data.table::data.table('cov_level' = names(post.op.mort.model[[1]]$coefficients), 
+                                   'Adjusted Hazard Ratio' = round(exp(post.op.mort.model[[1]]$coefficients),2),
+                                   '95% CI' = paste0('(',round(exp(confint(post.op.mort.model[[1]])[,1]),2),',',
+                                                     round(exp(confint(post.op.mort.model[[1]])[,2]),2),')'))
 
 
 
@@ -726,15 +725,15 @@ mort_coef <- data.table::data.table('cov_level' = names(post.op.mort.model$coeff
 #knitr::kable(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T),digits = 2)
 procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 comb_postop_mort <- cbind(merge(x = crude.mort.cov, y = mort_coef, by = 'cov_level', all = T , sort = F),
-                           adjusted.mort.cuminc,
-                           adjusted.mort.cuminc[,c(4,2)])[-(seq(1,(length(procedures)*2)-1,2)),-1]
+                           adjusted.mort.cuminc)[-(seq(1,(length(procedures)*2)-1,2)),-1]                           
 
 names(comb_postop_mort) <- c("Characteristic","Level","Number at risk",
-                            "Number of post operative COVID events within 30 days",
-                            'Adjusted Hazard Ratio for censoring by 30 day mortality','95% CI',
-                            "30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates")
+                            "Number of post operative deaths within 30 days","30 day Cumulative Risk adjusted for censoring",
+                            'Adjusted Hazard Ratio for 30 day mortality','95% CI',
+                            "30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates",
+                            "Cause specfic 30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates with CI from model")
 
-comb_postop_mort[is.na(`Adjusted Hazard Ratio for censoring by 30 day mortality`),`:=`(`Adjusted Hazard Ratio for censoring by 30 day mortality` = 1, `95% CI`= "Ref")]
+comb_postop_mort[is.na(`Adjusted Hazard Ratio for 30 day mortality`),`:=`(`Adjusted Hazard Ratio for 30 day mortality` = 1, `95% CI`= "Ref")]
 
  kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(comb_postop_mort, 
@@ -793,24 +792,24 @@ load(here::here("output","postopmort_adjusted_sub.RData"))
 
 crude.mort.cov.sub[, cov_level := paste0(Characteristic, Level) ]
 
-mort_coef.sub <- data.table::data.table('cov_level' = names(post.op.mort.model.sub$coefficients), 
-                                   'Adjusted Hazard Ratio' = round(exp(post.op.mort.model.sub$coefficients),2),
-                                   '95% CI' = paste0('(',round(exp(confint(post.op.mort.model.sub)[,1]),2),',',
-                                                     round(exp(confint(post.op.mort.model.sub)[,2]),2),')'))
+mort_coef.sub <- data.table::data.table('cov_level' = names(post.op.mort.model.sub[[1]]$coefficients), 
+                                   'Adjusted Hazard Ratio' = round(exp(post.op.mort.model.sub[[1]]$coefficients),2),
+                                   '95% CI' = paste0('(',round(exp(confint(post.op.mort.model.sub[[1]])[,1]),2),',',
+                                                     round(exp(confint(post.op.mort.model.sub[[1]])[,2]),2),')'))
 
 procedures.sub <- c('Colectomy','Cholecystectomy',
                 'HipReplacement','KneeReplacement')
 
 comb_postop_mort_sub <- cbind(merge(x = crude.mort.cov.sub, y = mort_coef.sub, by = 'cov_level', all = T , sort = F),
-                           adjusted.cuminc.mort.sub,
-                           adjusted.cuminc.mort.sub[,c(4,2)])[-(seq(1,(length(procedures.sub)*2)-1,2)),-1]
+                           adjusted.cuminc.mort.sub)[-(seq(1,(length(procedures.sub)*2)-1,2)),-1]
 
 names(comb_postop_mort_sub) <- c("Characteristic","Level","Number at risk",
-                            "Number of post operative COVID events within 30 days",
-                            'Adjusted Hazard Ratio for censoring by 30 day mortality','95% CI',
-                            "30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates")
+                            "Number of post operative deaths within 30 days","30 day Cumulative Risk adjusted for censoring",
+                            'Adjusted Hazard Ratio for 30 day mortality','95% CI',
+                            "30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates",
+                            "Cause specfic 30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates with CI from model")
 
-comb_postop_mort_sub[is.na(`Adjusted Hazard Ratio for censoring by 30 day mortality`),`:=`(`Adjusted Hazard Ratio for censoring by 30 day mortality` = 1, `95% CI`= "Ref")]
+comb_postop_mort_sub[is.na(`Adjusted Hazard Ratio for 30 day mortality`),`:=`(`Adjusted Hazard Ratio for 30 day mortality` = 1, `95% CI`= "Ref")]
 
  kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(comb_postop_mort_sub, 

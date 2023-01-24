@@ -16,12 +16,14 @@ covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','postcovid','wave','
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstart','tstop','start','end','event','postop.covid.cohort','end.fu','any.op'))]
+drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstart','tstop','start','end','event','postop.covid.cohort','end.fu','any.op','died'))]
 
 dt.tv[,(drop.vars) := NULL]
 dt.tv <- dt.tv[start >=0 & any.op == T]
-dt.tv[,died := event == 3]
+
 dt.tv[!is.finite(Major.op), Major.op := F]
+dt.tv[,postcovid := postcovid == 1]
+
 gc()
 n.type.events <- 1 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
@@ -29,8 +31,8 @@ n.type.events <- 1 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 #############################################################################################
 
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
-post.op.mort.model <- 
- survival::coxph(survival::Surv(start,end,died) ~ Abdominal  + 
+post.op.mort.model <- list()
+post.op.mort.model[[1]] <- survival::coxph(survival::Surv(start,end,died) ~ Abdominal  + 
                                                       Obstetrics + CardioThoracicVascular + 
                                                       age.cat + sex  + bmi.cat + imd5 + postcovid +  wave +  Major.op + 
                                                       vaccination.status.factor  + region +  Current.Cancer + 
@@ -61,7 +63,7 @@ adjusted.mort.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:le
                                                                   'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows),
                                                                   'postcovid' = rep(F,newdata.rows),
                                                                   'wave' = rep(paste0('Wave_',3),times = newdata.rows),
-                                                                  'Major.op' = rep('T',newdata.rows),
+                                                                  'Major.op' = rep(T,newdata.rows),
                                                                   'vaccination.status.factor' = rep('3',newdata.rows),
                                                                   'region' = rep("East Midlands",newdata.rows),
                                                                   'Current.Cancer' = rep(T,newdata.rows),
@@ -123,14 +125,11 @@ adjusted.mort.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:le
                           #  t.samples <- t(apply(samples,1,quantile,c(0.25,0.5,0.75)))
                           #  boot.IQR <-apply(t.samples,1,function(x) paste0(x[2],' (',x[1],',',x[3],')'))
 
-                           death.risk.30day <- predict(object = post.op.mort.model, 
+                           death.risk.30day <- predict(object = post.op.mort.model[[1]], 
                                                        newdata = newdata.pred, type = 'expected',se.fit = T)
                            
 
-                           cbind(matrix(paste0(round((1- exp(-covid.risk.30day$fit))*100,3),
-                                               ' (', round((1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit)))*100,3),',',
-                                               round((1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
-                                  cuminc.cox(n.type.events = n.type.events,
+                           cbind(cuminc.cox(n.type.events = n.type.events,
                                                                   dt = 'dt.tv[start >=0 & any.op == T]', 
                                                                   model = 'post.op.mort.model', 
                                                                   newdata = 'newdata.pred',
