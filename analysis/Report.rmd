@@ -782,7 +782,7 @@ ggplot2::ggplot(cuminc.long.labelled[order(Emergency, Operation, postcovid,wave)
 
 #### Selected procedures
 
-```{r postopmortab, eval = T, echo=FALSE}
+```{r postopmortabsub, eval = T, echo=FALSE}
 
 ################################
 # Post operative COVID risk model----
