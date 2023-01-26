@@ -1,6 +1,7 @@
 library(foreach)
 library(data.table)
 library(magrittr)
+library(survival)
 ncores <- parallel::detectCores(logical = T) - 1
 data.table::setDTthreads(ncores)
 
