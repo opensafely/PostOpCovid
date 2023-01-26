@@ -1,5 +1,6 @@
 library(foreach)
 library(data.table)
+library(magrittr)
 ncores <- parallel::detectCores(logical = T)
 data.table::setDTthreads(ncores)
 
@@ -38,7 +39,7 @@ crude.mort.cov.sub <- data.table::rbindlist(lapply(1:length(covariates), functio
                                                                                         cuminc.km.sub(covariates[i], niter = 2)[,2:4],
                                                                                         c('Ref',coxph(formula = as.formula(paste0('Surv(start,end,died) ~ ',covariates[i])),  
                                                                                               id = patient_id,
-                                                                                              data = dt.tv[start >=0 & sub.op == T ]) |> crude.HR()))))
+                                                                                              data = dt.tv[start >=0 & sub.op == T ]) %>% crude.HR()))))
 
 names(crude.mort.cov.sub) <- c("Characteristic",
                                "Level",
