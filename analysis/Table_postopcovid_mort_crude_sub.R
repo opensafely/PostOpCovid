@@ -30,14 +30,22 @@ max.grp.col_(dt = 'dt.tv',
              aggregate.cols = 'sub.op',
              id.vars = c("patient_id","end.fu"))
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-
+library(survival)
+crude.HR <- function(x) {vapply(1:length(coef(x)), FUN.VALUE = '', function(i) paste0(round(coef(x)[i],2),' (',paste(round(confint(x)[i,],2), collapse = ','),')'))}
 crude.mort.cov.sub <- data.table::rbindlist(lapply(1:length(covariates), function(i) cbind(rep(covariates[i],length(levels(dt.tv[start >=0 & sub.op == T ,
                                                                                                                               as.factor(get(covariates[i]))]))), 
                                                                                         levels(dt.tv[start >=0 & sub.op == T ,as.factor(get(covariates[i]))]),
-                                                                                        cuminc.km.sub(covariates[i], niter = 2)[,2:4])))
+                                                                                        cuminc.km.sub(covariates[i], niter = 2)[,2:4],
+                                                                                        c('Ref',coxph(formula = as.formula(paste0('Surv(start,end,died) ~ ',covariates[i])),  
+                                                                                              id = patient_id,
+                                                                                              data = dt.tv[start >=0 & sub.op == T ]) |> crude.HR()))))
 
-names(crude.mort.cov.sub) <- c("Characteristic","Level","Number at risk",
-                            "Number of events","30 day Cumulative Risk adjusted for censoring")
+names(crude.mort.cov.sub) <- c("Characteristic",
+                               "Level",
+                               "Number at risk",
+                            "Number of events",
+                            "30 day Cumulative Risk adjusted for censoring",
+                            "Crude Hazard ratio (95% CI)")
 
 data.table::fwrite(crude.mort.cov.sub, file = here::here("output","postopmort_crude_sub.csv"))
 

@@ -729,6 +729,7 @@ comb_postop_mort <- cbind(merge(x = crude.mort.cov, y = mort_coef, by = 'cov_lev
 
 names(comb_postop_mort) <- c("Characteristic","Level","Number at risk",
                             "Number of post operative deaths within 30 days","30 day Cumulative Risk adjusted for censoring",
+                            'Crude Hazard Ratio for 30 day mortality (95% CI)',
                             'Adjusted Hazard Ratio for 30 day mortality','95% CI',
                             "30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates",
                             "Cause specfic 30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates with CI from model")
@@ -739,7 +740,7 @@ comb_postop_mort[is.na(`Adjusted Hazard Ratio for 30 day mortality`),`:=`(`Adjus
 knitr::kable(comb_postop_mort, 
              caption = paste0("Table : Cumulative incidence of 30 day post operative mortality of patients by procedure type with counts rounded to nearest 10. Adjusted predictions set for 50-70 year old female with a single morbidity with a bmi of 20, for an elective major abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation")
              #at their most frequent population values:\n procedure = ", procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])], Reduce(lapply(which(covariates == 'age.cat'):which(covariates == 'previousCOVID'), function(i) paste0(covariates[i] ,' = ',max.category(which(covariates == covariates[i])))), f =function(x,y) paste(x,y, collapse = ", ")))
-             ) %>% kableExtra::add_header_above(c(" " = 4,"Crude KM analysis" = 2, "Adjusted Cox model analysis" = 3))
+             ) %>% kableExtra::add_header_above(c(" " = 4,"Crude KM analysis" = 3, "Adjusted Cox model analysis" = 3))
 )
 ```
 
@@ -804,7 +805,9 @@ comb_postop_mort_sub <- cbind(merge(x = crude.mort.cov.sub, y = mort_coef.sub, b
                            adjusted.cuminc.mort.sub)[-(seq(1,(length(procedures.sub)*2)-1,2)),-1]
 
 names(comb_postop_mort_sub) <- c("Characteristic","Level","Number at risk",
-                            "Number of post operative deaths within 30 days","30 day Cumulative Risk adjusted for censoring",
+                            "Number of post operative deaths within 30 days",
+                            "30 day Cumulative Risk adjusted for censoring",
+                            'Crude Hazard Ratio for 30 day mortality (95% CI)',
                             'Adjusted Hazard Ratio for 30 day mortality','95% CI',
                             "30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates",
                             "Cause specfic 30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates with CI from model")
@@ -815,7 +818,7 @@ comb_postop_mort_sub[is.na(`Adjusted Hazard Ratio for 30 day mortality`),`:=`(`A
 knitr::kable(comb_postop_mort_sub, 
              caption = paste0("Table : Cumulative incidence of 30 day post operative mortality of patients by procedure type with counts rounded to nearest 10. Adjusted predictions set for 50-70 year old female with a single morbidity with a bmi of 20, for an elective colectomy cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation")
              #at their most frequent population values:\n procedure = ", procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])], Reduce(lapply(which(covariates == 'age.cat'):which(covariates == 'previousCOVID'), function(i) paste0(covariates[i] ,' = ',max.category(which(covariates == covariates[i])))), f =function(x,y) paste(x,y, collapse = ", ")))
-             ) %>% kableExtra::add_header_above(c(" " = 4,"Crude KM analysis" = 2, "Adjusted Cox model analysis" = 3))
+             ) %>% kableExtra::add_header_above(c(" " = 4,"Crude KM analysis" = 3, "Adjusted Cox model analysis" = 3))
 )
 ```
 
