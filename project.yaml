@@ -39,6 +39,7 @@ actions:
       moderately_sensitive:
         flowchart_data: output/flowchart.RData
         flowchart_fig: output/Flowchart.pdf
+        flowchart_png: output/Flowchart.png
         
   table_demo:      
     run: r:latest analysis/Table_demo.R
