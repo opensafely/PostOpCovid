@@ -189,4 +189,6 @@ p <- p +
     size=0.15, linejoin = "mitre", lineend = "butt",
     arrow = ggplot2::arrow(length = ggplot2::unit(1, "mm"), type= "closed"))  
 ggplot2::ggsave(p,width = 6, height = 8, units = 'in', dpi = 'retina', filename = "Flowchart.pdf", device='pdf', path = here::here("output"))
+ggplot2::ggsave(p,width = 6, height = 8, units = 'in', dpi = 'retina', filename = "Flowchart.png", device='png', path = here::here("output"))
+
 save(p, file = here::here("output","flowchart.RData"))
