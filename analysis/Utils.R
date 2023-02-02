@@ -548,7 +548,7 @@ cuminc.km <- function(x,niter)  {
     .(time,cumsum(exp(cumsum(log(1-Reduce('+',.SD))))*haz1)),
     keyby = strata, 
     .SDcols = paste0('haz',n.type.events)][time == 30,
-                                           round(tail(V2,1),digits = 3)*100, 
+                                           round(tail(V2,1),digits = 4)*100, 
                                            keyby = strata] 
   
   #  boot.est<- foreach::foreach(iter = 1:niter, .combine = 'cbind',.multicombine = T,.export = 'dt.tv',.packages = 'data.table') %dopar% {
@@ -594,7 +594,7 @@ cuminc.km <- function(x,niter)  {
                                                                id = patient_id), times = 30)[c('n.event')])),
                100*round(1 - (data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==1) ~ get(x), 
                                                                           data = dt.tv[(postop.covid.cohort) & !is.na(get(x)),],
-                                                                          id = patient_id), times = 30)[c('surv')])), digits = 3),
+                                                                          id = patient_id), times = 30)[c('surv')])), digits = 4),
                est[,2]
   )
   )
@@ -617,7 +617,7 @@ cuminc.km.sub <- function(x,niter)  {
     .(time,cumsum(exp(cumsum(safelog(1-Reduce('+',.SD))))*haz1)),
     keyby = strata, 
     .SDcols = paste0('haz',n.type.events)][time == 30,
-                                           round(tail(V2,1),digits = 3)*100, 
+                                           round(tail(V2,1),digits = 4)*100, 
                                            keyby = strata] 
   return(cbind(est[,1],
                rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==1) ~ get(x), 
@@ -633,7 +633,7 @@ cuminc.km.sub <- function(x,niter)  {
                100*round(1 - (data.table::setDT(summary(survival::survfit(survival::Surv(start,end,event==1) ~ get(x), 
                                                                           data = dt.tv[(postop.covid.cohort) & !is.na(get(x)) & sub.op == T,],
                                                                           id = patient_id), times = 30,
-                                                         extend = T)[c('surv')])), digits = 3),
+                                                         extend = T)[c('surv')])), digits = 4),
                est[,2]
   )
   )
@@ -655,7 +655,7 @@ cuminc.km.mort <- function(x,niter)  {
                                                                id = patient_id), times = 30)[c('n.event')])),
                100*round(1 - (data.table::setDT(summary(survival::survfit(survival::Surv(start,end,died==1) ~ get(x), 
                                                                           data = dt.tv[start >=0 & any.op == T & !is.na(get(x)),],
-                                                                          id = patient_id), times = 30)[c('surv')])), digits = 3)
+                                                                          id = patient_id), times = 30)[c('surv')])), digits = 4)
   )
   )
 }
@@ -674,7 +674,7 @@ cuminc.km.mort.sub <- function(x,niter)  {
                                                                id = patient_id), times = 30)[c('n.event')])),
                100*round(1 - (data.table::setDT(summary(survival::survfit(survival::Surv(start,end,died==1) ~ get(x), 
                                                                           data = dt.tv[start >=0 & sub.op == T & !is.na(get(x)),],
-                                                                          id = patient_id), times = 30)[c('surv')])), digits = 3)
+                                                                          id = patient_id), times = 30)[c('surv')])), digits = 4)
   )
   )
 }
