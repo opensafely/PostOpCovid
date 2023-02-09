@@ -61,6 +61,7 @@ post.op.covid.model.split.sub <-
 #data.table::fwrite(broom::tidy(post.op.covid.model.split.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelsplitsub.csv"))
 names(post.op.covid.model.split.sub) <- c('COVID-19','Non COVID-19 emergency readmission','Mortality')[n.type.events]
 modelsummary::modelsummary(post.op.covid.model.split.sub,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, gof_omit = "Num.Obs.|n|nevent", conf_level = .95, exponentiate = TRUE, output = here::here("output","postopcovidmodelsplitsub.html"))
+modelsummary::modelsummary(post.op.covid.model.split.sub,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, gof_omit = "Num.Obs.|n|nevent", conf_level = .95, exponentiate = TRUE, output = here::here("output","postopcovidmodelsplitsub.txt"))
 
 
 newdata.rows <- 1 #length(levels(dt.tv$week.post.op)) - 1

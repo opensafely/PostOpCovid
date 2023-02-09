@@ -30,7 +30,9 @@ names(post.op.VTE.model) <- c('Post discharge VTE','Non COVID-19 emergency readm
 modelsummary::modelsummary(post.op.VTE.model,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", 
                            statistic = NULL, gof_omit = "Num.Obs.|n|nevent",
                            conf_level = .95, exponentiate = TRUE, output = here::here("output","postopVTEmodel.html"))
-
+modelsummary::modelsummary(post.op.VTE.model,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", 
+                           statistic = NULL, gof_omit = "Num.Obs.|n|nevent",
+                           conf_level = .95, exponentiate = TRUE, output = here::here("output","postopVTEmodel.txt"))
 
 new.data.postop.covid <- data.table::data.table('start' = rep(0,8*length(procedures)),
                                                 'end' = rep(90,8*length(procedures)),

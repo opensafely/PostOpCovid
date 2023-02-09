@@ -39,6 +39,7 @@ post.op.readmit.model.sub <-
 #data.table::fwrite(broom::tidy(post.op.readmit.model.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopreadmitmodelsub.csv"))
 names(post.op.readmit.model.sub) <- c('Non COVID-19 emergency readmission','Mortality')[n.type.events]
 modelsummary::modelsummary(post.op.readmit.model.sub,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, gof_omit = "Num.Obs.|n|nevent", conf_level = .95, exponentiate = TRUE, output = here::here("output","postopreadmitmodelsub.html"))
+modelsummary::modelsummary(post.op.readmit.model.sub,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, gof_omit = "Num.Obs.|n|nevent", conf_level = .95, exponentiate = TRUE, output = here::here("output","postopreadmitmodelsub.txt"))
 
 
 new.data.postop.covid <- data.table::data.table('start.readmit' = rep(0,8*length(procedures)),

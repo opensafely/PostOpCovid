@@ -25,6 +25,7 @@ post.op.died.model <-
 
 names(post.op.died.model) <- c('Mortality')
 modelsummary::modelsummary(post.op.died.model,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, gof_omit = "Num.Obs.|n|nevent", conf_level = .95, exponentiate = TRUE, output = here::here("output","postopdiedmodel.html"))
+modelsummary::modelsummary(post.op.died.model,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, gof_omit = "Num.Obs.|n|nevent", conf_level = .95, exponentiate = TRUE, output = here::here("output","postopdiedmodel.txt"))
 
 
 new.data.postop.covid <- data.table::data.table('start' = rep(0,16*length(procedures)),
