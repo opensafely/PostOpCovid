@@ -119,7 +119,9 @@ actions:
         table_tv: output/postopcovid_tv.RData
         table_tv_csv: output/postopcovid_tv.csv
         model_COVID_tv: output/postopcovidmodelsplit.html
+        model_COVID_tv_txt: output/postopcovidmodelsplit.txt
         model_VTE_tv: output/postopVTEmodelsplit.html
+        model_VTE_tv_txt: output/postopVTEmodelsplit.txt        
         table_tv_VTE_csv: output/postopcovid_VTE_tv.csv      
 
   # table_postopcovid_tv_daily:      
@@ -144,7 +146,9 @@ actions:
         table_tv_sub: output/postopcovid_tv_sub.RData
         table_tv_sub_csv: output/postopcovid_tv_sub.csv
         model_COVID_tv_sub: output/postopcovidmodelsplitsub.html
+        model_COVID_tv_sub_txt: output/postopcovidmodelsplitsub.txt        
         model_VTE_tv_sub: output/postopVTEmodelsplitsub.html
+        model_VTE_tv_sub_txt: output/postopVTEmodelsplitsub.txt        
         table_VTE_tv_sub_csv: output/postopcovid_VTE_tv_sub.csv
         
   # table_postopcovid_tv_daily_sub:      
@@ -188,6 +192,7 @@ actions:
         table_VTE: output/postopVTE.RData
         table_VTE_csv: output/postopVTE.csv
         model_VTE: output/postopVTEmodel.html
+        model_VTE_txt: output/postopVTEmodel.txt        
         plot_VTE_waves: output/VTE_waves_plot.png
         
   table_postopVTE_sub:      
@@ -198,6 +203,7 @@ actions:
         table_VTE_sub: output/postopVTE_sub.RData
         table_VTE_sub_csv: output/postopVTE_sub.csv        
         model_VTE_sub: output/postopVTEmodelsub.html
+        model_VTE_sub_txt: output/postopVTEmodelsub.txt        
         plot_VTE_sub_waves: output/VTE_waves_sub_plot.png
 
   table_postopVTE_recent:      
@@ -208,6 +214,7 @@ actions:
         table_VTE_recent: output/postopVTErecent.RData
         table_VTE_recent_csv: output/postopVTE_recentCOVID.csv
         model_VTE_recent: output/postopVTEmodelrecentCOVID.html
+        model_VTE_recent_txt: output/postopVTEmodelrecentCOVID.txt        
         plot_VTE_recent_waves: output/VTE_waves_recentCOVID_plot.png
         
   table_postopVTE_recent_sub:      
@@ -218,6 +225,7 @@ actions:
         table_VTE_recent_sub: output/postopVTErecent_sub.RData
         table_VTE_recent_sub_csv: output/postopVTE_recentCOVID_sub.csv       
         model_VTE_recent_sub: output/postopVTEmodelrecentCOVIDsub.html
+        model_VTE_recent_sub_txt: output/postopVTEmodelrecentCOVIDsub.txt        
         plot_VTE_recent_sub_waves: output/VTE_waves_recentCOVID_sub_plot.png
        
   table_postopmortality:      
@@ -228,6 +236,7 @@ actions:
         table_mortality: output/postopmortality.RData
         table_mortality_csv: output/postopmortality.csv
         model_mortality: output/postopdiedmodel.html
+        model_mortality_txt: output/postopdiedmodel.txt        
         plot_mortality: output/mortality_waves_plot.png
         
   table_postopmortality_sub:      
@@ -238,6 +247,7 @@ actions:
         table_mortality_sub: output/postopmortality_sub.RData
         table_mortality_sub_csv: output/postopmortality_sub.csv
         model_mortality_sub: output/postopdiedmodelsub.html
+        model_mortality_sub_txt: output/postopdiedmodelsub.txt        
         plot_mortality_sub: output/mortality_waves_sub_plot.png
   
   table_postopmort_crude:      
@@ -281,6 +291,7 @@ actions:
         table_readmit: output/postopreadmit.RData
         table_readmit_csv: output/postopreadmit.csv
         model_readmit: output/postopreadmitmodel.html
+        model_readmit_txt: output/postopreadmitmodel.txt        
         plot_readmit: output/readmit_waves_plot.png        
         
   table_postopreadmit_sub:      
@@ -291,6 +302,7 @@ actions:
         table_readmit_sub: output/postopreadmit_sub.RData
         table_readmit_sub_csv: output/postopreadmit_sub.csv
         model_readmit_sub: output/postopreadmitmodelsub.html
+        model_readmit_sub_txt: output/postopreadmitmodelsub.txt        
         plot_readmit_sub: output/readmit_waves_sub_plot.png
 
   report:

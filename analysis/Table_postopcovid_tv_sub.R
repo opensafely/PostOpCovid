@@ -178,6 +178,7 @@ post.op.VTE.model.split.sub <-
 #data.table::fwrite(broom::tidy(post.op.VTE.model.split.sub[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodelsplitsub.csv"))
 names(post.op.VTE.model.split.sub) <- c('Post discharge VTE','Non COVID-19 emergency readmission','Mortality')[n.type.events]
 modelsummary::modelsummary(post.op.VTE.model.split.sub,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, conf_level = .95, exponentiate = TRUE, output = here::here("output","postopVTEmodelsplitsub.html"))
+modelsummary::modelsummary(post.op.VTE.model.split.sub,estimate  = "{estimate} [{conf.low}, {conf.high}], (p = {p.value})", statistic = NULL, conf_level = .95, exponentiate = TRUE, output = here::here("output","postopVTEmodelsplitsub.txt"))
 
 
 newdata.rows <-  length(levels(dt.tv.splits$week.post.disch)) 
