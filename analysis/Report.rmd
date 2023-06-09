@@ -4,6 +4,9 @@ author: "Colin Crooks"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
   html_document:
+    theme: null
+    highlight: null
+    mathjax: null
     toc: true
     fig_caption: true
 ---
