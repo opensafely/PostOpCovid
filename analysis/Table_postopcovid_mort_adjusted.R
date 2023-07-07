@@ -11,109 +11,45 @@ dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.
 procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 
 
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','wave','Major.op',
+covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','postcovid','wave','Major.op',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstart','tstop','start','end','event','postop.covid.cohort','end.fu'))]
+drop.vars <- names(dt.tv)[!(names(dt.tv) %in% c(covariates, 'patient_id', 'tstart','tstop','start','end','event','postop.covid.cohort','end.fu','any.op','died'))]
 
 dt.tv[,(drop.vars) := NULL]
-dt.tv <- dt.tv[(postop.covid.cohort)]
+dt.tv <- dt.tv[start >=0 & any.op == T]
+
+dt.tv[!is.finite(Major.op), Major.op := F]
+dt.tv[,postcovid := postcovid == 1]
+
 gc()
-n.type.events <- sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
+n.type.events <- 1 #sort(unique(dt.tv[(postop.covid.cohort) ,event]))[-1]
 
-post.op.covid.model.waves <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal*wave +  Obstetrics*wave + CardioThoracicVascular*wave + age.cat + sex + bmi.cat + imd5 + region + 
-                                                    Major.op +  vaccination.status.factor + Current.Cancer + Emergency*wave + Charl12 + recentCOVID + previousCOVID, id = patient_id,
-                                                    data = dt.tv[(postop.covid.cohort)], model = T))
-
-data.table::fwrite(broom::tidy(post.op.covid.model.waves[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodelwaves.csv"))
-
-
-new.data.postop <- data.table::data.table(
-  'start' = rep(0,8*length(procedures)),
-  'end' = rep(30,8*length(procedures)),
-  'event' = rep(F,8*length(procedures)),
-  'Abdominal' = c(rep(T,8),rep(F,24)),
- # 'Cardiac'=c(rep(F,8),rep(T,8),rep(F,32)),
-  'Obstetrics'=c(rep(F,8),rep(T,8),rep(F,16)),
-  'Orthopaedic'=c(rep(F,16),rep(T,8),rep(F,8)),
-  #'Thoracic'=c(rep(F,32),rep(T,8),rep(F,8)),
-  'CardioThoracicVascular'=c(rep(F,24),rep(T,8)),
-  'age.cat' = rep('(50,70]',8*length(procedures)),
-  'sex' = rep('F',8*length(procedures)),
-  'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],8*length(procedures)),
-  'imd5' = rep(levels(dt.tv$imd5)[3], 8*length(procedures)),
-  'wave' = rep(paste0('Wave_',1:4),times = 2*length(procedures)),
- 'Major.op' = rep(T,8*length(procedures)),
-  'vaccination.status.factor' = rep('3',8*length(procedures)),
-  'region' = rep("East Midlands",8*length(procedures)),
-  'Current.Cancer' = rep(T,8*length(procedures)),
-  'Emergency' =  rep(c(rep(F,4),rep(T,4)), times = length(procedures)),
-  'LOS.bin' = rep(F,8*length(procedures)),
-  'Charl12' =  rep('Single',8*length(procedures)),
-  'recentCOVID' = rep(F,8*length(procedures)),
-  'previousCOVID' = rep(F,8*length(procedures)),
-  'patient_id' = 1:(8*length(procedures)))
-
-cuminc.adjusted.waves <- 
-  matrix(cuminc.cox(n.type.events = n.type.events,
-                    dt = 'dt.tv[(postop.covid.cohort)]',
-                    model = 'post.op.covid.model.waves', 
-                    newdata = 'new.data.postop',
-                    day = 30), byrow = T, ncol = 4)
-
-colnames(cuminc.adjusted.waves) <- paste0('Wave_',1:4)
-rownames(cuminc.adjusted.waves) <- paste0(c('Elective','Emergency'),rep(procedures, each = 2))
-
-data.table::fwrite(cuminc.adjusted.waves, file = here::here("output","postopcovid_adjusted_waves.csv"))
-
-
-
-adjusted.waves.plot <- ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.waves, keep.rownames = T),
-                                 id.vars = 'rn',
-                                 variable.name = 'Wave',
-                                 value.name = '30 Day COVID Cumulative Incidence (%)')[, `:=`(Emergency = grepl('Emergency*',rn),
-                                                                                          Operation = gsub('Emergency|Elective', '',rn))],
-                ggplot2::aes(x = Wave, 
-                             y = `30 Day COVID Cumulative Incidence (%)`, 
-                             group = rn,
-                             colour = Operation,
-                             linetype = Emergency)) +
-  ggplot2::geom_line()
-
-ggplot2::ggsave(plot = adjusted.waves.plot, here::here('output','adjusted_waves_plot.png'),dpi = 'retina', width = 7, height = 5, units = 'in', device = 'png' )
 
 #############################################################################################
 
 data.table::setkey(dt.tv,"patient_id","tstart","tstop")
-post.op.covid.model <- 
-  lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event==i) ~ Abdominal  + 
+post.op.mort.model <- list()
+post.op.mort.model[[1]] <- survival::coxph(survival::Surv(start,end,died) ~ Abdominal  + 
                                                       Obstetrics + CardioThoracicVascular + 
-                                                      age.cat + sex  + bmi.cat + imd5 +  wave +  Major.op +
+                                                      age.cat + sex  + bmi.cat + imd5 + postcovid +  wave +  Major.op + 
                                                       vaccination.status.factor  + region +  Current.Cancer + 
                                                       Emergency + LOS.bin + Charl12 + recentCOVID + previousCOVID, 
                                                     id = patient_id,
-                                                    data = dt.tv[(postop.covid.cohort)], model = T))
-
-data.table::fwrite(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopcovidmodel.csv"))
+                                                    data = dt.tv[start >=0 & any.op == T], model = T)
 
 
-#library(doParallel)
-#ncores <- parallel::detectCores(logical = F)
-#cl <- parallel::makeCluster(ncores)
-#doParallel::registerDoParallel(cl)
-
-adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(covariates),
+adjusted.mort.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(covariates),
                                                                .combine = 'rbind', 
                                                                .inorder = T) %do% {
-                           newdata.rows <- length(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])]))
+                           newdata.rows <- length(unique(dt.tv[start >=0 & any.op == T & !is.na(get(covariates[predi])),get(covariates[predi])]))
                            
    
                            newdata.pred <- data.table::data.table('start' = rep(0,newdata.rows),
                                                                   'end' = rep(30,newdata.rows),
-                                                                  'event' = rep(F,newdata.rows),
+                                                                  'died' = rep(F,newdata.rows),
                                                                   'patient_id' = 1:newdata.rows,
                                                                   'Abdominal' = rep(T,newdata.rows),
                                                                #   'Cardiac'= rep(F,newdata.rows),
@@ -125,8 +61,9 @@ adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(
                                                                   'sex' = rep('F',newdata.rows),
                                                                   'bmi.cat' = rep(levels(dt.tv$bmi.cat)[2],newdata.rows),
                                                                   'imd5' = rep(levels(dt.tv$imd5)[3], newdata.rows),
+                                                                  'postcovid' = rep(F,newdata.rows),
                                                                   'wave' = rep(paste0('Wave_',3),times = newdata.rows),
-                                                                  'Major.op'= rep(T,newdata.rows),
+                                                                  'Major.op' = rep(T,newdata.rows),
                                                                   'vaccination.status.factor' = rep('3',newdata.rows),
                                                                   'region' = rep("East Midlands",newdata.rows),
                                                                   'Current.Cancer' = rep(T,newdata.rows),
@@ -166,13 +103,13 @@ adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(
                            
                           #  #names(newdata.pred) <- c('start','end','event', covariates,'patient_id') 
                            if(is.factor(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])])) {
-                              newdata.pred[,(covariates[predi]) :=  as.character(sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
+                              newdata.pred[,(covariates[predi]) :=  as.character(sort(unique(dt.tv[ start >=0 & any.op == T & !is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
                             } else if(is.logical(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])])) {
-                              newdata.pred[,(covariates[predi]) :=  as.logical(sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
+                              newdata.pred[,(covariates[predi]) :=  as.logical(sort(unique(dt.tv[start >=0 & any.op == T & !is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
                             } else if(is.numeric(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])])) {
-                              newdata.pred[,(covariates[predi]) :=  is.numeric(sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
+                              newdata.pred[,(covariates[predi]) :=  is.numeric(sort(unique(dt.tv[start >=0 & any.op == T & !is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T)))]
                             } else {
-                              newdata.pred[,(covariates[predi]) := sort(unique(dt.tv[!is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T))]
+                              newdata.pred[,(covariates[predi]) := sort(unique(dt.tv[start >=0 & any.op == T & !is.na(get(covariates[predi])),get(covariates[predi])], na.rm = T))]
                             }
                             }
                            
@@ -188,26 +125,16 @@ adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(
                           #  t.samples <- t(apply(samples,1,quantile,c(0.25,0.5,0.75)))
                           #  boot.IQR <-apply(t.samples,1,function(x) paste0(x[2],' (',x[1],',',x[3],')'))
 
-                           death.risk.30day <- predict(object = post.op.covid.model[[3]], 
-                                                       newdata = newdata.pred,, type = 'expected',se.fit = T)
+                           death.risk.30day <- predict(object = post.op.mort.model[[1]], 
+                                                       newdata = newdata.pred, type = 'expected',se.fit = T)
                            
-                           readmit.risk.30day <- predict(object = post.op.covid.model[[2]], 
-                                                       newdata = newdata.pred,, type = 'expected',se.fit = T)
-                           
-                           covid.risk.30day <- predict(object = post.op.covid.model[[1]], 
-                                   newdata = newdata.pred,, type = 'expected',se.fit = T)
-                           
-                           cbind(matrix(paste0(round((1- exp(-covid.risk.30day$fit))*100,3),
-                                               ' (', round((1 - exp(-(covid.risk.30day$fit - 1.96*covid.risk.30day$se.fit)))*100,3),',',
-                                               round((1 - exp(-(covid.risk.30day$fit + 1.96*covid.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
-                                  cuminc.cox(n.type.events = n.type.events,
-                                                                  dt = 'dt.tv[(postop.covid.cohort)]', 
-                                                                  model = 'post.op.covid.model', 
+
+                           cbind(cuminc.cox(n.type.events = n.type.events,
+                                                                  dt = 'dt.tv[start >=0 & any.op == T]', 
+                                                                  model = 'post.op.mort.model', 
                                                                   newdata = 'newdata.pred',
                                                                   day = 30),
-                           matrix(paste0(round((1- exp(-readmit.risk.30day$fit))*100,3),
-                                         ' (', round((1 - exp(-(readmit.risk.30day$fit - 1.96*readmit.risk.30day$se.fit)))*100,3),',',
-                                         round((1 - exp(-(readmit.risk.30day$fit + 1.96*readmit.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows),
+
                            matrix(paste0(round((1- exp(-death.risk.30day$fit))*100,3),
                                          ' (', round((1 - exp(-(death.risk.30day$fit - 1.96*death.risk.30day$se.fit)))*100,3),',',
                                          round((1 - exp(-(death.risk.30day$fit + 1.96*death.risk.30day$se.fit)))*100,3),')'),nrow =newdata.rows)
@@ -215,6 +142,6 @@ adjusted.cuminc <-  data.table::as.data.table(foreach::foreach(predi = 1:length(
                          })
 
 
-save(cuminc.adjusted.waves,post.op.covid.model,adjusted.cuminc, file = here::here("output","postopcovid_adjusted.RData"))
+save(post.op.mort.model,adjusted.mort.cuminc, file = here::here("output","postopmort_adjusted.RData"))
 
-data.table::fwrite(adjusted.cuminc, file = here::here("output","postopcovid_adjusted.csv"))
+data.table::fwrite(adjusted.mort.cuminc, file = here::here("output","postopmort_adjusted.csv"))

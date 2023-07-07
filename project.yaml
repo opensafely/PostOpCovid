@@ -26,7 +26,7 @@ actions:
 
   data_manage:
     run: r:latest analysis/data_manage.R
-    needs: [generate_study_population,generate_study_population_COD,generate_study_population,update_study_population_Abdominal_1,update_study_population_Abdominal_2,update_study_population_Abdominal_3,update_study_population_Abdominal_4  ,update_study_population_Abdominal_5,update_study_population_Cardiac_1,update_study_population_Cardiac_2,update_study_population_Cardiac_3,update_study_population_Cardiac_4,update_study_population_Cardiac_5,update_study_population_Obstetrics_1,update_study_population_Obstetrics_2,update_study_population_Obstetrics_3,  update_study_population_Obstetrics_4,update_study_population_Obstetrics_5,update_study_population_Orthopaedic_1,update_study_population_Orthopaedic_2,update_study_population_Orthopaedic_3,update_study_population_Orthopaedic_4,update_study_population_Orthopaedic_5,update_study_population_Thoracic_1,update_study_population_Thoracic_2,update_study_population_Thoracic_3,update_study_population_Thoracic_4,update_study_population_Thoracic_5,update_study_population_Vascular_1,update_study_population_Vascular_2,update_study_population_Vascular_3,update_study_population_Vascular_4,update_study_population_Vascular_5]
+    needs: [generate_study_population,generate_study_population_COD,generate_study_population,update_study_population_Abdominal_1,update_study_population_Abdominal_2,update_study_population_Abdominal_3,update_study_population_Abdominal_4  ,update_study_population_Abdominal_5,update_study_population_Cardiac_1,update_study_population_Cardiac_2,update_study_population_Cardiac_3,update_study_population_Cardiac_4,update_study_population_Cardiac_5,update_study_population_Obstetrics_1,update_study_population_Obstetrics_2,update_study_population_Obstetrics_3,  update_study_population_Obstetrics_4,update_study_population_Obstetrics_5,update_study_population_Orthopaedic_1,update_study_population_Orthopaedic_2,update_study_population_Orthopaedic_3,update_study_population_Orthopaedic_4,update_study_population_Orthopaedic_5,update_study_population_Thoracic_1,update_study_population_Thoracic_2,update_study_population_Thoracic_3,update_study_population_Thoracic_4,update_study_population_Thoracic_5,update_study_population_Vascular_1,update_study_population_Vascular_2,update_study_population_Vascular_3,update_study_population_Vascular_4,update_study_population_Vascular_5,update_study_population_Abdominal_1_majorminor,update_study_population_Abdominal_2_majorminor,update_study_population_Abdominal_3_majorminor,update_study_population_Abdominal_4_majorminor,update_study_population_Abdominal_5_majorminor,update_study_population_Cardiac_1_majorminor,update_study_population_Cardiac_2_majorminor,update_study_population_Cardiac_3_majorminor,update_study_population_Cardiac_4_majorminor,update_study_population_Cardiac_5_majorminor,update_study_population_Obstetrics_1_majorminor,update_study_population_Obstetrics_4_majorminor,update_study_population_Obstetrics_5_majorminor,update_study_population_Orthopaedic_1_majorminor,update_study_population_Orthopaedic_2_majorminor,update_study_population_Orthopaedic_3_majorminor,update_study_population_Orthopaedic_4_majorminor,update_study_population_Orthopaedic_5_majorminor,update_study_population_Thoracic_1_majorminor,update_study_population_Thoracic_2_majorminor,update_study_population_Thoracic_3_majorminor,update_study_population_Thoracic_4_majorminor,update_study_population_Thoracic_5_majorminor,update_study_population_Vascular_1_majorminor,update_study_population_Vascular_2_majorminor,update_study_population_Vascular_3_majorminor,update_study_population_Vascular_4_majorminor,update_study_population_Vascular_5_majorminor]
     outputs:
       highly_sensitive:
         cohort: output/cohort_long.feather
@@ -45,6 +45,7 @@ actions:
       moderately_sensitive:
         flowchart_data: output/flowchart.RData
         flowchart_fig: output/Flowchart.pdf
+        flowchart_png: output/Flowchart.png
         
   table_demo:      
     run: r:latest analysis/Table_demo.R
@@ -124,7 +125,9 @@ actions:
         table_tv: output/postopcovid_tv.RData
         table_tv_csv: output/postopcovid_tv.csv
         model_COVID_tv: output/postopcovidmodelsplit.html
+        model_COVID_tv_txt: output/postopcovidmodelsplit.txt
         model_VTE_tv: output/postopVTEmodelsplit.html
+        model_VTE_tv_txt: output/postopVTEmodelsplit.txt        
         table_tv_VTE_csv: output/postopcovid_VTE_tv.csv      
 
   # table_postopcovid_tv_daily:      
@@ -149,7 +152,9 @@ actions:
         table_tv_sub: output/postopcovid_tv_sub.RData
         table_tv_sub_csv: output/postopcovid_tv_sub.csv
         model_COVID_tv_sub: output/postopcovidmodelsplitsub.html
+        model_COVID_tv_sub_txt: output/postopcovidmodelsplitsub.txt        
         model_VTE_tv_sub: output/postopVTEmodelsplitsub.html
+        model_VTE_tv_sub_txt: output/postopVTEmodelsplitsub.txt        
         table_VTE_tv_sub_csv: output/postopcovid_VTE_tv_sub.csv
         
   # table_postopcovid_tv_daily_sub:      
@@ -193,6 +198,7 @@ actions:
         table_VTE: output/postopVTE.RData
         table_VTE_csv: output/postopVTE.csv
         model_VTE: output/postopVTEmodel.html
+        model_VTE_txt: output/postopVTEmodel.txt        
         plot_VTE_waves: output/VTE_waves_plot.png
         
   table_postopVTE_sub:      
@@ -203,6 +209,7 @@ actions:
         table_VTE_sub: output/postopVTE_sub.RData
         table_VTE_sub_csv: output/postopVTE_sub.csv        
         model_VTE_sub: output/postopVTEmodelsub.html
+        model_VTE_sub_txt: output/postopVTEmodelsub.txt        
         plot_VTE_sub_waves: output/VTE_waves_sub_plot.png
 
   table_postopVTE_recent:      
@@ -213,6 +220,7 @@ actions:
         table_VTE_recent: output/postopVTErecent.RData
         table_VTE_recent_csv: output/postopVTE_recentCOVID.csv
         model_VTE_recent: output/postopVTEmodelrecentCOVID.html
+        model_VTE_recent_txt: output/postopVTEmodelrecentCOVID.txt        
         plot_VTE_recent_waves: output/VTE_waves_recentCOVID_plot.png
         
   table_postopVTE_recent_sub:      
@@ -223,6 +231,7 @@ actions:
         table_VTE_recent_sub: output/postopVTErecent_sub.RData
         table_VTE_recent_sub_csv: output/postopVTE_recentCOVID_sub.csv       
         model_VTE_recent_sub: output/postopVTEmodelrecentCOVIDsub.html
+        model_VTE_recent_sub_txt: output/postopVTEmodelrecentCOVIDsub.txt        
         plot_VTE_recent_sub_waves: output/VTE_waves_recentCOVID_sub_plot.png
        
   table_postopmortality:      
@@ -233,6 +242,7 @@ actions:
         table_mortality: output/postopmortality.RData
         table_mortality_csv: output/postopmortality.csv
         model_mortality: output/postopdiedmodel.html
+        model_mortality_txt: output/postopdiedmodel.txt        
         plot_mortality: output/mortality_waves_plot.png
         
   table_postopmortality_sub:      
@@ -243,8 +253,42 @@ actions:
         table_mortality_sub: output/postopmortality_sub.RData
         table_mortality_sub_csv: output/postopmortality_sub.csv
         model_mortality_sub: output/postopdiedmodelsub.html
+        model_mortality_sub_txt: output/postopdiedmodelsub.txt        
         plot_mortality_sub: output/mortality_waves_sub_plot.png
   
+  table_postopmort_crude:      
+    run: r:latest analysis/Table_postopcovid_mort_crude.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_crudemort: output/postopmort_crude.RData
+        table_crudemort_csv: output/postopmort_crude.csv
+        
+  table_postopmort_crude_sub:      
+    run: r:latest analysis/Table_postopcovid_mort_crude_sub.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_crudemort: output/postopmort_crude_sub.RData
+        table_crudemort_csv: output/postopmort_crude_sub.csv
+       
+  table_postopmort_adjusted:      
+    run: r:latest analysis/Table_postopcovid_mort_adjusted.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_adjustedmort: output/postopmort_adjusted.RData
+        table_adjustedmort_csv: output/postopmort_adjusted.csv
+
+       
+  table_postopmort_adjusted_sub:      
+    run: r:latest analysis/Table_postopcovid_mort_adjusted_sub.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_adjustedmort_sub: output/postopmort_adjusted_sub.RData
+        table_adjustedmort_sub_csv: output/postopmort_adjusted_sub.csv
+        
   table_postopreadmit:      
     run: r:latest analysis/Table_postop_readmit.R
     needs: [generate_study_population, data_manage]
@@ -253,6 +297,7 @@ actions:
         table_readmit: output/postopreadmit.RData
         table_readmit_csv: output/postopreadmit.csv
         model_readmit: output/postopreadmitmodel.html
+        model_readmit_txt: output/postopreadmitmodel.txt        
         plot_readmit: output/readmit_waves_plot.png        
         
   table_postopreadmit_sub:      
@@ -263,6 +308,7 @@ actions:
         table_readmit_sub: output/postopreadmit_sub.RData
         table_readmit_sub_csv: output/postopreadmit_sub.csv
         model_readmit_sub: output/postopreadmitmodelsub.html
+        model_readmit_sub_txt: output/postopreadmitmodelsub.txt        
         plot_readmit_sub: output/readmit_waves_sub_plot.png
 
   report:
@@ -287,6 +333,10 @@ actions:
     table_postopVTE_sub,
     table_postopVTE_recent_sub,
     table_postopmortality_sub,
+    table_postopmort_crude,
+    table_postopmort_adjusted,    
+    table_postopmort_crude_sub,
+    table_postopmort_adjusted_sub,    
     table_postopreadmit_sub]
     outputs:
       moderately_sensitive:
@@ -595,4 +645,312 @@ actions:
     needs: [generate_study_population]
     outputs:
       highly_sensitive:
-        cohort: output/input_Vascular_5.csv           
+        cohort: output/input_Vascular_5.csv        
+        
+##  Update for major minor
+
+
+
+  update_study_population_Abdominal_1_majorminor :
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '1'
+      --param name_op = 'Abdominal'
+      --output-file output/input_Abdominal_1_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Abdominal_1_majorminor.csv
+
+  update_study_population_Abdominal_2_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '2'
+      --param name_op = 'Abdominal'
+      --output-file output/input_Abdominal_2_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Abdominal_2_majorminor.csv
+        
+  update_study_population_Abdominal_3_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '3'
+      --param name_op = 'Abdominal'
+      --output-file output/input_Abdominal_3_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Abdominal_3_majorminor.csv
+        
+  update_study_population_Abdominal_4_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '4'
+      --param name_op = 'Abdominal'
+      --output-file output/input_Abdominal_4_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Abdominal_4_majorminor.csv
+        
+  update_study_population_Abdominal_5_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '5'
+      --param name_op = 'Abdominal'
+      --output-file output/input_Abdominal_5_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Abdominal_5_majorminor.csv       
+
+  update_study_population_Cardiac_1_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '1'
+      --param name_op = 'Cardiac'
+      --output-file output/input_Cardiac_1_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Cardiac_1_majorminor.csv
+
+  update_study_population_Cardiac_2_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '2'
+      --param name_op = 'Cardiac'
+      --output-file output/input_Cardiac_2_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Cardiac_2_majorminor.csv
+        
+  update_study_population_Cardiac_3_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '3'
+      --param name_op = 'Cardiac'
+      --output-file output/input_Cardiac_3_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Cardiac_3_majorminor.csv
+        
+  update_study_population_Cardiac_4_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '4'
+      --param name_op = 'Cardiac'
+      --output-file output/input_Cardiac_4_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Cardiac_4_majorminor.csv
+        
+  update_study_population_Cardiac_5_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '5'
+      --param name_op = 'Cardiac'
+      --output-file output/input_Cardiac_5_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Cardiac_5_majorminor.csv       
+        
+  update_study_population_Obstetrics_1_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '1'
+      --param name_op = 'Obstetrics'
+      --output-file output/input_Obstetrics_1_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Obstetrics_1_majorminor.csv
+
+  update_study_population_Obstetrics_2_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '2'
+      --param name_op = 'Obstetrics'
+      --output-file output/input_Obstetrics_2_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Obstetrics_2_majorminor.csv
+        
+  update_study_population_Obstetrics_3_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '3'
+      --param name_op = 'Obstetrics'
+      --output-file output/input_Obstetrics_3_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Obstetrics_3_majorminor.csv
+        
+  update_study_population_Obstetrics_4_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '4'
+      --param name_op = 'Obstetrics'
+      --output-file output/input_Obstetrics_4_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Obstetrics_4_majorminor.csv
+        
+  update_study_population_Obstetrics_5_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '5'
+      --param name_op = 'Obstetrics'
+      --output-file output/input_Obstetrics_5_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Obstetrics_5_majorminor.csv       
+        
+  update_study_population_Orthopaedic_1_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '1'
+      --param name_op = 'Orthopaedic'
+      --output-file output/input_Orthopaedic_1_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Orthopaedic_1_majorminor.csv
+
+  update_study_population_Orthopaedic_2_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '2'
+      --param name_op = 'Orthopaedic'
+      --output-file output/input_Orthopaedic_2_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Orthopaedic_2_majorminor.csv
+        
+  update_study_population_Orthopaedic_3_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '3'
+      --param name_op = 'Orthopaedic'
+      --output-file output/input_Orthopaedic_3_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Orthopaedic_3_majorminor.csv
+        
+  update_study_population_Orthopaedic_4_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '4'
+      --param name_op = 'Orthopaedic'
+      --output-file output/input_Orthopaedic_4_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Orthopaedic_4_majorminor.csv
+        
+  update_study_population_Orthopaedic_5_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '5'
+      --param name_op = 'Orthopaedic'
+      --output-file output/input_Orthopaedic_5_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Orthopaedic_5_majorminor.csv               
+
+
+
+  update_study_population_Thoracic_1_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '1'
+      --param name_op = 'Thoracic'
+      --output-file output/input_Thoracic_1_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Thoracic_1_majorminor.csv
+
+  update_study_population_Thoracic_2_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '2'
+      --param name_op = 'Thoracic'
+      --output-file output/input_Thoracic_2_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Thoracic_2_majorminor.csv
+        
+  update_study_population_Thoracic_3_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '3'
+      --param name_op = 'Thoracic'
+      --output-file output/input_Thoracic_3_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Thoracic_3_majorminor.csv
+        
+  update_study_population_Thoracic_4_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '4'
+      --param name_op = 'Thoracic'
+      --output-file output/input_Thoracic_4_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Thoracic_4_majorminor.csv
+        
+  update_study_population_Thoracic_5_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '5'
+      --param name_op = 'Thoracic'
+      --output-file output/input_Thoracic_5_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Thoracic_5_majorminor.csv   
+        
+
+
+  update_study_population_Vascular_1_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '1'
+      --param name_op = 'Vascular'
+      --output-file output/input_Vascular_1_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Vascular_1_majorminor.csv
+
+  update_study_population_Vascular_2_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '2'
+      --param name_op = 'Vascular'
+      --output-file output/input_Vascular_2_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Vascular_2_majorminor.csv
+        
+  update_study_population_Vascular_3_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '3'
+      --param name_op = 'Vascular'
+      --output-file output/input_Vascular_3_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Vascular_3_majorminor.csv
+        
+  update_study_population_Vascular_4_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '4'
+      --param name_op = 'Vascular'
+      --output-file output/input_Vascular_4_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Vascular_4_majorminor.csv
+        
+  update_study_population_Vascular_5_majorminor:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_MajorMinor
+      --param n_op = '5'
+      --param name_op = 'Vascular'
+      --output-file output/input_Vascular_5_majorminor.csv
+    needs: [generate_study_population]
+    outputs:
+      highly_sensitive:
+        cohort: output/input_Vascular_5_majorminor.csv   

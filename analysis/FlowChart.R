@@ -2,7 +2,7 @@ library(data.table)
 ncores <- parallel::detectCores(logical = T) - 1
 data.table::setDTthreads(ncores)
 
-procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
+procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 source(here::here("analysis","Utils.R"))
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 
@@ -23,10 +23,10 @@ n.covid.90.censored <- rnd(dt.tv[(postop.covid.cohort),max(event == 1 & start >=
 n.covid.30.censored <- rnd(dt.tv[(postop.covid.cohort),max(event == 1 & start >=0  & end <=30 & tstop <= final.date & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 n.covid.7.censored <- rnd(dt.tv[(postop.covid.cohort),max(event == 1 & start >=0  &  end <=7 & tstop <= final.date & any.op.COVID == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 
-n.VTE.90 <- rnd(dt.tv[(postcovid.VTE.cohort),max(event.VTE == 1 & start.readmit >0   & end.readmit <=90 , na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.VTE.90.censored <- rnd(dt.tv[ (postcovid.VTE.cohort),max(event.VTE == 1 & start.readmit >0  & end.readmit <=90  & tstop <= final.date.VTE & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.VTE.30.censored <- rnd(dt.tv[(postcovid.VTE.cohort),max(event.VTE == 1 & start.readmit >0  & end.readmit <=30 & tstop <= final.date.VTE & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
-n.VTE.7.censored <- rnd(dt.tv[(postcovid.VTE.cohort),max(event.VTE == 1 & start.readmit >0  & end.readmit <=7 & tstop <= final.date.VTE & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.90 <- rnd(dt.tv[(postcovid.VTE.cohort),max(event.VTE == 1 & is.finite(start.readmit) & start.readmit >0 & is.finite(end.readmit)  & end.readmit <=90 , na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.90.censored <- rnd(dt.tv[ (postcovid.VTE.cohort),max(event.VTE == 1 & is.finite(start.readmit) & start.readmit >0 & is.finite(end.readmit)   & end.readmit <=90  & tstop <= final.date.VTE & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.30.censored <- rnd(dt.tv[(postcovid.VTE.cohort),max(event.VTE == 1 & is.finite(start.readmit) & start.readmit >0 & is.finite(end.readmit)   & end.readmit <=30 & tstop <= final.date.VTE & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
+n.VTE.7.censored <- rnd(dt.tv[(postcovid.VTE.cohort),max(event.VTE == 1 & is.finite(start.readmit) & start.readmit >0  & is.finite(end.readmit)  & end.readmit <=7 & tstop <= final.date.VTE & any.op.VTE == T, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 
 n.surv.90 <- rnd(dt.tv[start >= 0 & any.op == T & tstop <= end.fu,max(died == 1 & end <=90, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
 n.surv.90.censored <- rnd(dt.tv[start >= 0 & any.op == T & tstop <= end.fu,max(died == 1 & end <=90, na.rm = T), keyby = .(patient_id, end.fu)][,tail(.SD,1), keyby = .(patient_id, end.fu)][,sum(V1==1)])
@@ -189,4 +189,6 @@ p <- p +
     size=0.15, linejoin = "mitre", lineend = "butt",
     arrow = ggplot2::arrow(length = ggplot2::unit(1, "mm"), type= "closed"))  
 ggplot2::ggsave(p,width = 6, height = 8, units = 'in', dpi = 'retina', filename = "Flowchart.pdf", device='pdf', path = here::here("output"))
+ggplot2::ggsave(p,width = 6, height = 8, units = 'in', dpi = 'retina', filename = "Flowchart.png", device='png', path = here::here("output"))
+
 save(p, file = here::here("output","flowchart.RData"))

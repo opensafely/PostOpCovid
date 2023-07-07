@@ -43,10 +43,10 @@
       "sha": "f3896c698d5642737cac3baeaab256db81927a9a"
     },
     "user-colincrooks-procedurecategory.csv": {
-      "id": "user/colincrooks/procedurecategory/1f6bca6f",
-      "url": "https://codelists.opensafely.org/codelist/user/colincrooks/procedurecategory/1f6bca6f/",
-      "downloaded_at": "2022-05-12 11:58:32.886814Z",
-      "sha": "fad5433ec5ec8445603d17289331e6ad2684146f"
+      "id": "user/colincrooks/procedurecategory/395eb791",
+      "url": "https://codelists.opensafely.org/codelist/user/colincrooks/procedurecategory/395eb791/",
+      "downloaded_at": "2023-01-06 10:37:09.035384Z",
+      "sha": "9edb3a7d59602363672f4824140eca63b1333707"
     },
     "user-colincrooks-cholecystectomy.csv": {
       "id": "user/colincrooks/cholecystectomy/065c573a",

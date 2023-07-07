@@ -4,6 +4,9 @@ author: "Colin Crooks"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
   html_document:
+    theme: null
+    highlight: null
+    mathjax: null
     toc: true
     fig_caption: true
 ---
@@ -346,7 +349,7 @@ comb_postop_covid.sub[is.na(`Adjusted Hazard Ratio for censoring by 30 day morta
 
  kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
 knitr::kable(comb_postop_covid.sub, 
-             caption = paste0("Table 3: Cumulative incidence of 30 day post operative COVID of patients by procedure type with counts rounded to nearest 10. Adjusted predictions set for 50-70 year old female with a single morbidity with a bmi of 20, for an elective colectomy cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation")
+             caption = paste0("Table 3: Cumulative incidence of 30 day post operative COVID of patients by procedure type with counts rounded to nearest 10. Adjusted predictions set for 50-70 year old female with a single morbidity with a bmi of 20, for an elective major colectomy cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation")
              #at their most frequent population values:\n procedure = ", procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])], Reduce(lapply(which(covariates == 'age.cat'):which(covariates == 'previousCOVID'), function(i) paste0(covariates[i] ,' = ',max.category(which(covariates == covariates[i])))), f =function(x,y) paste(x,y, collapse = ", ")))
              ) %>% kableExtra::add_header_above(c(" " = 4,"Crude KM analysis" = 2, "Adjusted Cox model analysis" = 9, "Fully adjusted CIF" = 1))
 )
@@ -705,6 +708,45 @@ ggplot2::ggplot(daily.post.op.VTE.risk.sub[`Days post discharge`<= 35]) +
 
 Adjusted Cox proportional hazards survival models were fitted to estimate the effect of post operative COVID-19 as a time varying covariate on mortality, and cumulative incidence functions calculated to adjust for competing risks of readmission. 
 
+```{r postopmortab, eval = T, echo=FALSE}
+
+################################
+# Post operative COVID risk model----
+##################################
+load(here::here("output","postopmort_crude.RData"))
+load(here::here("output","postopmort_adjusted.RData"))
+crude.mort.cov[, cov_level := paste0(Characteristic, Level) ]
+
+mort_coef <- data.table::data.table('cov_level' = names(post.op.mort.model[[1]]$coefficients), 
+                                   'Adjusted Hazard Ratio' = round(exp(post.op.mort.model[[1]]$coefficients),2),
+                                   '95% CI' = paste0('(',round(exp(confint(post.op.mort.model[[1]])[,1]),2),',',
+                                                     round(exp(confint(post.op.mort.model[[1]])[,2]),2),')'))
+
+
+
+
+#knitr::kable(broom::tidy(post.op.covid.model[[1]], exponentiate= T, conf.int = T),digits = 2)
+procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
+comb_postop_mort <- cbind(merge(x = crude.mort.cov, y = mort_coef, by = 'cov_level', all = T , sort = F),
+                           adjusted.mort.cuminc)[-(seq(1,(length(procedures)*2)-1,2)),-1]                           
+
+names(comb_postop_mort) <- c("Characteristic","Level","Number at risk",
+                            "Number of post operative deaths within 30 days","30 day Cumulative Risk adjusted for censoring",
+                            'Crude Hazard Ratio for 30 day mortality (95% CI)',
+                            'Adjusted Hazard Ratio for 30 day mortality','95% CI',
+                            "30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates",
+                            "Cause specfic 30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates with CI from model")
+
+comb_postop_mort[is.na(`Adjusted Hazard Ratio for 30 day mortality`),`:=`(`Adjusted Hazard Ratio for 30 day mortality` = 1, `95% CI`= "Ref")]
+
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
+knitr::kable(comb_postop_mort, 
+             caption = paste0("Table : Cumulative incidence of 30 day post operative mortality of patients by procedure type with counts rounded to nearest 10. Adjusted predictions set for 50-70 year old female with a single morbidity with a bmi of 20, for an elective major abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation")
+             #at their most frequent population values:\n procedure = ", procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])], Reduce(lapply(which(covariates == 'age.cat'):which(covariates == 'previousCOVID'), function(i) paste0(covariates[i] ,' = ',max.category(which(covariates == covariates[i])))), f =function(x,y) paste(x,y, collapse = ", ")))
+             ) %>% kableExtra::add_header_above(c(" " = 4,"Crude KM analysis" = 3, "Adjusted Cox model analysis" = 3))
+)
+```
+
 ```{r postopmortality}
 load(file = here::here("output","postopmortality.RData"))
 
@@ -744,6 +786,44 @@ ggplot2::ggplot(cuminc.long.labelled[order(Emergency, Operation, postcovid,wave)
 
 #### Selected procedures
 
+```{r postopmortabsub, eval = T, echo=FALSE}
+
+################################
+# Post operative COVID risk model----
+##################################
+load(here::here("output","postopmort_crude_sub.RData"))
+load(here::here("output","postopmort_adjusted_sub.RData"))
+
+crude.mort.cov.sub[, cov_level := paste0(Characteristic, Level) ]
+
+mort_coef.sub <- data.table::data.table('cov_level' = names(post.op.mort.model.sub[[1]]$coefficients), 
+                                   'Adjusted Hazard Ratio' = round(exp(post.op.mort.model.sub[[1]]$coefficients),2),
+                                   '95% CI' = paste0('(',round(exp(confint(post.op.mort.model.sub[[1]])[,1]),2),',',
+                                                     round(exp(confint(post.op.mort.model.sub[[1]])[,2]),2),')'))
+
+procedures.sub <- c('Colectomy','Cholecystectomy',
+                'HipReplacement','KneeReplacement')
+
+comb_postop_mort_sub <- cbind(merge(x = crude.mort.cov.sub, y = mort_coef.sub, by = 'cov_level', all = T , sort = F),
+                           adjusted.cuminc.mort.sub)[-(seq(1,(length(procedures.sub)*2)-1,2)),-1]
+
+names(comb_postop_mort_sub) <- c("Characteristic","Level","Number at risk",
+                            "Number of post operative deaths within 30 days",
+                            "30 day Cumulative Risk adjusted for censoring",
+                            'Crude Hazard Ratio for 30 day mortality (95% CI)',
+                            'Adjusted Hazard Ratio for 30 day mortality','95% CI',
+                            "30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates",
+                            "Cause specfic 30 day Mortality Cause Specific Cumulative Risk adjusted for all covariates with CI from model")
+
+comb_postop_mort_sub[is.na(`Adjusted Hazard Ratio for 30 day mortality`),`:=`(`Adjusted Hazard Ratio for 30 day mortality` = 1, `95% CI`= "Ref")]
+
+ kableExtra::kable_styling(bootstrap_options = c("striped","hover","condensed","responsive"),
+knitr::kable(comb_postop_mort_sub, 
+             caption = paste0("Table : Cumulative incidence of 30 day post operative mortality of patients by procedure type with counts rounded to nearest 10. Adjusted predictions set for 50-70 year old female with a single morbidity with a bmi of 20, for an elective colectomy cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation")
+             #at their most frequent population values:\n procedure = ", procedures[which.max(dt.tv[,lapply(.SD,sum,na.rm = T), .SDcols = c(procedures)])], Reduce(lapply(which(covariates == 'age.cat'):which(covariates == 'previousCOVID'), function(i) paste0(covariates[i] ,' = ',max.category(which(covariates == covariates[i])))), f =function(x,y) paste(x,y, collapse = ", ")))
+             ) %>% kableExtra::add_header_above(c(" " = 4,"Crude KM analysis" = 3, "Adjusted Cox model analysis" = 3))
+)
+```
 
 ```{r postopmortality_sub}
 load(file = here::here("output","postopmortality_sub.RData"))
