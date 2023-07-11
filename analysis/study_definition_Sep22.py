@@ -59,13 +59,10 @@ def loop_over_OPCS_codelists(code_list_dict, return_expectations):
     for key,codes in code_list_dict.items():
         variables.update(with_these_procedures(key,"index_date",codes,"date_admitted",return_expectations,1))
         variables.update(with_these_procedures(key,f"{key}_1_date_admitted",codes,"date_discharged",return_expectations,1))
-        variables.update(with_these_procedures(key,f"{key}_1_date_admitted",major_codes,'date_discharged',returning="binary_flag",return_expectations,1))
         for i in range(2,n_op + 1):
           variables.update(with_these_procedures(key,f"{key}_{i-1}_date_discharged",codes,"date_admitted",return_expectations,i))
           variables.update(with_these_procedures(key,f"{key}_{i}_date_admitted",codes,"date_discharged",return_expectations,i))
-          variables.update(with_these_procedures(key,f"{key}_{i}_date_admitted",major_codes,'date_discharged',returning="binary_flag",return_expectations,i))
     return variables
-
 
 def loop_over_OPCS_codelists_admission_info(code_list_dict, returning, return_expectations):
     def with_these_procedures(admission_date,discharge_date,key,codes,returning,return_expectations,i):
@@ -85,6 +82,26 @@ def loop_over_OPCS_codelists_admission_info(code_list_dict, returning, return_ex
     for key,codes in code_list_dict.items():
       for i in range(1,n_op + 1):
         variables.update(with_these_procedures(f"{key}_{i}_date_admitted",f"{key}_{i}_date_discharged",key,codes,returning,return_expectations,i))
+    return variables
+
+def loop_over_OPCS_codelists_major_minor(code_list_dict, returning, return_expectations):
+    def with_these_procedures(admission_date,discharge_date,key,major_codes,returning,return_expectations,i):
+        return {
+            f"{key}_{i}_Major_HES_{returning}": (
+                patients.admitted_to_hospital(
+                    with_these_procedures=major_codes,
+                    between=[admission_date,discharge_date],
+                    find_first_match_in_period=True,
+                    returning=returning,
+                    date_format="YYYY-MM-DD",
+                    return_expectations=return_expectations,
+                )
+            )
+        }
+    variables = {}
+    for key,codes in code_list_dict.items():
+      for i in range(1,n_op + 1):
+        variables.update(with_these_procedures(f"{key}_{i}_date_admitted",f"{key}_{i}_date_discharged",key,major_codes,returning,return_expectations,i))
     return variables
 
 def post_operative_COVID(code_list_dict, returning, return_expectations):
@@ -292,7 +309,7 @@ def with_pre_op_GP_events(comorb_code_list_dict):
 
 study = StudyDefinition(
     index_date = "2022-03-01",
-    final_date = "2022-09-30"
+
     default_expectations={
         "date": {"earliest": "index_date" , "latest": "index_date + 3 years"},
         "rate": "uniform",
@@ -315,12 +332,14 @@ study = StudyDefinition(
        
         has_surgery=patients.admitted_to_hospital(
             with_these_procedures=any_proc, 
+          #  on_or_after = "index_date")
             between = ["index_date",
-                      "final_date"]),
+                      "index_date + 7 months"]),
     ),
     
     **loop_over_OPCS_codelists(list_dict, return_expectations ={"incidence": 1,"rate" : "uniform",}),
-   
+
+    
     first_surgery_date=patients.minimum_of(*[s + "_1_date_admitted" for s in list_dict.keys()]),
 #"LeftHemicolectomy_date_admitted", "RightHemicolectomy_date_admitted","TotalColectomy_date_admitted", "RectalResection_date_admitted"
 #    **loop_over_OPCS_codelists_discharge(list_dict,returning = "date_discharged", return_expectations ={"incidence": 1,"rate" : "uniform",}),
@@ -425,6 +444,7 @@ study = StudyDefinition(
     # Procedure details
     #########################################
 
+    **loop_over_OPCS_codelists_major_minor(list_dict,returning = "binary_flag", return_expectations ={"incidence": 0.3,"rate" : "uniform",}),
 
     **loop_over_OPCS_codelists_admission_info(list_dict,returning = "admission_method", return_expectations ={"category": {"ratios": {"11": 0.1, "21": 0.2, "22": 0.7}}, "incidence" : 1}),
 
@@ -466,7 +486,6 @@ study = StudyDefinition(
   #  **previous_COVID(list_dict, returning= "case_category", return_expectations = {"incidence" : 0.1,"category": {"ratios": {"": 0.3, "LFT_Only": 0.4, "PCR_Only": 0.2, "LFT_WithPCR": 0.1}},}),
 
     **previous_COVID(list_dict, returning= "date", return_expectations = {"incidence" : 0.1,"rate" : "uniform"}),
-
 
     **with_emergency_readmissions(list_dict, returning = "primary_diagnosis",  return_expectations={"rate": "uniform","category": {"ratios": {"K920": 0.5, "K921": 0.5}}}),
 

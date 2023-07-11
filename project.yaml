@@ -15,7 +15,7 @@ actions:
     run: cohortextractor:latest generate_cohort --study-definition study_definition_Sep22
     outputs:
       highly_sensitive:
-        cohort: output/inputSep22.csv
+        cohort: output/input_Sep22.csv
 
   generate_study_population_COD:
     run: cohortextractor:latest generate_cohort --study-definition study_definition_COD
