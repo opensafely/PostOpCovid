@@ -59,10 +59,13 @@ def loop_over_OPCS_codelists(code_list_dict, return_expectations):
     for key,codes in code_list_dict.items():
         variables.update(with_these_procedures(key,"index_date",codes,"date_admitted",return_expectations,1))
         variables.update(with_these_procedures(key,f"{key}_1_date_admitted",codes,"date_discharged",return_expectations,1))
+        variables.update(with_these_procedures(key,f"{key}_1_date_admitted",major_codes,'date_discharged',returning="binary_flag",return_expectations,1))
         for i in range(2,n_op + 1):
           variables.update(with_these_procedures(key,f"{key}_{i-1}_date_discharged",codes,"date_admitted",return_expectations,i))
           variables.update(with_these_procedures(key,f"{key}_{i}_date_admitted",codes,"date_discharged",return_expectations,i))
+          variables.update(with_these_procedures(key,f"{key}_{i}_date_admitted",major_codes,'date_discharged',returning="binary_flag",return_expectations,i))
     return variables
+
 
 def loop_over_OPCS_codelists_admission_info(code_list_dict, returning, return_expectations):
     def with_these_procedures(admission_date,discharge_date,key,codes,returning,return_expectations,i):
@@ -91,6 +94,8 @@ def post_operative_COVID(code_list_dict, returning, return_expectations):
                 patients.with_test_result_in_sgss(
                     pathogen = "SARS-CoV-2",
                     returning = returning,
+                    restrict_to_earliest_specimen_date=False,
+                    find_first_match_in_period=True,                    
                     test_result = "positive",
                     date_format="YYYY-MM-DD",
                     between=[admission_date, admission90_date],
@@ -112,6 +117,8 @@ def recent_COVID(code_list_dict, returning, return_expectations):
                 patients.with_test_result_in_sgss(
                     pathogen = "SARS-CoV-2",
                     returning = returning,
+                    restrict_to_earliest_specimen_date=False,
+                    find_last_match_in_period=True,                    
                     test_result = "positive",
                     date_format="YYYY-MM-DD",
                     between=[admission_date, admission90_date],
@@ -133,6 +140,8 @@ def previous_COVID(code_list_dict, returning, return_expectations):
                 patients.with_test_result_in_sgss(
                     pathogen = "SARS-CoV-2",
                     returning = returning,
+                    restrict_to_earliest_specimen_date=False,
+                    find_last_match_in_period=True,                    
                     test_result = "positive",
                     date_format="YYYY-MM-DD",
                     on_or_before=admission_date,
@@ -318,7 +327,8 @@ study = StudyDefinition(
    
     first_surgery_discharge_date=patients.minimum_of(*[s + "_1_date_discharged" for s in list_dict.keys()]),
 # "LeftHemicolectomy_date_discharged", "RightHemicolectomy_date_discharged","TotalColectomy_date_discharged", "RectalResection_date_discharged"
-  
+   
+   
     registered=patients.registered_as_of(
     "first_surgery_date"    ## Minimum should have prior registration for first surgery
     ),
@@ -415,6 +425,7 @@ study = StudyDefinition(
     # Procedure details
     #########################################
 
+
     **loop_over_OPCS_codelists_admission_info(list_dict,returning = "admission_method", return_expectations ={"category": {"ratios": {"11": 0.1, "21": 0.2, "22": 0.7}}, "incidence" : 1}),
 
     **loop_over_OPCS_codelists_admission_info(list_dict,returning = "primary_diagnosis", return_expectations ={ "category": {"ratios": {"C150": 0.2,"C180": 0.2, "C190": 0.2, "K570": 0.2, "K512": 0.2}}, "incidence" : 1,}),
@@ -444,15 +455,15 @@ study = StudyDefinition(
     # Follow up events
     ######################################
 
-    **post_operative_COVID(list_dict, returning= "case_category", return_expectations = {"incidence" : 1,"category": {"ratios": {"": 0.3, "LFT_Only": 0.4, "PCR_Only": 0.2, "LFT_WithPCR": 0.1}},}),
+ #   **post_operative_COVID(list_dict, returning= "case_category", return_expectations = {"incidence" : 1,"category": {"ratios": {"": 0.3, "LFT_Only": 0.4, "PCR_Only": 0.2, "LFT_WithPCR": 0.1}},}),
 
     **post_operative_COVID(list_dict, returning= "date", return_expectations = {"incidence" : 1,"rate" : "uniform"}),
 
-    **recent_COVID(list_dict, returning= "case_category", return_expectations = {"incidence" : 1,"category": {"ratios": {"": 0.3, "LFT_Only": 0.4, "PCR_Only": 0.2, "LFT_WithPCR": 0.1}},}),
+  #  **recent_COVID(list_dict, returning= "case_category", return_expectations = {"incidence" : 1,"category": {"ratios": {"": 0.3, "LFT_Only": 0.4, "PCR_Only": 0.2, "LFT_WithPCR": 0.1}},}),
 
     **recent_COVID(list_dict, returning= "date", return_expectations = {"incidence" : 0.1,"rate" : "uniform"}),
 
-    **previous_COVID(list_dict, returning= "case_category", return_expectations = {"incidence" : 0.1,"category": {"ratios": {"": 0.3, "LFT_Only": 0.4, "PCR_Only": 0.2, "LFT_WithPCR": 0.1}},}),
+  #  **previous_COVID(list_dict, returning= "case_category", return_expectations = {"incidence" : 0.1,"category": {"ratios": {"": 0.3, "LFT_Only": 0.4, "PCR_Only": 0.2, "LFT_WithPCR": 0.1}},}),
 
     **previous_COVID(list_dict, returning= "date", return_expectations = {"incidence" : 0.1,"rate" : "uniform"}),
 
@@ -487,6 +498,12 @@ study = StudyDefinition(
 			"rate": "exponential_increase"
 		},
 	),
+  
+  death_underlying_cause_ons=patients.died_from_any_cause(
+      on_or_after="index_date",
+      returning="underlying_cause_of_death",
+      return_expectations={"category": {"ratios": {"U071":0.2, "C33":0.2, "I60":0.1, "F01":0.1 , "F02":0.05 , "I22":0.05 ,"C34":0.05, "I23":0.25}},},
+  ),	
 
 	date_death_cpns = patients.with_death_recorded_in_cpns(
         between=["index_date","index_date + 3 years"],
