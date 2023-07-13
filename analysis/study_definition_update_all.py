@@ -340,14 +340,14 @@ study = StudyDefinition(
                       "index_date + 7 months"]),
     ),
     
-    **loop_over_OPCS_codelists(list_dict[name_op], return_expectations ={"incidence": 1,"rate" : "uniform",}),
+    **loop_over_OPCS_codelists({name_op : list_dict[name_op]}, return_expectations ={"incidence": 1,"rate" : "uniform",}),
 
     
-    first_surgery_date=patients.minimum_of(*[s + "_1_date_admitted" for s in list_dict.keys()]),
+    first_surgery_date=patients.minimum_of(*[s + "_1_date_admitted" for s in {name_op : list_dict[name_op]}.keys()]),
 #"LeftHemicolectomy_date_admitted", "RightHemicolectomy_date_admitted","TotalColectomy_date_admitted", "RectalResection_date_admitted"
 #    **loop_over_OPCS_codelists_discharge(list_dict,returning = "date_discharged", return_expectations ={"incidence": 1,"rate" : "uniform",}),
    
-    first_surgery_discharge_date=patients.minimum_of(*[s + "_1_date_discharged" for s in list_dict.keys()]),
+    first_surgery_discharge_date=patients.minimum_of(*[s + "_1_date_discharged" for s in {name_op : list_dict[name_op]}.keys()]),
 # "LeftHemicolectomy_date_discharged", "RightHemicolectomy_date_discharged","TotalColectomy_date_discharged", "RectalResection_date_discharged"
    
    
@@ -447,15 +447,15 @@ study = StudyDefinition(
     # Procedure details
     #########################################
 
-    **loop_over_OPCS_codelists_major_minor(list_dict[name_op],returning = "binary_flag", return_expectations ={"incidence": 0.3,"rate" : "uniform",}),
+    **loop_over_OPCS_codelists_major_minor({name_op : list_dict[name_op]},returning = "binary_flag", return_expectations ={"incidence": 0.3,"rate" : "uniform",}),
 
-    **loop_over_OPCS_codelists_admission_info(list_dict[name_op],returning = "admission_method", return_expectations ={"category": {"ratios": {"11": 0.1, "21": 0.2, "22": 0.7}}, "incidence" : 1}),
+    **loop_over_OPCS_codelists_admission_info({name_op : list_dict[name_op]},returning = "admission_method", return_expectations ={"category": {"ratios": {"11": 0.1, "21": 0.2, "22": 0.7}}, "incidence" : 1}),
 
-    **loop_over_OPCS_codelists_admission_info(list_dict[name_op],returning = "primary_diagnosis", return_expectations ={ "category": {"ratios": {"C150": 0.2,"C180": 0.2, "C190": 0.2, "K570": 0.2, "K512": 0.2}}, "incidence" : 1,}),
+    **loop_over_OPCS_codelists_admission_info({name_op : list_dict[name_op]},returning = "primary_diagnosis", return_expectations ={ "category": {"ratios": {"C150": 0.2,"C180": 0.2, "C190": 0.2, "K570": 0.2, "K512": 0.2}}, "incidence" : 1,}),
 
-    **loop_over_OPCS_codelists_admission_info(list_dict[name_op],returning = "days_in_critical_care", return_expectations ={"category": {"ratios": {"5": 0.1, "6": 0.2, "7": 0.7}}, "incidence" : 0.1}),
+    **loop_over_OPCS_codelists_admission_info({name_op : list_dict[name_op]},returning = "days_in_critical_care", return_expectations ={"category": {"ratios": {"5": 0.1, "6": 0.2, "7": 0.7}}, "incidence" : 0.1}),
    
-    **with_sub_procedures(subproc_list=sub_proc_dict,code_list_dict=list_dict[name_op], returning="binary_flag", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
+    **with_sub_procedures(subproc_list=sub_proc_dict,code_list_dict={name_op : list_dict[name_op]}, returning="binary_flag", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
 
    
     #########################################
@@ -480,25 +480,25 @@ study = StudyDefinition(
 
  #   **post_operative_COVID(list_dict, returning= "case_category", return_expectations = {"incidence" : 1,"category": {"ratios": {"": 0.3, "LFT_Only": 0.4, "PCR_Only": 0.2, "LFT_WithPCR": 0.1}},}),
 
-    **post_operative_COVID(list_dict[name_op], returning= "date", return_expectations = {"incidence" : 1,"rate" : "uniform"}),
+    **post_operative_COVID({name_op : list_dict[name_op]}, returning= "date", return_expectations = {"incidence" : 1,"rate" : "uniform"}),
 
   #  **recent_COVID(list_dict, returning= "case_category", return_expectations = {"incidence" : 1,"category": {"ratios": {"": 0.3, "LFT_Only": 0.4, "PCR_Only": 0.2, "LFT_WithPCR": 0.1}},}),
 
-    **recent_COVID(list_dict[name_op], returning= "date", return_expectations = {"incidence" : 0.1,"rate" : "uniform"}),
+    **recent_COVID({name_op : list_dict[name_op]}, returning= "date", return_expectations = {"incidence" : 0.1,"rate" : "uniform"}),
 
   #  **previous_COVID(list_dict, returning= "case_category", return_expectations = {"incidence" : 0.1,"category": {"ratios": {"": 0.3, "LFT_Only": 0.4, "PCR_Only": 0.2, "LFT_WithPCR": 0.1}},}),
 
-    **previous_COVID(list_dict[name_op], returning= "date", return_expectations = {"incidence" : 0.1,"rate" : "uniform"}),
+    **previous_COVID({name_op : list_dict[name_op]}, returning= "date", return_expectations = {"incidence" : 0.1,"rate" : "uniform"}),
 
-    **with_emergency_readmissions(list_dict[name_op], returning = "primary_diagnosis",  return_expectations={"rate": "uniform","category": {"ratios": {"K920": 0.5, "K921": 0.5}}}),
+    **with_emergency_readmissions({name_op : list_dict[name_op]}, returning = "primary_diagnosis",  return_expectations={"rate": "uniform","category": {"ratios": {"K920": 0.5, "K921": 0.5}}}),
 
-    **with_emergency_readmissions(list_dict[name_op], returning = "date_admitted",  return_expectations={"rate" : "uniform"}),
+    **with_emergency_readmissions({name_op : list_dict[name_op]}, returning = "date_admitted",  return_expectations={"rate" : "uniform"}),
 
-    **with_post_op_hospital_events(name= "VTE",event_list=VTE_HES_codes,code_list_dict=list_dict[name_op], returning="date_admitted", return_expectations={"incidence": 0.5,"rate" : "uniform",}),
+    **with_post_op_hospital_events(name= "VTE",event_list=VTE_HES_codes,code_list_dict={name_op : list_dict[name_op]}, returning="date_admitted", return_expectations={"incidence": 0.5,"rate" : "uniform",}),
 
-    **with_post_op_GP_events(name= "VTE",event_list=VTE_Read_codes,code_list_dict=list_dict[name_op], returning="date", return_expectations={"incidence": 0.5,"rate" : "uniform",}),
+    **with_post_op_GP_events(name= "VTE",event_list=VTE_Read_codes,code_list_dict={name_op : list_dict[name_op]}, returning="date", return_expectations={"incidence": 0.5,"rate" : "uniform",}),
 
-    **with_post_op_GP_medications(name= "anticoagulation",event_list=any_anticoagulation,code_list_dict=list_dict[name_op], returning="date", return_expectations={"incidence": 0.5,"rate" : "uniform",}),
+    **with_post_op_GP_medications(name= "anticoagulation",event_list=any_anticoagulation,code_list_dict={name_op : list_dict[name_op]}, returning="date", return_expectations={"incidence": 0.5,"rate" : "uniform",}),
 
  #   **with_post_op_hospital_events(name = "Trauma", event_list = all_trauma_codes,code_list_dict=list_dict, returning="date_admitted", return_expectations={"incidence": 0.1,"rate" : "uniform",}),
 
