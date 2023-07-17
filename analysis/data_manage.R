@@ -62,6 +62,7 @@ data.table::setkey(dt.COD,patient_id)
 
 dt <- dt.COD[,.(patient_id, death_underlying_cause_ons)][dt[region!=''],]
 
+####
 
 
 ####
@@ -113,6 +114,78 @@ for (x in paste0(procedures,"_date_admitted")) { dt[is.na(dereg_date) | x <= der
 dt <- dt[keep == T,]
 lapply(paste0(procedures,"_date_admitted"), function(x) dt[is.finite(get(x)),.N]) # Check numbers in log
 
+
+
+#### Last 7 month update data
+
+
+dt.update <-rbindlist(lapply(procedures, 
+                             function(x) data.table::fread(here::here('output',
+                                                                      paste0('input_',x,'.csv')))[region !='',]), fill=TRUE) #[, #,(paste0(x,'_date_admitted')) := date_admitted][,
+#                                               (paste0(x,'_date_discharged')) := date_discharged][
+#   c('date_admitted','date_discharged',
+#      'dob','bmi_date_measured',
+#      'date_death_ons',
+#      'date_death_cpns',
+#      'age','region','sex',
+#      'bmi','imd','died') := NULL]))
+data.table::setkey(dt,patient_id)
+data.table::setkey(dt.update,patient_id)
+
+dt.update[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
+dt.update[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
+dt.update[, imd := as.numeric(imd)]
+dt.update[, imd5 := cut(imd, breaks = seq(-1,33000,33000/5),  include.lowest = T, ordered_result = F)]
+
+## Clean invalid admission sequences ----
+op.admit.vars <- sort(paste0(outer(procedures,paste0("_",1:5),paste0),'_date_admitted'))
+op.discharge.vars <- sort(paste0(outer(procedures,paste0("_",1:5),paste0),'_date_discharged'))
+for (i in 1:length(op.admit.vars)) {
+  dt.update[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i])) > last_date,
+            (names(dt.update)[grepl(pattern = paste0(gsub(x =op.admit.vars[i],
+                                                          pattern = '_date_admitted',
+                                                          replacement = ""),'*'),
+                                    x = names(dt.update))]) := NA]
+}
+## Reshape repeated procedures within a specialty ----
+repeated.vars <- names(dt.update)[grepl(pattern = paste(procedures,collapse = '|'),x = names(dt.update))]
+non.op.vars <- names(dt.update)[!grepl(pattern = paste(procedures,collapse = '|'),x = names(dt.update))]
+non.op.vars <- non.op.vars[!(non.op.vars %in% 'patient_id')]
+
+aggregate_operations <- data.table::melt(dt.update, id.var = 'patient_id',
+                                         measure = patterns(as.vector(outer(paste0(procedures,'_[0-9]'),
+                                                                            unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = paste0(repeated.vars,'$'))),
+                                                                            paste0))),
+                                         variable.name = 'op.number',
+                                         value.name = as.vector(outer(procedures,unique(gsub(pattern = paste0(as.vector(outer(procedures,paste0("_",1:5),paste0)),collapse = "|"),replacement = "",x = repeated.vars)),paste0)))[order(patient_id,op.number)]
+
+
+vars_char <- names(dt.update[,non.op.vars,with = F])[sapply(dt.update[,non.op.vars,with = F], is.character)]
+vars_date <- names(dt.update[,non.op.vars,with = F])[sapply(dt.update[,non.op.vars,with = F], function(x) inherits(x, 'Date') )]
+vars_int <- names(dt.update[,non.op.vars,with = F])[sapply(dt.update[,non.op.vars,with = F], is.integer)]
+vars_int <- vars_int[!(vars_int %in% vars_date)]
+vars_doub <- names(dt.update[,non.op.vars,with = F])[sapply(dt.update[,non.op.vars,with = F], is.double)]
+vars_fact <- names(dt.update[,non.op.vars,with = F])[sapply(dt.update[,non.op.vars,with = F], is.factor)]
+
+dt.baseline <- Reduce(function(x, y){merge(x, y, by = "patient_id", all = T)}, 
+                     list(dcast(melt(dt.update, id.vars = 'patient_id',measure.vars = vars_char)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
+                          dcast(melt(dt.update, id.vars = 'patient_id',measure.vars = vars_date)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
+                           dcast(melt(dt.update, id.vars = 'patient_id',measure.vars = vars_int)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
+                           dcast(melt(dt.update, id.vars = 'patient_id',measure.vars = vars_doub)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
+                          dcast(melt(dt.update, id.vars = 'patient_id',measure.vars = vars_fact)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable)))
+
+dt.update <- dt.baseline[aggregate_operations, on = "patient_id"]
+
+dt.update[, keep := F]
+dt.update[!is.na(dereg_date), dereg_date := data.table::as.IDate(paste0(dereg_date,"-30"), format = "%Y-%m-%d")]
+for (x in paste0(procedures,"_date_admitted")) { dt.update[is.na(dereg_date) | x <= dereg_date, keep := T] }
+dt.update <- dt.update[keep == T,]
+
+rm(aggregate_operations)
+
+
+dt <- rbindlist(list(dt[,names(dt.update), with = F],dt.update), use.names = T)
+
 ## Waves defined from ONS reports: ----
 #https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveycharacteristicsofpeopletestingpositiveforcovid19uk/latest
 #https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveyantibodyandvaccinationdatafortheuk/1june2022
@@ -141,9 +214,6 @@ time.cols <- c(paste0("covid_vaccine_dates_",1:3),c(names(dt)[grep("^pre",names(
 proc.tval.stubs <- c('_admission_method',
                      '_primary_diagnosis',
                      '_days_in_critical_care',
-                     '_case_category',
-                     '_recent_case_category',
-                     '_previous_case_category',
                      '_HipReplacement_HES_binary_flag',
                      '_KneeReplacement_HES_binary_flag',
                      '_Cholecystectomy_HES_binary_flag',

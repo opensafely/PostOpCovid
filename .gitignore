@@ -16,3 +16,4 @@ output, post_op_covid_cuminc.csv
 *.png
 *.html
 analysis/Report.html
+*.sqlite
