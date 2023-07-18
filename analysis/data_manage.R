@@ -16,6 +16,7 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
 procs <- paste0(rep(procedures,each = 5),"_",1:5)
 
 dt <- data.table::fread(here::here("output", "input.csv"))
+
 dt.COD <- data.table::fread(here::here("output", "input_COD.csv"))
 dt.update <- Reduce(function(...) {
   merge(..., by = c('patient_id'), all = T)
@@ -80,6 +81,17 @@ table(as.factor(dt$region))
 dt <- dt[region !='']
 
 summary(dt)
+
+## Identify column name types for update
+
+temp <- names(dt)
+temp <- temp[!grepl('category',temp)]
+
+dt.col.types <- dt[,sapply(.SD, typeof),.SDcols = temp]
+
+temp <- NULL
+
+
 ####
 # Multiple operations per row. Reshape to long format ----
 ####
@@ -118,17 +130,10 @@ lapply(paste0(procedures,"_date_admitted"), function(x) dt[is.finite(get(x)),.N]
 
 #### Last 7 month update data
 
-
 dt.update <-rbindlist(lapply(procedures, 
                              function(x) data.table::fread(here::here('output',
-                                                                      paste0('input_',x,'.csv')))[region !='',]), fill=TRUE) #[, #,(paste0(x,'_date_admitted')) := date_admitted][,
-#                                               (paste0(x,'_date_discharged')) := date_discharged][
-#   c('date_admitted','date_discharged',
-#      'dob','bmi_date_measured',
-#      'date_death_ons',
-#      'date_death_cpns',
-#      'age','region','sex',
-#      'bmi','imd','died') := NULL]))
+                                                                      paste0('input_',x,'.csv')),
+                                                           colClasses = unlist(dt.col.types))[region !='',]), fill=TRUE) 
 data.table::setkey(dt,patient_id)
 data.table::setkey(dt.update,patient_id)
 
