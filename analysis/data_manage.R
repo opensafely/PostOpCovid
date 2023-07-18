@@ -91,7 +91,7 @@ dt.col.types <- dt[,sapply(.SD, typeof),.SDcols = temp]
 
 temp <- NULL
 
-
+dt.col.types
 ####
 # Multiple operations per row. Reshape to long format ----
 ####
@@ -126,14 +126,46 @@ for (x in paste0(procedures,"_date_admitted")) { dt[is.na(dereg_date) | x <= der
 dt <- dt[keep == T,]
 lapply(paste0(procedures,"_date_admitted"), function(x) dt[is.finite(get(x)),.N]) # Check numbers in log
 
-
+dt.col.types
 
 #### Last 7 month update data
+dt.Abdo <- data.table::fread(here::here('output',
+                                        paste0('input_Abdominal.csv')),
+                             colClasses = unlist(dt.col.types))[region !='',]
+summary(dt.Abdo)
 
-dt.update <-rbindlist(lapply(procedures, 
-                             function(x) data.table::fread(here::here('output',
-                                                                      paste0('input_',x,'.csv')),
-                                                           colClasses = unlist(dt.col.types))[region !='',]), fill=TRUE) 
+dt.Cardiac <- data.table::fread(here::here('output',
+                                        paste0('input_Cardiac.csv')),
+                             colClasses = unlist(dt.col.types))[region !='',]
+summary(dt.Cardiac)
+
+dt.Obstetrics<- data.table::fread(here::here('output',
+                                        paste0('input_Obstetrics.csv')),
+                             colClasses = unlist(dt.col.types))[region !='',]
+summary(dt.Obstetrics)
+
+dt.Orthopaedic <- data.table::fread(here::here('output',
+                                        paste0('input_Orthopaedic.csv')),
+                             colClasses = unlist(dt.col.types))[region !='',]
+summary(dt.Orthopaedic)
+
+dt.Thoracic <- data.table::fread(here::here('output',
+                                        paste0('input_Thoracic.csv')),
+                             colClasses = unlist(dt.col.types))[region !='',]
+summary(dt.Thoracic)
+
+dt.Vascular <- data.table::fread(here::here('output',
+                                        paste0('input_Vascular.csv')),
+                             colClasses = unlist(dt.col.types))[region !='',]
+summary(dt.Vascular)
+
+dt.update <-rbindlist(list(dt.Abdo,
+                           dt.Cardiac,
+                           dt.Obstetrics,
+                           dt.Orthopaedic,
+                           dt.Thoracic,
+                           dt.Vascular), fill=TRUE) 
+
 data.table::setkey(dt,patient_id)
 data.table::setkey(dt.update,patient_id)
 
@@ -146,7 +178,7 @@ dt.update[, imd5 := cut(imd, breaks = seq(-1,33000,33000/5),  include.lowest = T
 op.admit.vars <- sort(paste0(outer(procedures,paste0("_",1:5),paste0),'_date_admitted'))
 op.discharge.vars <- sort(paste0(outer(procedures,paste0("_",1:5),paste0),'_date_discharged'))
 for (i in 1:length(op.admit.vars)) {
-  dt.update[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i])) > last_date,
+  dt.update[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i])) > data.table::as.IDate('2022-10-01'),
             (names(dt.update)[grepl(pattern = paste0(gsub(x =op.admit.vars[i],
                                                           pattern = '_date_admitted',
                                                           replacement = ""),'*'),
