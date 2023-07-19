@@ -18,18 +18,23 @@ procs <- paste0(rep(procedures,each = 5),"_",1:5)
 dt <- data.table::fread(here::here("output", "input.csv"))
 
 dt.COD <- data.table::fread(here::here("output", "input_COD.csv"))
+
+for(p in procs) {
+  assign(x = p,
+         value = data.table::fread(here::here('output',
+                               paste0('input_',p,'.csv')))[region !='',][, c('date_admitted','date_discharged',
+                                                                           'dob','bmi_date_measured',
+                                                                           'date_death_ons',
+                                                                           'date_death_cpns',
+                                                                           'age','region','sex',
+                                                                           'bmi','imd','died') := NULL])
+}
+
 dt.update <- Reduce(function(...) {
   merge(..., by = c('patient_id'), all = T)
-},lapply(procs, 
-         function(x) data.table::fread(here::here('output',
-                                                  paste0('input_',x,'.csv')))[region !='',][, #,(paste0(x,'_date_admitted')) := date_admitted][,
-                                                                               #                                               (paste0(x,'_date_discharged')) := date_discharged][
-                                                                                                                                              c('date_admitted','date_discharged',
-                                                                                                                                                'dob','bmi_date_measured',
-                                                                                                                                                'date_death_ons',
-                                                                                                                                                'date_death_cpns',
-                                                                                                                                                'age','region','sex',
-                                                                                                                                                'bmi','imd','died') := NULL]))
+}, lapply(procs,get))
+
+
 data.table::setkey(dt,patient_id)
 data.table::setkey(dt.update,patient_id)
  
