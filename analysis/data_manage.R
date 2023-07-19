@@ -5,8 +5,8 @@
 # setwd("P:\\GitHub\\PostOpCovid")
 # library(here)
 library(data.table)
-ncores <- parallel::detectCores(logical = T)
-data.table::setDTthreads(ncores)
+#ncores <- parallel::detectCores(logical = T)
+#data.table::setDTthreads(ncores)
 source(here::here("analysis","Utils.R"))
 
 index_date <- data.table::as.IDate("2020-02-01")
@@ -20,14 +20,18 @@ dt <- data.table::fread(here::here("output", "input.csv"))
 dt.COD <- data.table::fread(here::here("output", "input_COD.csv"))
 
 for(p in procs) {
+  temp <- data.table::fread(here::here('output',
+                                       paste0('input_',p,'.csv')), verbose = T)
+  temp <- temp[region !='',]
+  temp[, c('date_admitted','date_discharged',
+                   'dob','bmi_date_measured',
+                   'date_death_ons',
+                   'date_death_cpns',
+                   'age','region','sex',
+                   'bmi','imd','died') := NULL]
   assign(x = p,
-         value = data.table::fread(here::here('output',
-                               paste0('input_',p,'.csv')))[region !='',][, c('date_admitted','date_discharged',
-                                                                           'dob','bmi_date_measured',
-                                                                           'date_death_ons',
-                                                                           'date_death_cpns',
-                                                                           'age','region','sex',
-                                                                           'bmi','imd','died') := NULL])
+         value = temp)
+  rm(temp)
 }
 
 dt.update <- Reduce(function(...) {
@@ -42,8 +46,9 @@ update.names <- names(dt.update)[-(names(dt.update) == 'patient_id')]
 dt[dt.update, on=.(patient_id), (update.names) := lapply(update.names, function(x) get(paste0('i.',x))) ]
 rm(dt.update)
 
-for( x in procs) print(summary(tryCatch(data.table::fread(here::here('output',  paste0('input_',x,'_majorminor.csv'))),
-error = function(e) EVAL(paste0("dt[,.('patient_id' = patient_id,'", x,"_Major_HES_binary_flag'  = NA)]")))))
+#for( x in procs) print(summary(tryCatch(data.table::fread(here::here('output',  paste0('input_',x,'_majorminor.csv'))),
+#error = function(e) EVAL(paste0("dt[,.('patient_id' = patient_id,'", x,"_Major_HES_binary_flag'  = NA)]")))))
+
 
 dt.major <- Reduce(function(...) {
   merge(..., by = c('patient_id'), all = T)
@@ -96,7 +101,7 @@ dt.col.types <- dt[,sapply(.SD, typeof),.SDcols = temp]
 
 temp <- NULL
 
-dt.col.types
+#dt.col.types
 ####
 # Multiple operations per row. Reshape to long format ----
 ####
