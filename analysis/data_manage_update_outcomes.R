@@ -12,8 +12,8 @@ procs <- paste0(rep(procedures,each = 5),"_",1:5)
 
 dt.update.outcomes <- Reduce(function(...) {
   merge(..., by = c('patient_id'), all = T)
-}, lapply(procs, function(x) data.table::fread(here::here('output',
-                                                          paste0('input_',x,'.csv')))[region !='',][, c('date_admitted','date_discharged',
+}, lapply(procs, function(x) data.table::fread(file = here::here('output',
+                                                          paste0('input_',x,'.csv')),verbose = T)[region !='',][, c('date_admitted','date_discharged',
                                                                                                         'dob','bmi_date_measured',
                                                                                                         'date_death_ons',
                                                                                                         'date_death_cpns',
@@ -29,8 +29,8 @@ rm(dt.update.outcomes)
 dt.major <- Reduce(function(...) {
   merge(..., by = c('patient_id'), all = T)
 },lapply(procs,
-         function(x) tryCatch(data.table::fread(here::here('output',
-                                                  paste0('input_',x,'_majorminor.csv')))[,
+         function(x) tryCatch(data.table::fread(file = here::here('output',
+                                                  paste0('input_',x,'_majorminor.csv')),verbose = T)[,
                                                   c('date_admitted','date_discharged') := NULL],
                                                   error = function(e) EVAL(paste0("dt[,.('patient_id' = patient_id,'",x,"_Major_HES_binary_flag'  = NA)]")))
                                                   ))
