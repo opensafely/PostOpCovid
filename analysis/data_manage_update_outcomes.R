@@ -13,12 +13,12 @@ procs <- paste0(rep(procedures,each = 5),"_",1:5)
 dt.update.outcomes <- Reduce(function(...) {
   merge(..., by = c('patient_id'), all = T)
 }, lapply(procs, function(x) data.table::fread(file = here::here('output',
-                                                          paste0('input_',x,'.csv')),verbose = T)[region !='',][, c('date_admitted','date_discharged',
-                                                                                                        'dob','bmi_date_measured',
-                                                                                                        'date_death_ons',
-                                                                                                        'date_death_cpns',
-                                                                                                        'age','region','sex',
-                                                                                                        'bmi','imd','died') := NULL]))
+                                                          paste0('input_',x,'.csv')),
+                                               drop = c('date_admitted','date_discharged','dob','bmi_date_measured',
+                                                        'date_death_ons',
+                                                        'date_death_cpns',
+                                                        'age','sex',
+                                                        'bmi','imd','died'))[region !='',][,region := NULL]))
 
 
 data.table::setkey(dt.update.outcomes,patient_id)
