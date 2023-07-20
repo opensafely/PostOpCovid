@@ -3,7 +3,9 @@
 # library(here)
 # detach("package:here", unload = TRUE)
 # setwd("P:\\GitHub\\PostOpCovid")
-# library(here)
+# 
+
+library(here)
 library(data.table)
 ncores <- parallel::detectCores(logical = T)
 data.table::setDTthreads(ncores)
@@ -16,7 +18,7 @@ last_date <- data.table::as.IDate("2022-03-01")
 
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
 procs <- paste0(rep(procedures,each = 5),"_",1:5)
-arrow::read_feather(here::here("output","update_outcomes.feather"))
+dt.update <- arrow::read_feather( here::here("output","update_outcomes.feather"))
 update.names <- names(dt.update)[-(names(dt.update) == 'patient_id')]
 
 dt <- fread(here::here('output','input.csv'))
@@ -27,16 +29,17 @@ rm(dt.update)
 #for( x in procs) print(summary(tryCatch(data.table::fread(here::here('output',  paste0('input_',x,'_majorminor.csv'))),
 #error = function(e) EVAL(paste0("dt[,.('patient_id' = patient_id,'", x,"_Major_HES_binary_flag'  = NA)]")))))
 
-arrow::read_feather(here::here("output","update_major.feather"))
+dt.major <- arrow::read_feather(here::here("output","update_major.feather"))
 update.names <- names(dt.major)[-(names(dt.major) == 'patient_id')]
 dt[dt.major, on=.(patient_id), (update.names) := lapply(update.names, function(x) get(paste0('i.',x))) ]
 rm(dt.major)
 
 data.table::setkey(dt,patient_id)
+
+dt.COD <- fread(file = here::here('output','input_COD.csv'))
 data.table::setkey(dt.COD,patient_id)
-
 dt <- dt.COD[,.(patient_id, death_underlying_cause_ons)][dt[region!=''],]
-
+rm(dt.COD)
 ####
 
 
