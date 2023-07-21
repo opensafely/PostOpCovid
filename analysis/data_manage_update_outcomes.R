@@ -71,7 +71,7 @@ dt.Abdo[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols 
 op.admit.vars <- sort(paste0(outer(procedures[1],paste0("_",1:5),paste0),'_date_admitted'))
 op.discharge.vars <- sort(paste0(outer(procedures[1],paste0("_",1:5),paste0),'_date_discharged'))
 for (i in 1:length(op.admit.vars)) {
-  dt.Abdo[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i])) > data.table::as.IDate('2022-10-01'),
+  dt.Abdo[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i]), format = "%Y-%m-%d") > data.table::as.IDate('2022-10-01', format = "%Y-%m-%d"),
           (names(dt.Abdo)[grepl(pattern = paste0(gsub(x =op.admit.vars[i],
                                                       pattern = '_date_admitted',
                                                       replacement = ""),'*'),
@@ -123,7 +123,7 @@ op.admit.vars <- sort(paste0(outer(procedures[2],paste0("_",1:5),paste0),'_date_
 op.discharge.vars <- sort(paste0(outer(procedures[2],paste0("_",1:5),paste0),'_date_discharged'))
 
 for (i in 1:length(op.admit.vars)) {
-  dt.Cardiac[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i])) > data.table::as.IDate('2022-10-01'),
+  dt.Cardiac[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i]), format = "%Y-%m-%d") > data.table::as.IDate('2022-10-01'),
              (names(dt.Cardiac)[grepl(pattern = paste0(gsub(x =op.admit.vars[i],
                                                             pattern = '_date_admitted',
                                                             replacement = ""),'*'),
@@ -171,7 +171,7 @@ op.admit.vars <- sort(paste0(outer(procedures[3],paste0("_",1:5),paste0),'_date_
 op.discharge.vars <- sort(paste0(outer(procedures[3],paste0("_",1:5),paste0),'_date_discharged'))
 
 for (i in 1:length(op.admit.vars)) {
-  dt.Obstetrics[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i])) > data.table::as.IDate('2022-10-01'),
+  dt.Obstetrics[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i]), format = "%Y-%m-%d") > data.table::as.IDate('2022-10-01', format = "%Y-%m-%d"),
                 (names(dt.Obstetrics)[grepl(pattern = paste0(gsub(x =op.admit.vars[i],
                                                                   pattern = '_date_admitted',
                                                                   replacement = ""),'*'),
@@ -220,7 +220,7 @@ op.admit.vars <- sort(paste0(outer(procedures[4],paste0("_",1:5),paste0),'_date_
 op.discharge.vars <- sort(paste0(outer(procedures[4],paste0("_",1:5),paste0),'_date_discharged'))
 
 for (i in 1:length(op.admit.vars)) {
-  dt.Orthopaedic[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i])) > data.table::as.IDate('2022-10-01'),
+  dt.Orthopaedic[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i]), format = "%Y-%m-%d") > data.table::as.IDate('2022-10-01', format = "%Y-%m-%d"),
                  (names(dt.Orthopaedic)[grepl(pattern = paste0(gsub(x =op.admit.vars[i],
                                                                     pattern = '_date_admitted',
                                                                     replacement = ""),'*'),
@@ -269,7 +269,7 @@ op.admit.vars <- sort(paste0(outer(procedures[5],paste0("_",1:5),paste0),'_date_
 op.discharge.vars <- sort(paste0(outer(procedures[5],paste0("_",1:5),paste0),'_date_discharged'))
 
 for (i in 1:length(op.admit.vars)) {
-  dt.Thoracic[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i])) > data.table::as.IDate('2022-10-01'),
+  dt.Thoracic[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i]), format = "%Y-%m-%d") > data.table::as.IDate('2022-10-01', format = "%Y-%m-%d"),
               (names(dt.Thoracic)[grepl(pattern = paste0(gsub(x =op.admit.vars[i],
                                                               pattern = '_date_admitted',
                                                               replacement = ""),'*'),
@@ -318,7 +318,7 @@ op.admit.vars <- sort(paste0(outer(procedures[6],paste0("_",1:5),paste0),'_date_
 op.discharge.vars <- sort(paste0(outer(procedures[6],paste0("_",1:5),paste0),'_date_discharged'))
 
 for (i in 1:length(op.admit.vars)) {
-  dt.Vascular[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i])) > data.table::as.IDate('2022-10-01'),
+  dt.Vascular[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i]), format = "%Y-%m-%d") > data.table::as.IDate('2022-10-01', format = "%Y-%m-%d"),
               (names(dt.Vascular)[grepl(pattern = paste0(gsub(x =op.admit.vars[i],
                                                               pattern = '_date_admitted',
                                                               replacement = ""),'*'),
@@ -367,8 +367,8 @@ rm(dt.Abdo,
    dt.Thoracic,
    dt.Vascular)
 
-dt.update[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
-dt.update[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
+dt.update[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15'), format = "%Y-%m-%d"))]
+dt.update[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'), format = "%Y-%m-%d")]
 dt.update[, imd := as.numeric(imd)]
 dt.update[, imd5 := cut(imd, breaks = seq(-1,33000,33000/5),  include.lowest = T, ordered_result = F)]
 
@@ -378,14 +378,14 @@ data.table::setkey(dt.update,patient_id)
 
 dt.update[, keep := F]
 dt.update[!is.na(dereg_date), dereg_date := data.table::as.IDate(paste0(dereg_date,"-30"), format = "%Y-%m-%d")]
-for (x in paste0(procedures,"_date_admitted")) { dt.update[is.na(dereg_date) | x <= dereg_date, keep := T] }
+for (x in paste0(procedures,"_date_admitted")) { dt.update[is.na(dereg_date) | get(x) <= dereg_date, keep := T] }
 dt.update <- dt.update[keep == T,]
 
 rm(aggregate_operations)
 
-all.days <- names(dt.update)[sapply(dt.update, function(x) inherits(x, 'Date') )]
-dt.update[,(all.days) := lapply(.SD, as.IDate),.SDcols = all.days]
+all.dates <- names(dt.update)[sapply(dt.update, function(x) inherits(x, 'Date') )]
+dt.update[,(all.dates) := lapply(.SD, as.IDate, format = "%Y-%m-%d"),.SDcols = all.dates]
 
 data.table::setkey(dt.update,patient_id)
-
+summary(dt.update)
 arrow::write_feather(dt.update, sink = here::here("output","update_Sep22.feather"))
