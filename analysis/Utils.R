@@ -320,7 +320,7 @@ nocb.roll_ <- function(dt, ID, start.DTTM, group, var.cols) {
 #'
 del_rows <- function(X,delete) {
 
-	keep <- -delete
+	keep <- !delete
 	name_of_X <- deparse(substitute(X))
 	X_names <- copy(names(X))
 	X_new <- X[keep,X_names[1L],with=F]

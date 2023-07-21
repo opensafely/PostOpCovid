@@ -10,31 +10,44 @@ last_date <- data.table::as.IDate("2022-03-01")
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
 procs <- paste0(rep(procedures,each = 5),"_",1:5)
 
-dt.update.outcomes <- Reduce(function(...) {
-  merge(..., by = c('patient_id'), all = T)
-}, lapply(procs, function(x) data.table::fread(file = here::here('output',
-                                                          paste0('input_',x,'.csv')),
-                                               drop = c('date_admitted','date_discharged','dob','bmi_date_measured',
-                                                        'date_death_ons',
-                                                        'date_death_cpns',
-                                                        'age','sex',
-                                                        'bmi','imd','died'))[region !='',][,region := NULL]))
-
+dt.update.outcomes <- 
+  Reduce(function(...) {
+    merge(..., by = c('patient_id'), all = T)}, Filter(Negate(is.null),lapply(procs, function(p) {
+      temp <- read.csv(file = here::here('output',
+                                         paste0('input_',p,'.csv')),header = T,sep = ',',fill = T)
+      data.table::setDT(temp)
+      temp[,c('date_admitted','date_discharged','dob','bmi_date_measured',
+              'date_death_ons',
+              'date_death_cpns',
+              'age','sex',
+              'bmi','imd','died'):= NULL]
+      temp <- temp[region !='',]
+      temp[,region := NULL]
+      date.cols <- names(temp)[grepl('date',names(temp),ignore.case = T)]
+      temp[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols = date.cols]
+      return(temp)
+      rm(temp)  
+    })) 
+   )
 
 data.table::setkey(dt.update.outcomes,patient_id)
 arrow::write_feather(dt.update.outcomes, sink = here::here("output","update_outcomes.feather"))
 dt <- data.table('patient_id' = dt.update.outcomes[,patient_id])
 rm(dt.update.outcomes)
 
-dt.major <- Reduce(function(...) {
-  merge(..., by = c('patient_id'), all = T)
-},lapply(procs,
-         function(x) tryCatch(data.table::fread(file = here::here('output',
-                                                  paste0('input_',x,'_majorminor.csv')),verbose = T)[,
-                                                  c('date_admitted','date_discharged') := NULL],
-                                                  error = function(e) EVAL(paste0("dt[,.('patient_id' = patient_id,'",x,"_Major_HES_binary_flag'  = NA)]")))
-                                                  ))
 
+dt.major <- 
+  Reduce(function(...) {
+    merge(..., by = c('patient_id'), all = T)}, Filter(Negate(is.null),lapply(procs, function(p) {
+      temp <- tryCatch(read.csv(file = here::here('output',
+                       paste0('input_',p,'_majorminor.csv')),header = T,sep = ',',fill = T),
+                       error = function(e) EVAL(paste0("dt[,.('patient_id' = patient_id,'",p,"_Major_HES_binary_flag'  = NA,date_admitted = NA, date_discharged = NA)]")))
+      data.table::setDT(temp)
+      temp[,c('date_admitted','date_discharged'):= NULL]
+      return(temp)
+      rm(temp)  
+    })) 
+  )
 
 data.table::setkey(dt.major,patient_id)
 
@@ -45,8 +58,14 @@ procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Va
 procs <- paste0(rep(procedures,each = 5),"_",1:5)
 
 #### Abdomen
-dt.Abdo <- data.table::fread(file = here::here('output',
-                                        paste0('input_Abdominal.csv')))[region !='',]
+dt.Abdo <- read.csv(file = here::here('output',
+                                        paste0('input_Abdominal.csv')),header = T,sep = ',',fill = T)
+data.table::setDT(dt.Abdo)
+dt.Abdo <- dt.Abdo[region !='',]
+dt.Abdo[,region := NULL]
+
+date.cols <- names(dt.Abdo)[grepl('date',names(dt.Abdo),ignore.case = T)]
+dt.Abdo[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols = date.cols]
 
 ## Clean invalid admission sequences ----
 op.admit.vars <- sort(paste0(outer(procedures[1],paste0("_",1:5),paste0),'_date_admitted'))
@@ -89,8 +108,15 @@ dt.baseline <- Reduce(function(x, y){merge(x, y, by = "patient_id", all = T)},
 dt.Abdo <- dt.baseline[aggregate_operations, on = "patient_id"]
 
 #### Cardiac
-dt.Cardiac <- data.table::fread(here::here('output',
-                                           paste0('input_Cardiac.csv')))[region !='',]
+dt.Cardiac <- read.csv(here::here('output',
+                                           paste0('input_Cardiac.csv')),header = T,sep = ',',fill = T)
+data.table::setDT(dt.Cardiac)
+dt.Cardiac <- dt.Cardiac[region !='',]
+dt.Cardiac[,region := NULL]
+
+date.cols <- names(dt.Cardiac)[grepl('date',names(dt.Cardiac),ignore.case = T)]
+dt.Cardiac[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols = date.cols]
+
 
 ## Clean invalid admission sequences ----
 op.admit.vars <- sort(paste0(outer(procedures[2],paste0("_",1:5),paste0),'_date_admitted'))
@@ -131,8 +157,14 @@ dt.baseline <- Reduce(function(x, y){merge(x, y, by = "patient_id", all = T)},
 dt.Cardiac <- dt.baseline[aggregate_operations, on = "patient_id"]
 
 #### Obstetrics
-dt.Obstetrics<- data.table::fread(here::here('output',
-                                             paste0('input_Obstetrics.csv')))[region !='',]
+dt.Obstetrics<- read.csv(here::here('output',
+                                             paste0('input_Obstetrics.csv')),header = T,sep = ',',fill = T)
+data.table::setDT(dt.Obstetrics)
+dt.Obstetrics <- dt.Obstetrics[region !='',]
+dt.Obstetrics[,region := NULL]
+
+date.cols <- names(dt.Obstetrics)[grepl('date',names(dt.Obstetrics),ignore.case = T)]
+dt.Obstetrics[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols = date.cols]
 
 ## Clean invalid admission sequences ----
 op.admit.vars <- sort(paste0(outer(procedures[3],paste0("_",1:5),paste0),'_date_admitted'))
@@ -173,8 +205,15 @@ dt.baseline <- Reduce(function(x, y){merge(x, y, by = "patient_id", all = T)},
 dt.Obstetrics <- dt.baseline[aggregate_operations, on = "patient_id"]
 
 #### Orthopaedic
-dt.Orthopaedic <- data.table::fread(here::here('output',
-                                               paste0('input_Orthopaedic.csv')))[region !='',]
+dt.Orthopaedic <- read.csv(here::here('output',
+                                               paste0('input_Orthopaedic.csv')),header = T,sep = ',',fill = T)
+data.table::setDT(dt.Orthopaedic)
+dt.Orthopaedic <- dt.Orthopaedic[region !='',]
+dt.Orthopaedic[,region := NULL]
+
+date.cols <- names(dt.Orthopaedic)[grepl('date',names(dt.Orthopaedic),ignore.case = T)]
+dt.Orthopaedic[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols = date.cols]
+
 
 ## Clean invalid admission sequences ----
 op.admit.vars <- sort(paste0(outer(procedures[4],paste0("_",1:5),paste0),'_date_admitted'))
@@ -215,8 +254,15 @@ dt.baseline <- Reduce(function(x, y){merge(x, y, by = "patient_id", all = T)},
 dt.Orthopaedic <- dt.baseline[aggregate_operations, on = "patient_id"]
 
 #### Thoracic
-dt.Thoracic <- data.table::fread(here::here('output',
-                                            paste0('input_Thoracic.csv')))[region !='',]
+dt.Thoracic <- read.csv(here::here('output',
+                                            paste0('input_Thoracic.csv')),header = T,sep = ',',fill = T)
+data.table::setDT(dt.Thoracic)
+dt.Thoracic <- dt.Thoracic[region !='',]
+dt.Thoracic[,region := NULL]
+
+date.cols <- names(dt.Thoracic)[grepl('date',names(dt.Thoracic),ignore.case = T)]
+dt.Thoracic[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols = date.cols]
+
 
 ## Clean invalid admission sequences ----
 op.admit.vars <- sort(paste0(outer(procedures[5],paste0("_",1:5),paste0),'_date_admitted'))
@@ -257,8 +303,15 @@ dt.baseline <- Reduce(function(x, y){merge(x, y, by = "patient_id", all = T)},
 dt.Thoracic <- dt.baseline[aggregate_operations, on = "patient_id"]
 
 #### Vascular
-dt.Vascular <- data.table::fread(here::here('output',
-                                            paste0('input_Vascular.csv')))[region !='',]
+dt.Vascular <- read.csv(here::here('output',
+                                            paste0('input_Vascular.csv')),header = T,sep = ',',fill = T)
+data.table::setDT(dt.Vascular)
+dt.Vascular <- dt.Vascular[region !='',]
+dt.Vascular[,region := NULL]
+
+date.cols <- names(dt.Vascular)[grepl('date',names(dt.Vascular),ignore.case = T)]
+dt.Vascular[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols = date.cols]
+
 
 ## Clean invalid admission sequences ----
 op.admit.vars <- sort(paste0(outer(procedures[6],paste0("_",1:5),paste0),'_date_admitted'))
