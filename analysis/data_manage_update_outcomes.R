@@ -101,7 +101,7 @@ vars_doub <- names(dt.Abdo[,non.op.vars,with = F])[sapply(dt.Abdo[,non.op.vars,w
 
 dt.baseline <- Reduce(function(x, y){merge(x, y, by = "patient_id", all = T)}, 
                       list(dcast(melt(dt.Abdo, id.vars = 'patient_id',measure.vars = vars_char)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
-                           dcast(melt(dt.Abdo, id.vars = 'patient_id',measure.vars = vars_date)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
+                           dcast(melt(dt.Abdo, id.vars = 'patient_id',measure.vars = vars_date)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable, drop = c(T,F)),
                            dcast(melt(dt.Abdo, id.vars = 'patient_id',measure.vars = vars_int)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
                            dcast(melt(dt.Abdo, id.vars = 'patient_id',measure.vars = vars_doub)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable)))
 
@@ -150,7 +150,7 @@ vars_doub <- names(dt.Cardiac[,non.op.vars,with = F])[sapply(dt.Cardiac[,non.op.
 
 dt.baseline <- Reduce(function(x, y){merge(x, y, by = "patient_id", all = T)}, 
                       list(dcast(melt(dt.Cardiac, id.vars = 'patient_id',measure.vars = vars_char)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
-                           dcast(melt(dt.Cardiac, id.vars = 'patient_id',measure.vars = vars_date)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
+                           dcast(melt(dt.Cardiac, id.vars = 'patient_id',measure.vars = vars_date)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable, drop = c(T,F)),
                            dcast(melt(dt.Cardiac, id.vars = 'patient_id',measure.vars = vars_int)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
                            dcast(melt(dt.Cardiac, id.vars = 'patient_id',measure.vars = vars_doub)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable)))
 
@@ -198,7 +198,7 @@ vars_doub <- names(dt.Obstetrics[,non.op.vars,with = F])[sapply(dt.Obstetrics[,n
 
 dt.baseline <- Reduce(function(x, y){merge(x, y, by = "patient_id", all = T)}, 
                       list(dcast(melt(dt.Obstetrics, id.vars = 'patient_id',measure.vars = vars_char)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
-                           dcast(melt(dt.Obstetrics, id.vars = 'patient_id',measure.vars = vars_date)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
+                           dcast(melt(dt.Obstetrics, id.vars = 'patient_id',measure.vars = vars_date)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable, drop = c(T,F)),
                            dcast(melt(dt.Obstetrics, id.vars = 'patient_id',measure.vars = vars_int)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
                            dcast(melt(dt.Obstetrics, id.vars = 'patient_id',measure.vars = vars_doub)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable)))
 
@@ -247,7 +247,7 @@ vars_doub <- names(dt.Orthopaedic[,non.op.vars,with = F])[sapply(dt.Orthopaedic[
 
 dt.baseline <- Reduce(function(x, y){merge(x, y, by = "patient_id", all = T)}, 
                       list(dcast(melt(dt.Orthopaedic, id.vars = 'patient_id',measure.vars = vars_char)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
-                           dcast(melt(dt.Orthopaedic, id.vars = 'patient_id',measure.vars = vars_date)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
+                           dcast(melt(dt.Orthopaedic, id.vars = 'patient_id',measure.vars = vars_date)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable, drop = c(T,F)),
                            dcast(melt(dt.Orthopaedic, id.vars = 'patient_id',measure.vars = vars_int)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
                            dcast(melt(dt.Orthopaedic, id.vars = 'patient_id',measure.vars = vars_doub)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable)))
 
@@ -296,7 +296,7 @@ vars_doub <- names(dt.Thoracic[,non.op.vars,with = F])[sapply(dt.Thoracic[,non.o
 
 dt.baseline <- Reduce(function(x, y){merge(x, y, by = "patient_id", all = T)}, 
                       list(dcast(melt(dt.Thoracic, id.vars = 'patient_id',measure.vars = vars_char)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
-                           dcast(melt(dt.Thoracic, id.vars = 'patient_id',measure.vars = vars_date)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
+                           dcast(melt(dt.Thoracic, id.vars = 'patient_id',measure.vars = vars_date)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable, drop = c(T,F)),
                            dcast(melt(dt.Thoracic, id.vars = 'patient_id',measure.vars = vars_int)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
                            dcast(melt(dt.Thoracic, id.vars = 'patient_id',measure.vars = vars_doub)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable)))
 
@@ -347,7 +347,7 @@ vars_doub <- names(dt.Vascular[,non.op.vars,with = F])[sapply(dt.Vascular[,non.o
 
 dt.baseline <- Reduce(function(x, y){merge(x, y, by = "patient_id", all = T)}, 
                       list(dcast(melt(dt.Vascular, id.vars = 'patient_id',measure.vars = vars_char)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
-                           dcast(melt(dt.Vascular, id.vars = 'patient_id',measure.vars = vars_date)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
+                           dcast(melt(dt.Vascular, id.vars = 'patient_id',measure.vars = vars_date)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable, drop = c(T,F)),
                            dcast(melt(dt.Vascular, id.vars = 'patient_id',measure.vars = vars_int)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable),
                            dcast(melt(dt.Vascular, id.vars = 'patient_id',measure.vars = vars_doub)[!is.na(value), .SD[1], by = .(patient_id, variable)], patient_id ~ variable)))
 
