@@ -5,7 +5,6 @@ data.table::setDTthreads(ncores)
 source(here::here("analysis","Utils.R"))
 
 index_date <- data.table::as.IDate("2020-02-01")
-last_date <- data.table::as.IDate("2022-03-01")
 
 procedures <- c('Abdominal','Cardiac','Obstetrics','Orthopaedic','Thoracic', 'Vascular')
 procs <- paste0(rep(procedures,each = 5),"_",1:5)
@@ -62,9 +61,16 @@ dt.Abdo <- read.csv(file = here::here('output',
                                         paste0('input_Abdominal.csv')),header = T,sep = ',',fill = T)
 data.table::setDT(dt.Abdo)
 dt.Abdo <- dt.Abdo[region !='',]
-dt.Abdo[,region := NULL]
-
-date.cols <- names(dt.Abdo)[grepl('date',names(dt.Abdo),ignore.case = T)]
+dt.Abdo[,bmi_date <- bmi_date_measured]
+dt.Abdo[!is.na(bmi_date_measured) & bmi_date_measured != "",
+        bmi_date_measured2 := data.table::as.IDate(paste0(bmi_date_measured,'-15'),'%Y-%m-%d')]
+dt.Abdo[!is.na(dereg_date) & dereg_date != "",
+           gp.end := data.table::as.IDate(paste0(dereg_date,'-15'),'%Y-%m-%d')]
+dt.Abdo[!is.na(dereg_date) & dereg_date!="", 
+           dereg_date2 := data.table::as.IDate(paste0(dereg_date,"-30"),'%Y-%m-%d')]
+dt.Abdo[,`:=`(dereg_date = dereg_date2,bmi_date_measured = bmi_date_measured2)]
+dt.Abdo[,c('dereg_date2','bmi_date_measured2') := NULL]
+date.cols <- names(dt.Abdo)[grepl('date',names(dt.Abdo),ignore.case = T) & !(names(dt.Abdo) %in% c('dereg_date', 'bmi_date_measured'))]
 dt.Abdo[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols = date.cols]
 
 ## Clean invalid admission sequences ----
@@ -112,9 +118,16 @@ dt.Cardiac <- read.csv(here::here('output',
                                            paste0('input_Cardiac.csv')),header = T,sep = ',',fill = T)
 data.table::setDT(dt.Cardiac)
 dt.Cardiac <- dt.Cardiac[region !='',]
-dt.Cardiac[,region := NULL]
 
-date.cols <- names(dt.Cardiac)[grepl('date',names(dt.Cardiac),ignore.case = T)]
+dt.Cardiac[!is.na(bmi_date_measured) & bmi_date_measured != "",
+              bmi_date_measured2 := data.table::as.IDate(paste0(bmi_date_measured,'-15'),'%Y-%m-%d')]
+dt.Cardiac[!is.na(dereg_date) & dereg_date != "",
+              gp.end := data.table::as.IDate(paste0(dereg_date,'-15'),'%Y-%m-%d')]
+dt.Cardiac[!is.na(dereg_date) & dereg_date!="", 
+              dereg_date2 := data.table::as.IDate(paste0(dereg_date,"-30"),'%Y-%m-%d')]
+dt.Cardiac[,`:=`(dereg_date = dereg_date2,bmi_date_measured = bmi_date_measured2)]
+dt.Cardiac[,c('dereg_date2','bmi_date_measured2') := NULL]
+date.cols <- names(dt.Cardiac)[grepl('date',names(dt.Cardiac),ignore.case = T) & !(names(dt.Cardiac) %in% c('dereg_date', 'bmi_date_measured'))]
 dt.Cardiac[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols = date.cols]
 
 
@@ -123,7 +136,7 @@ op.admit.vars <- sort(paste0(outer(procedures[2],paste0("_",1:5),paste0),'_date_
 op.discharge.vars <- sort(paste0(outer(procedures[2],paste0("_",1:5),paste0),'_date_discharged'))
 
 for (i in 1:length(op.admit.vars)) {
-  dt.Cardiac[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i]), format = "%Y-%m-%d") > data.table::as.IDate('2022-10-01'),
+  dt.Cardiac[get(op.admit.vars[i])>get(op.discharge.vars[i]) | data.table::as.IDate(get(op.admit.vars[i]), format = "%Y-%m-%d") > data.table::as.IDate('2022-10-01', format = "%Y-%m-%d"),
              (names(dt.Cardiac)[grepl(pattern = paste0(gsub(x =op.admit.vars[i],
                                                             pattern = '_date_admitted',
                                                             replacement = ""),'*'),
@@ -161,9 +174,17 @@ dt.Obstetrics<- read.csv(here::here('output',
                                              paste0('input_Obstetrics.csv')),header = T,sep = ',',fill = T)
 data.table::setDT(dt.Obstetrics)
 dt.Obstetrics <- dt.Obstetrics[region !='',]
-dt.Obstetrics[,region := NULL]
 
-date.cols <- names(dt.Obstetrics)[grepl('date',names(dt.Obstetrics),ignore.case = T)]
+dt.Obstetrics[!is.na(bmi_date_measured) & bmi_date_measured != "",
+               bmi_date_measured2 := data.table::as.IDate(paste0(bmi_date_measured,'-15'),'%Y-%m-%d')]
+dt.Obstetrics[!is.na(dereg_date) & dereg_date != "",
+               gp.end := data.table::as.IDate(paste0(dereg_date,'-15'),'%Y-%m-%d')]
+dt.Obstetrics[!is.na(dereg_date) & dereg_date!="", 
+               dereg_date2 := data.table::as.IDate(paste0(dereg_date,"-30"),'%Y-%m-%d')]
+dt.Obstetrics[,`:=`(dereg_date = dereg_date2,bmi_date_measured = bmi_date_measured2)]
+dt.Obstetrics[,c('dereg_date2','bmi_date_measured2') := NULL]
+
+date.cols <- names(dt.Obstetrics)[grepl('date',names(dt.Obstetrics),ignore.case = T) & !(names(dt.Obstetrics) %in% c('dereg_date', 'bmi_date_measured'))]
 dt.Obstetrics[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols = date.cols]
 
 ## Clean invalid admission sequences ----
@@ -209,9 +230,17 @@ dt.Orthopaedic <- read.csv(here::here('output',
                                                paste0('input_Orthopaedic.csv')),header = T,sep = ',',fill = T)
 data.table::setDT(dt.Orthopaedic)
 dt.Orthopaedic <- dt.Orthopaedic[region !='',]
-dt.Orthopaedic[,region := NULL]
 
-date.cols <- names(dt.Orthopaedic)[grepl('date',names(dt.Orthopaedic),ignore.case = T)]
+dt.Orthopaedic[!is.na(bmi_date_measured) & bmi_date_measured != "",
+            bmi_date_measured2 := data.table::as.IDate(paste0(bmi_date_measured,'-15'),'%Y-%m-%d')]
+dt.Orthopaedic[!is.na(dereg_date) & dereg_date != "",
+            gp.end := data.table::as.IDate(paste0(dereg_date,'-15'),'%Y-%m-%d')]
+dt.Orthopaedic[!is.na(dereg_date) & dereg_date!="", 
+            dereg_date2 := data.table::as.IDate(paste0(dereg_date,"-30"),'%Y-%m-%d')]
+dt.Orthopaedic[,`:=`(dereg_date = dereg_date2,bmi_date_measured = bmi_date_measured2)]
+dt.Orthopaedic[,c('dereg_date2','bmi_date_measured2') := NULL]
+
+date.cols <- names(dt.Orthopaedic)[grepl('date',names(dt.Orthopaedic),ignore.case = T) & !(names(dt.Orthopaedic) %in% c('dereg_date', 'bmi_date_measured'))]
 dt.Orthopaedic[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols = date.cols]
 
 
@@ -258,9 +287,17 @@ dt.Thoracic <- read.csv(here::here('output',
                                             paste0('input_Thoracic.csv')),header = T,sep = ',',fill = T)
 data.table::setDT(dt.Thoracic)
 dt.Thoracic <- dt.Thoracic[region !='',]
-dt.Thoracic[,region := NULL]
 
-date.cols <- names(dt.Thoracic)[grepl('date',names(dt.Thoracic),ignore.case = T)]
+dt.Thoracic[!is.na(bmi_date_measured) & bmi_date_measured != "",
+            bmi_date_measured2 := data.table::as.IDate(paste0(bmi_date_measured,'-15'),'%Y-%m-%d')]
+dt.Thoracic[!is.na(dereg_date) & dereg_date != "",
+            gp.end := data.table::as.IDate(paste0(dereg_date,'-15'),'%Y-%m-%d')]
+dt.Thoracic[!is.na(dereg_date) & dereg_date!="", 
+            dereg_date2 := data.table::as.IDate(paste0(dereg_date,"-30"),'%Y-%m-%d')]
+dt.Thoracic[,`:=`(dereg_date = dereg_date2,bmi_date_measured = bmi_date_measured2)]
+dt.Thoracic[,c('dereg_date2','bmi_date_measured2') := NULL]
+
+date.cols <- names(dt.Thoracic)[grepl('date',names(dt.Thoracic),ignore.case = T) & !(names(dt.Thoracic) %in% c('dereg_date', 'bmi_date_measured'))]
 dt.Thoracic[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols = date.cols]
 
 
@@ -307,9 +344,18 @@ dt.Vascular <- read.csv(here::here('output',
                                             paste0('input_Vascular.csv')),header = T,sep = ',',fill = T)
 data.table::setDT(dt.Vascular)
 dt.Vascular <- dt.Vascular[region !='',]
-dt.Vascular[,region := NULL]
 
-date.cols <- names(dt.Vascular)[grepl('date',names(dt.Vascular),ignore.case = T)]
+dt.Vascular[!is.na(bmi_date_measured) & bmi_date_measured != "",
+            bmi_date_measured2 := data.table::as.IDate(paste0(bmi_date_measured,'-15'),'%Y-%m-%d')]
+dt.Vascular[!is.na(dereg_date) & dereg_date != "",
+            gp.end := data.table::as.IDate(paste0(dereg_date,'-15'),'%Y-%m-%d')]
+dt.Vascular[!is.na(dereg_date) & dereg_date!="", 
+            dereg_date2 := data.table::as.IDate(paste0(dereg_date,"-30"),'%Y-%m-%d')]
+dt.Vascular[,`:=`(dereg_date = dereg_date2,bmi_date_measured = bmi_date_measured2)]
+dt.Vascular[,c('dereg_date2','bmi_date_measured2') := NULL]
+
+date.cols <- names(dt.Vascular)[grepl('date',names(dt.Vascular),ignore.case = T) & !(names(dt.Vascular) %in% c('dereg_date', 'bmi_date_measured'))]
+
 dt.Vascular[,(date.cols) := lapply(.SD,function(x) as.IDate(x,'%Y-%m-%d')), .SDcols = date.cols]
 
 
@@ -367,8 +413,6 @@ rm(dt.Abdo,
    dt.Thoracic,
    dt.Vascular)
 
-dt.update[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15'), format = "%Y-%m-%d"))]
-dt.update[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'), format = "%Y-%m-%d")]
 dt.update[, imd := as.numeric(imd)]
 dt.update[, imd5 := cut(imd, breaks = seq(-1,33000,33000/5),  include.lowest = T, ordered_result = F)]
 
@@ -377,7 +421,6 @@ data.table::setkey(dt.update,patient_id)
 
 
 dt.update[, keep := F]
-dt.update[!is.na(dereg_date), dereg_date := data.table::as.IDate(paste0(dereg_date,"-30"), format = "%Y-%m-%d")]
 for (x in paste0(procedures,"_date_admitted")) { dt.update[is.na(dereg_date) | get(x) <= dereg_date, keep := T] }
 dt.update <- dt.update[keep == T,]
 
@@ -385,6 +428,8 @@ rm(aggregate_operations)
 
 all.dates <- names(dt.update)[sapply(dt.update, function(x) inherits(x, 'Date') )]
 dt.update[,(all.dates) := lapply(.SD, as.IDate, format = "%Y-%m-%d"),.SDcols = all.dates]
+dt.update[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15'), format = "%Y-%m-%d"))]
+dt.update[, imd5 := cut(imd, breaks = seq(-1,33000,33000/5),  include.lowest = T, ordered_result = F)]
 
 data.table::setkey(dt.update,patient_id)
 summary(dt.update)

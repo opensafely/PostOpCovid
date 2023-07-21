@@ -52,7 +52,14 @@ rm(dt.COD)
 
 
 dt[,dateofbirth := (data.table::as.IDate(paste0(dob,'-15')))]
-dt[dereg_date != "",gp.end := data.table::as.IDate(paste0(dereg_date,'-15'))]
+dt[!is.na(bmi_date_measured) & bmi_date_measured != "",
+            bmi_date_measured2 := data.table::as.IDate(paste0(bmi_date_measured,'-15'),'%Y-%m-%d')]
+dt[!is.na(dereg_date) & dereg_date != "",
+            gp.end := data.table::as.IDate(paste0(dereg_date,'-15'),'%Y-%m-%d')]
+dt[!is.na(dereg_date) & dereg_date!="", 
+            dereg_date2 := data.table::as.IDate(paste0(dereg_date,"-30"),'%Y-%m-%d')]
+dt[,`:=`(dereg_date = dereg_date2,bmi_date_measured = bmi_date_measured2)]
+dt[,c('dereg_date2','bmi_date_measured2') := NULL]
 dt[, imd := as.numeric(imd)]
 dt[, imd5 := cut(imd, breaks = seq(-1,33000,33000/5),  include.lowest = T, ordered_result = F)]
 
@@ -99,24 +106,26 @@ aggregate_operations <- data.table::melt(dt, id.var = 'patient_id',
 dt <- dt[,non.op.vars, with = F][aggregate_operations, on = "patient_id"]
 rm(aggregate_operations)
 
-
 dt[, keep := F]
-dt[!is.na(dereg_date), dereg_date := data.table::as.IDate(paste0(dereg_date,"-30"), format = "%Y-%m-%d")]
-for (x in paste0(procedures,"_date_admitted")) { dt[is.na(dereg_date) | x <= dereg_date, keep := T] }
+for (x in paste0(procedures,"_date_admitted")) { dt[is.na(dereg_date) | get(x) <= dereg_date, keep := T] }
 dt <- dt[keep == T,]
 lapply(paste0(procedures,"_date_admitted"), function(x) dt[is.finite(get(x)),.N]) # Check numbers in log
-
-dt.col.types
 
 #### Last 7 month update data
 
 dt.update <- arrow::read_feather(file = here::here("output","update_Sep22.feather"))
 
-all.dates <- names(dt.update)[sapply(dt.update, function(x) inherits(x, 'Date') )]
-dt.update[,(all.dates) := lapply(.SD, as.IDate),.SDcols = all.dates]
-dt[,(all.dates) := lapply(.SD, as.IDate),.SDcols = all.dates]
+all.dates <- unique(c(names(dt.update)[sapply(dt.update, function(x) inherits(x, 'Date') )],
+                    names(dt)[sapply(dt, function(x) inherits(x, 'Date') )]))
+dt.update[,(all.dates) := lapply(.SD, as.IDate, format = "%Y-%m-%d"),.SDcols = all.dates]
+dt[,(all.dates) := lapply(.SD, as.IDate, format = "%Y-%m-%d"),.SDcols = all.dates]
 
 dt <- rbindlist(list(dt[,names(dt.update), with = F],dt.update), use.names = T)
+setkey(dt,patient_id,first_surgery_date,op.number)
+
+
+            
+
 
 ## Waves defined from ONS reports: ----
 #https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveycharacteristicsofpeopletestingpositiveforcovid19uk/latest
@@ -229,7 +238,7 @@ min.grp.col_(dt = 'dt', min.var.name = 'min.date', aggregate.cols = c(time.cols,
 max.date.fu <- max(as.numeric(data.table::as.IDate(dt$max.date)), na.rm = T)
 
 dt[is.finite(gp.end) & max.date > gp.end, max.date := gp.end]
-dt[!is.finite(max.date), max.date := as.numeric(data.table::as.IDate('2022-03-01') + 90)]
+dt[!is.finite(max.date), max.date := as.numeric(data.table::as.IDate('2022-10-01') + 90)]
 dt[,tstart := do.call(pmin, c(.SD, na.rm = T)), .SDcols = paste0(procedures,"_date_admitted")]
 
 data.table::setkey(data.table::setDT(dt),patient_id, tstart)
@@ -400,8 +409,8 @@ locf.roll_(dt = 'dt.tv', ID = 'patient_id',
            start.DTTM = 'tstart', group = 'c("patient_id")',
            var.cols = 'c("end.fu")')
 
-i <- which(dt.tv[,is.finite(end.fu) & is.finite(patient_id)])
-del_rows(dt.tv,-i) ## Should only be an issue in simulated data
+dt.tv <- dt.tv[which(dt.tv[,is.finite(end.fu) & is.finite(patient_id)])]
+#del_rows(dt.tv,-i) ## Should only be an issue in simulated data
 
 ## extend prior procedures variables over repeat procedure if within 90 days of prior procedure
 locf.roll_(dt = 'dt.tv', ID = 'patient_id',

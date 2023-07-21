@@ -85,7 +85,8 @@ actions:
     outputs:
       highly_sensitive:
         cohort_outcomes: output/update_outcomes.feather        
-        cohort_major: output/update_major.feather            
+        cohort_major: output/update_major.feather     
+        cohort_6m: output/update_Sep22.feather
 
   data_manage_postdisch_week:
     run: r:latest analysis/data_manage_postdisch_weeks.R
