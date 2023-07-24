@@ -43,15 +43,15 @@ p <- ggplot2::ggplot(data = data.frame(x = 1:100, y = 1:100), ggplot2::aes(x , y
   ggplot2::scale_y_continuous(minor_breaks = seq(10, 100, 10)) +   
   ggplot2::theme_void()
   
-p <- p + ggplot2::geom_rect(xmin = 32, xmax=67, ymin=94, ymax=100, color='black',
+p <- p + ggplot2::geom_rect(xmin = 30, xmax=69, ymin=94, ymax=100, color='black',
             fill='white', size=0.25) +
   ggplot2::annotate('text', x= 50, y=97,label= paste0(n.pats,' Patients with coded procedures \n between ',start.date,' & ', last.date), size=2.5) 
   
-p <- p + ggplot2::geom_rect(xmin = 32, xmax=68, ymin=81.5, ymax=90, color='black',
+p <- p + ggplot2::geom_rect(xmin = 30, xmax=69, ymin=81.5, ymax=90, color='black',
             fill='white', size=0.25) +
   ggplot2::annotate('text', x= 50, y=86,label= paste0(n.pats.study,' Patients with procedures within \n registration period for a \n primary care practice contributing \n to SystmOne and no COVID 7 days prior'), size=2.5) 
   
-p <- p + ggplot2::geom_rect(xmin = 70, xmax=101, ymin=86, ymax=98, color='black',
+p <- p + ggplot2::geom_rect(xmin = 71, xmax=102, ymin=86, ymax=98, color='black',
             fill='white', size=0.25) +
   ggplot2::annotate('text', x= 85, y=92,label= paste0(n.pats - n.pats.study,' Patients excluded: \n Procedures when not registered \n to a primary care practice \n contributing to SystmOne'), size=2.5)
 
@@ -65,7 +65,7 @@ p <- p +
     size=0.15, linejoin = "mitre", lineend = "butt",
     arrow = ggplot2::arrow(length = ggplot2::unit(1, "mm"), type= "closed")) +
   ggplot2::geom_segment(
-    x=50, xend=69.7, y=92, yend=92, 
+    x=50, xend=71, y=92, yend=92, 
     size=0.15, linejoin = "mitre", lineend = "butt",
     arrow = ggplot2::arrow(length = ggplot2::unit(1, "mm"), type= "closed")) +
   ggplot2::geom_segment(

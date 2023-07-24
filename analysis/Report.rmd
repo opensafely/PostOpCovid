@@ -81,118 +81,120 @@ data.table::setkey(dt.tv,patient_id,tstart,tstop)
 # Background
 
 ## Post operative COVID-19 risk
-People need to attend hospital for investigations and procedures to diagnose and treat illnesses. However, early evidence in the pandemic suggested that there was a significant risk and impact of acquiring COVID-19 on outcomes(1,2). There is evidence that fear of COVID-19 kept them away in the pandemic (3–5). As part of the health system recovery patients need to know whether they can come to hospital safely, doctors need to understand the risk and impact of acquiring COVID-19, and doctors also need to understand the patient and procedure factors predicting associated outcomes. Only then can they implement safe policies and inform patients the risks and benefits of attending hospital for their routine care. 
+
+People need to attend hospital for investigations and procedures to diagnose and treat illnesses. However, early evidence in the pandemic suggested that there was a significant risk and impact of acquiring COVID-19 on outcomes(1,2). There is evidence that fear of COVID-19 kept them away in the pandemic (3--5). As part of the health system recovery patients need to know whether they can come to hospital safely, doctors need to understand the risk and impact of acquiring COVID-19, and doctors also need to understand the patient and procedure factors predicting associated outcomes. Only then can they implement safe policies and inform patients the risks and benefits of attending hospital for their routine care.
 
 ## VTE
+
 VTE risk is elevated following surgery. During the COVID pandemic an association between COVID infection and increased risk of VTE has been described in all patients and in those having surgery. The COVIDSURG collaborative reported an overall rate of post-operative VTE of 0.6% (742/128013). The rate was 0.5% (666/123,591) in patients without SARS-CoV-2; 2.2% (50/2317) in patients with peri-operative SARS-CoV-2; 1.6% (15/953) in patients with recent SARS-CoV-2; and 1.0% (11/1148) in patients with previous SARS-CoV-2. This represented a 2 fold increased risk of VTE in those with peri-operative COVID infection. VTE was independently associated with an increase in risk of mortality at 30 days. This study was only able to divide patients by major/minor surgery and so was not able to describe risk by type of surgery to help inform guidelines. They also only reported on rates to 30 days and prior work has demonstrated the risk of VTE extends beyond this period.
 
-Within our hospital we use routinely collected data to measure these risks and monitor the impacts of policy changes(6). Data in a single trust however cannot provide the power to fully characterise the risks pertaining to different patients and procedures. Previous work is often not applicable to the UK population because of international differences in pathways and management, not adjusting for different in existing patient illness, or was restricted to inpatient death without fully assessing 90-day outcomes. 
+Within our hospital we use routinely collected data to measure these risks and monitor the impacts of policy changes(6). Data in a single trust however cannot provide the power to fully characterise the risks pertaining to different patients and procedures. Previous work is often not applicable to the UK population because of international differences in pathways and management, not adjusting for different in existing patient illness, or was restricted to inpatient death without fully assessing 90-day outcomes.
 
 This project will use national linked primary and secondary health data to provide more precise, generalisable, repeatable risk estimates appropriately adjusted for differences between patients and procedures. We will use the OpenSAFELY Trusted Research Environment to provide hospital data on procedures and investigations, readmissions, and critical care admissions from secondary care data, deaths, COVID-19 vaccination and testing data, and primary care diagnoses and prescriptions to incorporate pre-existing patient factors and the varying community levels of COVID-19 infections. This work will provide reusable tools in real-world data for patients attending hospital for care by identifying high risk patients that might need pathway improvements and low risk patients and procedures that might allow relaxation of policies to facilitate the post COVID-19 NHS recovery.
-
 
 # Methods
 
 ## Study design
-We identified all adult patients as the study population who underwent at least one procedure whilst registered to a general practitioner within an English region using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. Patients were followed up from the admission for the operation to 90 days following discharge, and  outcomes of COVID-19 positive tests, first subsequent emergency hospital readmission, venous thromboembolism events, and all cause mortality.  
+
+We identified all adult patients as the study population who underwent at least one procedure whilst registered to a general practitioner within an English region using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. Patients were followed up from the admission for the operation to 90 days following discharge, and outcomes of COVID-19 positive tests, first subsequent emergency hospital readmission, venous thromboembolism events, and all cause mortality.
 
 ## Date sharing
+
 Access to the underlying identifiable and potentially re-identifiable pseudonymised electronic health record data is tightly governed by various legislative and regulatory frameworks, and restricted by best practice. The data in OpenSAFELY is drawn from General Practice data across England where TPP is the data processor.
 
 TPP developers initiate an automated process to create pseudonymised records in the core OpenSAFELY database, which are copies of key structured data tables in the identifiable records. These pseudonymised records are linked onto key external data resources that have also been pseudonymised via SHA-512 one-way hashing of NHS numbers using a shared salt. Bennett Institute for Applied Data Science developers and PIs holding contracts with NHS England have access to the OpenSAFELY pseudonymised data tables as needed to develop the OpenSAFELY tools.
 
-These tools in turn enable researchers with OpenSAFELY data access agreements to write and execute code for data management and data analysis without direct access to the underlying raw pseudonymised patient data, and to review the outputs of this code. All code for the full data management pipeline—from raw data to completed results for this analysis—and for the OpenSAFELY platform as a whole is available for review at github.com/OpenSAFELY.
+These tools in turn enable researchers with OpenSAFELY data access agreements to write and execute code for data management and data analysis without direct access to the underlying raw pseudonymised patient data, and to review the outputs of this code. All code for the full data management pipeline---from raw data to completed results for this analysis---and for the OpenSAFELY platform as a whole is available for review at github.com/OpenSAFELY.
 
-## Data source 
+## Data source
+
 The Opensafely-TPP platform was used for the study and is described in detail here (www.opensafely.org). The platform allows code from the GitHub repository to be run on the pseudoanonymised primary care data of coded diagnoses, demographics and medications. Primary care records managed by the GP software provider, TPP/EMIS were linked through OpenSAFELY to inpatient hospital spell records via the NHS DIgital's Hospital Episode Statistics (HES), national coronavirus testing records via the Second Generation Surveillance System (SGSS), mortality from the Office for National Statistics death registry, and vaccination status from the National Immunisation Management System (NIMS).
 
-## Study population 
-All adult individuals were included who were older than 18 years old and registered to an OpenSAFELY-TPP primary care general practice within England whilst having an abdominal, obstetric, orthopaedic, thoracic or vascular procedure. These operative categories were defined using codelists from www.opencodelists.org and listed here https://github.com/opensafely/PostOpCovid/tree/main/codelists.
+## Study population
+
+All adult individuals were included who were older than 18 years old and registered to an OpenSAFELY-TPP primary care general practice within England whilst having an abdominal, obstetric, orthopaedic, thoracic or vascular procedure. These operative categories were defined using codelists from www.opencodelists.org and listed here <https://github.com/opensafely/PostOpCovid/tree/main/codelists>.
 
 ### Outcomes
 
 We defined the following outcomes
 
-  1. Post Operative COVID-19 infection - A positive lateral flow or PCR test recorded within the SGSS from pillar 1 or 2 testing between 0 and 30 days after the operation date. Patients with a positive test in the 7 days prior to the operation date were excluded
+1.  Post Operative COVID-19 infection - A positive lateral flow or PCR test recorded within the SGSS from pillar 1 or 2 testing between 0 and 30 days after the operation date. Patients with a positive test in the 7 days prior to the operation date were excluded
 
-  2. Post Operative Venous Thromboembolism Events - A venous thromboemobolic event was defined as a diagnostic ICD 10 code within hospital records and/or diagnostic SNOMED code within primary care records, with a corresponding primary care prescription for ongoing anticoagulation in the community within 15 days before and 90 days after a VTE diagnosis and 90 days after discharge. This definition has previously been used and validated within our team within the Clinical Practice Research Datalink.
+2.  Post Operative Venous Thromboembolism Events - A venous thromboemobolic event was defined as a diagnostic ICD 10 code within hospital records and/or diagnostic SNOMED code within primary care records, with a corresponding primary care prescription for ongoing anticoagulation in the community within 15 days before and 90 days after a VTE diagnosis and 90 days after discharge. This definition has previously been used and validated within our team within the Clinical Practice Research Datalink.
 
-  3. Post Operative Non-COVID-19 Emergency Readmission - Any emergency hospital admission defined by an admission method beginning with '2' without a corresponding COVID-19 positive result within 90 days of discharge.
+3.  Post Operative Non-COVID-19 Emergency Readmission - Any emergency hospital admission defined by an admission method beginning with '2' without a corresponding COVID-19 positive result within 90 days of discharge.
 
-  4. Post Operative Mortality - Any death within 90 days of the operation recorded within the Office for National Statistics death registry.
+4.  Post Operative Mortality - Any death within 90 days of the operation recorded within the Office for National Statistics death registry.
 
 ### Exposures
 
-The exposures of interest for the analysis of post operative risk of COVID-19 was operation type defined by the procedure categories, malignant or benign diagnosis, and emergency or elective admission method. 
+The exposures of interest for the analysis of post operative risk of COVID-19 was operation type defined by the procedure categories, malignant or benign diagnosis, and emergency or elective admission method.
 
-  *	Types of Surgery - Categorised into the following major procedure groups:
-	    * Abdominal procedures (including gastrointestinal, gynaecological, urological procedures)
-	    *	Orthopaedic procedures
-	    * Obstetric procedures
-	    * Thoracic procedures
-      * Vascular procedures including endovascular aneurysm repair
-      
-  * We also selected the following frequent procedures:
-      * Colectomy
-      * Cholecystectomy
-	    * Hip replacement
-	    * Knee replacement
-	    
-  *	Indication for Surgery benign/malignant - Defined using ICD-10 code for malignancy during the procedure's admission spell
-  * Urgency of surgery - Defined as elective or emergency using the recorded admission method
+-   Types of Surgery - Categorised into the following major procedure groups: \* Abdominal procedures (including gastrointestinal, gynaecological, urological procedures) \* Orthopaedic procedures \* Obstetric procedures \* Thoracic procedures
+    -   Vascular procedures including endovascular aneurysm repair
+-   We also selected the following frequent procedures:
+    -   Colectomy
+    -   Cholecystectomy
+        -   Hip replacement
+        -   Knee replacement
+-   Indication for Surgery benign/malignant - Defined using ICD-10 code for malignancy during the procedure's admission spell
+-   Urgency of surgery - Defined as elective or emergency using the recorded admission method
 
 For the post operative risk the exposure of interest was the effect of a COVID-19 positive test stratified by the timing of procedure by COVID-19 wave. Note we excluded repeat positive COVID tests identified within 90 days of a previous positive test.
 
-  *	Timing during the pandemic in relation to the dominant COVID-19 viral variant as defined in the Office for National Statistics Bulletins [https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveycharacteristicsofpeopletestingpositiveforcovid19uk/] : 
-      1. Initial Wuhan variant as wave 1 - February to 1st December 2020
-      2. Alpha variant as wave 2 - 1st December 2020 to 17th May 2021
-      3. Delta variant as wave 3 - 17th May 2021 to 19th December 2021
-      4. Omicron variant as wave 4 - 19th December 2021 to present
+-   Timing during the pandemic in relation to the dominant COVID-19 viral variant as defined in the Office for National Statistics Bulletins [<https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveycharacteristicsofpeopletestingpositiveforcovid19uk/>] :
+    1.  Initial Wuhan variant as wave 1 - February to 1st December 2020
+    2.  Alpha variant as wave 2 - 1st December 2020 to 17th May 2021
+    3.  Delta variant as wave 3 - 17th May 2021 to 19th December 2021
+    4.  Omicron variant as wave 4 - 19th December 2021 to present
 
 Additional covariates used within the analyses to adjust and stratify the results included:
 
-  * Age - categorised into 18-49 years,50 - 69 years,70-79 years and >79 years old
-  * Sex - Recorded as male or female
-  * Comorbidity - Calculated as the Charlson index using primary care coding prior to the operative date and categorised into
-      0. No co-morbidity in the Charlson index
-      1. Single co-morbidity in the Charlson index
-      2. Multiple or severe co-morbidity in the Charlson index
-  *	Vaccination status - Categorised as 1,2, or 3 doses
-  * Region - Defined as 
-      * North East
-      * North West
-      * East Midlands
-      * West Midlands
-      * London
-      * South East
-      * South West
-  * Socioeconomic status - Defined as quintiles of the rankings of lower super output areas of home residence by the Indices of Multiple Deprivation.
-  * Recent COVID-19 infection - Defined as between 7 and 42 days prior to the operation date. 
-  * Prior COVID-19 infection - Defined as before 42 days prior to the operation date
-  * Length of stay for index admission (days) - This was included in models predicting post discharge outcomes and categorised into <= 7 days and > 7 days.
+-   Age - categorised into 18-49 years,50 - 69 years,70-79 years and \>79 years old
+-   Sex - Recorded as male or female
+-   Comorbidity - Calculated as the Charlson index using primary care coding prior to the operative date and categorised into
+    0.  No co-morbidity in the Charlson index
+    1.  Single co-morbidity in the Charlson index
+    2.  Multiple or severe co-morbidity in the Charlson index
+-   Vaccination status - Categorised as 1,2, or 3 doses
+-   Region - Defined as
+    -   North East
+    -   North West
+    -   East Midlands
+    -   West Midlands
+    -   London
+    -   South East
+    -   South West
+-   Socioeconomic status - Defined as quintiles of the rankings of lower super output areas of home residence by the Indices of Multiple Deprivation.
+-   Recent COVID-19 infection - Defined as between 7 and 42 days prior to the operation date.
+-   Prior COVID-19 infection - Defined as before 42 days prior to the operation date
+-   Length of stay for index admission (days) - This was included in models predicting post discharge outcomes and categorised into \<= 7 days and \> 7 days.
 
 ## Statistical methods
-1. Using the procedure groupings we measured the 30-day risk of COVID-19 positivity following the operation date using the linked COVID-19 testing data adjusted by age, sex, region, socioeconomic status, ethnicity, timing by COVID-19 wave, malignant or benign diagnosis, emergency or elective procedure, co-morbidity and vaccination status from the linked vaccination data. Crude  30 day risks were calculated using Kaplan Meier curves stratified by the above covariates. A competing risks Cox proportional survival analysis was then be used to adjust the cumulative risk of COVID-19 infection by the competing risk of death and subsequent non COVID-19 emergency readmissions, as well as adjusting for the covariates listed above. Follow up time was censored at 30 days, end of registration at a TPP primary care practice, or when a subsequent elective procedure occured. 
 
-2. We modelled using the procedure groupings the impact of COVID-19 positivity on overall 90-day mortality, emergency readmission, and venous thromboembolism. Crude 90 day cumulative risks were calculated using Kaplan Meier curves stratified by the covariates listed above and also length of stay in the index admission. A time varying Cox proportional hazards model was used for each outcome with COVID-19 positivity as a time varying exposure adjusted for these other patient factors. Cumulative 90 day risks were then calculated adjusted for the competing risks of mortality and non COVID-19 readmissions as appropriate. Due to small numbers of post discharge deaths, for VTE analyses mortality and readmission were combined as a common competing risk, and for readmissions we were unable to adjust for competing risks. Follow up time for readmissions began on the day following discharge. Follow up time for VTE began to be counted the day after the operation, but only post discharge follow up time was included, as inpatient VTE were coded to the same admission date as the operation which prevented a clear chronology for inpatient events. Follow up time was censored at 90 days post discharge for emergency readmissions, and 90 days post operation for VTEs. In addition follow up was censored at the end of registration at a TPP primary care practice, or when a subsequent elective procedure occurred.
+1.  Using the procedure groupings we measured the 30-day risk of COVID-19 positivity following the operation date using the linked COVID-19 testing data adjusted by age, sex, region, socioeconomic status, ethnicity, timing by COVID-19 wave, malignant or benign diagnosis, emergency or elective procedure, co-morbidity and vaccination status from the linked vaccination data. Crude 30 day risks were calculated using Kaplan Meier curves stratified by the above covariates. A competing risks Cox proportional survival analysis was then be used to adjust the cumulative risk of COVID-19 infection by the competing risk of death and subsequent non COVID-19 emergency readmissions, as well as adjusting for the covariates listed above. Follow up time was censored at 30 days, end of registration at a TPP primary care practice, or when a subsequent elective procedure occured.
+
+2.  We modelled using the procedure groupings the impact of COVID-19 positivity on overall 90-day mortality, emergency readmission, and venous thromboembolism. Crude 90 day cumulative risks were calculated using Kaplan Meier curves stratified by the covariates listed above and also length of stay in the index admission. A time varying Cox proportional hazards model was used for each outcome with COVID-19 positivity as a time varying exposure adjusted for these other patient factors. Cumulative 90 day risks were then calculated adjusted for the competing risks of mortality and non COVID-19 readmissions as appropriate. Due to small numbers of post discharge deaths, for VTE analyses mortality and readmission were combined as a common competing risk, and for readmissions we were unable to adjust for competing risks. Follow up time for readmissions began on the day following discharge. Follow up time for VTE began to be counted the day after the operation, but only post discharge follow up time was included, as inpatient VTE were coded to the same admission date as the operation which prevented a clear chronology for inpatient events. Follow up time was censored at 90 days post discharge for emergency readmissions, and 90 days post operation for VTEs. In addition follow up was censored at the end of registration at a TPP primary care practice, or when a subsequent elective procedure occurred.
 
 For both analyses, a further operation within 90 days of a previous operation was included as an emergency readmission endpoint if it was an emergency admission, or excluded from the analysis if it was an elective admission to provide complete follow up for the initial procedure.
 
 ### Power calculation
-Overall, there will be more than 10 million unique procedures within England, and the analysis will be performed on strata of groups of procedures 20,000 or larger to detect a 0.2% difference in COVID-19 risk between groups (with > 90% power and two-sided alpha 0.05). This means we will have more than 90% to detect more meaningful 0.5% difference across multiple strata adjusted for >10 multiple comparisons within each stratum. This will also allow multivariate models predicting surgical outcomes within each stratum with up to 20 predictors whilst keeping over optimism < 5%. 
 
-Our group has previously shown that the post-operative rate for colectomy of venous thromboembolism in national English data is 0.7%. Using the R pmsampsize package for a multivariate prediction model with up to 20 predictors, an outcome prevalence anticipated to be 0.007 (0.7%), and a lower bound of the maximum possible associated R-squared value of 0.06, indicates a minimum sample size of n~ 6000 procedures to limit bias in the model from over optimism to <5%(9). Our groupings chosen in 1 above should therefore provide ample power for any outcomes with similar or greater levels of risk.
+Overall, there will be more than 10 million unique procedures within England, and the analysis will be performed on strata of groups of procedures 20,000 or larger to detect a 0.2% difference in COVID-19 risk between groups (with \> 90% power and two-sided alpha 0.05). This means we will have more than 90% to detect more meaningful 0.5% difference across multiple strata adjusted for \>10 multiple comparisons within each stratum. This will also allow multivariate models predicting surgical outcomes within each stratum with up to 20 predictors whilst keeping over optimism \< 5%.
+
+Our group has previously shown that the post-operative rate for colectomy of venous thromboembolism in national English data is 0.7%. Using the R pmsampsize package for a multivariate prediction model with up to 20 predictors, an outcome prevalence anticipated to be 0.007 (0.7%), and a lower bound of the maximum possible associated R-squared value of 0.06, indicates a minimum sample size of n\~ 6000 procedures to limit bias in the model from over optimism to \<5%(9). Our groupings chosen in 1 above should therefore provide ample power for any outcomes with similar or greater levels of risk.
 
 ### Reporting
-All patient counts were rounded to the nearest 10 patients to reduce the risk of disclosure. 
+
+All patient counts were rounded to the nearest 10 patients to reduce the risk of disclosure.
 
 ## Software and reproducibility
-Data management was performed using Python [3.8], with analysis carried out using R 4.02. Code for data management and analysis, as well as codelists, are archived online [https://github.com/opensafely/PostOpCovid/]. All iterations of the pre-specified study protocol are archived with version control [https://github.com/opensafely/xxxxxx/protocol].
 
+Data management was performed using Python [3.8], with analysis carried out using R 4.02. Code for data management and analysis, as well as codelists, are archived online [<https://github.com/opensafely/PostOpCovid/>]. All iterations of the pre-specified study protocol are archived with version control [<https://github.com/opensafely/xxxxxx/protocol>].
 
 ## Patient and Public involvement
 
-Members of the research team have been involved with several PPI events during the Covid-19 pandemic where a wide variety of topics have been discussed and input is drawn from across these alongside the lay members of our surgical prioritisation group that has run throughout the pandemic. OpenSAFELY has developed a publicly available website https://opensafely.org/ through which they invite any patient or member of the public to make contact regarding the broader OpenSAFELY project.
+Members of the research team have been involved with several PPI events during the Covid-19 pandemic where a wide variety of topics have been discussed and input is drawn from across these alongside the lay members of our surgical prioritisation group that has run throughout the pandemic. OpenSAFELY has developed a publicly available website <https://opensafely.org/> through which they invite any patient or member of the public to make contact regarding the broader OpenSAFELY project.
 
 ## Ethical Approval and Governance
 
@@ -211,8 +213,10 @@ This study was approved by the HRA East of England - Essex Research Ethics Commi
 We are very grateful for all the support received from the TPP Technical Operations team throughout this work, and for generous assistance from the information governance and database teams at NHS England / NHSX.
 
 # Results
+
 ## Study population
-One third of GP practices in England use SystmOne, with records for approximately 44% of the English population. `r paste(n.pats)` adult patients were identified as the study population undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. The flow chart shows the procedures identified within these patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic,  thoracic, & vascular), and the numbers of outcomes after adjusting for censoring by competing risks.  The numbers and demographics of these patients and procedures are shown in Table 1.
+
+One third of GP practices in England use SystmOne, with records for approximately 44% of the English population. `r paste(n.pats)` adult patients were identified as the study population undergoing at least one procedure whilst registered to a general practitioner using the SystmOne database at the time of the first procedure between `r format(start.date, format="%B %d %Y")` and `r format(last.date, format="%B %d %Y")`. The flow chart shows the procedures identified within these patients' registration period after restricting to the first 5 procedures within each category (abdominal, cardiac, obstetric, orthopaedic, thoracic, & vascular), and the numbers of outcomes after adjusting for censoring by competing risks. The numbers and demographics of these patients and procedures are shown in Table 1.
 
 ```{r flowchart, fig.dim = c(6, 8),fig.align = "center",fig.cap = c("Flow chart of patients, procedures and outcomes included within censored follow up time")}
 load(here::here("output","flowchart.RData"))
@@ -229,8 +233,8 @@ demo.tab <- data.table::fread(file = here::here("output","table_demo.csv"))
 
 ```
 
-
 ## Post operative 90 day COVID-19 risk
+
 The cumulative risk of testing positive for COVID-19 peri-opertively, from the operation to 30 days post operatively were calculated in table 2. The adjusted estimates were calculated from the Cox survival models fitted separately for COVID-19, mortality and emergency non COVID-19 admission.
 
 ```{r postopcovid, eval = T, echo=FALSE}
@@ -355,11 +359,7 @@ knitr::kable(comb_postop_covid.sub,
 )
 ```
 
-
-
 ### Post operative COVID-19 risk by COVID-19 waves and operation category
-
-
 
 ```{r postopcovid_waves,fig.cap="The adjusted cumulative risk estimates were calculated for each COVID-19 wave stratified by broad operation category in table 2."}
 
@@ -418,7 +418,7 @@ ggplot2::xlab("Days post operation") +
   ggplot2::ylab("Cumulative risk during time period") + ggplot2::ggtitle("Post operative risk of COVID-19 over time",
                                                                          subtitle = "Adjusted for age, sex, SES, BMI, co-morbidity, vaccination,\n operation category, emergency, previous COVID-19, \n COVID_19 wave, and competing risks of death and readmission")
 
-```   
+```
 
 <!-- This plot shows the daily risk of COVID-19 for a a 50-70 year old female with a single morbidity with a bmi of 20, for an abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation. This showed the risk peaked in the first week after operation before falling to a level baseline. -->
 
@@ -435,7 +435,7 @@ ggplot2::ggplot(daily.post.op.risk[`Days post op`<= 35]) +
   ggplot2::ylab("Daily risk (%)") +
   ggplot2::theme_minimal() +
   ggplot2::ggtitle("Daily risk of COVID from day of operation", subtitle = "Predicted for abdominal elective cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")
-```   
+```
 
 #### Selected procedures
 
@@ -467,7 +467,7 @@ ggplot2::ggplot(daily.post.op.risk.sub[`Days post op`<= 35]) +
   ggplot2::theme_minimal() +
   ggplot2::ggtitle("Daily risk of COVID from day of operation",
                    subtitle = "Predicted for  elective colectomy cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")
-```   
+```
 
 <!-- ## COVID impact on post operative length of stay -->
 
@@ -498,9 +498,7 @@ knitr::kable(mean.adjusted.los.sub,col.names = paste0("Wave ",1:4),caption = pas
 
 ## Post operative VTE risk
 
-Adjusted Cox proportional hazards survival models were fitted to estimate the effect of post operative COVID-19  as a time varying covariate on post discharge VTE, and cumulative incidence functions calculated to adjust for competing risks of readmission and death. Predicted VTE risk was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation.
-
-
+Adjusted Cox proportional hazards survival models were fitted to estimate the effect of post operative COVID-19 as a time varying covariate on post discharge VTE, and cumulative incidence functions calculated to adjust for competing risks of readmission and death. Predicted VTE risk was calculated stratified by the COVID infection for a 50-70 year old female with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation.
 
 ```{r postopVTE, results='asis'}
 load(file = here::here("output","postopVTE.RData"))
@@ -513,7 +511,7 @@ htmltools::includeHTML(here::here('output','postopVTEmodel.html'))
 #knitr::kable(cuminc.adjusted.VTE,col.names = paste0("Wave ",1:4),caption = paste0("Cumulative incidence of 90 day post operative VTE risk by procedure type and #COVID-19 infection, and stratified by COVID-19 wave."), row.names = T, digits = 4)
 # )
 ```
- 
+
 ```{r postopVTE_plot,fig.cap="This plot shows the changing effect of post operative COVID infection on VTE riskin the initial, alpha, delta and omicron waves."}
  ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.VTE, keep.rownames = T),
                                  id.vars = 'rn',
@@ -528,9 +526,6 @@ htmltools::includeHTML(here::here('output','postopVTEmodel.html'))
   ggplot2::geom_line()
 
 ```
-
-
-
 
 ```{r postopVTErecentcovid, results='asis', fig.cap="This plot shows the changing effect of recent pre-operative COVID infection on VTE risk in the initial, alpha, delta and omicron waves."}
 load(file = here::here("output","postopVTErecent.RData"))
@@ -557,9 +552,6 @@ ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.recent.V
 
 ```
 
-
-
-
 ```{r postopcovid_VTE_tv, fig.cap ="This plot shows the weekly additional risk of VTE by post operative COVID infection for a 50-70 year old female with a single morbidity with a bmi of 20, for an abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation. This showed the risk peaked in the first week after operation before falling to a level baseline."}
 weekly.post.op.VTE.risk <- data.table::fread(here::here("output","postopcovid_VTE_tv.csv"))
 
@@ -577,10 +569,9 @@ ggplot2::xlab("Weekly Risk Periods pre and post discharge") +
   ggplot2::ylab("Cumulative risk during time period") + ggplot2::ggtitle("Post operative risk of VTE over time stratified by COVID-19 infection",
                                                                          subtitle = "Adjusted for age, sex, SES, BMI, co-morbidity, vaccination,\n operation category, emergency, previous COVID-19, \n COVID_19 wave, and competing risks of death and readmission")
 
-``` 
+```
 
 <!-- This plot shows the daily additional risk of VTE by post operative COVID infection for a 50-70 year old female with a single morbidity with a bmi of 20, for an abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation. This showed the risk peaked in the first week after operation before falling to a level baseline. -->
-
 
 ```{r postopcovid_daily_VTE_tv, eval = F}
 daily.post.op.VTE.risk <- data.table::fread(file = here::here("output","daily_postopcovid_VTE_tv.csv"))
@@ -595,9 +586,9 @@ ggplot2::ggplot(daily.post.op.VTE.risk[`Days post discharge`<= 90]) +
   ggplot2::theme_minimal() +
   ggplot2::ggtitle("Daily risk of VTE from day of discharge",
    subtitle = "Predicted for abdominal elective cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")
-```   
+```
 
-#### Selected procedures 
+#### Selected procedures
 
 ```{r postopVTE_sub, results='asis', eval = T}
 #load(file = here::here("output","postopVTE_sub.RData"))
@@ -611,7 +602,6 @@ htmltools::includeHTML(here::here('output','postopVTEmodelsub.html'))
 # )
 
 ```
-
 
 ```{r postopVTE_sub_plot, fig.cap = "This plot shows the changing effect of post operative COVID infection on VTE risk in the initial, alpha, delta and omicron waves for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation."}
  load(file = here::here("output","postopVTE_sub.RData"))
@@ -630,9 +620,6 @@ htmltools::includeHTML(here::here('output','postopVTEmodelsub.html'))
  
 ```
 
-
-
-
 ```{r postopVTErecentcovid_sub, results='asis', eval = F}
 load(file = here::here("output","postopVTErecent_sub.RData"))
 
@@ -645,8 +632,6 @@ load(file = here::here("output","postopVTErecent_sub.RData"))
 # )
  
 ```
-
-
 
 ```{r postopVTErecentcovid_sub_plot,fig.cap = "This shows the changing effect of recent pre operative COVID infection on VTE risk in the initial, alpha, delta and omicron waves for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation."}
 load(file = here::here("output","postopVTErecent_sub.RData"))
@@ -665,9 +650,6 @@ ggplot2::ggplot(data.table::melt(data.table::data.table(cuminc.adjusted.VTE.rece
 
 ```
 
- 
-
-
 ```{r postopcovid_VTE_tv_sub, fig.cap="This plot shows the effect of post operative COVID infection on each week's additional VTE risk in first month after discharge for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation."}
 weekly.post.op.VTE.risk.sub <- data.table::fread(here::here("output","postopcovid_VTE_tv_sub.csv"))
  
@@ -685,10 +667,9 @@ ggplot2::xlab("Weekly Risk Periods pre and post discharge") +
   ggplot2::ggtitle("Post operative risk of VTE over time stratified by COVID-19 infection",
                                                                          subtitle = "Adjusted for age, sex, SES, BMI, co-morbidity, vaccination,\n operation category, emergency, previous COVID-19, \n COVID_19 wave, and competing risks of death and readmission")
 
-``` 
+```
 
- <!-- This plot shows the effect of post operative COVID infection on each day's additional VTE risk in first month after discharge for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation.. -->
-
+<!-- This plot shows the effect of post operative COVID infection on each day's additional VTE risk in first month after discharge for a 50-70 year old female with a single morbidity with a bmi of 20, for a cancer colectomy operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation.. -->
 
 ```{r postopcovid_daily_sub_VTE_tv, eval = F}
 daily.post.op.VTE.risk.sub <- data.table::fread(file = here::here("output","daily_postopcovid_VTE_tv_sub.csv"))
@@ -702,11 +683,11 @@ ggplot2::ggplot(daily.post.op.VTE.risk.sub[`Days post discharge`<= 35]) +
   ggplot2::theme_minimal() +
   ggplot2::ggtitle("Daily risk of VTE from day of discharge",
    subtitle = "Predicted for elective colectomy cancer operation in 50-70 year old female\n BMI 20-25, 3rd IMD quintile with single morbidity\n booster vaccination and no previous COVD")
-```   
+```
 
 ## COVID impact on post operative Mortality
 
-Adjusted Cox proportional hazards survival models were fitted to estimate the effect of post operative COVID-19 as a time varying covariate on mortality, and cumulative incidence functions calculated to adjust for competing risks of readmission. 
+Adjusted Cox proportional hazards survival models were fitted to estimate the effect of post operative COVID-19 as a time varying covariate on mortality, and cumulative incidence functions calculated to adjust for competing risks of readmission.
 
 ```{r postopmortab, eval = T, echo=FALSE}
 
@@ -836,7 +817,7 @@ htmltools::includeHTML(here::here('output','postopdiedmodelsub.html'))
 # )
 ```
 
-```{r, postopmortality_sub_fig, fig.cap = "Predicted mortality was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective colectomy cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation."} 
+```{r, postopmortality_sub_fig, fig.cap = "Predicted mortality was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective colectomy cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation."}
   
 
 cuminc.long.labelled.sub <-cbind(new.data.postop.covid,cuminc.adjusted.mortality.sub.long, c(rep('Colectomy',16), rep('Cholecystectomy',16), rep('HipReplacement',16), rep('KneeReplacement',16))) 
@@ -864,7 +845,7 @@ ggplot2::ggplot(cuminc.long.labelled.sub[order(Emergency, Operation, postcovid,w
 
 ## COVID impact on Emergency Readmission
 
-Adjusted Cox proportional hazards survival models were fitted to estimate the effect of post operative COVID-19  as a time varying covariate on post discharge emergency readmission, and cumulative incidence functions calculated to adjust for competing risks of death. Predicted emergency readmission was calculated stratified by the COVID infection for a 50-70 year old female  with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation.
+Adjusted Cox proportional hazards survival models were fitted to estimate the effect of post operative COVID-19 as a time varying covariate on post discharge emergency readmission, and cumulative incidence functions calculated to adjust for competing risks of death. Predicted emergency readmission was calculated stratified by the COVID infection for a 50-70 year old female with a single morbidity with a bmi of 20, for an elective abdominal cancer operation, without previous COVID-19, with a booster vaccination, from the East Midlands in an area ranked in the 3rd quintile for deprivation.
 
 ```{r postopreadmit, eval = T}
 load(file = here::here("output","postopreadmit.RData"))
@@ -889,7 +870,6 @@ knitr::kable(cuminc.adjusted.readmit,col.names = paste0("Wave ",1:4),caption = p
 ```
 
 #### Selected procedures
-
 
 ```{r postopreadmit_sub, eval = T}
 load(file = here::here("output","postopreadmit_sub.RData"))
