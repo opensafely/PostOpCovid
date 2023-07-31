@@ -14,12 +14,12 @@ procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 
-post.op.died.model <- 
-  list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal*wave  + Obstetrics*wave + CardioThoracicVascular*wave + 
-                         postcovid*wave + 
-                         Emergency*wave + 
+post.op.died.model <-
+  list(survival::coxph(survival::Surv(start,end,died) ~ Abdominal*wave  + Obstetrics*wave + CardioThoracicVascular*wave +
+                         postcovid*wave +
+                         Emergency*wave +
                          age.cat + sex + imd5  + vaccination.status.factor + Current.Cancer +
-                        Charl12 + recentCOVID + previousCOVID, id = patient_id,
+                        Charl12 + recentCOVID*wave + previousCOVID*wave, id = patient_id,
                        data = dt.tv[start >=0 & any.op == T], model = T))
 #data.table::fwrite(broom::tidy(post.op.died.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopdiedmodel.csv"))
 
@@ -58,7 +58,7 @@ n.type.events <- 1
 cuminc.adjusted.mortality.long <- cuminc.cox(n.type.events = n.type.events,
            dt = 'dt.tv[start >=0 & any.op == T]',
            model = 'post.op.died.model',
-           newdata = 'new.data.postop.covid', 
+           newdata = 'new.data.postop.covid',
            day = 90)
 
 cuminc.adjusted.mortality <-   matrix(cuminc.adjusted.mortality.long, byrow = T, ncol = 4)
@@ -74,7 +74,7 @@ cuminc.adjusted.mortality,
  file = here::here("output","postopmortality.RData"))
 data.table::fwrite(cuminc.adjusted.mortality, file = here::here("output","postopmortality.csv"))
 
-cuminc.long.labelled <-cbind(new.data.postop.covid,cuminc.adjusted.mortality.long, c(rep('Abdominal',16), rep('Obstetrics',16), rep('Orthopaedic',16), rep('CardioThoracicVascular',16))) 
+cuminc.long.labelled <-cbind(new.data.postop.covid,cuminc.adjusted.mortality.long, c(rep('Abdominal',16), rep('Obstetrics',16), rep('Orthopaedic',16), rep('CardioThoracicVascular',16)))
 cuminc.long.labelled[,wave := readr::parse_number(wave)]
 cuminc.long.labelled[,Emergency := factor(Emergency, levels = c(F,T), labels = c('Elective','Emergency'))]
 names(cuminc.long.labelled)[names(cuminc.long.labelled)=='V3'] <- 'Operation'
@@ -85,15 +85,15 @@ mortality.waves.plot <- ggplot2::ggplot(cuminc.long.labelled[order(Emergency, Op
                                  #variable.name = 'Wave',
                                  #value.name = '90 Day Cumulative Mortality Risk (%)')[, `:=`(COVID = grepl('^COVID*',rn),
                                   #                                                       Operation = gsub('^No COVID|^COVID', '',rn))],
-                ggplot2::aes(x = wave, 
-                             y = cuminc.adjusted.mortality.long, 
+                ggplot2::aes(x = wave,
+                             y = cuminc.adjusted.mortality.long,
                              linetype = postcovid,
                              colour = Operation
-                              )) + 
+                              )) +
   ggplot2::geom_line() +
   ggplot2::facet_wrap(~Emergency, scales = 'free') +
   ggplot2::ylab('90 Day Cumulative Mortality Risk (%)') +
-  ggplot2::xlab('COVID-19 wave') 
+  ggplot2::xlab('COVID-19 wave')
 
 ggplot2::ggsave(plot = mortality.waves.plot, here::here('output','mortality_waves_plot.png'),dpi = 'retina', width = 7, height = 5, units = 'in', device = 'png' )
 
