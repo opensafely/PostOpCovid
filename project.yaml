@@ -260,14 +260,14 @@ actions:
         
         
   table_postopVTErates:      
-    run: r:latest analysis/CrudeVTERates.R
+    run: r:latest analysis/Crude30dayVTE_Rates.R
     needs: [generate_study_population, data_manage]
     outputs:
       moderately_sensitive:
-        table_MajElectiveVTErates: output/Major.op_Elective.csv
-        table_MajEmergVTErates: output/Major.op_Emergency.csv
-        table_MinElectiveVTErates: output/Intermediate.or.Minor.op_Elective.csv
-        table_MinEmergVTErates: output/Intermediate.or.Minor.op_Emergency.csv
+        table_MajElectiveVTErates: output/Major.op_Elective30_day_Crude_VTE_Rates.csv
+        table_MajEmergVTErates: output/Major.op_Emergency30_day_Crude_VTE_Rates.csv
+        table_MinElectiveVTErates: output/Intermediate.or.Minor.op_Elective30_day_Crude_VTE_Rates.csv
+        table_MinEmergVTErates: output/Intermediate.or.Minor.op_Emergency30_day_Crude_VTE_Rates.csv
 
   table_postopVTE_sub:      
     run: r:latest analysis/Table_postopVTE_sub.R
