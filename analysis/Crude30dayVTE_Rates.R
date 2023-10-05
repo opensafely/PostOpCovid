@@ -7,7 +7,7 @@ source(here::here("analysis", "Utils.R"))
 # Load Data
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output", "cohort_long.feather")))
 procedures <- c('Abdominal', 'Obstetrics', 'Orthopaedic', 'CardioThoracicVascular')
-covariates <- c(procedures, 'age.cat', 'sex', 'bmi.cat', 'imd5', 'wave', 'Major.op', 'Intermediate.or.Minor.op', 'vaccination.status.factor', 'region', 'Current.Cancer', 'Emergency', 'LOS.bin', 'Charl12', 'recentCOVID', 'previousCOVID')
+covariates <- c(procedures, 'age.cat', 'sex', 'bmi.cat', 'imd5', 'wave', 'Major.op', 'Intermediate.or.Minor.op', 'vaccination.status.factor', 'region', 'Current.Cancer', 'Emergency', 'LOS.bin', 'Charl12', 'recentCOVID', 'previousCOVID', 'postcovid')
 
 
 data.table::setkey(dt.tv, patient_id, tstart, tstop)
