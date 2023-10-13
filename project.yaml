@@ -269,6 +269,33 @@ actions:
         table_MinElectiveVTErates: output/Intermediate.or.Minor.op_Elective30_day_Crude_VTE_Rates.csv
         table_MinEmergVTErates: output/Intermediate.or.Minor.op_Emergency30_day_Crude_VTE_Rates.csv
 
+  table_unadjusted_30dayvte:
+    run: r:latest analysis/table_unadjusted_30dayvte.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_MajElectiveadjustedrates: output/Major.op_Elective_30_day_adjusted_Analysis.csv
+        table_MajEmergadjustedrates: output/Major.op_Emergency_30_day_adjusted_Analysis.csv
+        table_MinElectiveadjustedrates: output/Intermediate.or.Minor.op_Elective_30_day_adjusted_Analysis.csv
+        table_MinEmergadjustedrates: output/Intermediate.or.Minor.op_Emergency_30_day_adjusted_Analysis.csv
+# ##
+#   Table_30day_unadjustedVTEanalysis:
+#     run: r:latest analysis/Table_30day_unadjustedVTEanalysis.R
+#     needs: [generate_study_population, data_manage]
+#     outputs:
+#       moderately_sensitive:
+#         table_30day_unadjustedVTEanalysis_csv: output/postopvte_unadjusted30dayanalysis.csv
+#         table_30day_unadjustedVTEanalysis: output/postopvte_unadjusted30dayanalysis.RData ##
+    
+  table_30day_adjustedVTEanalysis:
+    run: r:latest analysis/Table_30day_adjustedVTEanalysis.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_30day_adjustedVTEanalysis_csv: output/postopvte_fullyadjusted30dayanalysis.csv
+
+
+
   table_postopVTE_sub:      
     run: r:latest analysis/Table_postopVTE_sub.R
     needs: [generate_study_population, data_manage]
