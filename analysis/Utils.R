@@ -679,6 +679,33 @@ cuminc.km.mort.sub <- function(x,niter)  {
   )
 }
 
+
+
+
+## new cumulative incidence for 30 day VTE
+cuminc.km.vte <- function(x, niter)  { 
+  safelog <- function(x) { x[x < 1e-200] <- 1e-200; log(x) }
+  data.table::setkey(dt.tv, patient_id, tstart, tstop)
+  
+  return(cbind(rep(x, length(levels(dt.tv[tstart >=0 & any.op.VTE == T, as.factor(get(x))]))),
+               rnd(data.table::setDT(summary(survival::survfit(survival::Surv(tstart, tstop, event.VTE == 1) ~ get(x), 
+                                                      data = dt.tv[tstart >=0 & any.op.VTE == T & !is.na(get(x)),],
+                                                      id = patient_id), times = 0)[c('n.risk')])),
+               rnd(data.table::setDT(summary(survival::survfit(survival::Surv(tstart, tstop, event.VTE == 1) ~ get(x), 
+                                                      data = dt.tv[tstart >=0 & any.op.VTE == T & !is.na(get(x)),],
+                                                     id = patient_id), times = 30)[c('n.event')])),
+               100*round(1 - (data.table::setDT(summary(survival::survfit(survival::Surv(tstart, tstop, event.VTE == 1) ~ get(x), 
+                                                       data = dt.tv[tstart >=0 & any.op.VTE == T & !is.na(get(x)),],
+                                                       id = patient_id), times = 30)[c('surv')])), digits = 4)))
+}
+
+
+
+
+
+
+
+
 cuminc.cox <- function(n.type.events = c(1,2),dt, model, newdata, day) {
   eval(parse(text = paste0('assign(x = "base.haz", value = lapply(n.type.events, function(i) { survival::basehaz(',model,'[[i]],centered = F)[] }),envir=environment())')))
   eval(parse(text = paste0('assign(x = "base.haz", value = lapply(n.type.events, function(i) { base.haz[[i]][base.haz[[i]]$time %in% sort(unique(',dt,'[get(all.vars(get(model)[[i]]$call)[[3]])== i ,end])),][] }),envir=environment())')))
