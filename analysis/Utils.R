@@ -687,18 +687,37 @@ cuminc.km.vte <- function(x, niter)  {
   safelog <- function(x) { x[x < 1e-200] <- 1e-200; log(x) }
   data.table::setkey(dt.tv, patient_id, tstart, tstop)
   
-  return(cbind(rep(x, length(levels(dt.tv[tstart >=0 & any.op.VTE == T, as.factor(get(x))]))),
+  filtered_data <- dt.tv[start >= 0 & (tstop - tstart) <= 30 & any.op.VTE == T & !is.na(get(x))]
+  
+  return(cbind(rep(x, length(levels(filtered_data[, as.factor(get(x))]))),
                rnd(data.table::setDT(summary(survival::survfit(survival::Surv(tstart, tstop, event.VTE == 1) ~ get(x), 
-                                                      data = dt.tv[tstart >=0 & any.op.VTE == T & !is.na(get(x)),],
-                                                      id = patient_id), times = 0)[c('n.risk')])),
+                                                               data = filtered_data,
+                                                               id = patient_id), times = 0)[c('n.risk')])),
                rnd(data.table::setDT(summary(survival::survfit(survival::Surv(tstart, tstop, event.VTE == 1) ~ get(x), 
-                                                      data = dt.tv[tstart >=0 & any.op.VTE == T & !is.na(get(x)),],
-                                                     id = patient_id), times = 30)[c('n.event')])),
+                                                               data = filtered_data,
+                                                               id = patient_id), times = 30)[c('n.event')])),
                100*round(1 - (data.table::setDT(summary(survival::survfit(survival::Surv(tstart, tstop, event.VTE == 1) ~ get(x), 
-                                                       data = dt.tv[tstart >=0 & any.op.VTE == T & !is.na(get(x)),],
-                                                       id = patient_id), times = 30)[c('surv')])), digits = 4)))
+                                                                          data = filtered_data,
+                                                                          id = patient_id), times = 30)[c('surv')])), digits = 4)))
 }
 
+# 
+# ## new cumulative incidence for 30 day VTE
+# cuminc.km.vte <- function(x, niter)  { 
+#   safelog <- function(x) { x[x < 1e-200] <- 1e-200; log(x) }
+#   data.table::setkey(dt.tv, patient_id, tstart, tstop)
+#   
+#   return(cbind(rep(x, length(levels(dt.tv[tstart >=0 & any.op.VTE == T, as.factor(get(x))]))),
+#                rnd(data.table::setDT(summary(survival::survfit(survival::Surv(tstart, tstop, event.VTE == 1) ~ get(x), 
+#                                                                data = dt.tv[tstart >=0 & any.op.VTE == T & !is.na(get(x)),],
+#                                                                id = patient_id), times = 0)[c('n.risk')])),
+#                rnd(data.table::setDT(summary(survival::survfit(survival::Surv(tstart, tstop, event.VTE == 1) ~ get(x), 
+#                                                                data = dt.tv[tstart >=0 & any.op.VTE == T & !is.na(get(x)),],
+#                                                                id = patient_id), times = 30)[c('n.event')])),
+#                100*round(1 - (data.table::setDT(summary(survival::survfit(survival::Surv(tstart, tstop, event.VTE == 1) ~ get(x), 
+#                                                                           data = dt.tv[tstart >=0 & any.op.VTE == T & !is.na(get(x)),],
+#                                                                           id = patient_id), times = 30)[c('surv')])), digits = 4)))
+# }
 
 
 

@@ -20,6 +20,8 @@ covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','postcovid','wave','
                 'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
+# set region as factor
+dt.tv[, region := as.factor(region)]
 
 
 # Functions for crude HR and Cumulative Incidence for VTE 
@@ -78,5 +80,9 @@ names(crude.vte.cov) <- c("Characteristic", "Level", "Number at risk", "Number o
 # Save the results to csv and RData
 data.table::fwrite(crude.vte.cov, file = here::here("output","postopvte_fullyadjusted30dayanalysis.csv"))
 save(crude.vte.cov, file = here::here("output","postopvte_fullyadjusted30dayanalysis.RData"))
+
+##################################
+
+
 
 
