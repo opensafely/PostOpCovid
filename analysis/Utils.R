@@ -690,13 +690,13 @@ cuminc.km.vte <- function(x, niter)  {
   filtered_data <- dt.tv[start >= 0 & (tstop - tstart) <= 30 & any.op.VTE == T & !is.na(get(x))]
   
   return(cbind(rep(x, length(levels(filtered_data[, as.factor(get(x))]))),
-               rnd(data.table::setDT(summary(survival::survfit(survival::Surv(tstart, tstop, event.VTE == 1) ~ get(x), 
+               rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start, end, event.VTE == 1) ~ get(x), 
                                                                data = filtered_data,
                                                                id = patient_id), times = 0)[c('n.risk')])),
-               rnd(data.table::setDT(summary(survival::survfit(survival::Surv(tstart, tstop, event.VTE == 1) ~ get(x), 
+               rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start, end, event.VTE == 1) ~ get(x), 
                                                                data = filtered_data,
                                                                id = patient_id), times = 30)[c('n.event')])),
-               100*round(1 - (data.table::setDT(summary(survival::survfit(survival::Surv(tstart, tstop, event.VTE == 1) ~ get(x), 
+               100*round(1 - (data.table::setDT(summary(survival::survfit(survival::Surv(start, end, event.VTE == 1) ~ get(x), 
                                                                           data = filtered_data,
                                                                           id = patient_id), times = 30)[c('surv')])), digits = 4)))
 }
