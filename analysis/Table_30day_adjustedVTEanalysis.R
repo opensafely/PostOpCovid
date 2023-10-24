@@ -11,16 +11,23 @@ source(here::here("analysis","Utils.R"))
 ## Load data files
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output","cohort_long.feather")))
 
-## Define procedures and covariates
-procedures <- c('Abdominal','Obstetrics','Orthopaedic','CardioThoracicVascular')
+## Convert procedures to individual categorical
+dt.tv[, procedure := ifelse(Abdominal, "Abdominal",
+                            ifelse(Obstetrics, "Obstetrics",
+                                   ifelse(Orthopaedic, "Orthopaedic",
+                                          ifelse(CardioThoracicVascular, "CardioThoracicVascular", NA))))]
 
-data.table::setkey(dt.tv,patient_id,tstart,tstop)
+# Set Abdominal as reference
+dt.tv[, procedure := as.factor(procedure)]
+dt.tv[, procedure := relevel(procedure, ref = "Abdominal")]
 
-covariates <- c(procedures,'age.cat','sex','bmi.cat','imd5','postcovid','wave','Major.op',
+
+## Define covariates
+covariates <- c('procedure','age.cat','sex','bmi.cat','imd5','postcovid','wave','Major.op',
                 'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
-# set region as factor
+# set region as factor 
 dt.tv[, region := as.factor(region)]
 
 
@@ -48,18 +55,18 @@ adjusted.HR.vte <- function(covariate_name) {
 }
 
 for(i in 1:length(covariates)){
-print (covariates[i])
-print(dt.tv[start >= 0 ,.N, event.VTE][])
-dt.tv[start >= 0 & (tstop - tstart) <= 30 ,.N, event.VTE][]
-dt.tv[start >= 0 & (tstop - tstart) <= 30 & any.op.VTE == T ,.N, event.VTE][]
-dt.tv[start >= 0 & (tstop - tstart) <= 30 & any.op.VTE == T & !is.na(get (covariates[i])),.N, event.VTE][]
-
+  print (covariates[i])
+  print(dt.tv[start >= 0 ,.N, event.VTE][])
+  dt.tv[start >= 0 & (tstop - tstart) <= 30 ,.N, event.VTE][]
+  dt.tv[start >= 0 & (tstop - tstart) <= 30 & any.op.VTE == T ,.N, event.VTE][]
+  dt.tv[start >= 0 & (tstop - tstart) <= 30 & any.op.VTE == T & !is.na(get (covariates[i])),.N, event.VTE][]
+  
 }
 ## Crude and fully adjusted HR calculations
 crude.vte.cov <- data.table::rbindlist(
   lapply(1:length(covariates), function(i) {
     
-
+    
     # Define covariates, level, cumulative incidences, crude and adjusted HR with 95% CI
     covariate_names <- rep(covariates[i], length(levels(dt.tv[start >=0 & any.op.VTE == T, as.factor(get(covariates[i]))])))
     
@@ -79,7 +86,7 @@ crude.vte.cov <- data.table::rbindlist(
   })
 )
 
-  
+
 
 # Name the columns of the output table
 names(crude.vte.cov) <- c("Characteristic", "Level", "Number at risk", "Number of post operative VTE events within 30 days", 
