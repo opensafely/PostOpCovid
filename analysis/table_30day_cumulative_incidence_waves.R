@@ -1,7 +1,10 @@
 # Load libraries
 
 library(data.table)  
-library(survival)   
+library(survival)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
 
 # Load data
 dt.tv <- data.table::setDT(arrow::read_feather(here::here("output", "cohort_long.feather")))
@@ -68,4 +71,21 @@ names(procedure_across_waves) <- c("Procedure", "Wave", "Number at risk", "Numbe
 # Save the results to CSV and RData
 data.table::fwrite(procedure_across_waves, file = here::here("output", "table_postop_VTEincidence_by_procedure_wave.csv"))
 save(procedure_across_waves, file = here::here("output", "table_postop_VTEincidence_by_procedure_wave.RData"))
+
+### Plot 30 day incidence across waves
+
+VTE_30dayincidence_procedure_waves_plot <- ggplot2::ggplot(procedure_across_waves, aes(x = Wave, 
+                                                              y = `30 day Cumulative VTE`, 
+                                                              group = Procedure,
+                                                              color = Procedure)) +
+  ggplot2::geom_line() +
+  ggplot2::labs(title = "30-Day Cumulative VTE Incidence Across Procedures and Waves",
+                x = "Wave",
+                y = "30-Day Cumulative VTE Incidence (%)") +
+  ggplot2::theme(plot.background = ggplot2::element_rect(fill = "white"))  
+
+# Save the plot as an image file
+ggplot2::ggsave(plot = VTE_waves_plot, 
+                filename = here::here("output", "VTE_waves_plot.png"), dpi = 300, width = 7, height = 5, units = "in", device = "png")
+
 
