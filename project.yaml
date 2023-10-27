@@ -293,6 +293,15 @@ actions:
     outputs:
       moderately_sensitive:
         table_30day_adjustedVTEanalysis_csv: output/postopvte_fullyadjusted30dayanalysis.csv
+        
+        
+  table_30day_cumulative_incidence_waves:
+    run: r:latest analysis/table_30day_cumulative_incidence_waves.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_30day_adjustedVTEanalysis_csv: output/table_postop_VTEincidence_by_procedure_wave.csv
+        
 
 
 
