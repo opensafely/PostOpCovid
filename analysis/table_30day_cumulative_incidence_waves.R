@@ -85,7 +85,7 @@ VTE_30dayincidence_procedure_waves_plot <- ggplot2::ggplot(procedure_across_wave
   ggplot2::theme(plot.background = ggplot2::element_rect(fill = "white"))  
 
 # Save the plot as an image file
-ggplot2::ggsave(plot = VTE_waves_plot, 
-                filename = here::here("output", "VTE_waves_plot.png"), dpi = 300, width = 7, height = 5, units = "in", device = "png")
+ggplot2::ggsave(plot = VTE_30dayincidence_procedure_waves_plot, 
+                file = here::here("output", "VTE_waves_plot.png"), dpi = 300, width = 7, height = 5, units = "in", device = "png")
 
 
