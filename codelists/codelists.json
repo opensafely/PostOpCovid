@@ -69,8 +69,8 @@
     "opensafely-warfarin.csv": {
       "id": "opensafely/warfarin/2020-10-05",
       "url": "https://codelists.opensafely.org/codelist/opensafely/warfarin/2020-10-05/",
-      "downloaded_at": "2022-03-24 17:30:50.308675Z",
-      "sha": "971d819a24d4c04bea3000390e9fb2f718fb3b22"
+      "downloaded_at": "2023-10-31 21:28:30.910068Z",
+      "sha": "19f44be10661af71553fc53e68044a39922159de"
     },
     "opensafely-low-molecular-weight-heparins.csv": {
       "id": "opensafely/low-molecular-weight-heparins/3088164f",
@@ -81,8 +81,8 @@
     "opensafely-direct-acting-oral-anticoagulants-doac.csv": {
       "id": "opensafely/direct-acting-oral-anticoagulants-doac/2020-10-05",
       "url": "https://codelists.opensafely.org/codelist/opensafely/direct-acting-oral-anticoagulants-doac/2020-10-05/",
-      "downloaded_at": "2022-03-24 17:30:51.049290Z",
-      "sha": "50f69d9c0bcb0e58aadb76fb4749d33f74f66253"
+      "downloaded_at": "2023-10-31 21:28:31.241565Z",
+      "sha": "779850709f805e2d7e53cde374656ca894ab2d11"
     },
     "opensafely-venous-thromboembolism-current-by-type-secondary-care-and-mortality-data.csv": {
       "id": "opensafely/venous-thromboembolism-current-by-type-secondary-care-and-mortality-data/4402fca7",
