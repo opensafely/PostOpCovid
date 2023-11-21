@@ -99,8 +99,9 @@ actions:
     run: r:latest analysis/FlowChart.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive:
         flowchart_data: output/flowchart.RData
+      moderately_sensitive:
         flowchart_fig: output/Flowchart.pdf
         flowchart_png: output/Flowchart.png
         
@@ -115,24 +116,27 @@ actions:
     run: r:latest analysis/Table_postopcovid_crude.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive:
         table_crude: output/postopcovid_crude.RData
+      moderately_sensitive:        
         table_crude_csv: output/postopcovid_crude.csv
         
   table_postopcovid_crude_sub:      
     run: r:latest analysis/Table_postopcovid_crude_sub.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive:
         table_crude: output/postopcovid_crude_sub.RData
+      moderately_sensitive:        
         table_crude_csv: output/postopcovid_crude_sub.csv
        
   table_postopcovid_adjusted:      
     run: r:latest analysis/Table_postopcovid_adjusted.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive:    
         table_adjusted: output/postopcovid_adjusted.RData
+      moderately_sensitive:
         table_adjusted_csv: output/postopcovid_adjusted.csv
         model_adjusted: output/postopcovidmodel.csv
         model_adjusted_waves: output/postopcovidmodelwaves.csv
@@ -167,8 +171,9 @@ actions:
     run: r:latest analysis/Table_postopcovid_adjusted_sub.R
     needs: [generate_study_population, data_manage]
     outputs:
+      highly_sensitive:   
+        table_adjusted_sub: output/postopcovid_adjusted_sub.RData      
       moderately_sensitive:
-        table_adjusted_sub: output/postopcovid_adjusted_sub.RData
         table_adjusted_sub_csv: output/postopcovid_adjusted_sub.csv
         model_adjusted_sub: output/postopcovidmodelsub.csv
         model_adjusted_waves_sub: output/postopcovidmodelwavessub.csv
@@ -178,8 +183,9 @@ actions:
     run: r:latest analysis/Table_postopcovid_tv.R
     needs: [generate_study_population, data_manage,data_manage_postdisch_week]
     outputs:
-      moderately_sensitive:
+      highly_sensitive: 
         table_tv: output/postopcovid_tv.RData
+      moderately_sensitive:
         table_tv_csv: output/postopcovid_tv.csv
         model_COVID_tv: output/postopcovidmodelsplit.html
         model_COVID_tv_txt: output/postopcovidmodelsplit.txt
@@ -205,8 +211,9 @@ actions:
     run: r:latest analysis/Table_postopcovid_tv_sub.R
     needs: [generate_study_population, data_manage,data_manage_postdisch_week]
     outputs:
-      moderately_sensitive:
+      highly_sensitive: 
         table_tv_sub: output/postopcovid_tv_sub.RData
+      moderately_sensitive:
         table_tv_sub_csv: output/postopcovid_tv_sub.csv
         model_COVID_tv_sub: output/postopcovidmodelsplitsub.html
         model_COVID_tv_sub_txt: output/postopcovidmodelsplitsub.txt        
@@ -231,8 +238,9 @@ actions:
     run: r:latest analysis/Table_postoplos.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive: 
         table_los: output/postoplos.RData
+      moderately_sensitive:
         table_los_csv: output/postoplos.csv
         model_los: output/postopLOSmodel.csv
         plot_los: output/LOSplot.png
@@ -241,8 +249,9 @@ actions:
     run: r:latest analysis/Table_postoplos_sub.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive: 
         table_los_sub: output/postoplos_sub.RData
+      moderately_sensitive:
         table_los_sub_csv: output/postoplos_sub.csv
         model_los_sub: output/postopLOSmodel_sub.csv
         plot_los_sub: output/LOSplotsub.png        
@@ -251,8 +260,9 @@ actions:
     run: r:latest analysis/Table_postopVTE.R
     needs: [generate_study_population, data_manage]
     outputs:
+      highly_sensitive: 
+        table_VTE: output/postopVTE.RData    
       moderately_sensitive:
-        table_VTE: output/postopVTE.RData
         table_VTE_csv: output/postopVTE.csv
         model_VTE: output/postopVTEmodel.html
         model_VTE_txt: output/postopVTEmodel.txt        
@@ -309,8 +319,9 @@ actions:
     run: r:latest analysis/Table_postopVTE_sub.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive: 
         table_VTE_sub: output/postopVTE_sub.RData
+      moderately_sensitive:
         table_VTE_sub_csv: output/postopVTE_sub.csv        
         model_VTE_sub: output/postopVTEmodelsub.html
         model_VTE_sub_txt: output/postopVTEmodelsub.txt        
@@ -320,8 +331,9 @@ actions:
     run: r:latest analysis/Table_postopVTE_recent.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive:   
         table_VTE_recent: output/postopVTErecent.RData
+      moderately_sensitive:
         table_VTE_recent_csv: output/postopVTE_recentCOVID.csv
         model_VTE_recent: output/postopVTEmodelrecentCOVID.html
         model_VTE_recent_txt: output/postopVTEmodelrecentCOVID.txt        
@@ -331,8 +343,9 @@ actions:
     run: r:latest analysis/Table_postopVTE_recent_sub.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive:   
         table_VTE_recent_sub: output/postopVTErecent_sub.RData
+      moderately_sensitive:
         table_VTE_recent_sub_csv: output/postopVTE_recentCOVID_sub.csv       
         model_VTE_recent_sub: output/postopVTEmodelrecentCOVIDsub.html
         model_VTE_recent_sub_txt: output/postopVTEmodelrecentCOVIDsub.txt        
@@ -342,8 +355,9 @@ actions:
     run: r:latest analysis/Table_postopmortality.R
     needs: [generate_study_population, data_manage]
     outputs:
+      highly_sensitive:   
+        table_mortality: output/postopmortality.RData    
       moderately_sensitive:
-        table_mortality: output/postopmortality.RData
         table_mortality_csv: output/postopmortality.csv
         model_mortality: output/postopdiedmodel.html
         model_mortality_txt: output/postopdiedmodel.txt        
@@ -353,8 +367,9 @@ actions:
     run: r:latest analysis/Table_postopmortality_sub.R
     needs: [generate_study_population, data_manage]
     outputs:
+      highly_sensitive:   
+        table_mortality_sub: output/postopmortality_sub.RData  
       moderately_sensitive:
-        table_mortality_sub: output/postopmortality_sub.RData
         table_mortality_sub_csv: output/postopmortality_sub.csv
         model_mortality_sub: output/postopdiedmodelsub.html
         model_mortality_sub_txt: output/postopdiedmodelsub.txt        
@@ -364,24 +379,27 @@ actions:
     run: r:latest analysis/Table_postopcovid_mort_crude.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive:   
         table_crudemort: output/postopmort_crude.RData
+      moderately_sensitive:
         table_crudemort_csv: output/postopmort_crude.csv
         
   table_postopmort_crude_sub:      
     run: r:latest analysis/Table_postopcovid_mort_crude_sub.R
     needs: [generate_study_population, data_manage]
     outputs:
+      highly_sensitive: 
+        table_crudemort: output/postopmort_crude_sub.RData      
       moderately_sensitive:
-        table_crudemort: output/postopmort_crude_sub.RData
         table_crudemort_csv: output/postopmort_crude_sub.csv
        
   table_postopmort_adjusted:      
     run: r:latest analysis/Table_postopcovid_mort_adjusted.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive:     
         table_adjustedmort: output/postopmort_adjusted.RData
+      moderately_sensitive:
         table_adjustedmort_csv: output/postopmort_adjusted.csv
 
        
@@ -389,16 +407,18 @@ actions:
     run: r:latest analysis/Table_postopcovid_mort_adjusted_sub.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive:     
         table_adjustedmort_sub: output/postopmort_adjusted_sub.RData
+      moderately_sensitive:
         table_adjustedmort_sub_csv: output/postopmort_adjusted_sub.csv
         
   table_postopreadmit:      
     run: r:latest analysis/Table_postop_readmit.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive:     
         table_readmit: output/postopreadmit.RData
+      moderately_sensitive:
         table_readmit_csv: output/postopreadmit.csv
         model_readmit: output/postopreadmitmodel.html
         model_readmit_txt: output/postopreadmitmodel.txt        
@@ -408,8 +428,9 @@ actions:
     run: r:latest analysis/Table_postop_readmit_sub.R
     needs: [generate_study_population, data_manage]
     outputs:
-      moderately_sensitive:
+      highly_sensitive:     
         table_readmit_sub: output/postopreadmit_sub.RData
+      moderately_sensitive:
         table_readmit_sub_csv: output/postopreadmit_sub.csv
         model_readmit_sub: output/postopreadmitmodelsub.html
         model_readmit_sub_txt: output/postopreadmitmodelsub.txt        
