@@ -23,8 +23,8 @@ dt.tv[, procedure := relevel(procedure, ref = "Abdominal")]
 
 
 ## Define covariates
-covariates <- c('procedure','age.cat','sex','bmi.cat','imd5','postcovid','wave','Major.op',
-                'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID')
+covariates <- c('procedure','age.cat','sex','bmi.cat','imd5','wave','Major.op',
+                'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','postop.covid.cohort','recentCOVID','previousCOVID','postcovid')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 # set region as factor 
