@@ -24,7 +24,7 @@ dt.tv[, procedure := relevel(procedure, ref = "Abdominal")]
 
 ## Define covariates
 covariates <- c('procedure','age.cat','sex','bmi.cat','imd5','wave','Major.op',
-                'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','postop.covid.cohort','recentCOVID','previousCOVID','postcovid')
+                'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID','postcovid')
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 # set region as factor 
@@ -37,11 +37,11 @@ crude.HR.vte <- function(x) {
 }
 
 
-#Function for adjusted HR function
+##Function for adjusted HR function
 adjusted.HR.vte <- function(covariate_name) {
   fully_adjusted_model <- coxph(formula = as.formula(paste0('Surv(start,end,event.VTE==1) ~ ', paste(covariates, collapse = " + "))),
                                 id = patient_id,
-                                data = dt.tv[start >= 0 & any.op.VTE == T])
+                                data = dt.tv[start >= -1 & (tstop - tstart) <=30 & any.op.VTE == T])
   
   coef_name <- paste0(covariate_name, collapse = ", ")
   
@@ -68,15 +68,15 @@ crude.vte.cov <- data.table::rbindlist(
     
     
     # Define covariates, level, cumulative incidences, crude and adjusted HR with 95% CI- NB- any.op.VTE==T replaced with any.op==T 
-    covariate_names <- rep(covariates[i], length(levels(dt.tv[start >=0 & any.op == T, as.factor(get(covariates[i]))])))
+    covariate_names <- rep(covariates[i], length(levels(dt.tv[start >= -1 & (tstop - tstart) <= 30 & any.op == T, as.factor(get(covariates[i]))])))
     
-    covariate_levels <- levels(dt.tv[start >=0 & any.op == T, as.factor(get(covariates[i]))])
+    covariate_levels <- levels(dt.tv[start >= -1 & (tstop - tstart) <= 30 & any.op == T, as.factor(get(covariates[i]))])
     
     cuminc_values <- cuminc.km.vte(covariates[i], niter = 2)[,2:4]
     
     crude_hr_values <- c('Ref', coxph(formula = as.formula(paste0('Surv(start,end,event.VTE==1) ~ ', covariates[i])),
                                       id = patient_id,
-                                      data = dt.tv[start >=0 & any.op == T]) %>% crude.HR.vte())
+                                      data = dt.tv[start >= -1 & (tstop - tstart) <= 30 & any.op == T]) %>% crude.HR.vte())
     
     adjusted_hr_values <- sapply(covariate_levels, function(lev) {
       adjusted.HR.vte(paste0(covariates[i], lev))
