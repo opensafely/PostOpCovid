@@ -29,7 +29,7 @@ covariates <- c('procedure','age.cat','sex','bmi.cat','imd5','wave','Major.op',
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 # set region as factor 
 dt.tv[, region := as.factor(region)]
-
+dt.tv[,postcovid := postcovid == 1]
 
 # Functions for crude HR and Cumulative Incidence for VTE 
 crude.HR.vte <- function(x) {
