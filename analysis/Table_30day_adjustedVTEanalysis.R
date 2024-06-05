@@ -20,8 +20,8 @@ dt.tv[, procedure := ifelse(Abdominal, "Abdominal",
 # Set Abdominal as reference
 dt.tv[, procedure := as.factor(procedure)]
 dt.tv[, procedure := relevel(procedure, ref = "Abdominal")]
-dt.tv[, postcovid.VTE.cohort := start >= -1 & tstop <= final.date.VTE & any.op.VTE == T & end <= 90]
-dt.tv[end > 90, event.VTE := 0]
+dt.tv[, postcovid.VTE.cohort := start >= -1 & tstop <= final.date.VTE & any.op.VTE == T & end <= 30]
+dt.tv[end > 30, event.VTE := 0]
 
 ## Define covariates
 covariates <- c('procedure','age.cat','sex','bmi.cat','imd5','wave','Major.op',
