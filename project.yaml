@@ -268,6 +268,53 @@ actions:
         model_VTE_txt: output/postopVTEmodel.txt        
         plot_VTE_waves: output/VTE_waves_plot.png
         
+  table_postopVTE_major_emergency:      
+    run: r:latest analysis/coxmodel_major_emergency.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      highly_sensitive: 
+        table_VTE: output/postopVTE_major_emergency.RData    
+      moderately_sensitive:
+        table_VTE_csv: output/postopVTE_major_emergency.csv
+        model_VTE: output/postopVTEmodel_major_emergency.html
+        model_VTE_txt: output/postopVTEmodel_major_emergency.txt        
+        plot_VTE_waves: output/VTE_waves_major_emergency.png
+        
+  table_postopVTE_minor_emergency:      
+    run: r:latest analysis/coxmodel_minor_emergency.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      highly_sensitive: 
+        table_VTE: output/postopVTE_minor_emergency.RData    
+      moderately_sensitive:
+        table_VTE_csv: output/postopVTE_minor_emergency.csv
+        model_VTE: output/postopVTEmodel_minor_emergency.html
+        model_VTE_txt: output/postopVTEmodel_minor_emergency.txt        
+        plot_VTE_waves: output/VTE_waves_minor_emergency.png     
+        
+  table_postopVTE_major_elective:      
+    run: r:latest analysis/coxmodel_major_elective.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      highly_sensitive: 
+        table_VTE: output/postopVTE_major_elective.RData    
+      moderately_sensitive:
+        table_VTE_csv: output/postopVTE_major_elective.csv
+        model_VTE: output/postopVTEmodel_major_elective.html
+        model_VTE_txt: output/postopVTEmodel_major_elective.txt        
+        plot_VTE_waves: output/VTE_waves_major_elective.png   
+        
+   table_postopVTE_minor_elective:      
+    run: r:latest analysis/coxmodel_minor_elective.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      highly_sensitive: 
+        table_VTE: output/postopVTE_minor_elective.RData    
+      moderately_sensitive:
+        table_VTE_csv: output/postopVTE_minor_elective.csv
+        model_VTE: output/postopVTEmodel_minor_elective.html
+        model_VTE_txt: output/postopVTEmodel_minor_elective.txt        
+        plot_VTE_waves: output/VTE_waves_minor_elective.png        
         
   table_postopVTErates:      
     run: r:latest analysis/Crude30dayVTE_Rates.R
@@ -304,7 +351,17 @@ actions:
       moderately_sensitive:
         table_30day_adjustedVTEanalysis_csv: output/postopvte_fullyadjusted30dayanalysis.csv
         
-        
+  table_emergency_elective_30dayVTE:
+    run: r:latest analysis/Table_emergency_elective_30dayVTE.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      highly_sensitive:
+        table_postopvte_fullyadjusted30dayanalysis_emergency: postopvte_fullyadjusted30dayanalysis_emergency.RData
+        table_postopvte_fullyadjusted30dayanalysis_elective: postopvte_fullyadjusted30dayanalysis_elective.RData
+      moderately_sensitive:
+        table_postopvte_fullyadjusted30dayanalysis_emergency: output/postopvte_fullyadjusted30dayanalysis_emergency.csv
+         
+         
   table_30day_cumulative_incidence_waves:
     run: r:latest analysis/table_30day_cumulative_incidence_waves.R
     needs: [generate_study_population, data_manage]
