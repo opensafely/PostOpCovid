@@ -304,7 +304,7 @@ actions:
         model_VTE_txt: output/postopVTEmodel_major_elective.txt        
         plot_VTE_waves: output/VTE_waves_major_elective.png   
         
-   table_postopVTE_minor_elective:      
+  table_postopVTE_minor_elective:      
     run: r:latest analysis/coxmodel_minor_elective.R
     needs: [generate_study_population, data_manage]
     outputs:
@@ -350,6 +350,13 @@ actions:
     outputs:
       moderately_sensitive:
         table_30day_adjustedVTEanalysis_csv: output/postopvte_fullyadjusted30dayanalysis.csv
+        
+  table_90day_adjustedVTEanalysis:
+    run: r:latest analysis/Table_90day_adjustedVTEanalysis.R
+    needs: [generate_study_population, data_manage]
+    outputs:
+      moderately_sensitive:
+        table_90day_adjustedVTEanalysis_csv: output/postopvte_fullyadjusted90dayanalysis.csv
         
   table_emergency_elective_30dayVTE:
     run: r:latest analysis/Table_emergency_elective_30dayVTE.R
