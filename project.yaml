@@ -276,9 +276,15 @@ actions:
         table_VTE: output/postopVTE_major_emergency.RData    
       moderately_sensitive:
         table_VTE_csv: output/postopVTE_major_emergency.csv
+        table_VTE_csv_unvac: output/postopVTE_major_emergency_unvac.csv
+        table_VTE_csv_recentcovid: output/recentcovid_postopVTE_major_emergency.csv
+        table_VTE_csv_recent_unvac: output/recentcovid_postopVTE_major_emergency_unvac.csv
         model_VTE: output/postopVTEmodel_major_emergency.html
         model_VTE_txt: output/postopVTEmodel_major_emergency.txt        
         plot_VTE_waves: output/VTE_waves_major_emergency.png
+        plot_VTE_waves_unvac: output/VTE_waves_major_emergency_unvac.png
+        plot_VTE_waves_recentcovid: output/recentcovid_VTE_waves_major_emergency.png
+        plot_VTE_waves_recent_unvac: output/recentcovid_VTE_waves_major_emergency_unvac.png
         
   table_postopVTE_minor_emergency:      
     run: r:latest analysis/coxmodel_minor_emergency.R
@@ -288,9 +294,15 @@ actions:
         table_VTE: output/postopVTE_minor_emergency.RData    
       moderately_sensitive:
         table_VTE_csv: output/postopVTE_minor_emergency.csv
+        table_VTE_csv_unvac: output/postopVTE_minor_emergency_unvac.csv
+        table_VTE_csv_recentcovid: output/recentcovid_postopVTE_minor_emergency.csv
+        table_VTE_csv_recent_unvac: output/recentcovid_postopVTE_minor_emergency_unvac.csv
         model_VTE: output/postopVTEmodel_minor_emergency.html
-        model_VTE_txt: output/postopVTEmodel_minor_emergency.txt        
-        plot_VTE_waves: output/VTE_waves_minor_emergency.png     
+        model_VTE_txt: output/postopVTEmodel_minor_emergency.txt
+        plot_VTE_waves: output/VTE_waves_minor_emergency.png
+        plot_VTE_waves_unvac: output/VTE_waves_minor_emergency_unvac.png
+        plot_VTE_waves_recentcovid: output/recentcovid_VTE_waves_minor_emergency.png
+        plot_VTE_waves_recent_unvac: output/recentcovid_VTE_waves_minor_emergency_unvac.png   
         
   table_postopVTE_major_elective:      
     run: r:latest analysis/coxmodel_major_elective.R
@@ -318,9 +330,15 @@ actions:
         table_VTE: output/postopVTE_minor_elective.RData    
       moderately_sensitive:
         table_VTE_csv: output/postopVTE_minor_elective.csv
+        table_VTE_csv_unvac: output/postopVTE_minor_elective_unvac.csv
+        table_VTE_csv_recentcovid: output/recentcovid_postopVTE_minor_elective.csv
+        table_VTE_csv_recent_unvac: output/recentcovid_postopVTE_minor_elective_unvac.csv
         model_VTE: output/postopVTEmodel_minor_elective.html
-        model_VTE_txt: output/postopVTEmodel_minor_elective.txt        
-        plot_VTE_waves: output/VTE_waves_minor_elective.png        
+        model_VTE_txt: output/postopVTEmodel_minor_elective.txt
+        plot_VTE_waves: output/VTE_waves_minor_elective.png
+        plot_VTE_waves_unvac: output/VTE_waves_minor_elective_unvac.png
+        plot_VTE_waves_recentcovid: output/recentcovid_VTE_waves_minor_elective.png
+        plot_VTE_waves_recent_unvac: output/recentcovid_VTE_waves_minor_elective_unvac.png    
         
   table_postopVTErates:      
     run: r:latest analysis/Crude30dayVTE_Rates.R
