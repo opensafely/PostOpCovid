@@ -25,7 +25,7 @@ dt.tv[end > 30, event.VTE := 0]
 
 ## Define covariates
 covariates <- c('procedure','age.cat','sex','bmi.cat','imd5','wave','Major.op',
-                'vaccination.status.factor','region','Current.Cancer','Emergency','LOS.bin','Charl12','recentCOVID','previousCOVID','postcovid')
+                'vaccination.status.factor','region','Current.Cancer','Emergency','Charl12','recentCOVID','previousCOVID','postcovid') #LOS removed
 
 data.table::setkey(dt.tv,patient_id,tstart,tstop)
 # set region as factor 
@@ -73,7 +73,7 @@ crude.vte.cov <- data.table::rbindlist(
     
     covariate_levels <- levels(dt.tv[(postcovid.VTE.cohort), as.factor(get(covariates[i]))])
     
-    cuminc_values <- cuminc.km.vte(covariates[i], niter = 2)[,2:4]
+    cuminc_values <- cuminc.km.vte(covariates[i], niter = 2, days = 30)[,2:4]
     
     crude_hr_values <- c('Ref', coxph(formula = as.formula(paste0('Surv(start,end,event.VTE==1) ~ ', covariates[i])),
                                       id = patient_id,
