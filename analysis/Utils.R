@@ -682,12 +682,30 @@ cuminc.km.mort.sub <- function(x,niter)  {
 
 
 # new cumulative incidence for 30 day VTE- any.op.VTE==1 replaced with any.op==T
-cuminc.km.vte <- function(x, niter)  {
+cuminc.km.vte <- function(x, niter, days=30)  {
   safelog <- function(x) { x[x < 1e-200] <- 1e-200; log(x) }
   data.table::setkey(dt.tv, patient_id, tstart, tstop)
 
-  filtered_data <- dt.tv[start >= -1 & (tstop - tstart) <= 30 & any.op == T & !is.na(get(x))]
+  filtered_data <- dt.tv[start >= -1 & (tstop - tstart) <= days & any.op == T & !is.na(get(x))]
 
+  return(cbind(rep(x, length(levels(filtered_data[, as.factor(get(x))]))),
+               rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start, end, event.VTE == 1) ~ get(x),
+                                                               data = filtered_data,
+                                                               id = patient_id), times = 0)[c('n.risk')])),
+               rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start, end, event.VTE == 1) ~ get(x),
+                                                               data = filtered_data,
+                                                               id = patient_id), times = days)[c('n.event')])),
+               100*round(1 - (data.table::setDT(summary(survival::survfit(survival::Surv(start, end, event.VTE == 1) ~ get(x),
+                                                                          data = filtered_data,
+                                                                          id = patient_id), times = days)[c('surv')])), digits = 4)))
+}
+## cumulative incidence function for stratified analysis by emergency or elective
+cuminc.km.vte.stratified <- function(x, niter, surgical_urgency) {
+  safelog <- function(x) { x[x < 1e-200] <- 1e-200; log(x) }
+  data.table::setkey(dt.tv, patient_id, tstart, tstop)
+  
+  filtered_data <- dt.tv[start >= -1 & (tstop - tstart) <= 30 & any.op == T & !is.na(get(x)) & Emergency == surgical_urgency]
+  
   return(cbind(rep(x, length(levels(filtered_data[, as.factor(get(x))]))),
                rnd(data.table::setDT(summary(survival::survfit(survival::Surv(start, end, event.VTE == 1) ~ get(x),
                                                                data = filtered_data,
@@ -699,6 +717,8 @@ cuminc.km.vte <- function(x, niter)  {
                                                                           data = filtered_data,
                                                                           id = patient_id), times = 30)[c('surv')])), digits = 4)))
 }
+
+
 
 # 
 # ## new cumulative incidence for 30 day VTE
