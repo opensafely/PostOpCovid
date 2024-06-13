@@ -345,17 +345,17 @@ actions:
     needs: [generate_study_population, data_manage]
     outputs:
       highly_sensitive: 
-        table_VTE: output/postopVTE_procedure_specific.RData    
+        table_VTE: output/postopVTEmodel_procedure_specific.RData   
       moderately_sensitive:
-        table_VTE_csv: output/postopVTE_procedure_specific.csv
+        table_VTE_csv: output/postopVTEmodel_procedure_specific.csv
         table_VTE_csv_unvac: output/postopVTE_procedure_specific_unvac.csv
-        table_VTE_csv_recentcovid: output/recentcovid_postopVTE_procedure_specific.csv
+        table_VTE_csv_recentcovid: output/recentcovid_procedure_specific.csv
         table_VTE_csv_recent_unvac: output/recentcovid_postopVTE_procedure_specific_unvac.csv
         model_VTE: output/postopVTEmodel_procedure_specific.html
         model_VTE_txt: output/postopVTEmodel_procedure_specific.txt
         plot_VTE_waves: output/VTE_waves_procedure_specific.png
         plot_VTE_waves_unvac: output/VTE_waves_procedure_specific_unvac.png
-        plot_VTE_waves_recentcovid: output/recentcovid_VTE_waves_procedure_specific.png
+        plot_VTE_waves_recentcovid: output/recentcovid_VTE_procedure_specific.png
         plot_VTE_waves_recent_unvac: output/recentcovid_VTE_waves_procedure_specific_unvac.png
         
   table_postopVTErates:      
