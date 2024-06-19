@@ -33,7 +33,7 @@ n.type.events <- sort(unique(dt.tv[(postcovid.VTE.cohort)  & sub.op == T,event.V
 
 post.op.VTE.model <- 
   lapply(n.type.events, function(i) survival::coxph(survival::Surv(start,end,event.VTE==i) ~ Colectomy*wave + Cholecystectomy*wave +  HipReplacement*wave + KneeReplacement*wave + postcovid*wave  + age.cat +
-                                                      sex +  imd5 + vaccination.status.factor  + Current.Cancer + Charl12 + recentCOVID*wave + previousCOVID*wave, id = patient_id,
+                                                      sex +  imd5 + vaccination.status.factor  + Current.Cancer + Charl12 + recentCOVID*wave, id = patient_id,
                                                     data = dt.tv[(postcovid.VTE.cohort) & sub.op == T], model = T))
 
 #data.table::fwrite(broom::tidy(post.op.VTE.model[[1]], exponentiate= T, conf.int = T), file = here::here("output","postopVTEmodel.csv"))
